@@ -57,6 +57,31 @@ func TestRefreshFormBaseConfigPreservesDatabaseName(t *testing.T) {
 	}
 }
 
+// TestRefreshBaseConfigInvokesSecurityReloader 验证配置刷新后调用安全运行时重载回调。
+func TestRefreshBaseConfigInvokesSecurityReloader(t *testing.T) {
+	cache, cleanup, err := memory.NewMemory()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer cleanup()
+	_, database := newSecurityData(t, new(models.BaseConfig))
+	configCase := &BaseConfigCase{
+		BaseCase:             &biz.BaseCase{Cache: cache},
+		BaseConfigRepository: data.NewBaseConfigRepository(database),
+	}
+	calls := 0
+	configCase.SetSecurityConfigReloader(func() error {
+		calls++
+		return nil
+	})
+	if err = configCase.RefreshBaseConfig(t.Context()); err != nil {
+		t.Fatal(err)
+	}
+	if calls != 1 {
+		t.Fatalf("security reloader 调用次数 = %d，期望 1", calls)
+	}
+}
+
 // TestValidateBaseConfigValue 验证新增 JSON、动态列表和多文本配置的持久化结构。
 func TestValidateBaseConfigValue(t *testing.T) {
 	for _, test := range []struct {

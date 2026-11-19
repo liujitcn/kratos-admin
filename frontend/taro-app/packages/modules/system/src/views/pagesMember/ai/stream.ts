@@ -1,13 +1,49 @@
 import type { AiMessage, AiSession } from '../../../rpc/base/v1/ai_session'
+import type { AiToolCall } from '../../../rpc/base/v1/ai_tool'
 
 /** AI 助手流事件名称。 */
-export type AiStreamEventName = 'delta' | 'finish' | 'error'
+export type AiStreamEventName = 'delta' | 'activity' | 'finish' | 'approval_required' | 'error'
+
+/** AI 助手运行活动。 */
+export type AiStreamActivity = {
+  id: string
+  phase: string
+  status: string
+  summary?: string
+  tool_name?: string
+  tool_title?: string
+}
+
+/** 流式工具记录附带本轮调用 ID，最终消息仍使用后端返回的工具列表。 */
+export type AiStreamTool = AiToolCall & { activityId?: string }
+
+/** 按调用 ID 更新工具活动，推理和回答等阶段不计入工具列表。 */
+export function mergeAiToolActivity(tools: AiStreamTool[], activity: AiStreamActivity): AiStreamTool[] {
+  if (activity.phase !== 'tool') return tools
+  const index = tools.findIndex((tool) => tool.activityId === activity.id)
+  const previous = tools[index]
+  const tool: AiStreamTool = {
+    activityId: activity.id,
+    type: 'activity',
+    name: activity.tool_name || previous?.name || activity.id,
+    title: activity.tool_title || previous?.title || activity.summary || activity.phase,
+    status: activity.status,
+    input: '',
+    output: activity.summary || previous?.output || '',
+  }
+  if (index === -1) return [...tools, tool]
+  const next = tools.slice()
+  next[index] = tool
+  return next
+}
 
 /** AI 助手流事件负载。 */
 export type AiStreamPayload = {
   session_id: string
   message_id: string
   delta?: string
+  /** 本次运行活动更新。 */
+  activity?: AiStreamActivity
   messages?: AiMessage[]
   session?: AiSession
 }
@@ -29,7 +65,13 @@ export type AiEventStreamTextParser = {
   flush: () => void
 }
 
-const STREAM_EVENT_NAMES = new Set<AiStreamEventName>(['delta', 'finish', 'error'])
+const STREAM_EVENT_NAMES = new Set<AiStreamEventName>([
+  'delta',
+  'activity',
+  'finish',
+  'approval_required',
+  'error',
+])
 
 function createSseTextParser(handler: AiStreamEventHandler) {
   let currentItem: SseOutput = {}

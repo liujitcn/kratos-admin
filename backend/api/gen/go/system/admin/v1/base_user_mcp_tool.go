@@ -20,6 +20,7 @@ func RegisterBaseUserServiceMCPTools(mcpServer *server.MCPServer, baseUserServic
 	RegisterBaseUserServiceOptionBaseUserMCPTool(mcpServer, baseUserServiceServer)
 	RegisterBaseUserServiceListBaseUserMCPTool(mcpServer, baseUserServiceServer)
 	RegisterBaseUserServicePageBaseUserMCPTool(mcpServer, baseUserServiceServer)
+	RegisterBaseUserServiceSummaryBaseUserMCPTool(mcpServer, baseUserServiceServer)
 	RegisterBaseUserServiceGetBaseUserMCPTool(mcpServer, baseUserServiceServer)
 	RegisterBaseUserServiceCreateBaseUserMCPTool(mcpServer, baseUserServiceServer)
 	RegisterBaseUserServiceUpdateBaseUserMCPTool(mcpServer, baseUserServiceServer)
@@ -27,7 +28,6 @@ func RegisterBaseUserServiceMCPTools(mcpServer *server.MCPServer, baseUserServic
 	RegisterBaseUserServiceSetBaseUserStatusMCPTool(mcpServer, baseUserServiceServer)
 	RegisterBaseUserServiceResetBaseUserPasswordMCPTool(mcpServer, baseUserServiceServer)
 	RegisterBaseUserServiceSetBaseUserAppRoleMCPTool(mcpServer, baseUserServiceServer)
-	RegisterBaseUserServiceSummaryBaseUserMCPTool(mcpServer, baseUserServiceServer)
 }
 
 // RegisterBaseUserServiceOptionBaseUserMCPTool 注册查询用户下拉选择的 MCP Tool。
@@ -102,6 +102,30 @@ func RegisterBaseUserServicePageBaseUserMCPTool(mcpServer *server.MCPServer, bas
 	)
 }
 
+// RegisterBaseUserServiceSummaryBaseUserMCPTool 注册汇总用户注册数据的 MCP Tool。
+func RegisterBaseUserServiceSummaryBaseUserMCPTool(mcpServer *server.MCPServer, baseUserServiceServer BaseUserServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("system_admin_v1_base_user_service_summary_base_user",
+			mcp.WithDescription("汇总用户注册数据"),
+			mcp.WithInputSchema[*SummaryBaseUserRequest](),
+			mcp.WithOutputSchema[*SummaryBaseUserResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &SummaryBaseUserRequest{}
+			err := request.BindArguments(req)
+			if err != nil {
+				return nil, err
+			}
+			var reply *SummaryBaseUserResponse
+			reply, err = baseUserServiceServer.SummaryBaseUser(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
+		},
+	)
+}
+
 // RegisterBaseUserServiceGetBaseUserMCPTool 注册查询用户的 MCP Tool。
 func RegisterBaseUserServiceGetBaseUserMCPTool(mcpServer *server.MCPServer, baseUserServiceServer BaseUserServiceServer) {
 	mcpServer.AddTool(
@@ -126,11 +150,11 @@ func RegisterBaseUserServiceGetBaseUserMCPTool(mcpServer *server.MCPServer, base
 	)
 }
 
-// RegisterBaseUserServiceCreateBaseUserMCPTool 注册创建用户的 MCP Tool。
+// RegisterBaseUserServiceCreateBaseUserMCPTool 注册 MCP 工具。
 func RegisterBaseUserServiceCreateBaseUserMCPTool(mcpServer *server.MCPServer, baseUserServiceServer BaseUserServiceServer) {
 	mcpServer.AddTool(
 		mcp.NewTool("system_admin_v1_base_user_service_create_base_user",
-			mcp.WithDescription("创建用户"),
+			mcp.WithDescription("Admin用户管理服务 - CreateBaseUser"),
 			mcp.WithInputSchema[*CreateBaseUserRequest](),
 			mcp.WithOutputSchema[*emptypb.Empty](),
 		),
@@ -262,30 +286,6 @@ func RegisterBaseUserServiceSetBaseUserAppRoleMCPTool(mcpServer *server.MCPServe
 			}
 			var reply *emptypb.Empty
 			reply, err = baseUserServiceServer.SetBaseUserAppRole(ctx, req)
-			if err != nil {
-				return mcp.NewToolResultError(err.Error()), nil
-			}
-			return mcp.NewToolResultJSON(reply)
-		},
-	)
-}
-
-// RegisterBaseUserServiceSummaryBaseUserMCPTool 注册汇总用户注册数据的 MCP Tool。
-func RegisterBaseUserServiceSummaryBaseUserMCPTool(mcpServer *server.MCPServer, baseUserServiceServer BaseUserServiceServer) {
-	mcpServer.AddTool(
-		mcp.NewTool("system_admin_v1_base_user_service_summary_base_user",
-			mcp.WithDescription("汇总用户注册数据"),
-			mcp.WithInputSchema[*SummaryBaseUserRequest](),
-			mcp.WithOutputSchema[*SummaryBaseUserResponse](),
-		),
-		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-			req := &SummaryBaseUserRequest{}
-			err := request.BindArguments(req)
-			if err != nil {
-				return nil, err
-			}
-			var reply *SummaryBaseUserResponse
-			reply, err = baseUserServiceServer.SummaryBaseUser(ctx, req)
 			if err != nil {
 				return mcp.NewToolResultError(err.Error()), nil
 			}

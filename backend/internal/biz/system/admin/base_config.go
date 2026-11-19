@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"sync"
 
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 
@@ -31,11 +32,13 @@ import (
 type BaseConfigCase struct {
 	*biz.BaseCase
 	*data.BaseConfigRepository
-	tx           data.Transaction
-	baseI18nCase *BaseI18nCase
-	secretFields *kit.SecretFieldRuntime
-	formMapper   *mapper.CopierMapper[adminv1.BaseConfigForm, models.BaseConfig]
-	mapper       *mapper.CopierMapper[adminv1.BaseConfig, models.BaseConfig]
+	tx             data.Transaction
+	baseI18nCase   *BaseI18nCase
+	secretFields   *kit.SecretFieldRuntime
+	formMapper     *mapper.CopierMapper[adminv1.BaseConfigForm, models.BaseConfig]
+	mapper         *mapper.CopierMapper[adminv1.BaseConfig, models.BaseConfig]
+	reloadSecurity func() error
+	refreshMu      sync.Mutex
 }
 
 // NewBaseConfigCase 创建配置业务实例
@@ -51,6 +54,35 @@ func NewBaseConfigCase(baseCase *biz.BaseCase, tx data.Transaction, baseConfigRe
 	}
 }
 
+// SetSecurityConfigReloader 设置安全运行配置重载回调，由模块装配层注入。
+func (c *BaseConfigCase) SetSecurityConfigReloader(reloader func() error) {
+	c.reloadSecurity = reloader
+}
+
+// refreshAfterWrite 刷新站点缓存并在需要时重载安全运行配置。
+func (c *BaseConfigCase) refreshAfterWrite(ctx context.Context, sites ...int32) error {
+	// 同一进程按顺序刷新缓存并发布快照，防止并发刷新用旧快照覆盖新配置。
+	c.refreshMu.Lock()
+	defer c.refreshMu.Unlock()
+
+	seen := make(map[int32]struct{}, len(sites))
+	for _, site := range sites {
+		if _, ok := seen[site]; ok {
+			continue
+		}
+		seen[site] = struct{}{}
+		if err := c.refreshBaseConfigSite(ctx, site); err != nil {
+			return err
+		}
+	}
+	if _, ok := seen[_const.BASE_CONFIG_SITE_SYSTEM]; ok && c.reloadSecurity != nil {
+		if err := c.reloadSecurity(); err != nil {
+			return fmt.Errorf("重载安全运行配置失败: %w", err)
+		}
+	}
+	return nil
+}
+
 // RefreshBaseConfig 刷新配置缓存
 func (c *BaseConfigCase) RefreshBaseConfig(ctx context.Context) error {
 	sites := []int32{
@@ -58,14 +90,7 @@ func (c *BaseConfigCase) RefreshBaseConfig(ctx context.Context) error {
 		_const.BASE_CONFIG_SITE_ADMIN,
 		_const.BASE_CONFIG_SITE_APP,
 	}
-	var err error
-	for _, site := range sites {
-		err = c.refreshBaseConfigSite(ctx, site)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+	return c.refreshAfterWrite(ctx, sites...)
 }
 
 // PageBaseConfig 分页查询配置
@@ -212,7 +237,7 @@ func (c *BaseConfigCase) SetConfigValue(ctx context.Context, site int32, key, va
 	if err != nil {
 		return err
 	}
-	return c.refreshBaseConfigSite(ctx, site)
+	return c.refreshAfterWrite(ctx, site)
 }
 
 // CreateBaseConfig 创建配置并校验表单类型的结构和值域。
@@ -242,7 +267,7 @@ func (c *BaseConfigCase) CreateBaseConfig(ctx context.Context, req *adminv1.Base
 	if err != nil {
 		return err
 	}
-	return c.refreshBaseConfigSite(ctx, entity.Site)
+	return c.refreshAfterWrite(ctx, entity.Site)
 }
 
 // UpdateBaseConfig 更新配置，合并表单敏感值并刷新运行缓存。
@@ -284,13 +309,8 @@ func (c *BaseConfigCase) UpdateBaseConfig(ctx context.Context, req *adminv1.Base
 	if err != nil {
 		return err
 	}
-	if err := c.refreshBaseConfigSite(ctx, oldConfig.Site); err != nil {
+	if err := c.refreshAfterWrite(ctx, oldConfig.Site, entity.Site); err != nil {
 		return err
-	}
-	if oldConfig.Site != entity.Site {
-		if err := c.refreshBaseConfigSite(ctx, entity.Site); err != nil {
-			return err
-		}
 	}
 	return nil
 }
@@ -323,13 +343,11 @@ func (c *BaseConfigCase) DeleteBaseConfig(ctx context.Context, id string) error 
 	for _, item := range list {
 		sites[item.Site] = struct{}{}
 	}
+	siteList := make([]int32, 0, len(sites))
 	for site := range sites {
-		err = c.refreshBaseConfigSite(ctx, site)
-		if err != nil {
-			return err
-		}
+		siteList = append(siteList, site)
 	}
-	return nil
+	return c.refreshAfterWrite(ctx, siteList...)
 }
 
 // SetBaseConfigStatus 设置配置状态
@@ -355,7 +373,7 @@ func (c *BaseConfigCase) SetBaseConfigStatus(ctx context.Context, req *adminv1.S
 		return err
 	}
 
-	err = c.refreshBaseConfigSite(ctx, baseConfig.Site)
+	err = c.refreshAfterWrite(ctx, baseConfig.Site)
 	if err != nil {
 		return err
 	}

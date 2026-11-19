@@ -17,6 +17,7 @@
       :model="formData"
       :fields="formFields"
       :rules="rules"
+      :confirm-loading="submitting"
       @confirm="handleSubmit"
       @close="handleCloseDialog"
     />
@@ -111,6 +112,8 @@ defineOptions({
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
+/** 提交进行中标记，用于确定按钮 loading。 */
+const submitting = ref(false);
 
 const dialog = reactive({
   titleKey: "common.action.create_resource",
@@ -369,38 +372,43 @@ function resetForm() {
 }
 
 /**
- * 提交租户表单。
+ * 提交租户表单；提交期间在确定按钮上展示 loading，避免慢请求（初始化播种）时重复点击。
  */
 async function handleSubmit() {
   const valid = await formDialogRef.value?.validate();
   if (!valid) return;
 
-  const submitData = JSON.parse(JSON.stringify(formData)) as BaseTenantForm;
-  if (submitData.id) {
-    await defBaseTenantService.UpdateBaseTenant({ base_tenant: submitData });
-    invalidateTenantOptions();
-    ElMessage.success(t("common.message.update_success", { resource: t("common.field.tenant") }));
-  } else {
-    const response = await defBaseTenantService.CreateBaseTenant({ base_tenant: submitData });
-    invalidateTenantOptions();
-    ElMessage.success(
-      response.initial_password
-        ? t("common.message.create_success", { resource: t("common.field.tenant") })
-        : t("system.workflow.approval.message.submitted")
-    );
+  submitting.value = true;
+  try {
+    const submitData = JSON.parse(JSON.stringify(formData)) as BaseTenantForm;
+    if (submitData.id) {
+      await defBaseTenantService.UpdateBaseTenant({ base_tenant: submitData });
+      invalidateTenantOptions();
+      ElMessage.success(t("common.message.update_success", { resource: t("common.field.tenant") }));
+    } else {
+      const response = await defBaseTenantService.CreateBaseTenant({ base_tenant: submitData });
+      invalidateTenantOptions();
+      ElMessage.success(
+        response.initial_password
+          ? t("common.message.create_success", { resource: t("common.field.tenant") })
+          : t("system.workflow.approval.message.submitted")
+      );
+      handleCloseDialog();
+      refreshTable();
+      if (response.initial_password) {
+        credentialsDialog.tenant_code = response.tenant_code;
+        credentialsDialog.admin_user_name = response.admin_user_name;
+        credentialsDialog.initial_password = response.initial_password;
+        credentialsDialog.passwordVisible = false;
+        credentialsDialog.visible = true;
+      }
+      return;
+    }
     handleCloseDialog();
     refreshTable();
-    if (response.initial_password) {
-      credentialsDialog.tenant_code = response.tenant_code;
-      credentialsDialog.admin_user_name = response.admin_user_name;
-      credentialsDialog.initial_password = response.initial_password;
-      credentialsDialog.passwordVisible = false;
-      credentialsDialog.visible = true;
-    }
-    return;
+  } finally {
+    submitting.value = false;
   }
-  handleCloseDialog();
-  refreshTable();
 }
 
 /** 关闭凭据弹窗并清除一次性凭据。 */

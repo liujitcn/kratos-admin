@@ -6,6 +6,6 @@ data:
     source: root:ENC[QH6KACJgbVXqV1eIwiLF32ukdKmNT1rou1BC8_SK8BeXAA]@tcp(127.0.0.1:3306)/kratos_admin?charset=utf8mb4&parseTime=True&loc=Local&timeout=1000ms
   redis:
     addr:
-      - 192.168.60.83:6379
+      - 127.0.0.1:6379
     db: 0
     password: ENC[fLCiIN1T839HM0wq4MteOFU7hFyResR1n0lne4sSBrVx7g]

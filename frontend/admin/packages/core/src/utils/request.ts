@@ -21,6 +21,7 @@ const REFRESH_TOKEN_TRANSPORT_COOKIE = "cookie";
 const PASSWORD_CHANGE_REQUIRED_METADATA_KEY = "password_change_required";
 const PASSWORD_CHANGE_STATE_STORAGE_KEY = "admin-password-change-required";
 const CAPTCHA_URL = "/v1/base/captcha";
+const CAPTCHA_VERIFY_URL = "/v1/base/captcha/verify";
 const CONFIG_URL = "/v1/base/config";
 const LANGUAGE_URL = "/v1/base/language";
 const SECRET_PUBLIC_KEY_URL = "/v1/base/secret-public-key";
@@ -35,6 +36,7 @@ const NO_AUTH_URL_SET = new Set([
   SESSION_URL,
   TOKEN_URL,
   CAPTCHA_URL,
+  CAPTCHA_VERIFY_URL,
   CONFIG_URL,
   LANGUAGE_URL,
   SECRET_PUBLIC_KEY_URL,
@@ -49,6 +51,7 @@ const AUTH_EXPIRED_EXCLUDED_URL_SET = new Set([
   SESSION_URL,
   TOKEN_URL,
   CAPTCHA_URL,
+  CAPTCHA_VERIFY_URL,
   CONFIG_URL,
   LANGUAGE_URL,
   SECRET_PUBLIC_KEY_URL,

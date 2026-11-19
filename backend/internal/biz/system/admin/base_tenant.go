@@ -235,6 +235,7 @@ func (c *BaseTenantCase) CreateBaseTenant(ctx context.Context, req *adminv1.Base
 
 // submitTenantApproval 创建待审批占位租户并提交默认审批流程。
 func (c *BaseTenantCase) submitTenantApproval(ctx context.Context, req *adminv1.BaseTenantForm) (*adminv1.CreateBaseTenantResponse, error) {
+	startedAt := time.Now()
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
@@ -247,6 +248,7 @@ func (c *BaseTenantCase) submitTenantApproval(ctx context.Context, req *adminv1.
 	if err != nil {
 		return nil, err
 	}
+	log.Info("新增租户占位创建完成", "tenant_id", baseTenant.ID, "duration_ms", time.Since(startedAt).Milliseconds())
 	formDataValue := proto.CloneOf(req)
 	formDataValue.Id = 0
 	formDataValue.Code = baseTenant.Code
@@ -262,6 +264,7 @@ func (c *BaseTenantCase) submitTenantApproval(ctx context.Context, req *adminv1.
 		BusinessType: baseTenantCreateBusinessType,
 		BusinessID:   baseTenant.ID,
 	})
+	log.Info("新增租户审批提交完成", "tenant_id", baseTenant.ID, "duration_ms", time.Since(startedAt).Milliseconds())
 	if err != nil {
 		_ = c.removeTenantPlaceholder(context.WithoutCancel(ctx), baseTenant.ID)
 		return nil, err
@@ -295,6 +298,7 @@ func (c *BaseTenantCase) createTenantPlaceholder(ctx context.Context, req *admin
 
 // completeTenantCreation 审批通过后初始化租户默认资源并按申请状态启用租户。
 func (c *BaseTenantCase) completeTenantCreation(ctx context.Context, tenantID, notificationTenantID, applicantUserID, instanceID int64, requestedStatus int32, idempotencyKey string) (*adminv1.CreateBaseTenantResponse, error) {
+	startedAt := time.Now()
 	var response *adminv1.CreateBaseTenantResponse
 	err := c.tx.Transaction(ctx, func(ctx context.Context) error {
 		baseTenant, err := c.FindByID(ctx, tenantID)
@@ -316,6 +320,7 @@ func (c *BaseTenantCase) completeTenantCreation(ctx context.Context, tenantID, n
 			return err
 		}
 		response, err = c.initTenantDefaults(ctx, baseTenant)
+		log.Info("新增租户默认资源初始化完成", "tenant_id", tenantID, "duration_ms", time.Since(startedAt).Milliseconds())
 		if err != nil {
 			return err
 		}
@@ -344,6 +349,7 @@ func (c *BaseTenantCase) completeTenantCreation(ctx context.Context, tenantID, n
 			Source:        "tenant", IdempotencyKey: idempotencyKey,
 			SenderName: c.localizeTenantDefault(biz.LocaleFromContext(ctx), "system.notification.sender.system", "系统"),
 		})
+		log.Info("新增租户完成通知写入完成", "tenant_id", tenantID, "duration_ms", time.Since(startedAt).Milliseconds())
 		return err
 	})
 	return response, err

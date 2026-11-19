@@ -25,7 +25,6 @@ export default defineAppConfig({
         "ai/index",
         "message/detail",
         "message/index",
-        "password/password",
         "profile/profile",
         "settings/settings"
       ]

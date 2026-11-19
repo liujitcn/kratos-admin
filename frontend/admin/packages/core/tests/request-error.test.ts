@@ -70,6 +70,19 @@ test("公共认证接口返回 401 时展示后端业务错误", async () => {
   );
 });
 
+test("验证码预校验由请求层提示错误，页面负责重置", async () => {
+  const [request, login] = await Promise.all([
+    readFile(join(process.cwd(), "src/utils/request.ts"), "utf8"),
+    readFile(join(process.cwd(), "src/views/login/components/LoginForm.vue"), "utf8")
+  ]);
+  assert.match(request, /const CAPTCHA_VERIFY_URL = "\/v1\/base\/captcha\/verify"/);
+  assert.match(request, /AUTH_EXPIRED_EXCLUDED_URL_SET = new Set\(\[[^\]]*CAPTCHA_VERIFY_URL/);
+  const verifyBehaviorCaptcha = login.match(/const verifyBehaviorCaptcha = [\s\S]*?\n\};/)?.[0];
+  assert.ok(verifyBehaviorCaptcha);
+  assert.match(verifyBehaviorCaptcha, /reset\(\);\s*await getCaptcha\(\);/);
+  assert.doesNotMatch(verifyBehaviorCaptcha, /ElMessage\.error/);
+});
+
 test("唯一约束冲突显示资源和字段", () => {
   const messages: Record<string, string> = {
     "common.error.conflict": "资源状态冲突",

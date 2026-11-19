@@ -36,14 +36,19 @@ service BaseUserService {
     };
   }
 
+  // 汇总用户注册数据
+  rpc SummaryBaseUser(SummaryBaseUserRequest) returns (SummaryBaseUserResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/base/user/summary"
+    };
+  }
+
   // 查询用户
   rpc GetBaseUser(GetBaseUserRequest) returns (BaseUserForm) {
     option (google.api.http) = {
       get: "/api/v1/admin/base/user/{id}"
     };
   }
-
-  // 创建用户
   rpc CreateBaseUser(CreateBaseUserRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/api/v1/admin/base/user"
@@ -87,13 +92,6 @@ service BaseUserService {
     option (google.api.http) = {
       put: "/api/v1/admin/base/user/{user_id}/app-role"
       body: "*"
-    };
-  }
-
-  // 汇总用户注册数据
-  rpc SummaryBaseUser(SummaryBaseUserRequest) returns (SummaryBaseUserResponse) {
-    option (google.api.http) = {
-      get: "/api/v1/admin/base/user/summary"
     };
   }
 }

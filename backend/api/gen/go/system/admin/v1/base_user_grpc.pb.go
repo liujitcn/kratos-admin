@@ -25,6 +25,7 @@ const (
 	BaseUserService_OptionBaseUser_FullMethodName        = "/system.admin.v1.BaseUserService/OptionBaseUser"
 	BaseUserService_ListBaseUser_FullMethodName          = "/system.admin.v1.BaseUserService/ListBaseUser"
 	BaseUserService_PageBaseUser_FullMethodName          = "/system.admin.v1.BaseUserService/PageBaseUser"
+	BaseUserService_SummaryBaseUser_FullMethodName       = "/system.admin.v1.BaseUserService/SummaryBaseUser"
 	BaseUserService_GetBaseUser_FullMethodName           = "/system.admin.v1.BaseUserService/GetBaseUser"
 	BaseUserService_CreateBaseUser_FullMethodName        = "/system.admin.v1.BaseUserService/CreateBaseUser"
 	BaseUserService_UpdateBaseUser_FullMethodName        = "/system.admin.v1.BaseUserService/UpdateBaseUser"
@@ -32,7 +33,6 @@ const (
 	BaseUserService_SetBaseUserStatus_FullMethodName     = "/system.admin.v1.BaseUserService/SetBaseUserStatus"
 	BaseUserService_ResetBaseUserPassword_FullMethodName = "/system.admin.v1.BaseUserService/ResetBaseUserPassword"
 	BaseUserService_SetBaseUserAppRole_FullMethodName    = "/system.admin.v1.BaseUserService/SetBaseUserAppRole"
-	BaseUserService_SummaryBaseUser_FullMethodName       = "/system.admin.v1.BaseUserService/SummaryBaseUser"
 )
 
 // BaseUserServiceClient is the client API for BaseUserService service.
@@ -47,9 +47,10 @@ type BaseUserServiceClient interface {
 	ListBaseUser(ctx context.Context, in *ListBaseUserRequest, opts ...grpc.CallOption) (*ListBaseUserResponse, error)
 	// 查询用户分页列表
 	PageBaseUser(ctx context.Context, in *PageBaseUserRequest, opts ...grpc.CallOption) (*PageBaseUserResponse, error)
+	// 汇总用户注册数据
+	SummaryBaseUser(ctx context.Context, in *SummaryBaseUserRequest, opts ...grpc.CallOption) (*SummaryBaseUserResponse, error)
 	// 查询用户
 	GetBaseUser(ctx context.Context, in *GetBaseUserRequest, opts ...grpc.CallOption) (*BaseUserForm, error)
-	// 创建用户
 	CreateBaseUser(ctx context.Context, in *CreateBaseUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 更新用户
 	UpdateBaseUser(ctx context.Context, in *UpdateBaseUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -61,8 +62,6 @@ type BaseUserServiceClient interface {
 	ResetBaseUserPassword(ctx context.Context, in *ResetBaseUserPasswordRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 设置基础用户应用端角色
 	SetBaseUserAppRole(ctx context.Context, in *SetBaseUserAppRoleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// 汇总用户注册数据
-	SummaryBaseUser(ctx context.Context, in *SummaryBaseUserRequest, opts ...grpc.CallOption) (*SummaryBaseUserResponse, error)
 }
 
 type baseUserServiceClient struct {
@@ -97,6 +96,16 @@ func (c *baseUserServiceClient) PageBaseUser(ctx context.Context, in *PageBaseUs
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(PageBaseUserResponse)
 	err := c.cc.Invoke(ctx, BaseUserService_PageBaseUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *baseUserServiceClient) SummaryBaseUser(ctx context.Context, in *SummaryBaseUserRequest, opts ...grpc.CallOption) (*SummaryBaseUserResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SummaryBaseUserResponse)
+	err := c.cc.Invoke(ctx, BaseUserService_SummaryBaseUser_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -173,16 +182,6 @@ func (c *baseUserServiceClient) SetBaseUserAppRole(ctx context.Context, in *SetB
 	return out, nil
 }
 
-func (c *baseUserServiceClient) SummaryBaseUser(ctx context.Context, in *SummaryBaseUserRequest, opts ...grpc.CallOption) (*SummaryBaseUserResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SummaryBaseUserResponse)
-	err := c.cc.Invoke(ctx, BaseUserService_SummaryBaseUser_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // BaseUserServiceServer is the server API for BaseUserService service.
 // All implementations must embed UnimplementedBaseUserServiceServer
 // for forward compatibility.
@@ -195,9 +194,10 @@ type BaseUserServiceServer interface {
 	ListBaseUser(context.Context, *ListBaseUserRequest) (*ListBaseUserResponse, error)
 	// 查询用户分页列表
 	PageBaseUser(context.Context, *PageBaseUserRequest) (*PageBaseUserResponse, error)
+	// 汇总用户注册数据
+	SummaryBaseUser(context.Context, *SummaryBaseUserRequest) (*SummaryBaseUserResponse, error)
 	// 查询用户
 	GetBaseUser(context.Context, *GetBaseUserRequest) (*BaseUserForm, error)
-	// 创建用户
 	CreateBaseUser(context.Context, *CreateBaseUserRequest) (*emptypb.Empty, error)
 	// 更新用户
 	UpdateBaseUser(context.Context, *UpdateBaseUserRequest) (*emptypb.Empty, error)
@@ -209,8 +209,6 @@ type BaseUserServiceServer interface {
 	ResetBaseUserPassword(context.Context, *ResetBaseUserPasswordRequest) (*emptypb.Empty, error)
 	// 设置基础用户应用端角色
 	SetBaseUserAppRole(context.Context, *SetBaseUserAppRoleRequest) (*emptypb.Empty, error)
-	// 汇总用户注册数据
-	SummaryBaseUser(context.Context, *SummaryBaseUserRequest) (*SummaryBaseUserResponse, error)
 	mustEmbedUnimplementedBaseUserServiceServer()
 }
 
@@ -229,6 +227,9 @@ func (UnimplementedBaseUserServiceServer) ListBaseUser(context.Context, *ListBas
 }
 func (UnimplementedBaseUserServiceServer) PageBaseUser(context.Context, *PageBaseUserRequest) (*PageBaseUserResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method PageBaseUser not implemented")
+}
+func (UnimplementedBaseUserServiceServer) SummaryBaseUser(context.Context, *SummaryBaseUserRequest) (*SummaryBaseUserResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SummaryBaseUser not implemented")
 }
 func (UnimplementedBaseUserServiceServer) GetBaseUser(context.Context, *GetBaseUserRequest) (*BaseUserForm, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetBaseUser not implemented")
@@ -250,9 +251,6 @@ func (UnimplementedBaseUserServiceServer) ResetBaseUserPassword(context.Context,
 }
 func (UnimplementedBaseUserServiceServer) SetBaseUserAppRole(context.Context, *SetBaseUserAppRoleRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method SetBaseUserAppRole not implemented")
-}
-func (UnimplementedBaseUserServiceServer) SummaryBaseUser(context.Context, *SummaryBaseUserRequest) (*SummaryBaseUserResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method SummaryBaseUser not implemented")
 }
 func (UnimplementedBaseUserServiceServer) mustEmbedUnimplementedBaseUserServiceServer() {}
 func (UnimplementedBaseUserServiceServer) testEmbeddedByValue()                         {}
@@ -325,6 +323,24 @@ func _BaseUserService_PageBaseUser_Handler(srv interface{}, ctx context.Context,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BaseUserServiceServer).PageBaseUser(ctx, req.(*PageBaseUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BaseUserService_SummaryBaseUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SummaryBaseUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BaseUserServiceServer).SummaryBaseUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BaseUserService_SummaryBaseUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BaseUserServiceServer).SummaryBaseUser(ctx, req.(*SummaryBaseUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -455,24 +471,6 @@ func _BaseUserService_SetBaseUserAppRole_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BaseUserService_SummaryBaseUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SummaryBaseUserRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(BaseUserServiceServer).SummaryBaseUser(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: BaseUserService_SummaryBaseUser_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseUserServiceServer).SummaryBaseUser(ctx, req.(*SummaryBaseUserRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // BaseUserService_ServiceDesc is the grpc.ServiceDesc for BaseUserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -491,6 +489,10 @@ var BaseUserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PageBaseUser",
 			Handler:    _BaseUserService_PageBaseUser_Handler,
+		},
+		{
+			MethodName: "SummaryBaseUser",
+			Handler:    _BaseUserService_SummaryBaseUser_Handler,
 		},
 		{
 			MethodName: "GetBaseUser",
@@ -519,10 +521,6 @@ var BaseUserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetBaseUserAppRole",
 			Handler:    _BaseUserService_SetBaseUserAppRole_Handler,
-		},
-		{
-			MethodName: "SummaryBaseUser",
-			Handler:    _BaseUserService_SummaryBaseUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

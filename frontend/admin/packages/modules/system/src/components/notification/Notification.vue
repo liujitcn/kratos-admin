@@ -3,7 +3,7 @@
     v-bind="$attrs"
     v-model:visible="popoverVisible"
     placement="bottom-end"
-    :width="360"
+    width="min(360px, calc(100vw - 24px))"
     trigger="click"
     @show="refresh"
   >
@@ -227,11 +227,20 @@ function resolveNotificationIcon(icon: string) {
 }
 
 .notification-panel {
+  box-sizing: border-box;
+  min-width: 0;
   min-height: 160px;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .notification-list {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   max-height: min(440px, calc(100vh - 240px));
+  overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
 }
@@ -244,9 +253,10 @@ function resolveNotificationIcon(icon: string) {
 }
 
 .notification-item {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: flex-start;
   width: 100%;
   padding: 10px 0;
   border: 0;
@@ -255,6 +265,19 @@ function resolveNotificationIcon(icon: string) {
   color: var(--el-text-color-primary);
   cursor: pointer;
   text-align: left;
+
+  & + & {
+    margin-left: 0;
+  }
+
+  // Element Plus 用 span 包裹默认插槽，标题和时间需要在这一层分配宽度。
+  > :deep(span) {
+    display: flex;
+    flex: 1;
+    gap: 8px;
+    align-items: center;
+    min-width: 0;
+  }
 }
 
 .notification-status {
@@ -287,9 +310,11 @@ function resolveNotificationIcon(icon: string) {
 }
 
 .notification-time {
-  margin-left: 12px;
+  flex: none;
   color: var(--el-text-color-secondary);
   font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .notification-more {

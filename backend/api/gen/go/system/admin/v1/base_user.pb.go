@@ -1424,15 +1424,15 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"\x0fBaseUserService\x12\x81\x01\n" +
 	"\x0eOptionBaseUser\x12&.system.admin.v1.OptionBaseUserRequest\x1a\x1f.common.v1.SelectOptionResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/user/option\x12\x81\x01\n" +
 	"\fListBaseUser\x12$.system.admin.v1.ListBaseUserRequest\x1a%.system.admin.v1.ListBaseUserResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base/user/list\x12|\n" +
-	"\fPageBaseUser\x12$.system.admin.v1.PageBaseUserRequest\x1a%.system.admin.v1.PageBaseUserResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/admin/base/user\x12w\n" +
+	"\fPageBaseUser\x12$.system.admin.v1.PageBaseUserRequest\x1a%.system.admin.v1.PageBaseUserResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/admin/base/user\x12\x8d\x01\n" +
+	"\x0fSummaryBaseUser\x12'.system.admin.v1.SummaryBaseUserRequest\x1a(.system.admin.v1.SummaryBaseUserResponse\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/v1/admin/base/user/summary\x12w\n" +
 	"\vGetBaseUser\x12#.system.admin.v1.GetBaseUserRequest\x1a\x1d.system.admin.v1.BaseUserForm\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base/user/{id}\x12|\n" +
 	"\x0eCreateBaseUser\x12&.system.admin.v1.CreateBaseUserRequest\x1a\x16.google.protobuf.Empty\"*\x82\xd3\xe4\x93\x02$:\tbase_user\"\x17/api/v1/admin/base/user\x12\x8b\x01\n" +
 	"\x0eUpdateBaseUser\x12&.system.admin.v1.UpdateBaseUserRequest\x1a\x16.google.protobuf.Empty\"9\x82\xd3\xe4\x93\x023:\tbase_user\x1a&/api/v1/admin/base/user/{base_user.id}\x12v\n" +
 	"\x0eDeleteBaseUser\x12&.system.admin.v1.DeleteBaseUserRequest\x1a\x16.google.protobuf.Empty\"$\x82\xd3\xe4\x93\x02\x1e*\x1c/api/v1/admin/base/user/{id}\x12\x86\x01\n" +
 	"\x11SetBaseUserStatus\x12).system.admin.v1.SetBaseUserStatusRequest\x1a\x16.google.protobuf.Empty\".\x82\xd3\xe4\x93\x02(:\x01*\x1a#/api/v1/admin/base/user/{id}/status\x12\x90\x01\n" +
 	"\x15ResetBaseUserPassword\x12-.system.admin.v1.ResetBaseUserPasswordRequest\x1a\x16.google.protobuf.Empty\"0\x82\xd3\xe4\x93\x02*:\x01*\x1a%/api/v1/admin/base/user/{id}/password\x12\x8f\x01\n" +
-	"\x12SetBaseUserAppRole\x12*.system.admin.v1.SetBaseUserAppRoleRequest\x1a\x16.google.protobuf.Empty\"5\x82\xd3\xe4\x93\x02/:\x01*\x1a*/api/v1/admin/base/user/{user_id}/app-role\x12\x8d\x01\n" +
-	"\x0fSummaryBaseUser\x12'.system.admin.v1.SummaryBaseUserRequest\x1a(.system.admin.v1.SummaryBaseUserResponse\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/v1/admin/base/user/summaryB\xcf\x01\n" +
+	"\x12SetBaseUserAppRole\x12*.system.admin.v1.SetBaseUserAppRoleRequest\x1a\x16.google.protobuf.Empty\"5\x82\xd3\xe4\x93\x02/:\x01*\x1a*/api/v1/admin/base/user/{user_id}/app-roleB\xcf\x01\n" +
 	"\x13com.system.admin.v1B\rBaseUserProtoP\x01ZKgithub.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1;adminv1\xa2\x02\x03SAX\xaa\x02\x0fSystem.Admin.V1\xca\x02\x0fSystem\\Admin\\V1\xe2\x02\x1bSystem\\Admin\\V1\\GPBMetadata\xea\x02\x11System::Admin::V1b\x06proto3"
 
 var (
@@ -1500,25 +1500,25 @@ var file_system_admin_v1_base_user_proto_depIdxs = []int32{
 	1,  // 19: system.admin.v1.BaseUserService.OptionBaseUser:input_type -> system.admin.v1.OptionBaseUserRequest
 	2,  // 20: system.admin.v1.BaseUserService.ListBaseUser:input_type -> system.admin.v1.ListBaseUserRequest
 	4,  // 21: system.admin.v1.BaseUserService.PageBaseUser:input_type -> system.admin.v1.PageBaseUserRequest
-	6,  // 22: system.admin.v1.BaseUserService.GetBaseUser:input_type -> system.admin.v1.GetBaseUserRequest
-	7,  // 23: system.admin.v1.BaseUserService.CreateBaseUser:input_type -> system.admin.v1.CreateBaseUserRequest
-	8,  // 24: system.admin.v1.BaseUserService.UpdateBaseUser:input_type -> system.admin.v1.UpdateBaseUserRequest
-	9,  // 25: system.admin.v1.BaseUserService.DeleteBaseUser:input_type -> system.admin.v1.DeleteBaseUserRequest
-	10, // 26: system.admin.v1.BaseUserService.SetBaseUserStatus:input_type -> system.admin.v1.SetBaseUserStatusRequest
-	13, // 27: system.admin.v1.BaseUserService.ResetBaseUserPassword:input_type -> system.admin.v1.ResetBaseUserPasswordRequest
-	14, // 28: system.admin.v1.BaseUserService.SetBaseUserAppRole:input_type -> system.admin.v1.SetBaseUserAppRoleRequest
-	15, // 29: system.admin.v1.BaseUserService.SummaryBaseUser:input_type -> system.admin.v1.SummaryBaseUserRequest
+	15, // 22: system.admin.v1.BaseUserService.SummaryBaseUser:input_type -> system.admin.v1.SummaryBaseUserRequest
+	6,  // 23: system.admin.v1.BaseUserService.GetBaseUser:input_type -> system.admin.v1.GetBaseUserRequest
+	7,  // 24: system.admin.v1.BaseUserService.CreateBaseUser:input_type -> system.admin.v1.CreateBaseUserRequest
+	8,  // 25: system.admin.v1.BaseUserService.UpdateBaseUser:input_type -> system.admin.v1.UpdateBaseUserRequest
+	9,  // 26: system.admin.v1.BaseUserService.DeleteBaseUser:input_type -> system.admin.v1.DeleteBaseUserRequest
+	10, // 27: system.admin.v1.BaseUserService.SetBaseUserStatus:input_type -> system.admin.v1.SetBaseUserStatusRequest
+	13, // 28: system.admin.v1.BaseUserService.ResetBaseUserPassword:input_type -> system.admin.v1.ResetBaseUserPasswordRequest
+	14, // 29: system.admin.v1.BaseUserService.SetBaseUserAppRole:input_type -> system.admin.v1.SetBaseUserAppRoleRequest
 	24, // 30: system.admin.v1.BaseUserService.OptionBaseUser:output_type -> common.v1.SelectOptionResponse
 	3,  // 31: system.admin.v1.BaseUserService.ListBaseUser:output_type -> system.admin.v1.ListBaseUserResponse
 	5,  // 32: system.admin.v1.BaseUserService.PageBaseUser:output_type -> system.admin.v1.PageBaseUserResponse
-	12, // 33: system.admin.v1.BaseUserService.GetBaseUser:output_type -> system.admin.v1.BaseUserForm
-	25, // 34: system.admin.v1.BaseUserService.CreateBaseUser:output_type -> google.protobuf.Empty
-	25, // 35: system.admin.v1.BaseUserService.UpdateBaseUser:output_type -> google.protobuf.Empty
-	25, // 36: system.admin.v1.BaseUserService.DeleteBaseUser:output_type -> google.protobuf.Empty
-	25, // 37: system.admin.v1.BaseUserService.SetBaseUserStatus:output_type -> google.protobuf.Empty
-	25, // 38: system.admin.v1.BaseUserService.ResetBaseUserPassword:output_type -> google.protobuf.Empty
-	25, // 39: system.admin.v1.BaseUserService.SetBaseUserAppRole:output_type -> google.protobuf.Empty
-	16, // 40: system.admin.v1.BaseUserService.SummaryBaseUser:output_type -> system.admin.v1.SummaryBaseUserResponse
+	16, // 33: system.admin.v1.BaseUserService.SummaryBaseUser:output_type -> system.admin.v1.SummaryBaseUserResponse
+	12, // 34: system.admin.v1.BaseUserService.GetBaseUser:output_type -> system.admin.v1.BaseUserForm
+	25, // 35: system.admin.v1.BaseUserService.CreateBaseUser:output_type -> google.protobuf.Empty
+	25, // 36: system.admin.v1.BaseUserService.UpdateBaseUser:output_type -> google.protobuf.Empty
+	25, // 37: system.admin.v1.BaseUserService.DeleteBaseUser:output_type -> google.protobuf.Empty
+	25, // 38: system.admin.v1.BaseUserService.SetBaseUserStatus:output_type -> google.protobuf.Empty
+	25, // 39: system.admin.v1.BaseUserService.ResetBaseUserPassword:output_type -> google.protobuf.Empty
+	25, // 40: system.admin.v1.BaseUserService.SetBaseUserAppRole:output_type -> google.protobuf.Empty
 	30, // [30:41] is the sub-list for method output_type
 	19, // [19:30] is the sub-list for method input_type
 	19, // [19:19] is the sub-list for extension type_name

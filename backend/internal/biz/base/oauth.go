@@ -613,6 +613,12 @@ func (c *OauthCase) getWechatMiniOpenID(ctx context.Context, code string) (strin
 	var wechatMiniProvider provider.OAuth
 	wechatMiniProvider, err = c.oauthManager.Get(oauth.WechatMini)
 	if err != nil {
+		var providerNotFound *oauth.ProviderNotFoundError
+		if errors.As(err, &providerNotFound) {
+			return "", errorsx.InvalidArgument("微信小程序登录未配置").WithMetadata(map[string]string{
+				"provider": "wechatmini",
+			})
+		}
 		return "", errorsx.Internal("微信登录配置信息错误").WithCause(err)
 	}
 	var oauthToken *provider.Token

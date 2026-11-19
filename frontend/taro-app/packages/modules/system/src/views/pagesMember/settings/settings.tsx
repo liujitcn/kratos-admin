@@ -154,7 +154,11 @@ export default function SettingsPage() {
     setLogoutLoading(true)
     try {
       await logout()
-      await Taro.navigateBack()
+      try {
+        await Taro.navigateBack()
+      } catch {
+        navigateToLogin()
+      }
     } catch (error) {
       if (!isAuthExpiredError(error)) {
         await Taro.showToast({ icon: 'none', title: t('system.settings.logout_failed') })

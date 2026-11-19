@@ -24,6 +24,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/automation"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/dto"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/securityconfig"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-admin/backend/internal/i18n"
@@ -812,9 +813,6 @@ var generatedFileExtensions = map[string]bool{
 // generatedFileURLPattern 匹配工具输出中的文件链接文本。
 var generatedFileURLPattern = regexp.MustCompile(`https?://[^\s"'<>\\]+`)
 
-// generatedFileClient 拉取外部生成文件的 HTTP 客户端。
-var generatedFileClient = &http.Client{Timeout: 30 * time.Second}
-
 // persistGeneratedToolFiles 识别工具输出中的文档产物并转存为系统持久文件。
 // 外部转换服务的签名链接存在有效期，回复落库前把产物拉取到对象存储并登记为生成文件；
 // 单个文件失败只记录日志并保留原始链接，不阻断回复落库。
@@ -941,7 +939,11 @@ func fetchGeneratedFile(ctx context.Context, rawURL string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	response, err := generatedFileClient.Do(request)
+	client, err := securityconfig.Current().AIHTTPClient(30 * time.Second)
+	if err != nil {
+		return nil, fmt.Errorf("创建生成文件安全客户端失败: %w", err)
+	}
+	response, err := client.Do(request)
 	if err != nil {
 		return nil, err
 	}

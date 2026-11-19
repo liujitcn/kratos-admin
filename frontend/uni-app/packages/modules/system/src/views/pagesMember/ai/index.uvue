@@ -34,7 +34,9 @@ import { useThemeStore } from '@liujitcn/kratos-uni-app-core/stores'
 import {
   type AiStreamEvent,
   type AiStreamPayload,
+  type AiStreamTool,
   createAiEventStreamTextParser,
+  mergeAiToolActivity,
   parseAiEventStreamText,
   readAiEventStream,
 } from './stream'
@@ -49,7 +51,7 @@ type ChatMessageItem = AiMessage & {
   role: ChatRole
   content: string
   status: AiMessageStatus
-  tools: AiToolCall[]
+  tools: AiStreamTool[]
   model: string
   replySource: string
   fallback: boolean
@@ -654,13 +656,30 @@ async function runAiTask(
   }
 }
 
-/** 流式事件分发：增量进缓冲合并，完成走收尾流程，其余按错误处理。 */
+/** 流式活动：将工具运行状态合并到当前消息，避免移动端静默丢失后端 activity 事件。 */
+function handleAiActivity(payload: AiStreamPayload) {
+  const activity = payload.activity
+  if (!payload.session_id || !payload.message_id || !activity) return
+  const streamKey = buildStreamMessageKey(payload.session_id, payload.message_id)
+  const current = messages.value[payload.session_id] ?? []
+  const next = ensureStreamingMessage(current, payload).map((item) => {
+    if (item.streamKey !== streamKey || item.role === 'user') return item
+    return { ...item, tools: mergeAiToolActivity(item.tools, activity) }
+  })
+  messages.value[payload.session_id] = next
+}
+
+/** 流式事件分发：活动和审批事件与文本事件保持同一轮消息生命周期。 */
 function handleAiStreamEvent(event: AiStreamEvent, task?: StreamTask) {
   if (event.event === 'delta') {
     handleAiDelta(event.payload)
     return
   }
-  if (event.event === 'finish') {
+  if (event.event === 'activity') {
+    handleAiActivity(event.payload)
+    return
+  }
+  if (event.event === 'finish' || event.event === 'approval_required') {
     handleAiFinish(event.payload, task)
     return
   }

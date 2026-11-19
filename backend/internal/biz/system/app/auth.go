@@ -160,6 +160,12 @@ func (c *AuthCase) BindUserPhone(ctx context.Context, req *appv1.BindUserPhoneRe
 		var oauthProvider provider.OAuth
 		oauthProvider, err = c.oauthManager.Get(oauth.WechatMini)
 		if err != nil {
+			var providerNotFound *oauth.ProviderNotFoundError
+			if errors.As(err, &providerNotFound) {
+				return nil, errorsx.InvalidArgument("微信小程序手机号授权未配置").WithMetadata(map[string]string{
+					"provider": "wechatmini",
+				})
+			}
 			return nil, errorsx.Internal("微信登录配置信息错误").WithCause(err)
 		}
 		var token *provider.Token

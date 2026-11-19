@@ -107,15 +107,18 @@ func NewModules(
 		tenants, err := projectGrantCase.EffectiveProjects(ctx)
 		return gorm.ProjectScope{Tenants: tenants}, err
 	})
+	baseConfigCase.SetSecurityConfigReloader(func() error {
+		config, err := loadSecurityConfig(baseConfigCase)
+		if err != nil {
+			return err
+		}
+		securityconfig.Set(config)
+		return nil
+	})
 	err = baseConfigCase.RefreshBaseConfig(context.Background())
 	if err != nil {
 		return nil, err
 	}
-	securityRuntimeConfig, err := loadSecurityConfig(baseConfigCase)
-	if err != nil {
-		return nil, err
-	}
-	securityconfig.Set(securityRuntimeConfig)
 	err = baseUserCase.RenameReservedUsers(context.Background())
 	if err != nil {
 		return nil, err

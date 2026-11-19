@@ -37,6 +37,12 @@ func NewBaseUserServiceAgentTools(baseUserServiceServer BaseUserServiceServer) (
 		return nil, err
 	}
 	ts = append(ts, pageBaseUserTool)
+	var summaryBaseUserTool tool.InvokableTool
+	summaryBaseUserTool, err = NewBaseUserServiceSummaryBaseUserAgentTool(baseUserServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, summaryBaseUserTool)
 	var getBaseUserTool tool.InvokableTool
 	getBaseUserTool, err = NewBaseUserServiceGetBaseUserAgentTool(baseUserServiceServer)
 	if err != nil {
@@ -79,12 +85,6 @@ func NewBaseUserServiceAgentTools(baseUserServiceServer BaseUserServiceServer) (
 		return nil, err
 	}
 	ts = append(ts, setBaseUserAppRoleTool)
-	var summaryBaseUserTool tool.InvokableTool
-	summaryBaseUserTool, err = NewBaseUserServiceSummaryBaseUserAgentTool(baseUserServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, summaryBaseUserTool)
 	return ts, nil
 }
 
@@ -130,6 +130,20 @@ func NewBaseUserServicePageBaseUserAgentTool(baseUserServiceServer BaseUserServi
 	)
 }
 
+// NewBaseUserServiceSummaryBaseUserAgentTool 创建汇总用户注册数据的 Agent Tool。
+func NewBaseUserServiceSummaryBaseUserAgentTool(baseUserServiceServer BaseUserServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SummaryBaseUserRequest, *SummaryBaseUserResponse](
+		"system_admin_v1_base_user_service_summary_base_user",
+		"汇总用户注册数据",
+		func(ctx context.Context, req *SummaryBaseUserRequest) (*SummaryBaseUserResponse, error) {
+			if req == nil {
+				req = &SummaryBaseUserRequest{}
+			}
+			return baseUserServiceServer.SummaryBaseUser(ctx, req)
+		},
+	)
+}
+
 // NewBaseUserServiceGetBaseUserAgentTool 创建查询用户的 Agent Tool。
 func NewBaseUserServiceGetBaseUserAgentTool(baseUserServiceServer BaseUserServiceServer) (tool.InvokableTool, error) {
 	return utils.InferTool[*GetBaseUserRequest, *BaseUserForm](
@@ -144,11 +158,11 @@ func NewBaseUserServiceGetBaseUserAgentTool(baseUserServiceServer BaseUserServic
 	)
 }
 
-// NewBaseUserServiceCreateBaseUserAgentTool 创建创建用户的 Agent Tool。
+// NewBaseUserServiceCreateBaseUserAgentTool
 func NewBaseUserServiceCreateBaseUserAgentTool(baseUserServiceServer BaseUserServiceServer) (tool.InvokableTool, error) {
 	return utils.InferTool[*CreateBaseUserRequest, *emptypb.Empty](
 		"system_admin_v1_base_user_service_create_base_user",
-		"创建用户",
+		"Admin用户管理服务 - CreateBaseUser",
 		func(ctx context.Context, req *CreateBaseUserRequest) (*emptypb.Empty, error) {
 			if req == nil {
 				req = &CreateBaseUserRequest{}
@@ -224,20 +238,6 @@ func NewBaseUserServiceSetBaseUserAppRoleAgentTool(baseUserServiceServer BaseUse
 				req = &SetBaseUserAppRoleRequest{}
 			}
 			return baseUserServiceServer.SetBaseUserAppRole(ctx, req)
-		},
-	)
-}
-
-// NewBaseUserServiceSummaryBaseUserAgentTool 创建汇总用户注册数据的 Agent Tool。
-func NewBaseUserServiceSummaryBaseUserAgentTool(baseUserServiceServer BaseUserServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*SummaryBaseUserRequest, *SummaryBaseUserResponse](
-		"system_admin_v1_base_user_service_summary_base_user",
-		"汇总用户注册数据",
-		func(ctx context.Context, req *SummaryBaseUserRequest) (*SummaryBaseUserResponse, error) {
-			if req == nil {
-				req = &SummaryBaseUserRequest{}
-			}
-			return baseUserServiceServer.SummaryBaseUser(ctx, req)
 		},
 	)
 }

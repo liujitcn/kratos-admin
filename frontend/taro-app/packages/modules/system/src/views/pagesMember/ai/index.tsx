@@ -40,7 +40,9 @@ import { loadStoredModelSelection, saveModelSelection } from './modelSelection'
 import {
   type AiStreamEvent,
   type AiStreamPayload,
+  type AiStreamTool,
   createAiEventStreamTextParser,
+  mergeAiToolActivity,
   parseAiEventStreamText,
   readAiEventStream,
 } from './stream'
@@ -54,7 +56,7 @@ type ChatMessageItem = AiMessage & {
   role: ChatRole
   content: string
   status: AiMessageStatus
-  tools: AiToolCall[]
+  tools: AiStreamTool[]
   model: string
   replySource: string
   fallback: boolean
@@ -334,12 +336,29 @@ export default function AiPage() {
     scrollChatToBottom()
   }
 
+  const appendAiActivity = (payload: AiStreamPayload) => {
+    const sessionID = payload.session_id
+    const activity = payload.activity
+    if (!sessionID || !payload.message_id || !activity) return
+    const streamKey = buildStreamMessageKey(sessionID, payload.message_id)
+    updateSessionMessages(sessionID, (current) =>
+      ensureStreamingMessage(current, payload).map((item) => {
+        if (item.streamKey !== streamKey || item.role === 'user') return item
+        return { ...item, tools: mergeAiToolActivity(item.tools, activity) }
+      }),
+    )
+  }
+
   const handleAiStreamEvent = (event: AiStreamEvent, task?: StreamTask) => {
     if (event.event === 'delta') {
       if (event.payload.delta) queueAiDelta(event.payload)
       return
     }
-    if (event.event === 'finish') {
+    if (event.event === 'activity') {
+      appendAiActivity(event.payload)
+      return
+    }
+    if (event.event === 'finish' || event.event === 'approval_required') {
       handleAiFinish(event.payload, task)
       return
     }

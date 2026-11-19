@@ -95,6 +95,17 @@ func (s *redactedBaseUserServiceServer) PageBaseUser(ctx context.Context, in *Pa
 	return res, err
 }
 
+// SummaryBaseUser is the redacted wrapper for the actual BaseUserServiceServer.SummaryBaseUser method
+// Unary RPC
+func (s *redactedBaseUserServiceServer) SummaryBaseUser(ctx context.Context, in *SummaryBaseUserRequest) (*SummaryBaseUserResponse, error) {
+	res, err := s.srv.SummaryBaseUser(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/system.admin.v1.BaseUserService/SummaryBaseUser"), redact.DirectionResponse), nil, res)
+	}
+	return res, err
+}
+
 // GetBaseUser is the redacted wrapper for the actual BaseUserServiceServer.GetBaseUser method
 // Unary RPC
 func (s *redactedBaseUserServiceServer) GetBaseUser(ctx context.Context, in *GetBaseUserRequest) (*BaseUserForm, error) {
@@ -168,17 +179,6 @@ func (s *redactedBaseUserServiceServer) SetBaseUserAppRole(ctx context.Context, 
 	if !s.bypass.CheckInternal(ctx) {
 		// Apply redaction to the response
 		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/system.admin.v1.BaseUserService/SetBaseUserAppRole"), redact.DirectionResponse), nil, res)
-	}
-	return res, err
-}
-
-// SummaryBaseUser is the redacted wrapper for the actual BaseUserServiceServer.SummaryBaseUser method
-// Unary RPC
-func (s *redactedBaseUserServiceServer) SummaryBaseUser(ctx context.Context, in *SummaryBaseUserRequest) (*SummaryBaseUserResponse, error) {
-	res, err := s.srv.SummaryBaseUser(ctx, in)
-	if !s.bypass.CheckInternal(ctx) {
-		// Apply redaction to the response
-		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/system.admin.v1.BaseUserService/SummaryBaseUser"), redact.DirectionResponse), nil, res)
 	}
 	return res, err
 }

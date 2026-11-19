@@ -33,7 +33,6 @@ const OperationBaseUserServiceSummaryBaseUser = "/system.admin.v1.BaseUserServic
 const OperationBaseUserServiceUpdateBaseUser = "/system.admin.v1.BaseUserService/UpdateBaseUser"
 
 type BaseUserServiceHTTPServer interface {
-	// CreateBaseUser 创建用户
 	CreateBaseUser(context.Context, *CreateBaseUserRequest) (*emptypb.Empty, error)
 	// DeleteBaseUser 删除用户
 	DeleteBaseUser(context.Context, *DeleteBaseUserRequest) (*emptypb.Empty, error)
@@ -62,6 +61,7 @@ func RegisterBaseUserServiceHTTPServer(s *http.Server, srv BaseUserServiceHTTPSe
 	r.Handle("GET", "/api/v1/admin/base/user/option", _BaseUserService_OptionBaseUser0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/user/list", _BaseUserService_ListBaseUser0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/user", _BaseUserService_PageBaseUser0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/user/summary", _BaseUserService_SummaryBaseUser0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/user/{id}", _BaseUserService_GetBaseUser0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/base/user", _BaseUserService_CreateBaseUser0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/user/{base_user.id}", _BaseUserService_UpdateBaseUser0_HTTP_Handler(srv))
@@ -69,7 +69,6 @@ func RegisterBaseUserServiceHTTPServer(s *http.Server, srv BaseUserServiceHTTPSe
 	r.Handle("PUT", "/api/v1/admin/base/user/{id}/status", _BaseUserService_SetBaseUserStatus0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/user/{id}/password", _BaseUserService_ResetBaseUserPassword0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/user/{user_id}/app-role", _BaseUserService_SetBaseUserAppRole0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/base/user/summary", _BaseUserService_SummaryBaseUser0_HTTP_Handler(srv))
 }
 
 func _BaseUserService_OptionBaseUser0_HTTP_Handler(srv BaseUserServiceHTTPServer) func(ctx http.Context) error {
@@ -125,6 +124,25 @@ func _BaseUserService_PageBaseUser0_HTTP_Handler(srv BaseUserServiceHTTPServer) 
 			return err
 		}
 		reply := out.(*PageBaseUserResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _BaseUserService_SummaryBaseUser0_HTTP_Handler(srv BaseUserServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SummaryBaseUserRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseUserServiceSummaryBaseUser)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SummaryBaseUser(ctx, req.(*SummaryBaseUserRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*SummaryBaseUserResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -286,27 +304,7 @@ func _BaseUserService_SetBaseUserAppRole0_HTTP_Handler(srv BaseUserServiceHTTPSe
 	}
 }
 
-func _BaseUserService_SummaryBaseUser0_HTTP_Handler(srv BaseUserServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in SummaryBaseUserRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationBaseUserServiceSummaryBaseUser)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.SummaryBaseUser(ctx, req.(*SummaryBaseUserRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*SummaryBaseUserResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
 type BaseUserServiceHTTPClient interface {
-	// CreateBaseUser 创建用户
 	CreateBaseUser(ctx context.Context, req *CreateBaseUserRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// DeleteBaseUser 删除用户
 	DeleteBaseUser(ctx context.Context, req *DeleteBaseUserRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -338,7 +336,6 @@ func NewBaseUserServiceHTTPClient(client *http.Client) BaseUserServiceHTTPClient
 	return &BaseUserServiceHTTPClientImpl{client}
 }
 
-// CreateBaseUser 创建用户
 func (c *BaseUserServiceHTTPClientImpl) CreateBaseUser(ctx context.Context, in *CreateBaseUserRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
 	pattern := "/api/v1/admin/base/user"

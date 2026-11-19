@@ -48,12 +48,18 @@ type Config struct {
 	LegacyPlaintextManifest string
 }
 
-var current atomic.Pointer[Config]
+// snapshot 将配置与其 AI 出站连接池一起发布。
+type snapshot struct {
+	config      Config
+	aiClient    *http.Client
+	aiClientErr error
+}
 
-// init 在进程启动时写入默认安全配置，保证显式 Set 之前所有读取方都拿到安全的默认值。
+var current atomic.Pointer[snapshot]
+
+// init 在进程启动时发布默认安全配置。
 func init() {
-	value := Default()
-	current.Store(&value)
+	Set(Default())
 }
 
 // Default 返回安全配置默认值，默认关闭代理信任并拒绝私网出站访问。
@@ -63,17 +69,37 @@ func Default() Config {
 
 // Current 返回当前进程使用的安全配置快照。
 func Current() Config {
-	value := current.Load()
-	if value == nil {
-		return Default()
-	}
-	return clone(*value)
+	return clone(current.Load().config)
 }
 
-// Set 替换当前进程使用的安全配置快照。
+// Set 替换当前进程使用的安全配置快照，并释放旧策略下的空闲连接。
 func Set(value Config) {
 	value = clone(value)
-	current.Store(&value)
+	client, err := value.AIHTTPClient(defaultAIHTTPTimeout)
+	previous := current.Swap(&snapshot{config: value, aiClient: client, aiClientErr: err})
+	if previous != nil && previous.aiClient != nil {
+		previous.aiClient.CloseIdleConnections()
+	}
+}
+
+// NewLiveAIHTTPClient 创建长生命周期客户端，每次发送和重定向都使用当前进程的安全策略。
+func NewLiveAIHTTPClient(timeout time.Duration) *http.Client {
+	if timeout <= 0 {
+		timeout = defaultAIHTTPTimeout
+	}
+	return &http.Client{Timeout: timeout, Transport: liveAITransport{}, CheckRedirect: checkAIRedirect}
+}
+
+// liveAITransport 让模型客户端复用当前策略的连接池，配置更新后不再复用旧连接池。
+type liveAITransport struct{}
+
+// RoundTrip 按当前策略验证并发送请求，策略无效时拒绝出站。
+func (liveAITransport) RoundTrip(request *http.Request) (*http.Response, error) {
+	value := current.Load()
+	if value.aiClientErr != nil {
+		return nil, value.aiClientErr
+	}
+	return value.aiClient.Transport.RoundTrip(request)
 }
 
 // ScriptPolicy 根据公共和脚本专属白名单创建脚本出站策略。
@@ -158,6 +184,15 @@ func (c Config) ClientIP(request *http.Request) string {
 		peer = candidate.Unmap()
 	}
 	return peer.String()
+}
+
+// checkAIRedirect 沿用当前策略的同源和目标校验。
+func checkAIRedirect(request *http.Request, via []*http.Request) error {
+	value := current.Load()
+	if value.aiClientErr != nil {
+		return value.aiClientErr
+	}
+	return value.aiClient.CheckRedirect(request, via)
 }
 
 // clone 深拷贝配置中的切片和映射，确保全局快照与调用方数据不共享底层存储，避免并发读写相互影响。

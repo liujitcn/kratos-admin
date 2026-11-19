@@ -12,6 +12,7 @@ import (
 	"time"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/securityconfig"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
 )
@@ -41,10 +42,7 @@ type AiSearchCase struct {
 
 // NewAiSearchCase 创建 AI 助手联网搜索业务实例。
 func NewAiSearchCase(baseCase *biz.BaseCase) *AiSearchCase {
-	return &AiSearchCase{
-		BaseCase: baseCase,
-		client:   &http.Client{Timeout: aiSearchTimeout},
-	}
+	return &AiSearchCase{BaseCase: baseCase}
 }
 
 // SearchAiWeb 调用外部搜索引擎并返回结构化结果。
@@ -84,7 +82,11 @@ func (c *AiSearchCase) fetchBingPage(ctx context.Context, query string, limit in
 	}
 	request.Header.Set("User-Agent", bingSearchUserAgent)
 	request.Header.Set("Accept-Language", "zh-CN,zh;q=0.9")
-	response, err := c.client.Do(request)
+	client, err := securityconfig.Current().AIHTTPClient(aiSearchTimeout)
+	if err != nil {
+		return "", errorsx.Internal("创建联网搜索安全客户端失败").WithCause(err)
+	}
+	response, err := client.Do(request)
 	if err != nil {
 		return "", errorsx.Internal("联网搜索请求失败").WithCause(err)
 	}
