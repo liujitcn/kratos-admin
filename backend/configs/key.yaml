@@ -3,6 +3,6 @@ scope: default
 root_version: v1
 root_name: secret/data/certs/root.key
 vault:
-  address: http://192.168.60.83:8200
+  address: http://192.168.60.83:18200
   namespace: ''
   value_key: value
