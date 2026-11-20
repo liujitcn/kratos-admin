@@ -586,6 +586,7 @@ onBeforeUnmount(() => {
 
 .source-item__body strong,
 .source-item__body small {
+  align-self: stretch;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

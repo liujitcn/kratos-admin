@@ -1,8 +1,6 @@
 <template>
-  <div class="login-policy-page">
-    <el-card class="admin-page-card">
-      <ProTable ref="proTable" row-key="id" :columns="columns" :header-actions="headerActions" :request-api="requestTable" />
-    </el-card>
+  <div class="table-box">
+    <ProTable ref="proTable" row-key="id" :columns="columns" :header-actions="headerActions" :request-api="requestTable" />
 
     <FormDialog
       ref="formDialogRef"
@@ -10,6 +8,7 @@
       :title="t(dialog.titleKey)"
       width="980px"
       label-width="auto"
+      :col-span="12"
       :model="formData"
       :fields="formFields"
       :rules="formRules"
@@ -162,6 +161,7 @@ const formFields = computed<ProFormField[]>(() => [
     component: "select",
     options: scopeTypeOptions.value
   },
+  { prop: "status", label: t("common.field.status"), component: "radio-group", options: statusOptions.value },
   {
     ...tenantFormField({ label: t("common.field.tenant"), props: { clearable: true } }),
     visible: model => isDefaultTenant.value && model.scope_type !== BaseLoginPolicyScopeType.BASE_LOGIN_POLICY_SCOPE_TYPE_GLOBAL
@@ -193,6 +193,12 @@ const formFields = computed<ProFormField[]>(() => [
     props: { activeText: t("common.status.enabled"), inactiveText: t("common.status.disabled") }
   },
   {
+    prop: "mfa_remember_days",
+    label: t("system.base.login_policy.field.mfa_remember_days"),
+    component: "input-number",
+    props: { min: 0, max: 90, precision: 0 }
+  },
+  {
     prop: "password_min_length",
     label: t("system.base.login_policy.field.password_min_length"),
     component: "input-number",
@@ -217,24 +223,19 @@ const formFields = computed<ProFormField[]>(() => [
     props: { min: 0, max: 3650, precision: 0 }
   },
   {
-    prop: "mfa_remember_days",
-    label: t("system.base.login_policy.field.mfa_remember_days"),
-    component: "input-number",
-    props: { min: 0, max: 90, precision: 0 }
-  },
-  {
     prop: "initial_password",
     label: t("system.base.login_policy.field.initial_password"),
     component: "password",
+    colSpan: 24,
     props: { placeholder: t("system.base.login_policy.placeholder.initial_password"), showPassword: true }
   },
   {
     prop: "initialPasswordStrength",
     label: t("system.base.login_policy.field.password_strength"),
     component: "slot",
-    slotName: "initialPasswordStrength"
+    slotName: "initialPasswordStrength",
+    colSpan: 24
   },
-  { prop: "status", label: t("common.field.status"), component: "radio-group", options: statusOptions.value },
   { prop: "rules", label: t("system.base.login_policy.field.rules"), component: "slot", slotName: "rules", colSpan: 24 }
 ]);
 
@@ -665,9 +666,6 @@ function rulePlaceholder(method: BaseLoginPolicyRestrictionMethod) {
 </script>
 
 <style scoped lang="scss">
-.login-policy-page {
-  min-width: 0;
-}
 .rules-editor {
   width: 100%;
 }

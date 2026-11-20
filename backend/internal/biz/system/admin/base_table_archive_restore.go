@@ -145,7 +145,7 @@ func restoreArchiveRecord(ctx context.Context, baseCase *biz.BaseCase, archiveRe
 	return 0, fmt.Errorf("归档模式无效")
 }
 
-// restoreInternalArchive 将当前数据源内部归档表中的记录幂等恢复到在线表。
+// restoreInternalArchive 将内部归档记录幂等恢复到在线表，仅对受控恢复语句豁免请求级隔离。
 func restoreInternalArchive(ctx context.Context, baseCase *biz.BaseCase, archiveRecord *models.BaseTableArchiveRecord, mode adminv1.BaseTableArchiveRestoreMode, restoreRange string) (int64, error) {
 	if !tableNamePattern.MatchString(archiveRecord.TableName_) || !tableNamePattern.MatchString(archiveRecord.ArchiveTableName) {
 		return 0, fmt.Errorf("归档表名不合法")
@@ -167,7 +167,7 @@ func restoreInternalArchive(ctx context.Context, baseCase *biz.BaseCase, archive
 	archive := QuoteSQLIdentifier(driverName, archiveRecord.ArchiveTableName)
 	//nolint:forbidigo // 表名来自归档记录并通过白名单校验，恢复范围值使用参数绑定。
 	query := CopyRowsIgnoreConflictSQL(driverName, source, archive, whereSQL)
-	result := client.DB.WithContext(ctx).Exec(query, values...)
+	result := gorm.SkipDataIsolation(client.DB.WithContext(ctx)).Exec(query, values...)
 	if result.Error != nil {
 		return 0, fmt.Errorf("恢复内部归档数据失败: %w", result.Error)
 	}

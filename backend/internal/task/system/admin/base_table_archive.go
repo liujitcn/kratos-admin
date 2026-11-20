@@ -193,7 +193,7 @@ func archiveResource(tableName string) (archiveResourceDefinition, error) {
 	return archiveResourceDefinition{tableName: tableName, timeColumn: timeColumn, archiveTableName: "base_table_archive_" + tableName}, nil
 }
 
-// archiveIntoCurrentDatabase 将过期数据复制到当前数据源内部的归档表。
+// archiveIntoCurrentDatabase 将过期数据复制到内部归档表，仅在受控整表维护会话中豁免请求级隔离。
 func archiveIntoCurrentDatabase(ctx context.Context, client *gorm.Client, resource archiveResourceDefinition, cutoff time.Time, batchSize int32, deleteAfterVerify bool) (int64, int64, error) {
 	if batchSize <= 0 {
 		batchSize = archiveBatchSize
@@ -203,8 +203,9 @@ func archiveIntoCurrentDatabase(ctx context.Context, client *gorm.Client, resour
 	quotedArchive := biz.QuoteSQLIdentifier(driverName, resource.archiveTableName)
 	quotedTime := biz.QuoteSQLIdentifier(driverName, resource.timeColumn)
 	quotedID := biz.QuoteSQLIdentifier(driverName, "id")
+	database := gorm.SkipDataIsolation(client.DB.WithContext(ctx))
 	//nolint:forbidigo // 表名和字段名来自受控归档资源定义，时间值通过参数绑定。
-	err := client.DB.WithContext(ctx).Exec(biz.CreateArchiveTableSQL(driverName, quotedArchive, quotedSource)).Error
+	err := database.Exec(biz.CreateArchiveTableSQL(driverName, quotedArchive, quotedSource)).Error
 	if err != nil {
 		return 0, 0, fmt.Errorf("创建内部归档表失败: %w", err)
 	}
@@ -221,7 +222,7 @@ func archiveIntoCurrentDatabase(ctx context.Context, client *gorm.Client, resour
 			}
 			idList := archiveIDList(ids)
 			//nolint:forbidigo // 表名来自受控归档资源定义，主键来自同一数据源的查询结果。
-			result := client.DB.WithContext(ctx).Exec(biz.CopyRowsIgnoreConflictSQL(driverName, quotedArchive, quotedSource, " WHERE "+quotedID+" IN ("+idList+")"))
+			result := database.Exec(biz.CopyRowsIgnoreConflictSQL(driverName, quotedArchive, quotedSource, " WHERE "+quotedID+" IN ("+idList+")"))
 			if result.Error != nil {
 				return archivedRows, 0, fmt.Errorf("复制内部归档数据失败: %w", result.Error)
 			}
@@ -241,7 +242,7 @@ func archiveIntoCurrentDatabase(ctx context.Context, client *gorm.Client, resour
 		}
 		idList := archiveIDList(ids)
 		//nolint:forbidigo // 表名来自受控归档资源定义，主键来自同一数据源的查询结果。
-		result := client.DB.WithContext(ctx).Exec(biz.CopyRowsIgnoreConflictSQL(driverName, quotedArchive, quotedSource, " WHERE "+quotedID+" IN ("+idList+")"))
+		result := database.Exec(biz.CopyRowsIgnoreConflictSQL(driverName, quotedArchive, quotedSource, " WHERE "+quotedID+" IN ("+idList+")"))
 		if result.Error != nil {
 			return archivedRows, deletedRows, fmt.Errorf("复制内部归档数据失败: %w", result.Error)
 		}
@@ -253,7 +254,7 @@ func archiveIntoCurrentDatabase(ctx context.Context, client *gorm.Client, resour
 			return archivedRows, deletedRows, fmt.Errorf("内部归档数据校验数量不一致")
 		}
 		//nolint:forbidigo // 表名和字段名来自受控归档资源定义，主键来自同一数据源的查询结果。
-		deleteResult := client.DB.WithContext(ctx).Exec("DELETE FROM "+quotedSource+" WHERE "+quotedID+" IN ("+idList+") AND "+quotedTime+" < ?", cutoff)
+		deleteResult := database.Exec("DELETE FROM "+quotedSource+" WHERE "+quotedID+" IN ("+idList+") AND "+quotedTime+" < ?", cutoff)
 		if deleteResult.Error != nil {
 			return archivedRows, deletedRows, fmt.Errorf("删除在线归档数据失败: %w", deleteResult.Error)
 		}
@@ -263,7 +264,7 @@ func archiveIntoCurrentDatabase(ctx context.Context, client *gorm.Client, resour
 	return archivedRows, deletedRows, nil
 }
 
-// archiveIntoOSS 将过期数据导出、压缩并上传到 OSS；导出通道按数据源驱动选择。
+// archiveIntoOSS 将过期数据导出并上传到 OSS，仅对受控归档删除语句豁免请求级隔离。
 func archiveIntoOSS(ctx context.Context, storage oss.OSS, client *gorm.Client, databaseConfig *configv1.Data_Database, resource archiveResourceDefinition, config *models.BaseTableArchive, cutoff time.Time, deleteAfterVerify bool) (int64, int64, string, int64, string, error) {
 	if storage == nil {
 		return 0, 0, "", 0, "", fmt.Errorf("OSS 未配置")
@@ -330,7 +331,7 @@ func archiveIntoOSS(ctx context.Context, storage oss.OSS, client *gorm.Client, d
 	var deletedRows int64
 	if deleteAfterVerify {
 		//nolint:forbidigo // 表名和字段名来自受控归档资源定义，主键来自同一数据源的查询结果。
-		deleteResult := client.DB.WithContext(ctx).Exec("DELETE FROM "+biz.QuoteSQLIdentifier(driverName, resource.tableName)+" WHERE "+quotedID+" IN ("+archiveIDList(ids)+") AND "+quotedTime+" < ?", cutoff)
+		deleteResult := gorm.SkipDataIsolation(client.DB.WithContext(ctx)).Exec("DELETE FROM "+biz.QuoteSQLIdentifier(driverName, resource.tableName)+" WHERE "+quotedID+" IN ("+archiveIDList(ids)+") AND "+quotedTime+" < ?", cutoff)
 		if deleteResult.Error != nil {
 			return count, 0, objectKey, fileSize, digest, fmt.Errorf("删除在线归档数据失败: %w", deleteResult.Error)
 		}
@@ -469,18 +470,18 @@ func dumpPostgresArchiveFile(ctx context.Context, client *gorm.Client, databaseC
 	return nil
 }
 
-// countArchiveRows 统计指定截止时间前待归档的行数，用于归档前的预检提示。
+// countArchiveRows 在受控归档查询中豁免请求级隔离，统计指定截止时间前的待归档行数。
 func countArchiveRows(ctx context.Context, client *gorm.Client, resource archiveResourceDefinition, cutoff time.Time) (int64, error) {
 	var count int64
 	//nolint:forbidigo // 表名和字段名来自受控归档资源定义，时间值通过参数绑定。
-	row := client.DB.WithContext(ctx).Raw("SELECT COUNT(*) FROM "+biz.QuoteSQLIdentifier(client.Driver(), resource.tableName)+" WHERE "+biz.QuoteSQLIdentifier(client.Driver(), resource.timeColumn)+" < ?", cutoff).Row()
+	row := gorm.SkipDataIsolation(client.DB.WithContext(ctx)).Raw("SELECT COUNT(*) FROM "+biz.QuoteSQLIdentifier(client.Driver(), resource.tableName)+" WHERE "+biz.QuoteSQLIdentifier(client.Driver(), resource.timeColumn)+" < ?", cutoff).Row()
 	if err := row.Scan(&count); err != nil {
 		return 0, fmt.Errorf("统计表归档数据失败: %w", err)
 	}
 	return count, nil
 }
 
-// listArchiveIDs 查询本次归档候选记录的主键，并支持按主键游标继续读取。
+// listArchiveIDs 在受控归档查询中豁免请求级隔离，按游标读取本次归档候选记录主键。
 func listArchiveIDs(ctx context.Context, client *gorm.Client, resource archiveResourceDefinition, cutoff time.Time, batchSize int32, afterID int64) ([]int64, error) {
 	quotedID := biz.QuoteSQLIdentifier(client.Driver(), "id")
 	quotedTime := biz.QuoteSQLIdentifier(client.Driver(), resource.timeColumn)
@@ -493,7 +494,7 @@ func listArchiveIDs(ctx context.Context, client *gorm.Client, resource archiveRe
 	query += " ORDER BY " + quotedID + " ASC LIMIT ?"
 	args = append(args, batchSize)
 	//nolint:forbidigo // 表名和字段名来自受控归档资源定义，时间值和批量大小通过参数绑定。
-	rows, err := client.DB.WithContext(ctx).Raw(query, args...).Rows()
+	rows, err := gorm.SkipDataIsolation(client.DB.WithContext(ctx)).Raw(query, args...).Rows()
 	if err != nil {
 		return nil, fmt.Errorf("查询待归档记录主键失败: %w", err)
 	}
@@ -512,11 +513,11 @@ func listArchiveIDs(ctx context.Context, client *gorm.Client, resource archiveRe
 	return ids, nil
 }
 
-// countArchiveIDs 校验归档表中已存在本次候选主键。
+// countArchiveIDs 在受控归档查询中豁免请求级隔离，校验归档表中已存在本次候选主键。
 func countArchiveIDs(ctx context.Context, client *gorm.Client, driverName string, archiveTableName string, ids []int64) (int64, error) {
 	var count int64
 	//nolint:forbidigo // 表名和主键来自受控归档资源定义及同一数据源查询结果。
-	row := client.DB.WithContext(ctx).Raw("SELECT COUNT(*) FROM " + biz.QuoteSQLIdentifier(driverName, archiveTableName) + " WHERE " + biz.QuoteSQLIdentifier(driverName, "id") + " IN (" + archiveIDList(ids) + ")").Row()
+	row := gorm.SkipDataIsolation(client.DB.WithContext(ctx)).Raw("SELECT COUNT(*) FROM " + biz.QuoteSQLIdentifier(driverName, archiveTableName) + " WHERE " + biz.QuoteSQLIdentifier(driverName, "id") + " IN (" + archiveIDList(ids) + ")").Row()
 	if err := row.Scan(&count); err != nil {
 		return 0, fmt.Errorf("校验归档记录失败: %w", err)
 	}
@@ -532,7 +533,7 @@ func archiveIDList(ids []int64) string {
 	return strings.Join(values, ",")
 }
 
-// cleanupArchiveRetention 清理超过归档保留期的内部归档数据或 OSS 对象。
+// cleanupArchiveRetention 清理过期归档，仅对受控归档表删除语句豁免请求级隔离。
 func (t *TableArchiveTask) cleanupArchiveRetention(ctx context.Context, config *models.BaseTableArchive) error {
 	if config.ArchiveRetentionDays <= 0 {
 		return nil
@@ -575,7 +576,7 @@ func (t *TableArchiveTask) cleanupArchiveRetention(ctx context.Context, config *
 			quotedArchive := biz.QuoteSQLIdentifier(driverName, record.ArchiveTableName)
 			quotedTime := biz.QuoteSQLIdentifier(driverName, resource.timeColumn)
 			//nolint:forbidigo // 表名和字段名来自受控归档资源定义，时间值通过参数绑定。
-			if result := client.DB.WithContext(ctx).Exec("DELETE FROM "+quotedArchive+" WHERE "+quotedTime+" < ?", cutoff); result.Error != nil {
+			if result := gorm.SkipDataIsolation(client.DB.WithContext(ctx)).Exec("DELETE FROM "+quotedArchive+" WHERE "+quotedTime+" < ?", cutoff); result.Error != nil {
 				return fmt.Errorf("删除内部归档数据失败: %w", result.Error)
 			}
 		}

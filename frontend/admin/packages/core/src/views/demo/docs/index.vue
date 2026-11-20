@@ -1,6 +1,6 @@
 <template>
-  <div ref="documentRef" class="component-docs">
-    <el-aside class="docs-sidebar" style="--el-aside-width: auto; overflow: visible" aria-label="组件目录">
+  <div class="component-docs">
+    <el-aside class="docs-sidebar" aria-label="组件目录">
       <el-input v-model="state.query" clearable placeholder="搜索组件名称…" aria-label="搜索组件名称" />
       <nav aria-label="组件分类">
         <details v-for="group in navigationGroups" :key="group.label" :open="group.open">
@@ -23,55 +23,15 @@
     <div class="docs-mobile-picker">
       <el-input v-model="state.query" clearable placeholder="搜索组件名称…" aria-label="搜索组件名称" />
       <el-select :model-value="state.id" aria-label="选择组件" @change="selectDoc">
-        <el-option label="组件总览" value="" />
         <el-option-group v-for="group in navigationGroups" :key="group.label" :label="group.label">
           <el-option v-for="entry in group.entries" :key="entry.id" :label="entry.label" :value="entry.id" />
         </el-option-group>
       </el-select>
     </div>
 
-    <el-main class="docs-document" style="--el-main-padding: 0; flex: 0 1 auto; overflow: visible" aria-label="组件说明">
-      <template v-if="!selected">
-        <el-text tag="h1">组件总览</el-text>
-        <div class="docs-scopes" aria-label="组件所属范围">
-          <el-button
-            v-for="owner in owners"
-            :key="owner"
-            :type="state.owner === owner ? 'primary' : 'default'"
-            plain
-            :aria-pressed="state.owner === owner"
-            @click="state.owner = owner"
-            >{{ owner }}</el-button
-          >
-        </div>
-        <section v-for="group in overviewGroups" :key="group.label" class="docs-overview-group">
-          <el-text tag="h2">{{ group.label }}</el-text>
-          <div class="docs-cards">
-            <el-button
-              v-for="entry in group.entries"
-              :key="entry.id"
-              class="admin-custom-button docs-component-card"
-              native-type="button"
-              @click="selectDoc(entry.id)"
-            >
-              <el-text tag="strong">{{ entry.label }}</el-text>
-              <el-text tag="p">{{ entry.description }}</el-text>
-            </el-button>
-          </div>
-        </section>
-        <el-empty v-if="!filteredEntries.length" description="没有匹配的组件" />
-        <DocsPagination
-          :page="overview.page"
-          :page-size="state.overviewSize"
-          :total="filteredEntries.length"
-          :sizes="[4, 8, 12]"
-          @update:page="state.overviewPage = $event"
-          @update:page-size="state.overviewSize = $event"
-        />
-      </template>
-
-      <template v-else>
-        <el-button class="docs-back" @click="goBack">返回{{ backLabel }}</el-button>
+    <el-scrollbar ref="documentRef" class="docs-content" :tabindex="0" aria-label="组件说明">
+      <el-main v-if="selected" class="docs-document" aria-label="组件说明">
+        <el-button v-if="state.history.length" class="docs-back" @click="goBack">返回{{ backLabel }}</el-button>
         <el-text tag="h1">
           {{ selected.id }} <span>{{ selected.label }}</span>
         </el-text>
@@ -86,12 +46,23 @@
               </KeepAlive>
             </div>
             <div class="docs-example-tools">
-              <el-button text @click="copyCode">复制代码</el-button>
-              <el-button text :aria-expanded="sourceVisible" @click="sourceVisible = !sourceVisible">{{
-                sourceVisible ? "收起源码" : "查看源码"
-              }}</el-button>
+              <el-tooltip content="复制代码" placement="bottom">
+                <el-button text :icon="Copy" aria-label="复制代码" @click="copyCode" />
+              </el-tooltip>
+              <el-tooltip :content="sourceVisible ? '收起源代码' : '查看源代码'" placement="bottom" :tabindex="-1">
+                <span class="docs-source-trigger">
+                  <el-button
+                    text
+                    :icon="Code"
+                    :aria-label="sourceVisible ? '收起源代码' : '查看源代码'"
+                    :aria-expanded="sourceVisible"
+                    aria-controls="component-docs-source"
+                    @click="sourceVisible = !sourceVisible"
+                  />
+                </span>
+              </el-tooltip>
             </div>
-            <CodeBlock v-if="sourceVisible" :code="selected.code" language="html" />
+            <CodeBlock v-if="sourceVisible" id="component-docs-source" :code="selected.code" language="html" />
           </div>
           <CodeBlock v-if="!selected.example" :code="selected.code" language="html" />
         </section>
@@ -139,20 +110,24 @@
             }}</el-button>
           </div>
         </section>
-      </template>
-    </el-main>
+      </el-main>
+      <el-empty v-else description="暂无组件文档" />
+    </el-scrollbar>
 
     <nav v-if="selected" class="docs-toc" aria-label="本页目录">
-      <el-text tag="strong">本页目录</el-text>
-      <el-button text @click="scrollTo('basic')">基础用法</el-button>
-      <el-button text @click="scrollTo('api')">API</el-button>
-      <el-button text @click="scrollTo('usage')">使用说明</el-button>
+      <el-anchor :key="state.id" :container="documentRef?.wrapRef" :offset="26" select-scroll-top @click.prevent>
+        <el-anchor-link href="#component-docs-basic" title="基础用法" />
+        <el-anchor-link href="#component-docs-api" title="API" />
+        <el-anchor-link href="#component-docs-usage" title="使用说明" />
+      </el-anchor>
     </nav>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, defineAsyncComponent, nextTick, reactive, ref, watch, type Component } from "vue";
+import type { ScrollbarInstance } from "element-plus";
+import { Code, Copy } from "@lucide/vue";
 import { getAdminComponentDocs } from "@/demo";
 import CodeBlock from "@/components/CodeBlock/index.vue";
 import { copyText } from "@/utils/clipboard";
@@ -169,15 +144,13 @@ defineOptions({ name: "DemoComponentDocs" });
 
 const entries = getAdminComponentDocs();
 const byId = new Map(entries.map(entry => [entry.id, entry]));
-const owners = ["全部", ...new Set(entries.map(entry => entry.owner))];
 const groups = [...new Set(entries.map(entry => entry.group))];
-const state = reactive(createComponentDocsState());
-const documentRef = ref<HTMLElement>();
+const state = reactive(createComponentDocsState(entries[0]?.id ?? ""));
+const documentRef = ref<ScrollbarInstance>();
 const sourceVisible = ref(false);
 const examples = new Map<string, Component>();
 const selected = computed(() => byId.get(state.id));
-const filteredEntries = computed(() => filterComponentDocs(entries, state.query, state.owner));
-const navigationEntries = computed(() => filterComponentDocs(entries, state.query, "全部"));
+const navigationEntries = computed(() => filterComponentDocs(entries, state.query));
 const navigationGroups = computed(() =>
   groups
     .map(label => ({
@@ -187,13 +160,7 @@ const navigationGroups = computed(() =>
     }))
     .filter(group => group.entries.length)
 );
-const overview = computed(() => getComponentDocsPage(filteredEntries.value, state.overviewPage, state.overviewSize));
-const overviewGroups = computed(() =>
-  groups
-    .map(label => ({ label, entries: overview.value.items.filter(entry => entry.group === label) }))
-    .filter(group => group.entries.length)
-);
-const backLabel = computed(() => byId.get(state.history.at(-1)?.id ?? "")?.label ?? "组件总览");
+const backLabel = computed(() => byId.get(state.history.at(-1)?.id ?? "")?.label);
 const apiTabs = [
   { key: "props", label: "属性 Props" },
   { key: "events", label: "事件 Events" },
@@ -216,13 +183,6 @@ const activeExample = computed(() => {
 });
 
 watch(
-  () => [state.query, state.owner, state.overviewSize],
-  () => {
-    state.overviewPage = 1;
-  },
-  { flush: "sync" }
-);
-watch(
   () => state.api,
   () => {
     state.apiPage = 1;
@@ -238,17 +198,17 @@ watch(
 
 /** 切换组件后展示文档页首，使返回入口始终可见。 */
 async function selectDoc(id: string) {
-  if (id && !byId.has(id)) return;
+  if (!byId.has(id)) return;
   openComponentDoc(state, id);
   await nextTick();
-  documentRef.value?.scrollIntoView({ block: "start" });
+  documentRef.value?.setScrollTop(0);
 }
 
 /** 返回来源组件和原筛选、页码。 */
 async function goBack() {
   returnComponentDoc(state);
   await nextTick();
-  documentRef.value?.scrollIntoView({ block: "start" });
+  documentRef.value?.setScrollTop(0);
 }
 
 /** 复制当前用法示例，失败时保留可选取的源码。 */
@@ -262,29 +222,30 @@ async function copyCode() {
     ElMessage.warning("请在源码中选择并复制代码");
   }
 }
-
-/** 定位当前组件的说明分项。 */
-function scrollTo(section: string) {
-  documentRef.value?.querySelector(`#component-docs-${section}`)?.scrollIntoView({ block: "start", behavior: "smooth" });
-}
 </script>
 
 <style scoped lang="scss">
 .component-docs {
+  box-sizing: border-box;
   display: grid;
-  flex-shrink: 0;
+  flex: 1;
+  grid-template-rows: minmax(0, 1fr);
   grid-template-columns: 188px minmax(0, 1fr);
-  align-items: start;
   width: 100%;
   min-width: 0;
+  min-height: 0;
+  overflow: hidden;
   background: var(--admin-page-card-bg);
   border: 1px solid var(--admin-page-card-border-soft);
   border-radius: var(--admin-page-radius);
 }
 .docs-sidebar {
-  align-self: stretch;
+  --el-aside-width: auto;
+
   min-width: 0;
+  min-height: 0;
   padding: 20px 12px;
+  overscroll-behavior: contain;
   border-right: 1px solid var(--admin-page-divider);
   details {
     margin-top: 8px;
@@ -296,7 +257,7 @@ function scrollTo(section: string) {
     cursor: pointer;
   }
 }
-.docs-nav-item {
+.el-button.docs-nav-item {
   display: block;
   width: 100%;
   padding: 8px 10px;
@@ -320,9 +281,18 @@ function scrollTo(section: string) {
 .docs-mobile-picker {
   display: none;
 }
+.docs-content {
+  min-width: 0;
+  min-height: 0;
+  container-type: size;
+  :deep(.el-scrollbar__wrap) {
+    overscroll-behavior: contain;
+  }
+}
 .docs-document {
   min-width: 0;
   padding: 26px 28px;
+  overflow: visible;
   color: var(--admin-page-text-primary);
   h1 {
     margin: 0;
@@ -351,51 +321,12 @@ function scrollTo(section: string) {
   color: var(--admin-page-text-secondary);
   white-space: pre-line;
 }
-.docs-scopes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 20px;
-  .el-button {
-    margin-left: 0;
-  }
-}
-.docs-overview-group {
-  margin-top: 24px;
-}
-.docs-cards {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-.docs-component-card {
-  height: auto;
-  padding: 16px;
-  font: inherit;
-  line-height: normal;
-  color: var(--admin-page-text-primary);
-  text-align: left;
-  white-space: normal;
-  cursor: pointer;
-  background: var(--admin-page-card-bg);
-  border: 1px solid var(--admin-page-card-border);
-  border-radius: var(--admin-page-radius);
-  strong {
-    font-size: var(--el-font-size-medium);
-    font-weight: 500;
-  }
-  p {
-    margin: 8px 0 0;
-    font-size: var(--el-font-size-base);
-    line-height: 1.8;
-    color: var(--admin-page-text-secondary);
-  }
-  &:hover {
-    border-color: var(--el-color-primary);
-  }
-}
 .docs-section {
   margin-top: 30px;
+  &:last-child {
+    // 为末节保留可滚动空间，短文档也能定位到顶部并联动目录高亮。
+    min-height: calc(100cqh - 52px);
+  }
 }
 .docs-example {
   overflow: hidden;
@@ -412,6 +343,13 @@ function scrollTo(section: string) {
   justify-content: flex-end;
   padding: 6px 10px;
   border-top: 1px solid var(--admin-page-divider);
+  .docs-source-trigger {
+    display: inline-flex;
+  }
+  .el-button {
+    padding: 8px;
+    margin-left: 0;
+  }
 }
 .docs-api-table code {
   font-size: var(--el-font-size-base);
@@ -432,16 +370,18 @@ function scrollTo(section: string) {
 }
 .docs-toc {
   display: none;
+  min-height: 0;
   padding: 30px 12px;
+  overflow-y: auto;
   font-size: var(--el-font-size-base);
-  .el-button {
-    justify-content: flex-start;
-    margin-left: 0;
+  .el-anchor {
+    --el-anchor-bg-color: transparent;
   }
 }
-@media (min-width: 1200px) {
+
+@media (width >= 1200px) {
   .component-docs {
-    grid-template-columns: 188px minmax(0, 1fr) 115px;
+    grid-template-columns: 188px minmax(0, 1fr) 140px;
   }
   .docs-toc {
     display: flex;
@@ -449,8 +389,10 @@ function scrollTo(section: string) {
     gap: 8px;
   }
 }
-@media (max-width: 720px) {
+
+@media (width <= 720px) {
   .component-docs {
+    grid-template-rows: auto minmax(0, 1fr);
     grid-template-columns: minmax(0, 1fr);
   }
   .docs-sidebar {
@@ -473,9 +415,6 @@ function scrollTo(section: string) {
   }
   .docs-preview {
     padding: 12px;
-  }
-  .docs-cards {
-    grid-template-columns: minmax(0, 1fr);
   }
 }
 </style>

@@ -206,6 +206,7 @@
   "system.backup.result.backup_none_enabled": "No database backup configurations are enabled",
   "system.backup.status.deleted": "Deleted",
   "system.backup.status.failed": "Failed",
+  "system.backup.status.pending": "Pending confirmation",
   "system.backup.status.running": "Running",
   "system.backup.status.success": "Success",
   "system.backup.validation.archive_record_id": "Enter an archive record ID",

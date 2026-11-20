@@ -206,6 +206,7 @@
   "system.backup.result.backup_none_enabled": "沒有啟用的資料庫備份設定",
   "system.backup.status.deleted": "已刪除",
   "system.backup.status.failed": "失敗",
+  "system.backup.status.pending": "待確認",
   "system.backup.status.running": "執行中",
   "system.backup.status.success": "成功",
   "system.backup.validation.archive_record_id": "請輸入歸檔記錄 ID",

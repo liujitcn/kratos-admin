@@ -71,8 +71,18 @@ const formFields = computed<ProFormField[]>(() => [
 ]);
 const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
-  { prop: "category_name", label: t("system.base.message_template.field.category"), minWidth: 150 },
-  { prop: "provider_name", label: t("system.base.message_template.field.provider"), minWidth: 150 },
+  {
+    prop: "category_name",
+    label: t("system.base.message_template.field.category"),
+    minWidth: 150,
+    search: { el: "select", key: "category_id", enum: categoryOptions.value, props: { filterable: true } }
+  },
+  {
+    prop: "provider_name",
+    label: t("system.base.message_template.field.provider"),
+    minWidth: 150,
+    search: { el: "select", key: "provider_id", enum: providerOptions.value.map(({ label, value }) => ({ label, value })), props: { filterable: true } }
+  },
   { prop: "title", label: t("system.base.message_template.field.title"), minWidth: 180 },
   { prop: "content_format", label: t("system.base.message_template.field.content_format"), minWidth: 120, render: scope => contentFormatLabel((scope.row as BaseMessageTemplate).content_format) },
   { prop: "updated_at", label: t("common.field.updated_at"), minWidth: 180, align: "center" },

@@ -134,6 +134,8 @@ make -C backend fmt
 make -C backend menu-sort
 ```
 
+归档及归档恢复的 MySQL 集成回归默认跳过。设置 `KRATOS_ARCHIVE_TEST_DSN` 指向独立测试库后，运行 `go test ./internal/task/system/admin ./internal/biz/system/admin -run 'Test(ArchiveWithAuthenticatedContext|RestoreInternalArchiveWithAuthenticatedContext)$' -count=1`；测试仅创建并清理专用临时表，覆盖手工调度的批量归档、校验后删除、选择性恢复和幂等恢复，同时验证受控 SQL 的隔离豁免不会污染原客户端。
+
 涉及 Proto、Wire、前端调用或初始化权限时，完成后在仓库根目录执行 `make gen`、`make check` 和 `make menu-sort`。
 
 脚本工作流闭环示例见 [script-expense](testdata/workflow/script-expense/README.md)，包含提交校验、SCRIPT 变量计算、动态审批人及终态动作重试；宿主动作注册与幂等约束见 [工作流接入指南](../docs/工作流接入指南.md)。

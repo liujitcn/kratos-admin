@@ -1,14 +1,12 @@
 <template>
-  <div class="online-session-page">
-    <el-card class="admin-page-card">
-      <ProTable
-        :key="isDefaultTenant ? 'default-tenant' : 'current-tenant'"
-        ref="proTable"
-        row-key="session_id"
-        :columns="columns"
-        :request-api="requestTable"
-      />
-    </el-card>
+  <div class="table-box">
+    <ProTable
+      :key="isDefaultTenant ? 'default-tenant' : 'current-tenant'"
+      ref="proTable"
+      row-key="session_id"
+      :columns="columns"
+      :request-api="requestOnlineSessionTable"
+    />
   </div>
 </template>
 
@@ -20,6 +18,7 @@ import { requestTenantCodeOptions, useTenantScope } from "@liujitcn/kratos-admin
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
 import { formatDateTime } from "@liujitcn/kratos-admin-core/format";
+import { filterEnum } from "@liujitcn/kratos-admin-core/utils";
 import { t } from "@liujitcn/kratos-admin-core";
 import { defBaseSessionService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_session";
 import type { BaseSession, PageOnlineBaseSessionsRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_session";
@@ -37,7 +36,7 @@ const columns = computed<ColumnProps[]>(() => [
     minWidth: 130,
     enum: requestTenantCodeOptions,
     searchEl: "select",
-    render: scope => String((scope.row as BaseSession).tenant_code ?? "")
+    render: scope => filterEnum((scope.row as BaseSession).tenant_code, proTable.value?.enumMap.get("tenant_code"))
   }),
   {
     prop: "user_name",
@@ -73,7 +72,7 @@ const columns = computed<ColumnProps[]>(() => [
 ]);
 
 /** 查询在线用户会话列表。 */
-async function requestTable(params: Record<string, unknown>) {
+async function requestOnlineSessionTable(params: Record<string, unknown>) {
   const response = await defBaseSessionService.PageOnlineBaseSessions(
     buildPageRequest<PageOnlineBaseSessionsRequest>({
       ...(params as unknown as PageOnlineBaseSessionsRequest),
@@ -95,9 +94,3 @@ async function revokeSession(row: BaseSession) {
   proTable.value?.getTableList();
 }
 </script>
-
-<style scoped lang="scss">
-.online-session-page {
-  min-width: 0;
-}
-</style>

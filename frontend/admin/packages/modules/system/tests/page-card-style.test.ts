@@ -8,7 +8,7 @@ function readSource(path: string) {
   return readFile(join(process.cwd(), path), "utf8");
 }
 
-test("自定义业务页面沿用统一卡片外观和页面间距", async () => {
+test("业务页面沿用标准表格布局和统一卡片外观", async () => {
   const [elementStyles, loginPolicy, dashboard, session, opsMonitoring] = await Promise.all([
     readSource("../../core/src/styles/element.scss"),
     readSource("src/views/base/login-policy/index.vue"),
@@ -20,8 +20,8 @@ test("自定义业务页面沿用统一卡片外观和页面间距", async () =>
   assert.match(elementStyles, /\.el-card\.admin-page-card\s*\{[^}]*border-radius:\s*var\(--admin-page-radius\)[^}]*box-shadow:/s);
   assert.match(elementStyles, /\.el-card\.admin-page-card\.is-always-shadow\s*\{[^}]*box-shadow:/s);
 
-  assert.match(loginPolicy, /<el-card class="admin-page-card">/);
-  assert.doesNotMatch(loginPolicy, /\.login-policy-page\s*\{[^}]*padding:/s);
+  assert.match(loginPolicy, /<div class="table-box">\s*<ProTable/);
+  assert.doesNotMatch(loginPolicy, /<el-card/);
 
   assert.equal(dashboard.match(/<el-card[^>]*admin-page-card/g)?.length, 4);
   assert.doesNotMatch(dashboard, /\.dashboard-page\s*\{[^}]*padding:/s);
