@@ -16,6 +16,7 @@ import (
 // RegisterAiAutomationServiceMCPTools 注册AI 助手本人自动化计划、执行记录与结果服务的 MCP Tool。
 func RegisterAiAutomationServiceMCPTools(mcpServer *server.MCPServer, aiAutomationServiceServer AiAutomationServiceServer) {
 	RegisterAiAutomationServiceListAiAutomationMCPTool(mcpServer, aiAutomationServiceServer)
+	RegisterAiAutomationServiceCountAiAutomationMCPTool(mcpServer, aiAutomationServiceServer)
 	RegisterAiAutomationServiceGetAiAutomationMCPTool(mcpServer, aiAutomationServiceServer)
 	RegisterAiAutomationServicePreviewAiAutomationScheduleMCPTool(mcpServer, aiAutomationServiceServer)
 	RegisterAiAutomationServiceCreateAiAutomationMCPTool(mcpServer, aiAutomationServiceServer)
@@ -44,6 +45,30 @@ func RegisterAiAutomationServiceListAiAutomationMCPTool(mcpServer *server.MCPSer
 			}
 			var reply *ListAiAutomationResponse
 			reply, err = aiAutomationServiceServer.ListAiAutomation(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
+		},
+	)
+}
+
+// RegisterAiAutomationServiceCountAiAutomationMCPTool 注册统计本人自动化任务数量的 MCP Tool。
+func RegisterAiAutomationServiceCountAiAutomationMCPTool(mcpServer *server.MCPServer, aiAutomationServiceServer AiAutomationServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_ai_automation_service_count_ai_automation",
+			mcp.WithDescription("统计本人自动化任务数量。"),
+			mcp.WithInputSchema[*CountAiAutomationRequest](),
+			mcp.WithOutputSchema[*CountAiAutomationResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CountAiAutomationRequest{}
+			err := request.BindArguments(req)
+			if err != nil {
+				return nil, err
+			}
+			var reply *CountAiAutomationResponse
+			reply, err = aiAutomationServiceServer.CountAiAutomation(ctx, req)
 			if err != nil {
 				return mcp.NewToolResultError(err.Error()), nil
 			}

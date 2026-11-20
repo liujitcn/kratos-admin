@@ -73,6 +73,17 @@ func (s *redactedBiQueryRecordServiceServer) GetBiQuery(ctx context.Context, in 
 	return res, err
 }
 
+// DeleteBiQuery is the redacted wrapper for the actual BiQueryRecordServiceServer.DeleteBiQuery method
+// Unary RPC
+func (s *redactedBiQueryRecordServiceServer) DeleteBiQuery(ctx context.Context, in *DeleteBiQueryRequest) (*DeleteBiQueryResponse, error) {
+	res, err := s.srv.DeleteBiQuery(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/bi.admin.v1.BiQueryRecordService/DeleteBiQuery"), redact.DirectionResponse), nil, res)
+	}
+	return res, err
+}
+
 // Ensure PageBiQueryRequest implements the Redactor interface at compile time.
 var _ redact.Redactor = (*PageBiQueryRequest)(nil)
 
@@ -167,4 +178,26 @@ func (x *BiQueryRecord) Redact() {
 	// Safe field: Result
 
 	// Safe field: ChartType
+}
+
+// Ensure DeleteBiQueryRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*DeleteBiQueryRequest)(nil)
+
+// Redact method implementation for DeleteBiQueryRequest
+func (x *DeleteBiQueryRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Id
+}
+
+// Ensure DeleteBiQueryResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*DeleteBiQueryResponse)(nil)
+
+// Redact method implementation for DeleteBiQueryResponse
+func (x *DeleteBiQueryResponse) Redact() {
+	if x == nil {
+		return
+	}
 }

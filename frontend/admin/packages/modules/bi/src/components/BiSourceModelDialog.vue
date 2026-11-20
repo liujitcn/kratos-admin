@@ -2,8 +2,8 @@
   <el-dialog
     v-model="open"
     :title="source?.name || t('bi.source.model.title')"
-    width="min(1440px, 96vw)"
-    top="3vh"
+    width="min(1680px, 98vw)"
+    top="2vh"
     destroy-on-close
     class="bi-source-model-dialog"
   >
@@ -28,21 +28,23 @@
               <el-text tag="strong" :title="schemaLabel(table)">{{ schemaLabel(table) }}</el-text>
               <el-text tag="small">{{ table.schema_name }} · {{ table.columns.length }} {{ t('bi.source.model.fields_count') }}</el-text>
             </div>
-            <el-select
-              v-if="isSelected(table.key)"
-              :model-value="modelTable(table.key)?.tenant_column ?? ''"
-              clearable
-              size="small"
-              class="source-model__tenant-select"
-              :placeholder="t('bi.source.model.field.shared_table')"
-              @update:model-value="setTenantColumn(table.key, String($event ?? ''))"
-            >
-              <el-option v-for="column in table.columns" :key="column.name" :label="schemaLabel(column)" :value="column.name" />
-            </el-select>
-            <el-tag size="small" effect="plain">{{ table.table_type }}</el-tag>
-            <el-tooltip :content="t('bi.source.model.action.preview_table')" placement="top">
-              <el-button text :icon="View" :aria-label="t('bi.source.model.action.preview_table')" @click="openTableData(table)" />
-            </el-tooltip>
+            <div class="source-model__table-actions">
+              <el-select
+                v-if="isSelected(table.key)"
+                :model-value="modelTable(table.key)?.tenant_column ?? ''"
+                clearable
+                size="small"
+                class="source-model__tenant-select"
+                :placeholder="t('bi.source.model.field.shared_table')"
+                @update:model-value="setTenantColumn(table.key, String($event ?? ''))"
+              >
+                <el-option v-for="column in table.columns" :key="column.name" :label="schemaLabel(column)" :value="column.name" />
+              </el-select>
+              <el-tag size="small" effect="plain">{{ table.table_type }}</el-tag>
+              <el-tooltip :content="t('bi.source.model.action.preview_table')" placement="top">
+                <el-button text :icon="View" :aria-label="t('bi.source.model.action.preview_table')" @click="openTableData(table)" />
+              </el-tooltip>
+            </div>
           </div>
           <el-empty v-if="!filteredTables.length" :description="t('bi.source.model.tables_empty')" />
         </el-scrollbar>
@@ -705,6 +707,7 @@ async function saveModel() {
   if (!props.source || loading.value || !impactReady.value || saving.value) return;
   const currentSession = modelSession;
   const sourceID = props.source.id;
+  let closeAfterSave = false;
   saving.value = true;
   try {
     const result = await defBiSourceService.SaveBiSourceModel({id: sourceID, model: model.value, expected_source_version: sourceVersion.value});
@@ -715,10 +718,14 @@ async function saveModel() {
     previewResult.value = undefined;
     emit("saved", result);
     ElMessage.success(t("bi.sql.synced", { cards: result.sync_summary?.affected_cards ?? 0, dashboards: result.sync_summary?.affected_dashboards ?? 0 }));
+    closeAfterSave = true;
   } catch (cause) {
     if (isCurrentSession(currentSession, sourceID)) ElMessage.error(cause instanceof Error ? cause.message : t("bi.query.error"));
   } finally {
-    if (isCurrentSession(currentSession, sourceID)) saving.value = false;
+    if (isCurrentSession(currentSession, sourceID)) {
+      saving.value = false;
+      if (closeAfterSave) open.value = false;
+    }
   }
 }
 
@@ -758,14 +765,14 @@ function isCurrentSession(currentSession: number, sourceID: number): boolean {
 
 <style scoped lang="scss">
 .source-model {
-  min-height: 560px;
+  min-height: 680px;
   padding-top: 4px;
 }
 
 .source-model__tables {
   display: grid;
   grid-template-rows: auto 1fr auto;
-  height: 510px;
+  height: min(640px, calc(100dvh - 240px));
   margin-top: 20px;
 }
 
@@ -787,6 +794,7 @@ function isCurrentSession(currentSession: number, sourceID: number): boolean {
   align-items: center;
   gap: 12px;
   padding: 8px 14px;
+  flex-wrap: nowrap;
   border-bottom: 1px solid var(--el-border-color-lighter);
 }
 
@@ -794,8 +802,10 @@ function isCurrentSession(currentSession: number, sourceID: number): boolean {
   display: flex;
   min-width: 0;
   flex: 1;
-  flex-direction: column;
-  gap: 3px;
+  align-items: baseline;
+  gap: 8px;
+  justify-content: flex-start;
+  text-align: left;
 }
 
 .source-model__table-info strong,
@@ -805,9 +815,23 @@ function isCurrentSession(currentSession: number, sourceID: number): boolean {
   white-space: nowrap;
 }
 
+.source-model__table-info strong {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .source-model__table-info small,
 .source-model__selection-count {
+  flex-shrink: 0;
   color: var(--el-text-color-secondary);
+}
+
+.source-model__table-actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
 }
 
 .source-model__tenant-select {
@@ -823,7 +847,7 @@ function isCurrentSession(currentSession: number, sourceID: number): boolean {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 280px;
   gap: 12px;
-  height: 510px;
+  height: min(640px, calc(100dvh - 240px));
   margin-top: 20px;
 }
 
@@ -947,7 +971,7 @@ function isCurrentSession(currentSession: number, sourceID: number): boolean {
 .source-model__semantics {
   display: grid;
   gap: 14px;
-  max-height: 510px;
+  max-height: min(640px, calc(100dvh - 240px));
   overflow: auto;
   margin-top: 20px;
   padding-right: 2px;
@@ -976,17 +1000,22 @@ function isCurrentSession(currentSession: number, sourceID: number): boolean {
 }
 
 @media (max-width: 760px) {
+  .source-model {
+    min-height: 0;
+  }
+
+  .source-model__tables {
+    height: min(640px, calc(100dvh - 300px));
+  }
+
   .source-model__table-toolbar,
   .source-model__relations {
     grid-template-columns: 1fr;
   }
 
   .source-model__table-row {
-    flex-wrap: wrap;
-  }
-
-  .source-model__table-info {
-    flex-basis: calc(100% - 44px);
+    gap: 8px;
+    padding-inline: 10px;
   }
 
   .source-model__relations {
@@ -995,6 +1024,18 @@ function isCurrentSession(currentSession: number, sourceID: number): boolean {
 
   .source-model__tenant-select {
     width: 130px;
+  }
+
+  .source-model__table-info {
+    gap: 6px;
+  }
+
+  .source-model__table-info small {
+    display: none;
+  }
+
+  .source-model__table-actions {
+    gap: 4px;
   }
 
   .source-model__relations :deep(.vue-flow) {

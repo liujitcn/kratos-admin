@@ -16,9 +16,10 @@
         v-model:keyword="keyword"
         :active="activeRecord"
         :sessions="sessions"
-        :editable="false" :title="t('bi.query.history')" :search-placeholder="t('bi.query.search_history')"
+        :editable="false" :deletable="true" :title="t('bi.query.history')" :search-placeholder="t('bi.query.search_history')"
         @change="item => selectRecord(Number(item.id))"
         @create="newQuestion"
+        @action="handleRecordAction"
         @toggle-collapse="historyCollapsed = true"
       />
       <section class="bi-query-chat" :aria-label="t('bi.query.title')">
@@ -328,6 +329,28 @@ function newQuestion() {
   response.value = undefined;
   activeRecord.value = "";
   error.value = "";
+}
+
+/** 处理问数记录菜单操作，目前仅支持删除。 */
+function handleRecordAction(payload: { action: string; item: { id: string; title: string } }) {
+  if (payload.action !== "delete") return;
+  void deleteRecord(payload.item);
+}
+
+/** 删除问数记录并刷新历史；已保存为卡片的记录由后端拒绝，删除当前记录时清空预览。 */
+async function deleteRecord(item: { id: string; title: string }) {
+  try {
+    await ElMessageBox.confirm(t("bi.query.delete_confirm", { question: item.title }), t("common.action.delete"), { type: "warning" });
+  } catch {
+    return;
+  }
+  try {
+    await defBiQueryRecordService.DeleteBiQuery({ id: Number(item.id) });
+    if (activeRecord.value === item.id) newQuestion();
+  } catch (cause) {
+    ElMessage.error(resolveAskError(cause));
+  }
+  await loadHistory();
 }
 /** 加载与 AI 助手一致的模型选项，并恢复仍可用的本地选择。 */
 async function loadModels() {

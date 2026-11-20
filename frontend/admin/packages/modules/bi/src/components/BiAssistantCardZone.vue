@@ -10,7 +10,7 @@
       @dragover.prevent
       @drop.stop.prevent="emit('drop', zone, index)"
     >
-      <BiDataCard :card="card" :refresh-key="refreshKeys[card.id] || 0" :show-category="false">
+      <BiDataCard :card="card" :refresh-key="refreshKeys[card.id] || 0" :show-category="false" previewable @preview="emit('preview', card)">
         <template #actions>
           <div class="bi-assistant-workbench__card-actions">
             <el-tooltip :content="t('bi.card.refresh')" placement="top">
@@ -21,12 +21,6 @@
             </el-tooltip>
             <el-tooltip :content="t('bi.workbench.remove', { name: card.name })" placement="top">
               <el-button text circle :icon="Delete" @click.stop="emit('remove', card)" />
-            </el-tooltip>
-            <el-tooltip content="导出数据" placement="top">
-              <el-button text circle :icon="Download" @click.stop="emit('export', card)" />
-            </el-tooltip>
-            <el-tooltip content="放大查看" placement="top">
-              <el-button text circle :icon="ZoomIn" @click.stop="emit('preview', card)" />
             </el-tooltip>
           </div>
         </template>
@@ -46,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import { CopyDocument, DataAnalysis, Delete, Download, Refresh, ZoomIn } from "@element-plus/icons-vue";
+import { CopyDocument, DataAnalysis, Delete, Refresh } from "@element-plus/icons-vue";
 import { t } from "@liujitcn/kratos-admin-core";
 import type { BiCard } from "../rpc/bi/admin/v1/bi_card";
 import BiDataCard from "./BiDataCard.vue";
@@ -66,7 +60,6 @@ const emit = defineEmits<{
   refresh: [card: BiCard];
   quote: [card: BiCard];
   remove: [card: BiCard];
-  export: [card: BiCard];
   preview: [card: BiCard];
 }>();
 </script>

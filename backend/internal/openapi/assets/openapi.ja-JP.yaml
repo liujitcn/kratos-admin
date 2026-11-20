@@ -6347,7 +6347,6 @@ paths:
         post:
             tags:
                 - BaseUserService
-            description: 作成ユーザー
             operationId: BaseUserService_CreateBaseUser
             requestBody:
                 content:
@@ -6886,6 +6885,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/bi.admin.v1.BiQueryRecord'
+        delete:
+            tags:
+                - BiQueryRecordService
+            description: 自分のクエリ記録を削除します。カードのソースとして保存された記録は削除できません。
+            operationId: BiQueryRecordService_DeleteBiQuery
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.DeleteBiQueryResponse'
     /api/v1/admin/bi/query/ask:
         post:
             tags:
@@ -7129,7 +7146,7 @@ paths:
         get:
             tags:
                 - BiSourceService
-            description: ページネーション検索データソース中指定表のデータ。
+            description: データソース内の指定テーブルのデータをページングで照会します。
             operationId: BiSourceService_PageBiSourceTableData
             parameters:
                 - name: id
@@ -8908,6 +8925,19 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.AiAutomationRun'
+    /api/v1/base/ai/automation/count:
+        get:
+            tags:
+                - AiAutomationService
+            description: 自分の自動化タスク数を集計します。
+            operationId: AiAutomationService_CountAiAutomation
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.CountAiAutomationResponse'
     /api/v1/base/ai/automation/{id}:
         get:
             tags:
@@ -9038,6 +9068,35 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.PageAiFileResponse'
+    /api/v1/base/ai/file/count:
+        get:
+            tags:
+                - AiFileService
+            description: 統計 AI ファイル件数。
+            operationId: AiFileService_CountAiFile
+            parameters:
+                - name: view
+                  in: query
+                  schema:
+                    enum:
+                        - AI_FILE_VIEW_UNSPECIFIED
+                        - AI_FILE_VIEW_ALL
+                        - AI_FILE_VIEW_UPLOADED
+                        - AI_FILE_VIEW_GENERATED
+                        - AI_FILE_VIEW_TRASHED
+                    type: string
+                    format: enum
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.CountAiFileResponse'
     /api/v1/base/ai/file/{id}:
         delete:
             tags:
@@ -9146,7 +9205,9 @@ paths:
         get:
             tags:
                 - AiPluginService
-            description: 現在のユーザーが参照できるプラグインカタログを取得します。
+            description: |-
+                查询当前身份可见的插件目录。
+                 查询插件目录。
             operationId: AiPluginService_ListAiPlugin
             parameters:
                 - name: keyword
@@ -9376,6 +9437,19 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.AiPluginConnection'
+    /api/v1/base/ai/plugin/count:
+        get:
+            tags:
+                - AiPluginService
+            description: 現在のアイデンティティに表示されるプラグインと MCP ツールの数を集計します。
+            operationId: AiPluginService_CountAiPlugin
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.CountAiPluginResponse'
     /api/v1/base/ai/plugin/{id}:
         get:
             tags:
@@ -9484,6 +9558,18 @@ paths:
                         - TERMINAL_ADMIN
                     type: string
                     format: enum
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -9778,6 +9864,34 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.SendAiMessageResponse'
+    /api/v1/base/ai/session/{session_id}/message/{message_id}/event:
+        get:
+            tags:
+                - AiMessageService
+            description: 実行イベントとメッセージのスナップショットを読み取り専用で補完します。ツールの復元や再実行は行いません。
+            operationId: AiMessageService_ListAiMessageEvent
+            parameters:
+                - name: session_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: message_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: after_id
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.ListAiMessageEventResponse'
     /api/v1/base/ai/session/{session_id}/message/{message_id}/regeneration:
         post:
             tags:
@@ -10884,7 +10998,7 @@ components:
             properties:
                 name:
                     type: string
-                    description: 名前
+                    description: 名称
                 prompt:
                     type: string
                     description: 明確なタスクの指示
@@ -11105,6 +11219,22 @@ components:
                     description: 合計所要時間ミリ秒
                     format: int32
             description: AI アシスタントメッセージ
+        base.v1.AiMessageEvent:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 単調増加するイベントID
+                run_id:
+                    type: string
+                    description: 今回の実行编号
+                event:
+                    type: string
+                    description: 事件種類
+                payload:
+                    type: string
+                    description: SSEと一致するJSONペイロード
+            description: AIメッセージの永続化された実行イベント。内部要約とチェックポイントは含まれません。
         base.v1.AiOutputContent:
             type: object
             properties:
@@ -11149,7 +11279,7 @@ components:
                     description: 固定コード
                 name:
                     type: string
-                    description: 名前
+                    description: 名称
                 description:
                     type: string
                     description: 説明
@@ -11158,7 +11288,7 @@ components:
                     description: ソース：API、LOCAL、MCP
                 visibility:
                     type: string
-                    description: "スコープ: システム、テナント、プライベート"
+                    description: 范围：system、tenant、private
                 tenant_id:
                     type: string
                     description: 所属テナントID
@@ -11242,7 +11372,7 @@ components:
                     description: 固定コード
                 name:
                     type: string
-                    description: 名前
+                    description: 名称
                 description:
                     type: string
                     description: 説明
@@ -11298,7 +11428,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: ツールID
+                    description: 工具ID
                 plugin_id:
                     type: string
                     description: プラグインID
@@ -11508,6 +11638,9 @@ components:
                 output:
                     type: string
                     description: ツールの元出力 JSON
+                call_id:
+                    type: string
+                    description: 現在のラウンドのツール呼び出しの関連番号
             description: AI アシスタントツール呼び出し記録
         base.v1.ArchiveNotificationRequest:
             type: object
@@ -11692,8 +11825,43 @@ components:
             properties:
                 id:
                     type: string
-                    description: 番号
+                    description: 编号
             description: 結果から会話を続けるリクエスト。
+        base.v1.CountAiAutomationResponse:
+            type: object
+            properties:
+                total:
+                    type: integer
+                    description: 非アーカイブタスク合計件数
+                    format: int32
+                pending_count:
+                    type: integer
+                    description: 確認待ちの実行件数
+                    format: int32
+            description: 自動化タスク数の統計結果。
+        base.v1.CountAiFileResponse:
+            type: object
+            properties:
+                total:
+                    type: string
+                    description: ファイル合計件数
+            description: AI ファイル件数統計結果。
+        base.v1.CountAiPluginResponse:
+            type: object
+            properties:
+                total:
+                    type: integer
+                    description: 表示可能なプラグインの総数
+                    format: int32
+                tool_total:
+                    type: integer
+                    description: 表示可能なプラグインの MCP ツール総数
+                    format: int32
+                connected_total:
+                    type: integer
+                    description: 現在のテナントで接続済みのプラグインアカウント数
+                    format: int32
+            description: プラグイン数の統計結果。
         base.v1.CreateAiAutomationRequest:
             type: object
             properties:
@@ -12137,6 +12305,31 @@ components:
                         $ref: '#/components/schemas/base.v1.AiKnowledgeOption'
                     description: ナレッジベースオプション一覧
             description: AIナレッジベースオプション検索応答。
+        base.v1.ListAiMessageEventResponse:
+            type: object
+            properties:
+                events:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiMessageEvent'
+                    description: 現在の実行のイベント一覧。最大100件
+                next_cursor:
+                    type: string
+                    description: 次ページのイベントカーソル
+                has_more:
+                    type: boolean
+                    description: 未読イベントがまだあるか
+                run_id:
+                    type: string
+                    description: 現在の実行编号
+                messages:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiMessage'
+                    description: 現在のメッセージの権威あるスナップショット
+                session:
+                    $ref: '#/components/schemas/base.v1.AiSession'
+            description: AIメッセージイベントと権威あるステータスのスナップショット。
         base.v1.ListAiMessageResponse:
             type: object
             properties:
@@ -12181,6 +12374,9 @@ components:
                     items:
                         $ref: '#/components/schemas/base.v1.AiPluginTool'
                     description: ツールのスナップショット一覧
+                total:
+                    type: string
+                    description: 条件に一致するツールの総数
             description: プラグインツールの取得結果。
         base.v1.ListAiProviderModelOptionsResponse:
             type: object
@@ -12887,7 +13083,7 @@ components:
                     description: プラグインID
                 tool_id:
                     type: string
-                    description: ツールID
+                    description: 工具ID
                 contract_hash:
                     type: string
                     description: 審査対象の仕様ハッシュ
@@ -12940,7 +13136,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: 番号
+                    description: 编号
             description: 停止今回のリクエスト。
         base.v1.TrashAiFileRequest:
             type: object
@@ -13323,7 +13519,7 @@ components:
                     description: フィールドコード
                 operator:
                     type: string
-                    description: "演算子: eq、in、 between、contains"
+                    description: 操作符：eq、in、between、contains
                 values:
                     type: array
                     items:
@@ -13910,8 +14106,8 @@ components:
                     type: array
                     items:
                         type: string
-                    description: 按フィールド顺序排列の单元の格値
-            description: データソース表中の一行データ。
+                    description: フィールド順に並べられたセル値
+            description: データソーステーブルの1行分のデータ。
         bi.admin.v1.BiTimeRangeSpec:
             type: object
             properties:
@@ -13952,6 +14148,10 @@ components:
             type: object
             properties: {}
             description: 削除 BI 仪表盘レスポンス。
+        bi.admin.v1.DeleteBiQueryResponse:
+            type: object
+            properties: {}
+            description: 自然言語クエリ記録の削除レスポンス。
         bi.admin.v1.DeleteBiSourceResponse:
             type: object
             properties: {}
@@ -14388,7 +14588,7 @@ components:
                     description: 失敗原因
                 extractor_connection_id:
                     type: string
-                    description: Xberg MCP が接続 ID を抽出します
+                    description: Xberg MCP抽取连接ID
                 created_at:
                     type: string
                     description: 作成時刻
@@ -17738,7 +17938,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: 分组代表ポリシーID
+                    description: グループを代表するポリシーID
                 tenant_id:
                     type: string
                     description: テナント ID，デフォルトテナントポリシーとしてグローバルポリシー
@@ -17747,7 +17947,7 @@ components:
                     description: サービス名
                 operation:
                     type: string
-                    description: RPC完全な操作名
+                    description: RPCの完全な操作名
                 message_ref:
                     type: string
                     description: Protoメッセージ完全な名称
@@ -17755,7 +17955,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseRedactOutputPolicy'
-                    description: 分组内フィールドポリシー
+                    description: グループ内のフィールドポリシー
             description: 按API和Protoメッセージ集約の出力マスキングポリシー。
         system.admin.v1.BaseRedactRule:
             type: object
@@ -17934,7 +18134,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: 分组代表ポリシーID
+                    description: グループを代表するポリシーID
                 tenant_id:
                     type: string
                     description: テナント ID，デフォルトテナントポリシーとしてグローバルポリシー
@@ -17951,7 +18151,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseRedactStoragePolicy'
-                    description: 分组内フィールドポリシー
+                    description: グループ内のフィールドポリシー
             description: 按データ表集約の保存マスキングポリシー。
         system.admin.v1.BaseRedactStorageTable:
             type: object

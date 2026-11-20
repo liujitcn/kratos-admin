@@ -356,9 +356,8 @@ func (c *WorkflowInstanceCase) PageWorkflowInstance(ctx context.Context, req *ad
 			return nil, errorsx.PermissionDenied("不能查询其他租户的流程实例")
 		}
 		opts = append(opts, repository.Where(query.TenantID.Eq(req.GetTenantId())))
-	} else if authInfo.TenantCode != gorm.DefaultTenantCode {
-		opts = append(opts, repository.Where(query.TenantID.Eq(authInfo.TenantId)))
 	}
+	// 非默认租户未指定编号时，租户隔离由数据隔离回调按登录身份注入。
 	if code := req.GetCode(); code != "" {
 		definitionQuery := c.definitionRepo.Query(ctx).WorkflowDefinition
 		definitionOpts := make([]repository.QueryOption, 0, 3)
@@ -366,8 +365,6 @@ func (c *WorkflowInstanceCase) PageWorkflowInstance(ctx context.Context, req *ad
 		definitionOpts = append(definitionOpts, repository.Where(definitionQuery.Code.Like("%"+code+"%")))
 		if req.GetTenantId() > 0 {
 			definitionOpts = append(definitionOpts, repository.Where(definitionQuery.TenantID.Eq(req.GetTenantId())))
-		} else if authInfo.TenantCode != gorm.DefaultTenantCode {
-			definitionOpts = append(definitionOpts, repository.Where(definitionQuery.TenantID.Eq(authInfo.TenantId)))
 		}
 		var definitions []*models.WorkflowDefinition
 		definitions, err = c.definitionRepo.List(ctx, definitionOpts...)

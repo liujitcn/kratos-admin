@@ -6347,7 +6347,6 @@ paths:
         post:
             tags:
                 - BaseUserService
-            description: 建立使用者
             operationId: BaseUserService_CreateBaseUser
             requestBody:
                 content:
@@ -6886,6 +6885,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/bi.admin.v1.BiQueryRecord'
+        delete:
+            tags:
+                - BiQueryRecordService
+            description: 刪除當前賬號的智慧問數記錄，已儲存為卡片的記錄不可刪除。
+            operationId: BiQueryRecordService_DeleteBiQuery
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.DeleteBiQueryResponse'
     /api/v1/admin/bi/query/ask:
         post:
             tags:
@@ -8908,6 +8925,19 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.AiAutomationRun'
+    /api/v1/base/ai/automation/count:
+        get:
+            tags:
+                - AiAutomationService
+            description: 統計本人自動化任務數量。
+            operationId: AiAutomationService_CountAiAutomation
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.CountAiAutomationResponse'
     /api/v1/base/ai/automation/{id}:
         get:
             tags:
@@ -9038,6 +9068,35 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.PageAiFileResponse'
+    /api/v1/base/ai/file/count:
+        get:
+            tags:
+                - AiFileService
+            description: 統計 AI 檔案數量。
+            operationId: AiFileService_CountAiFile
+            parameters:
+                - name: view
+                  in: query
+                  schema:
+                    enum:
+                        - AI_FILE_VIEW_UNSPECIFIED
+                        - AI_FILE_VIEW_ALL
+                        - AI_FILE_VIEW_UPLOADED
+                        - AI_FILE_VIEW_GENERATED
+                        - AI_FILE_VIEW_TRASHED
+                    type: string
+                    format: enum
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.CountAiFileResponse'
     /api/v1/base/ai/file/{id}:
         delete:
             tags:
@@ -9146,7 +9205,9 @@ paths:
         get:
             tags:
                 - AiPluginService
-            description: 查詢當前身份可見的外掛目錄。
+            description: |-
+                查询当前身份可见的插件目录。
+                 查询插件目录。
             operationId: AiPluginService_ListAiPlugin
             parameters:
                 - name: keyword
@@ -9376,6 +9437,19 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.AiPluginConnection'
+    /api/v1/base/ai/plugin/count:
+        get:
+            tags:
+                - AiPluginService
+            description: 統計當前身份可見的外掛與 MCP 工具數量。
+            operationId: AiPluginService_CountAiPlugin
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.CountAiPluginResponse'
     /api/v1/base/ai/plugin/{id}:
         get:
             tags:
@@ -9484,6 +9558,18 @@ paths:
                         - TERMINAL_ADMIN
                     type: string
                     format: enum
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -9778,6 +9864,34 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.SendAiMessageResponse'
+    /api/v1/base/ai/session/{session_id}/message/{message_id}/event:
+        get:
+            tags:
+                - AiMessageService
+            description: 只讀補讀當前執行事件與訊息快照，絕不恢復或重放工具。
+            operationId: AiMessageService_ListAiMessageEvent
+            parameters:
+                - name: session_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: message_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: after_id
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.ListAiMessageEventResponse'
     /api/v1/base/ai/session/{session_id}/message/{message_id}/regeneration:
         post:
             tags:
@@ -11105,6 +11219,22 @@ components:
                     description: 總耗時毫秒
                     format: int32
             description: AI 助手訊息
+        base.v1.AiMessageEvent:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 單調遞增的事件ID
+                run_id:
+                    type: string
+                    description: 本次執行編號
+                event:
+                    type: string
+                    description: 事件型別
+                payload:
+                    type: string
+                    description: 與SSE一致的JSON載荷
+            description: AI 訊息持久執行事件，不包含內部摘要或檢查點。
         base.v1.AiOutputContent:
             type: object
             properties:
@@ -11508,6 +11638,9 @@ components:
                 output:
                     type: string
                     description: 工具原始出參JSON
+                call_id:
+                    type: string
+                    description: 本輪工具呼叫關聯編號
             description: AI 助手工具呼叫記錄
         base.v1.ArchiveNotificationRequest:
             type: object
@@ -11694,6 +11827,41 @@ components:
                     type: string
                     description: 編號
             description: 從結果繼續討論請求。
+        base.v1.CountAiAutomationResponse:
+            type: object
+            properties:
+                total:
+                    type: integer
+                    description: 非歸檔任務總數
+                    format: int32
+                pending_count:
+                    type: integer
+                    description: 待確認執行數
+                    format: int32
+            description: 自動化任務數量統計結果。
+        base.v1.CountAiFileResponse:
+            type: object
+            properties:
+                total:
+                    type: string
+                    description: 檔案總數
+            description: AI 檔案數量統計結果。
+        base.v1.CountAiPluginResponse:
+            type: object
+            properties:
+                total:
+                    type: integer
+                    description: 可見外掛總數
+                    format: int32
+                tool_total:
+                    type: integer
+                    description: 可見外掛的 MCP 工具總數
+                    format: int32
+                connected_total:
+                    type: integer
+                    description: 本租戶已連線外掛賬號數
+                    format: int32
+            description: 外掛數量統計結果。
         base.v1.CreateAiAutomationRequest:
             type: object
             properties:
@@ -12137,6 +12305,31 @@ components:
                         $ref: '#/components/schemas/base.v1.AiKnowledgeOption'
                     description: 知識庫選項列表
             description: AI知識庫選項查詢響應。
+        base.v1.ListAiMessageEventResponse:
+            type: object
+            properties:
+                events:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiMessageEvent'
+                    description: 當前執行的事件列表，最多100條
+                next_cursor:
+                    type: string
+                    description: 下一頁事件遊標
+                has_more:
+                    type: boolean
+                    description: 是否仍有未讀取事件
+                run_id:
+                    type: string
+                    description: 當前執行編號
+                messages:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiMessage'
+                    description: 當前訊息權威快照
+                session:
+                    $ref: '#/components/schemas/base.v1.AiSession'
+            description: AI 訊息事件和權威狀態快照。
         base.v1.ListAiMessageResponse:
             type: object
             properties:
@@ -12181,6 +12374,9 @@ components:
                     items:
                         $ref: '#/components/schemas/base.v1.AiPluginTool'
                     description: 工具快照列表
+                total:
+                    type: string
+                    description: 符合條件的工具總數
             description: 外掛工具查詢結果。
         base.v1.ListAiProviderModelOptionsResponse:
             type: object
@@ -13952,6 +14148,10 @@ components:
             type: object
             properties: {}
             description: 刪除 BI 儀表板響應。
+        bi.admin.v1.DeleteBiQueryResponse:
+            type: object
+            properties: {}
+            description: 刪除智慧問數記錄響應。
         bi.admin.v1.DeleteBiSourceResponse:
             type: object
             properties: {}

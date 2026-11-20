@@ -6347,7 +6347,6 @@ paths:
         post:
             tags:
                 - BaseUserService
-            description: Create user
             operationId: BaseUserService_CreateBaseUser
             requestBody:
                 content:
@@ -6886,6 +6885,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/bi.admin.v1.BiQueryRecord'
+        delete:
+            tags:
+                - BiQueryRecordService
+            description: Delete one of your own query records; records already saved as card sources cannot be deleted.
+            operationId: BiQueryRecordService_DeleteBiQuery
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.DeleteBiQueryResponse'
     /api/v1/admin/bi/query/ask:
         post:
             tags:
@@ -7129,7 +7146,7 @@ paths:
         get:
             tags:
                 - BiSourceService
-            description: Paginated query for data source中specified table data.
+            description: List data of the specified table in the data source with pagination.
             operationId: BiSourceService_PageBiSourceTableData
             parameters:
                 - name: id
@@ -8908,6 +8925,19 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.AiAutomationRun'
+    /api/v1/base/ai/automation/count:
+        get:
+            tags:
+                - AiAutomationService
+            description: Count the current user's automation tasks.
+            operationId: AiAutomationService_CountAiAutomation
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.CountAiAutomationResponse'
     /api/v1/base/ai/automation/{id}:
         get:
             tags:
@@ -9038,6 +9068,35 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.PageAiFileResponse'
+    /api/v1/base/ai/file/count:
+        get:
+            tags:
+                - AiFileService
+            description: statistics AI file count.
+            operationId: AiFileService_CountAiFile
+            parameters:
+                - name: view
+                  in: query
+                  schema:
+                    enum:
+                        - AI_FILE_VIEW_UNSPECIFIED
+                        - AI_FILE_VIEW_ALL
+                        - AI_FILE_VIEW_UPLOADED
+                        - AI_FILE_VIEW_GENERATED
+                        - AI_FILE_VIEW_TRASHED
+                    type: string
+                    format: enum
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.CountAiFileResponse'
     /api/v1/base/ai/file/{id}:
         delete:
             tags:
@@ -9146,7 +9205,9 @@ paths:
         get:
             tags:
                 - AiPluginService
-            description: Retrieve the plugin catalog visible to the current identity.
+            description: |-
+                查询当前身份可见的插件目录。
+                 查询插件目录。
             operationId: AiPluginService_ListAiPlugin
             parameters:
                 - name: keyword
@@ -9376,6 +9437,19 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.AiPluginConnection'
+    /api/v1/base/ai/plugin/count:
+        get:
+            tags:
+                - AiPluginService
+            description: Count plugins and MCP tools visible to the current identity.
+            operationId: AiPluginService_CountAiPlugin
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.CountAiPluginResponse'
     /api/v1/base/ai/plugin/{id}:
         get:
             tags:
@@ -9484,6 +9558,18 @@ paths:
                         - TERMINAL_ADMIN
                     type: string
                     format: enum
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -9778,6 +9864,34 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.SendAiMessageResponse'
+    /api/v1/base/ai/session/{session_id}/message/{message_id}/event:
+        get:
+            tags:
+                - AiMessageService
+            description: Read-only catch-up of execution events and the message snapshot; tools are never restored or replayed.
+            operationId: AiMessageService_ListAiMessageEvent
+            parameters:
+                - name: session_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: message_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: after_id
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.ListAiMessageEventResponse'
     /api/v1/base/ai/session/{session_id}/message/{message_id}/regeneration:
         post:
             tags:
@@ -11105,6 +11219,22 @@ components:
                     description: totaldurationms
                     format: int32
             description: AI assistant message
+        base.v1.AiMessageEvent:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Monotonically increasing event ID
+                run_id:
+                    type: string
+                    description: this Execute number
+                event:
+                    type: string
+                    description: event type
+                payload:
+                    type: string
+                    description: JSON payload consistent with the SSE stream
+            description: Persisted AI message execution events; internal summaries and checkpoints are not included.
         base.v1.AiOutputContent:
             type: object
             properties:
@@ -11508,6 +11638,9 @@ components:
                 output:
                     type: string
                     description: Raw tool output JSON
+                call_id:
+                    type: string
+                    description: Associated number of the tool call in the current round
             description: AI assistant tool call record
         base.v1.ArchiveNotificationRequest:
             type: object
@@ -11694,6 +11827,41 @@ components:
                     type: string
                     description: number
             description: Request to continue a discussion from results.
+        base.v1.CountAiAutomationResponse:
+            type: object
+            properties:
+                total:
+                    type: integer
+                    description: non-archive task total count
+                    format: int32
+                pending_count:
+                    type: integer
+                    description: Number of executions pending confirmation
+                    format: int32
+            description: Automation task count statistics result.
+        base.v1.CountAiFileResponse:
+            type: object
+            properties:
+                total:
+                    type: string
+                    description: file total count
+            description: AI file count statistics result.
+        base.v1.CountAiPluginResponse:
+            type: object
+            properties:
+                total:
+                    type: integer
+                    description: Total number of visible plugins
+                    format: int32
+                tool_total:
+                    type: integer
+                    description: Total number of MCP tools of visible plugins
+                    format: int32
+                connected_total:
+                    type: integer
+                    description: Number of plugin accounts connected in the current tenant
+                    format: int32
+            description: Plugin count statistics result.
         base.v1.CreateAiAutomationRequest:
             type: object
             properties:
@@ -12137,6 +12305,31 @@ components:
                         $ref: '#/components/schemas/base.v1.AiKnowledgeOption'
                     description: Knowledge base option list
             description: AI knowledge base options response.
+        base.v1.ListAiMessageEventResponse:
+            type: object
+            properties:
+                events:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiMessageEvent'
+                    description: Event list of the current execution; up to 100 items
+                next_cursor:
+                    type: string
+                    description: Event cursor for the next page
+                has_more:
+                    type: boolean
+                    description: Whether unread events remain
+                run_id:
+                    type: string
+                    description: current Execute number
+                messages:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiMessage'
+                    description: Authoritative snapshot of the current message
+                session:
+                    $ref: '#/components/schemas/base.v1.AiSession'
+            description: AI message events and authoritative status snapshot.
         base.v1.ListAiMessageResponse:
             type: object
             properties:
@@ -12181,6 +12374,9 @@ components:
                     items:
                         $ref: '#/components/schemas/base.v1.AiPluginTool'
                     description: Tool snapshot list
+                total:
+                    type: string
+                    description: Total number of tools matching the criteria
             description: Plugin tool query result.
         base.v1.ListAiProviderModelOptionsResponse:
             type: object
@@ -13910,8 +14106,8 @@ components:
                     type: array
                     items:
                         type: string
-                    description: By field顺序排列of 单元格value
-            description: data sourcetablein一line data.
+                    description: Cell values ordered by field order
+            description: One row of data from a source table.
         bi.admin.v1.BiTimeRangeSpec:
             type: object
             properties:
@@ -13952,6 +14148,10 @@ components:
             type: object
             properties: {}
             description: Delete BI dashboard response.
+        bi.admin.v1.DeleteBiQueryResponse:
+            type: object
+            properties: {}
+            description: Delete natural-language query record response.
         bi.admin.v1.DeleteBiSourceResponse:
             type: object
             properties: {}
@@ -17738,7 +17938,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: 分组代table policy ID
+                    description: ID of the policy representing the group
                 tenant_id:
                     type: string
                     description: tenant ID, defaulttenantpolicyas global policy
@@ -17747,7 +17947,7 @@ components:
                     description: service name
                 operation:
                     type: string
-                    description: RPCcomplete操作name
+                    description: Full RPC operation name
                 message_ref:
                     type: string
                     description: proto message complete name
@@ -17755,7 +17955,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseRedactOutputPolicy'
-                    description: 分组内field policy
+                    description: Field policies within the group
             description: By api and Protomessageaggregationof outbound redaction policy.
         system.admin.v1.BaseRedactRule:
             type: object
@@ -17934,7 +18134,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: 分组代table policy ID
+                    description: ID of the policy representing the group
                 tenant_id:
                     type: string
                     description: tenant ID, defaulttenantpolicyas global policy
@@ -17951,7 +18151,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseRedactStoragePolicy'
-                    description: 分组内field policy
+                    description: Field policies within the group
             description: By datatableaggregationof inbound redaction policy.
         system.admin.v1.BaseRedactStorageTable:
             type: object

@@ -31,6 +31,16 @@ func (s *AiFileService) PageAiFile(ctx context.Context, req *basev1.PageAiFileRe
 	return response, nil
 }
 
+// CountAiFile 统计 AI 文件数量。
+func (s *AiFileService) CountAiFile(ctx context.Context, req *basev1.CountAiFileRequest) (*basev1.CountAiFileResponse, error) {
+	response, err := s.aiFileCase.CountAiFile(ctx, req)
+	if err != nil {
+		log.Error("CountAiFile", "error", err)
+		return nil, errorsx.WrapInternal(err, "统计AI文件数量失败")
+	}
+	return response, nil
+}
+
 // RenameAiFile 重命名 AI 文件。
 func (s *AiFileService) RenameAiFile(ctx context.Context, req *basev1.RenameAiFileRequest) (*basev1.AiFile, error) {
 	response, err := s.aiFileCase.RenameAiFile(ctx, req)

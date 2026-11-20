@@ -17,6 +17,7 @@ import (
 func RegisterBiQueryRecordServiceMCPTools(mcpServer *server.MCPServer, biQueryRecordServiceServer BiQueryRecordServiceServer) {
 	RegisterBiQueryRecordServicePageBiQueryMCPTool(mcpServer, biQueryRecordServiceServer)
 	RegisterBiQueryRecordServiceGetBiQueryMCPTool(mcpServer, biQueryRecordServiceServer)
+	RegisterBiQueryRecordServiceDeleteBiQueryMCPTool(mcpServer, biQueryRecordServiceServer)
 }
 
 // RegisterBiQueryRecordServicePageBiQueryMCPTool 注册分页查询当前用户的自然语言问数历史的 MCP Tool。
@@ -59,6 +60,30 @@ func RegisterBiQueryRecordServiceGetBiQueryMCPTool(mcpServer *server.MCPServer, 
 			}
 			var reply *BiQueryRecord
 			reply, err = biQueryRecordServiceServer.GetBiQuery(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
+		},
+	)
+}
+
+// RegisterBiQueryRecordServiceDeleteBiQueryMCPTool 注册删除当前账号的智能问数记录，已保存为卡片的记录不可删除的 MCP Tool。
+func RegisterBiQueryRecordServiceDeleteBiQueryMCPTool(mcpServer *server.MCPServer, biQueryRecordServiceServer BiQueryRecordServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_query_record_service_delete_bi_query",
+			mcp.WithDescription("删除当前账号的智能问数记录，已保存为卡片的记录不可删除。"),
+			mcp.WithInputSchema[*DeleteBiQueryRequest](),
+			mcp.WithOutputSchema[*DeleteBiQueryResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &DeleteBiQueryRequest{}
+			err := request.BindArguments(req)
+			if err != nil {
+				return nil, err
+			}
+			var reply *DeleteBiQueryResponse
+			reply, err = biQueryRecordServiceServer.DeleteBiQuery(ctx, req)
 			if err != nil {
 				return mcp.NewToolResultError(err.Error()), nil
 			}

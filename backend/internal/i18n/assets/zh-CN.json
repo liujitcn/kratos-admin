@@ -71,6 +71,15 @@
   "ai.plugin.listaiplugintoolrequest.plugin_id": {
     "other": "插件ID不合法"
   },
+  "ai.plugin.listaiplugintoolrequest.keyword": {
+    "other": "工具关键字不能超过100个字符"
+  },
+  "ai.plugin.listaiplugintoolrequest.page_num": {
+    "other": "页码不能小于0"
+  },
+  "ai.plugin.listaiplugintoolrequest.page_size": {
+    "other": "每页数量必须在0到100之间"
+  },
   "ai.plugin.reauthorize.id": {
     "other": "连接编号不合法"
   },
@@ -136,6 +145,9 @@
   },
   "base.ai.approval.session_id.positive": {
     "other": "会话编号不合法"
+  },
+  "base.ai.file.count.keyword.max_len": {
+    "other": "文件名关键字不能超过100个字符"
   },
   "base.ai.file.delete.id.positive": {
     "other": "文件ID必须大于0"
@@ -8098,5 +8110,86 @@
   },
   "legacy.error.f3317e9d97b10647": {
     "other": "指标网格比较指标必须是数值字段"
+  },
+  "legacy.error.1622479b89e3ef03": {
+    "other": "该问数已保存为卡片，不可删除"
+  },
+  "legacy.error.3ff5563312941610": {
+    "other": "删除智能问数记录失败"
+  },
+  "legacy.error.1e844650ac277cf7": {
+    "other": "微信小程序手机号授权未配置"
+  },
+  "legacy.error.82062a069357ebb8": {
+    "other": "表结构不存在或已变化"
+  },
+  "legacy.error.0a9f55c8b704d14b": {
+    "other": "租户字段不存在或已变化"
+  },
+  "legacy.error.0bfb11e9f00dc320": {
+    "other": "分页参数无效"
+  },
+  "legacy.error.f8386fa38e47bb03": {
+    "other": "表结构没有可预览字段"
+  },
+  "legacy.error.3ebfabb2b9ebc2ff": {
+    "other": "表字段标识不合法"
+  },
+  "legacy.error.d07e42c354b71c78": {
+    "other": "统计 BI 表数据失败"
+  },
+  "legacy.error.2fbc21b6c56e3467": {
+    "other": "数据总数超过接口支持范围"
+  },
+  "legacy.error.63ee982e44dbb715": {
+    "other": "查询 BI 表数据失败"
+  },
+  "legacy.error.46287dc802e15c2d": {
+    "other": "读取 BI 表数据失败"
+  },
+  "legacy.error.25bf0013a346677c": {
+    "other": "遍历 BI 表数据失败"
+  },
+  "legacy.error.e6d92553fa932bb8": {
+    "other": "创建联网搜索安全客户端失败"
+  },
+  "legacy.error.6f20eff27a6b7bf6": {
+    "other": "微信小程序登录未配置"
+  },
+  "legacy.error.5abed7fba4e129c8": {
+    "other": "该插件已有连接，请勿重复连接"
+  },
+  "legacy.error.29bf45a519315e2e": {
+    "other": "事件游标不合法"
+  },
+  "legacy.error.1168a48cf04f97bd": {
+    "other": "消息终态尚未持久化，请通过只读接口核实"
+  },
+  "legacy.error.a925acae33486d88": {
+    "other": "消息执行已失效"
+  },
+  "legacy.error.b25f3e4eeced3bca": {
+    "other": "上下文摘要缓存损坏"
+  },
+  "legacy.error.88ee3fd142011244": {
+    "other": "分页查询 BI 表数据失败"
+  },
+  "legacy.error.b92851029ea0c369": {
+    "other": "统计AI文件数量失败"
+  },
+  "legacy.error.34da24b6ed7a5751": {
+    "other": "读取AI消息事件失败"
+  },
+  "legacy.error.f66cf023e8b2c227": {
+    "other": "统计插件与MCP工具数量失败"
+  },
+  "base.ai.event.cursor": {
+    "other": "事件游标不合法"
+  },
+  "base.ai.event.message_id.positive": {
+    "other": "会话或消息编号不合法"
+  },
+  "base.ai.event.session_id.positive": {
+    "other": "会话或消息编号不合法"
   }
 }

@@ -12,8 +12,13 @@ import "google/protobuf/empty.proto";
 // AI 插件目录、安装策略与本人账号连接服务；管理写操作不向模型暴露。
 service AiPluginService {
   // 查询当前身份可见的插件目录。
+  // 查询插件目录。
   rpc ListAiPlugin(ListAiPluginRequest) returns (ListAiPluginResponse) {
     option (google.api.http) = { get: "/api/v1/base/ai/plugin" };
+  }
+  // 统计当前身份可见的插件与 MCP 工具数量。
+  rpc CountAiPlugin(CountAiPluginRequest) returns (CountAiPluginResponse) {
+    option (google.api.http) = { get: "/api/v1/base/ai/plugin/count" };
   }
   // 查询插件详情。
   rpc GetAiPlugin(GetAiPluginRequest) returns (AiPlugin) {
@@ -174,6 +179,17 @@ message ListAiPluginResponse {
   bool can_create_private = 4 [(gnostic.openapi.v3.property) = {description: "本租户是否允许接入已批准的个人端点"}]; // 本租户是否允许接入已批准的个人端点
 }
 
+// 插件数量统计条件（按当前身份可见范围计算）。
+message CountAiPluginRequest {
+}
+
+// 插件数量统计结果。
+message CountAiPluginResponse {
+  int32 total = 1 [(gnostic.openapi.v3.property) = {description: "可见插件总数"}]; // 可见插件总数
+  int32 tool_total = 2 [(gnostic.openapi.v3.property) = {description: "可见插件的 MCP 工具总数"}]; // 可见插件的 MCP 工具总数
+  int32 connected_total = 3 [(gnostic.openapi.v3.property) = {description: "本租户已连接插件账号数"}]; // 本租户已连接插件账号数
+}
+
 // 插件详情查询条件。
 message GetAiPluginRequest {
   string id = 1 [(gnostic.openapi.v3.property) = {description: "插件ID"}, (buf.validate.field).cel = {id: "ai.plugin.getaipluginrequest.id" message: "插件ID不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 插件ID
@@ -209,11 +225,15 @@ message SetAiPluginInstallationRequest {
 message ListAiPluginToolRequest {
   string plugin_id = 1 [(gnostic.openapi.v3.property) = {description: "插件ID"}, (buf.validate.field).cel = {id: "ai.plugin.listaiplugintoolrequest.plugin_id" message: "插件ID不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 插件ID
   Terminal terminal = 2 [(gnostic.openapi.v3.property) = {description: "工具能力配置，不代表登录来源"}, (buf.validate.field).enum = {defined_only: true}]; // 工具能力配置，不代表登录来源
+  string keyword = 3 [(gnostic.openapi.v3.property) = {description: "工具名称或说明关键字"}, (buf.validate.field).cel = {id: "ai.plugin.listaiplugintoolrequest.keyword" message: "工具关键字不能超过100个字符" expression: "this.size() <= 100"}]; // 工具名称或说明关键字
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码，0表示不分页", default: {number: 0}}, (buf.validate.field).cel = {id: "ai.plugin.listaiplugintoolrequest.page_num" message: "页码不能小于0" expression: "this >= 0"}]; // 当前页码，0表示不分页
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页行数，0表示不分页", default: {number: 0}}, (buf.validate.field).cel = {id: "ai.plugin.listaiplugintoolrequest.page_size" message: "每页数量必须在0到100之间" expression: "this >= 0 && this <= 100"}]; // 每页行数，0表示不分页
 }
 
 // 插件工具查询结果。
 message ListAiPluginToolResponse {
   repeated AiPluginTool tools = 1 [(gnostic.openapi.v3.property) = {description: "工具快照列表"}]; // 工具快照列表
+  int64 total = 2 [(gnostic.openapi.v3.property) = {description: "符合条件的工具总数"}]; // 符合条件的工具总数
 }
 
 // 租户工具契约审核请求。

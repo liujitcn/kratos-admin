@@ -18,10 +18,13 @@ var _ = new(context.Context)
 
 const _ = http.SupportPackageIsVersion3
 
+const OperationBiQueryRecordServiceDeleteBiQuery = "/bi.admin.v1.BiQueryRecordService/DeleteBiQuery"
 const OperationBiQueryRecordServiceGetBiQuery = "/bi.admin.v1.BiQueryRecordService/GetBiQuery"
 const OperationBiQueryRecordServicePageBiQuery = "/bi.admin.v1.BiQueryRecordService/PageBiQuery"
 
 type BiQueryRecordServiceHTTPServer interface {
+	// DeleteBiQuery 删除当前账号的智能问数记录，已保存为卡片的记录不可删除。
+	DeleteBiQuery(context.Context, *DeleteBiQueryRequest) (*DeleteBiQueryResponse, error)
 	// GetBiQuery 查询智能问数记录详情。
 	GetBiQuery(context.Context, *GetBiQueryRequest) (*BiQueryRecord, error)
 	// PageBiQuery 分页查询当前用户的自然语言问数历史。
@@ -32,6 +35,7 @@ func RegisterBiQueryRecordServiceHTTPServer(s *http.Server, srv BiQueryRecordSer
 	r := s.Route("/")
 	r.Handle("GET", "/api/v1/admin/bi/query-record", _BiQueryRecordService_PageBiQuery0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/bi/query-record/{id}", _BiQueryRecordService_GetBiQuery0_HTTP_Handler(srv))
+	r.Handle("DELETE", "/api/v1/admin/bi/query-record/{id}", _BiQueryRecordService_DeleteBiQuery0_HTTP_Handler(srv))
 }
 
 func _BiQueryRecordService_PageBiQuery0_HTTP_Handler(srv BiQueryRecordServiceHTTPServer) func(ctx http.Context) error {
@@ -75,7 +79,31 @@ func _BiQueryRecordService_GetBiQuery0_HTTP_Handler(srv BiQueryRecordServiceHTTP
 	}
 }
 
+func _BiQueryRecordService_DeleteBiQuery0_HTTP_Handler(srv BiQueryRecordServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in DeleteBiQueryRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBiQueryRecordServiceDeleteBiQuery)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.DeleteBiQuery(ctx, req.(*DeleteBiQueryRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*DeleteBiQueryResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 type BiQueryRecordServiceHTTPClient interface {
+	// DeleteBiQuery 删除当前账号的智能问数记录，已保存为卡片的记录不可删除。
+	DeleteBiQuery(ctx context.Context, req *DeleteBiQueryRequest, opts ...http.CallOption) (rsp *DeleteBiQueryResponse, err error)
 	// GetBiQuery 查询智能问数记录详情。
 	GetBiQuery(ctx context.Context, req *GetBiQueryRequest, opts ...http.CallOption) (rsp *BiQueryRecord, err error)
 	// PageBiQuery 分页查询当前用户的自然语言问数历史。
@@ -88,6 +116,23 @@ type BiQueryRecordServiceHTTPClientImpl struct {
 
 func NewBiQueryRecordServiceHTTPClient(client *http.Client) BiQueryRecordServiceHTTPClient {
 	return &BiQueryRecordServiceHTTPClientImpl{client}
+}
+
+// DeleteBiQuery 删除当前账号的智能问数记录，已保存为卡片的记录不可删除。
+func (c *BiQueryRecordServiceHTTPClientImpl) DeleteBiQuery(ctx context.Context, in *DeleteBiQueryRequest, opts ...http.CallOption) (*DeleteBiQueryResponse, error) {
+	var out DeleteBiQueryResponse
+	pattern := "/api/v1/admin/bi/query-record/{id}"
+	path := http.BuildPath(pattern, in, http.WithQueryParams())
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.Operation(OperationBiQueryRecordServiceDeleteBiQuery),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
 }
 
 // GetBiQuery 查询智能问数记录详情。

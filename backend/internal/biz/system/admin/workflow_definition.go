@@ -169,9 +169,8 @@ func (c *WorkflowDefinitionCase) PageWorkflowDefinition(ctx context.Context, req
 			return nil, errorsx.PermissionDenied("不能查询其他租户的流程定义")
 		}
 		opts = append(opts, repository.Where(query.TenantID.Eq(req.GetTenantId())))
-	} else if authInfo.TenantCode != gorm.DefaultTenantCode {
-		opts = append(opts, repository.Where(query.TenantID.Eq(authInfo.TenantId)))
 	}
+	// 非默认租户未指定编号时，租户隔离由数据隔离回调按登录身份注入。
 	if req.Status != nil {
 		opts = append(opts, repository.Where(query.Status.Eq(int32(req.GetStatus()))))
 	}

@@ -66,6 +66,17 @@ func (s *redactedAiPluginServiceServer) ListAiPlugin(ctx context.Context, in *Li
 	return res, err
 }
 
+// CountAiPlugin is the redacted wrapper for the actual AiPluginServiceServer.CountAiPlugin method
+// Unary RPC
+func (s *redactedAiPluginServiceServer) CountAiPlugin(ctx context.Context, in *CountAiPluginRequest) (*CountAiPluginResponse, error) {
+	res, err := s.srv.CountAiPlugin(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/base.v1.AiPluginService/CountAiPlugin"), redact.DirectionResponse), nil, res)
+	}
+	return res, err
+}
+
 // GetAiPlugin is the redacted wrapper for the actual AiPluginServiceServer.GetAiPlugin method
 // Unary RPC
 func (s *redactedAiPluginServiceServer) GetAiPlugin(ctx context.Context, in *GetAiPluginRequest) (*AiPlugin, error) {
@@ -439,6 +450,32 @@ func (x *ListAiPluginResponse) Redact() {
 	// Safe field: CanCreatePrivate
 }
 
+// Ensure CountAiPluginRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*CountAiPluginRequest)(nil)
+
+// Redact method implementation for CountAiPluginRequest
+func (x *CountAiPluginRequest) Redact() {
+	if x == nil {
+		return
+	}
+}
+
+// Ensure CountAiPluginResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*CountAiPluginResponse)(nil)
+
+// Redact method implementation for CountAiPluginResponse
+func (x *CountAiPluginResponse) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Total
+
+	// Safe field: ToolTotal
+
+	// Safe field: ConnectedTotal
+}
+
 // Ensure GetAiPluginRequest implements the Redactor interface at compile time.
 var _ redact.Redactor = (*GetAiPluginRequest)(nil)
 
@@ -523,6 +560,12 @@ func (x *ListAiPluginToolRequest) Redact() {
 	// Safe field: PluginId
 
 	// Safe field: Terminal
+
+	// Safe field: Keyword
+
+	// Safe field: PageNum
+
+	// Safe field: PageSize
 }
 
 // Ensure ListAiPluginToolResponse implements the Redactor interface at compile time.
@@ -535,6 +578,8 @@ func (x *ListAiPluginToolResponse) Redact() {
 	}
 
 	// Safe field: Tools
+
+	// Safe field: Total
 }
 
 // Ensure SetAiPluginToolPolicyRequest implements the Redactor interface at compile time.

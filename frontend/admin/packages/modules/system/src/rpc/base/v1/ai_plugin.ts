@@ -171,6 +171,20 @@ export interface ListAiPluginResponse {
   can_create_private: boolean;
 }
 
+/** 插件数量统计条件（按当前身份可见范围计算）。 */
+export interface CountAiPluginRequest {
+}
+
+/** 插件数量统计结果。 */
+export interface CountAiPluginResponse {
+  /** 可见插件总数 */
+  total: number;
+  /** 可见插件的 MCP 工具总数 */
+  tool_total: number;
+  /** 本租户已连接插件账号数 */
+  connected_total: number;
+}
+
 /** 插件详情查询条件。 */
 export interface GetAiPluginRequest {
   /** 插件ID */
@@ -219,12 +233,20 @@ export interface ListAiPluginToolRequest {
   plugin_id: string;
   /** 工具能力配置，不代表登录来源 */
   terminal: Terminal;
+  /** 工具名称或说明关键字 */
+  keyword: string;
+  /** 当前页码，0表示不分页 */
+  page_num: number;
+  /** 每页行数，0表示不分页 */
+  page_size: number;
 }
 
 /** 插件工具查询结果。 */
 export interface ListAiPluginToolResponse {
   /** 工具快照列表 */
   tools: AiPluginTool[];
+  /** 符合条件的工具总数 */
+  total: number;
 }
 
 /** 租户工具契约审核请求。 */
@@ -333,8 +355,13 @@ export interface SetAiPluginConnectionSharingRequest {
 
 /** AI 插件目录、安装策略与本人账号连接服务；管理写操作不向模型暴露。 */
 export interface AiPluginService {
-  /** 查询当前身份可见的插件目录。 */
+  /**
+   * 查询当前身份可见的插件目录。
+   * 查询插件目录。
+   */
   ListAiPlugin(request: ListAiPluginRequest): Promise<ListAiPluginResponse>;
+  /** 统计当前身份可见的插件与 MCP 工具数量。 */
+  CountAiPlugin(request: CountAiPluginRequest): Promise<CountAiPluginResponse>;
   /** 查询插件详情。 */
   GetAiPlugin(request: GetAiPluginRequest): Promise<AiPlugin>;
   /** 创建插件定义。 */

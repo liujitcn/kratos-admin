@@ -20,6 +20,7 @@ var _ = new(context.Context)
 const _ = http.SupportPackageIsVersion3
 
 const OperationAiPluginServiceCompleteAiPluginOAuth = "/base.v1.AiPluginService/CompleteAiPluginOAuth"
+const OperationAiPluginServiceCountAiPlugin = "/base.v1.AiPluginService/CountAiPlugin"
 const OperationAiPluginServiceCreateAiPlugin = "/base.v1.AiPluginService/CreateAiPlugin"
 const OperationAiPluginServiceCreateAiPluginConnection = "/base.v1.AiPluginService/CreateAiPluginConnection"
 const OperationAiPluginServiceDeleteAiPlugin = "/base.v1.AiPluginService/DeleteAiPlugin"
@@ -39,6 +40,8 @@ const OperationAiPluginServiceUpdateAiPlugin = "/base.v1.AiPluginService/UpdateA
 type AiPluginServiceHTTPServer interface {
 	// CompleteAiPluginOAuth 一次性消费授权状态并交换令牌。
 	CompleteAiPluginOAuth(context.Context, *CompleteAiPluginOAuthRequest) (*AiPluginConnection, error)
+	// CountAiPlugin 统计当前身份可见的插件与 MCP 工具数量。
+	CountAiPlugin(context.Context, *CountAiPluginRequest) (*CountAiPluginResponse, error)
 	// CreateAiPlugin 创建插件定义。
 	CreateAiPlugin(context.Context, *CreateAiPluginRequest) (*AiPlugin, error)
 	// CreateAiPluginConnection 创建本人连接并验证工具发现。
@@ -50,6 +53,7 @@ type AiPluginServiceHTTPServer interface {
 	// GetAiPlugin 查询插件详情。
 	GetAiPlugin(context.Context, *GetAiPluginRequest) (*AiPlugin, error)
 	// ListAiPlugin 查询当前身份可见的插件目录。
+	// 查询插件目录。
 	ListAiPlugin(context.Context, *ListAiPluginRequest) (*ListAiPluginResponse, error)
 	// ListAiPluginConnection 查询本人及授权共享连接。
 	ListAiPluginConnection(context.Context, *ListAiPluginConnectionRequest) (*ListAiPluginConnectionResponse, error)
@@ -74,6 +78,7 @@ type AiPluginServiceHTTPServer interface {
 func RegisterAiPluginServiceHTTPServer(s *http.Server, srv AiPluginServiceHTTPServer) {
 	r := s.Route("/")
 	r.Handle("GET", "/api/v1/base/ai/plugin", _AiPluginService_ListAiPlugin0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/base/ai/plugin/count", _AiPluginService_CountAiPlugin0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/base/ai/plugin/{id}", _AiPluginService_GetAiPlugin0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/base/ai/plugin", _AiPluginService_CreateAiPlugin0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/base/ai/plugin/{id}", _AiPluginService_UpdateAiPlugin0_HTTP_Handler(srv))
@@ -106,6 +111,25 @@ func _AiPluginService_ListAiPlugin0_HTTP_Handler(srv AiPluginServiceHTTPServer) 
 			return err
 		}
 		reply := out.(*ListAiPluginResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _AiPluginService_CountAiPlugin0_HTTP_Handler(srv AiPluginServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in CountAiPluginRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAiPluginServiceCountAiPlugin)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CountAiPlugin(ctx, req.(*CountAiPluginRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*CountAiPluginResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -431,6 +455,8 @@ func _AiPluginService_SetAiPluginConnectionSharing0_HTTP_Handler(srv AiPluginSer
 type AiPluginServiceHTTPClient interface {
 	// CompleteAiPluginOAuth 一次性消费授权状态并交换令牌。
 	CompleteAiPluginOAuth(ctx context.Context, req *CompleteAiPluginOAuthRequest, opts ...http.CallOption) (rsp *AiPluginConnection, err error)
+	// CountAiPlugin 统计当前身份可见的插件与 MCP 工具数量。
+	CountAiPlugin(ctx context.Context, req *CountAiPluginRequest, opts ...http.CallOption) (rsp *CountAiPluginResponse, err error)
 	// CreateAiPlugin 创建插件定义。
 	CreateAiPlugin(ctx context.Context, req *CreateAiPluginRequest, opts ...http.CallOption) (rsp *AiPlugin, err error)
 	// CreateAiPluginConnection 创建本人连接并验证工具发现。
@@ -442,6 +468,7 @@ type AiPluginServiceHTTPClient interface {
 	// GetAiPlugin 查询插件详情。
 	GetAiPlugin(ctx context.Context, req *GetAiPluginRequest, opts ...http.CallOption) (rsp *AiPlugin, err error)
 	// ListAiPlugin 查询当前身份可见的插件目录。
+	// 查询插件目录。
 	ListAiPlugin(ctx context.Context, req *ListAiPluginRequest, opts ...http.CallOption) (rsp *ListAiPluginResponse, err error)
 	// ListAiPluginConnection 查询本人及授权共享连接。
 	ListAiPluginConnection(ctx context.Context, req *ListAiPluginConnectionRequest, opts ...http.CallOption) (rsp *ListAiPluginConnectionResponse, err error)
@@ -479,6 +506,23 @@ func (c *AiPluginServiceHTTPClientImpl) CompleteAiPluginOAuth(ctx context.Contex
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
 		http.Operation(OperationAiPluginServiceCompleteAiPluginOAuth),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// CountAiPlugin 统计当前身份可见的插件与 MCP 工具数量。
+func (c *AiPluginServiceHTTPClientImpl) CountAiPlugin(ctx context.Context, in *CountAiPluginRequest, opts ...http.CallOption) (*CountAiPluginResponse, error) {
+	var out CountAiPluginResponse
+	pattern := "/api/v1/base/ai/plugin/count"
+	path := http.BuildPath(pattern, in, http.WithQueryParams())
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.Operation(OperationAiPluginServiceCountAiPlugin),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
@@ -576,6 +620,7 @@ func (c *AiPluginServiceHTTPClientImpl) GetAiPlugin(ctx context.Context, in *Get
 }
 
 // ListAiPlugin 查询当前身份可见的插件目录。
+// 查询插件目录。
 func (c *AiPluginServiceHTTPClientImpl) ListAiPlugin(ctx context.Context, in *ListAiPluginRequest, opts ...http.CallOption) (*ListAiPluginResponse, error) {
 	var out ListAiPluginResponse
 	pattern := "/api/v1/base/ai/plugin"

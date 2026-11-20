@@ -13,7 +13,7 @@ import (
 	"github.com/liujitcn/kratos-core/biz"
 	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 	"github.com/liujitcn/kratos-kit/auth/authn/engine"
-	authdata "github.com/liujitcn/kratos-kit/auth/data"
+	"github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/database/gorm"
 	_ "github.com/liujitcn/kratos-kit/database/gorm/driver/mysql"
 )
@@ -54,7 +54,7 @@ func TestRestoreInternalArchiveWithAuthenticatedContext(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	identity := &authdata.UserTokenPayload{UserId: 1, TenantId: 1, TenantCode: "0000", RoleCode: "super"}
+	identity := &data.UserTokenPayload{UserId: 1, TenantId: 1, TenantCode: "0000", RoleCode: "super"}
 	ctx := engine.ContextWithAuthClaims(t.Context(), identity.MakeAuthClaims())
 	baseCase := &biz.BaseCase{GormClients: map[string]*gorm.Client{"default": client}}
 	record := &models.BaseTableArchiveRecord{SourceName: "default", TableName_: name, ArchiveTableName: archive}

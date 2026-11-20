@@ -33,7 +33,7 @@ func (c *AiPluginCase) ListAiPluginConnection(ctx context.Context, req *basev1.L
 		return nil, err
 	}
 	query := c.connectionRepo.Query(ctx).AiPluginConnection
-	opts := []repository.QueryOption{repository.Where(query.TenantID.Eq(identity.TenantId)), repository.Order(query.ID.Desc())}
+	opts := []repository.QueryOption{repository.Order(query.ID.Desc())}
 	if req.PluginId != "" {
 		var pluginID int64
 		pluginID, err = strconv.ParseInt(req.PluginId, 10, 64)
@@ -65,14 +65,26 @@ func (c *AiPluginCase) ListAiPluginConnection(ctx context.Context, req *basev1.L
 	for _, definition := range definitions {
 		plugins[definition.ID] = definition
 	}
+	selected := make(map[string]int)
+	visibleRows := make([]*models.AiPluginConnection, 0, len(rows))
 	for _, row := range rows {
 		definition := plugins[row.PluginID]
 		if definition == nil || !pluginCanUse(definition, identity) {
 			continue
 		}
 		if row.OwnerUserID == identity.UserId || row.Sharing == "tenant" {
-			result.Connections = append(result.Connections, pluginConnectionDTO(row, identity))
+			key := pluginConnectionOwnerKey(row.PluginID, row.OwnerUserID)
+			index, exists := selected[key]
+			if !exists {
+				selected[key] = len(visibleRows)
+				visibleRows = append(visibleRows, row)
+				continue
+			}
+			visibleRows[index] = preferredPluginConnection([]*models.AiPluginConnection{visibleRows[index], row})
 		}
+	}
+	for _, row := range visibleRows {
+		result.Connections = append(result.Connections, pluginConnectionDTO(row, identity))
 	}
 	return result, nil
 }
@@ -116,12 +128,39 @@ func (c *AiPluginCase) CreateAiPluginConnection(ctx context.Context, req *basev1
 		}
 		credential.Token = req.Token.GetText()
 	}
-	connection := &models.AiPluginConnection{InstallationID: installation.ID, PluginID: row.ID, TenantID: identity.TenantId, OwnerUserID: identity.UserId, Sharing: "private", Label: req.Label, AuthType: req.AuthType, State: "disconnected", Revision: 1, Scopes: "", Credential: ""}
+	var connection *models.AiPluginConnection
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		var err error
-		err = c.connectionRepo.Create(txCtx, connection)
+		pluginQuery := c.Query(txCtx).AiPlugin
+		_, err = c.Find(txCtx, repository.Where(pluginQuery.ID.Eq(row.ID)), repository.Clauses(clause.Locking{Strength: "UPDATE"}))
 		if err != nil {
 			return err
+		}
+		query := c.connectionRepo.Query(txCtx).AiPluginConnection
+		var candidates []*models.AiPluginConnection
+		candidates, err = c.connectionRepo.List(txCtx, repository.Where(query.PluginID.Eq(row.ID)), repository.Where(query.OwnerUserID.Eq(identity.UserId)), repository.Order(query.ID.Desc()), repository.Clauses(clause.Locking{Strength: "UPDATE"}))
+		if err != nil {
+			return err
+		}
+		connection = preferredPluginConnection(candidates)
+		if connection != nil && pluginConnectionBusy(connection.State) {
+			return errorsx.Conflict("该插件已有连接，请勿重复连接")
+		}
+		if connection == nil {
+			connection = &models.AiPluginConnection{InstallationID: installation.ID, PluginID: row.ID, TenantID: identity.TenantId, OwnerUserID: identity.UserId, Sharing: "private", Label: req.Label, AuthType: req.AuthType, State: "disconnected", Revision: 1, Scopes: "", Credential: ""}
+			err = c.connectionRepo.Create(txCtx, connection)
+			if err != nil {
+				return err
+			}
+		} else {
+			connection.InstallationID = installation.ID
+			connection.Label = req.Label
+			connection.AuthType = req.AuthType
+			connection.State = "disconnected"
+			connection.LastError = ""
+			connection.Scopes = ""
+			connection.ExpiresAt = 0
+			connection.Revision++
 		}
 		connection.Credential, err = sealPluginCredential(txCtx, connection, credential)
 		if err != nil {
@@ -602,10 +641,10 @@ func (c *AiPluginCase) approvedMCPRevision(ctx context.Context, row *models.AiPl
 	return "", errorsx.PermissionDenied("平台或租户已撤销接入端点，或接入安全配置已变化，请重建自定义定义")
 }
 
-// saveConnection 显式选择可归零的状态字段，避免ORM忽略禁用和清空操作。
+// saveConnection 显式选择连接字段，避免ORM忽略状态归零和重连配置更新。
 func (c *AiPluginCase) saveConnection(ctx context.Context, row *models.AiPluginConnection) error {
 	query := c.connectionRepo.Query(ctx).AiPluginConnection
-	return c.connectionRepo.Update(ctx, row, repository.Where(query.ID.Eq(row.ID)), repository.Select(query.Credential, query.Scopes, query.ExpiresAt, query.State, query.LastError, query.Revision))
+	return c.connectionRepo.Update(ctx, row, repository.Where(query.ID.Eq(row.ID)), repository.Select(query.InstallationID, query.Sharing, query.Label, query.AuthType, query.Credential, query.Scopes, query.ExpiresAt, query.State, query.LastError, query.Revision))
 }
 
 // sealPluginCredential 复用SecretCrypto信封与宿主派生密钥，将密文绑定具体租户账号。
@@ -655,6 +694,30 @@ func pluginConnectionDTO(row *models.AiPluginConnection, identity *data.UserToke
 	result := &basev1.AiPluginConnection{Id: strconv.FormatInt(row.ID, 10), PluginId: strconv.FormatInt(row.PluginID, 10), Label: row.Label, AuthType: row.AuthType, State: row.State, Sharing: row.Sharing, Scopes: row.Scopes, ExpiresAt: row.ExpiresAt, Revision: row.Revision, LastError: row.LastError, OwnerUserId: row.OwnerUserID}
 	result.CanManage = (identity == nil || identity.UserId == row.OwnerUserID)
 	return result
+}
+
+// preferredPluginConnection 在历史重复记录中优先保留已连接账号，否则保留调用方排序后的第一条。
+func preferredPluginConnection(rows []*models.AiPluginConnection) *models.AiPluginConnection {
+	var preferred *models.AiPluginConnection
+	for _, row := range rows {
+		if row == nil {
+			continue
+		}
+		if preferred == nil || row.State == "connected" && preferred.State != "connected" {
+			preferred = row
+		}
+	}
+	return preferred
+}
+
+// pluginConnectionBusy 判断连接是否仍处于进行中或已可用，避免重复创建同一账号连接。
+func pluginConnectionBusy(state string) bool {
+	return state == "connected" || state == "checking" || state == "authorizing"
+}
+
+// pluginConnectionOwnerKey 返回同一租户用户下插件连接的去重键。
+func pluginConnectionOwnerKey(pluginID, ownerUserID int64) string {
+	return strconv.FormatInt(pluginID, 10) + ":" + strconv.FormatInt(ownerUserID, 10)
 }
 
 // pluginOAuthConfig 使用平台预注册的公开PKCE客户端，不使用登录OAuth配置。

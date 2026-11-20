@@ -1,6 +1,8 @@
 import service from "@liujitcn/kratos-admin-core/request";
 import type {
   BiQueryRecordService,
+  DeleteBiQueryRequest,
+  DeleteBiQueryResponse,
   GetBiQueryRequest,
   PageBiQueryRequest,
   PageBiQueryResponse
@@ -19,6 +21,11 @@ export class BiQueryRecordServiceImpl implements BiQueryRecordService {
   /** 查询智能问数记录详情。 */
   GetBiQuery(request: GetBiQueryRequest): Promise<BiQueryRecord> {
     return service({ url: `${BI_QUERY_URL}/${request.id}`, method: "get" });
+  }
+
+  /** 删除智能问数记录。 */
+  DeleteBiQuery(request: DeleteBiQueryRequest): Promise<DeleteBiQueryResponse> {
+    return service({ url: `${BI_QUERY_URL}/${request.id}`, method: "delete" });
   }
 }
 

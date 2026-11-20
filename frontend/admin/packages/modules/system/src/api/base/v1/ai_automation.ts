@@ -8,6 +8,8 @@ import type {
   CreateAiAutomationRequest,
   GetAiAutomationRequest,
   GetAiAutomationRunRequest,
+  CountAiAutomationRequest,
+  CountAiAutomationResponse,
   ListAiAutomationRequest,
   ListAiAutomationResponse,
   ListAiAutomationRunRequest,
@@ -26,6 +28,14 @@ export class AiAutomationServiceImpl implements AiAutomationService {
   ListAiAutomation(request: ListAiAutomationRequest): Promise<ListAiAutomationResponse> {
     return service<ListAiAutomationRequest, ListAiAutomationResponse>({
       url: `/v1/base/ai/automation`,
+      method: "get",
+      params: request
+    });
+  }
+  /** CountAiAutomation 调用服务端自动化能力。 */
+  CountAiAutomation(request: CountAiAutomationRequest): Promise<CountAiAutomationResponse> {
+    return service<CountAiAutomationRequest, CountAiAutomationResponse>({
+      url: `/v1/base/ai/automation/count`,
       method: "get",
       params: request
     });

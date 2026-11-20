@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"strconv"
+	"strings"
 
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/dto"
 	"github.com/liujitcn/kratos-kit/auth/data"
@@ -19,11 +20,12 @@ import (
 	"github.com/liujitcn/kratos-core/errorsx"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"golang.org/x/oauth2"
+	"gorm.io/gen/field"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
-// ListAiPluginTool 按会话工具能力查询可见账号快照，沿用原 API 权限和审核策略。
+// ListAiPluginTool 按关键字和页码查询可见账号快照，沿用原 API 权限和审核策略。
 func (c *AiPluginCase) ListAiPluginTool(ctx context.Context, req *basev1.ListAiPluginToolRequest) (*basev1.ListAiPluginToolResponse, error) {
 	var err error
 	var row *models.AiPlugin
@@ -43,6 +45,10 @@ func (c *AiPluginCase) ListAiPluginTool(ctx context.Context, req *basev1.ListAiP
 	}
 	query := c.toolRepo.Query(ctx).AiPluginTool
 	opts := []repository.QueryOption{repository.Where(query.PluginID.Eq(row.ID)), repository.Order(query.ID.Asc())}
+	if keyword := req.GetKeyword(); keyword != "" {
+		pattern := "%" + keyword + "%"
+		opts = append(opts, repository.Where(field.Or(query.SourceName.Like(pattern), query.Description.Like(pattern))))
+	}
 	var rows []*models.AiPluginTool
 	rows, err = c.toolRepo.List(ctx, opts...)
 	if err != nil {
@@ -57,7 +63,7 @@ func (c *AiPluginCase) ListAiPluginTool(ctx context.Context, req *basev1.ListAiP
 		}
 		approvalUnavailable = "平台或租户接入策略已撤销或变化，请重建自定义定义"
 	}
-	result := &basev1.ListAiPluginToolResponse{}
+	visibleSnapshots := make([]*models.AiPluginTool, 0, len(rows))
 	for _, snapshot := range rows {
 		if snapshot.DiscoveryScope != "local" {
 			_, err = c.ownedConnection(ctx, snapshot.DiscoveryScope, false)
@@ -77,6 +83,12 @@ func (c *AiPluginCase) ListAiPluginTool(ctx context.Context, req *basev1.ListAiP
 				}
 			}
 		}
+		visibleSnapshots = append(visibleSnapshots, snapshot)
+	}
+	total := int64(len(visibleSnapshots))
+	visibleSnapshots = paginateAiPluginTools(visibleSnapshots, req.GetPageNum(), req.GetPageSize())
+	result := &basev1.ListAiPluginToolResponse{Total: total}
+	for _, snapshot := range visibleSnapshots {
 		item := &basev1.AiPluginTool{Id: strconv.FormatInt(snapshot.ID, 10), PluginId: req.PluginId, SourceName: snapshot.SourceName, Description: snapshot.Description, InputSchema: snapshot.InputSchema, ContractHash: snapshot.ContractHash, State: snapshot.State, Effect: snapshot.Effect}
 		if snapshot.DiscoveryScope != "local" {
 			item.ConnectionId = snapshot.DiscoveryScope
@@ -143,6 +155,24 @@ func (c *AiPluginCase) ListAiPluginTool(ctx context.Context, req *basev1.ListAiP
 		result.Tools = append(result.Tools, item)
 	}
 	return result, nil
+}
+
+// paginateAiPluginTools 按请求页码裁剪已完成权限过滤的工具快照；页大小为零时保留全量兼容行为。
+func paginateAiPluginTools(items []*models.AiPluginTool, pageNum, pageSize int64) []*models.AiPluginTool {
+	if pageSize <= 0 {
+		return items
+	}
+	if pageNum < 1 {
+		pageNum = 1
+	}
+	total := int64(len(items))
+	maxPage := (total + pageSize - 1) / pageSize
+	if total == 0 || pageNum > maxPage {
+		return nil
+	}
+	start := (pageNum - 1) * pageSize
+	end := min(start+pageSize, total)
+	return items[int(start):int(end)]
 }
 
 // SetAiPluginToolPolicy 以当前契约哈希和修订号审查，API仍修改原平台开关与提示词。
@@ -319,7 +349,17 @@ func (c *AiPluginCase) refreshConnection(ctx context.Context, row *models.AiPlug
 			if err != nil {
 				return errorsx.InvalidArgument("远端工具Schema不支持，完整快照未更新").WithCause(err)
 			}
-			err = c.saveToolSnapshot(txCtx, row.ID, scope, "MCP", "", remote.Name, remote.Description, string(raw), "unknown")
+			effect := inferMCPToolEffect(remote.Name, remote.Description)
+			err = c.saveToolSnapshot(txCtx, row.ID, scope, "MCP", "", remote.Name, remote.Description, string(raw), effect)
+			if err != nil {
+				return err
+			}
+			var contractHash string
+			contractHash, err = plugin.ContractHash(remote.Name, remote.Description, string(raw))
+			if err != nil {
+				return err
+			}
+			err = c.ensureMCPToolPolicy(txCtx, installation.ID, remote.Name, contractHash, effect)
 			if err != nil {
 				return err
 			}
@@ -351,6 +391,27 @@ func (c *AiPluginCase) refreshConnection(ctx context.Context, row *models.AiPlug
 	}
 	*connection = *refreshed
 	return nil
+}
+
+// ensureMCPToolPolicy 为首次发现的 MCP 工具创建默认允许策略，不覆盖已有人工审核结果。
+func (c *AiPluginCase) ensureMCPToolPolicy(ctx context.Context, installationID int64, toolKey, contractHash, effect string) error {
+	var err error
+	_, err = c.findToolPolicy(ctx, installationID, toolKey)
+	if err == nil {
+		return nil
+	}
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
+	return c.policyRepo.Create(ctx, &models.AiPluginToolPolicy{
+		InstallationID: installationID,
+		ToolKey:        toolKey,
+		Allowed:        1,
+		ContractHash:   contractHash,
+		Prompts:        "[]",
+		Effect:         effect,
+		Revision:       1,
+	})
 }
 
 // connectionToken 在连接行锁内刷新OAuth，跨实例不会并发覆盖刷新令牌；不重放工具调用。
@@ -445,7 +506,11 @@ func (c *AiPluginCase) saveToolSnapshot(ctx context.Context, pluginID int64, sco
 		return err
 	}
 	if row.ContractHash == hash && row.State == "discovered" {
-		return nil
+		if row.Effect == effect {
+			return nil
+		}
+		row.Effect = effect
+		return c.toolRepo.Update(ctx, row, append(opts, repository.Select(query.Effect))...)
 	}
 	row.ContractHash = hash
 	row.Description = description
@@ -461,6 +526,21 @@ func (c *AiPluginCase) findToolPolicy(ctx context.Context, installationID int64,
 	query := c.policyRepo.Query(ctx).AiPluginToolPolicy
 	opts := []repository.QueryOption{repository.Where(query.InstallationID.Eq(installationID)), repository.Where(query.ToolKey.Eq(key))}
 	return c.policyRepo.Find(ctx, opts...)
+}
+
+// inferMCPToolEffect 根据工具名称和描述推断默认读写效果；无法命中写操作词时按读取处理。
+// shortcut: 关键词无法覆盖复杂业务语义，后续仍可在工具策略中人工调整。
+func inferMCPToolEffect(name, description string) string {
+	content := strings.ToLower(name + " " + description)
+	for _, keyword := range []string{
+		"create", "update", "delete", "remove", "clear", "write", "send", "upload", "convert", "generate", "render", "merge", "execute", "run", "warm", "publish", "save", "set",
+		"创建", "更新", "删除", "移除", "清除", "写入", "发送", "上传", "转换", "生成", "渲染", "合并", "执行", "运行", "预热", "发布", "保存", "设置",
+	} {
+		if strings.Contains(content, keyword) {
+			return "write"
+		}
+	}
+	return "read"
 }
 
 // failConnection 只在原修订仍有效时登记失败，绝不让迟到的网络响应复活已撤销账号。

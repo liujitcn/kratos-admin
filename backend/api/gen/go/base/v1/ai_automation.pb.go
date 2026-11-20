@@ -592,6 +592,96 @@ func (x *ListAiAutomationResponse) GetPendingCount() int32 {
 	return 0
 }
 
+// 自动化任务数量统计条件（按当前租户与用户计算）。
+type CountAiAutomationRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CountAiAutomationRequest) Reset() {
+	*x = CountAiAutomationRequest{}
+	mi := &file_base_v1_ai_automation_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CountAiAutomationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CountAiAutomationRequest) ProtoMessage() {}
+
+func (x *CountAiAutomationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_base_v1_ai_automation_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CountAiAutomationRequest.ProtoReflect.Descriptor instead.
+func (*CountAiAutomationRequest) Descriptor() ([]byte, []int) {
+	return file_base_v1_ai_automation_proto_rawDescGZIP(), []int{6}
+}
+
+// 自动化任务数量统计结果。
+type CountAiAutomationResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Total         int32                  `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`                                   // 非归档任务总数
+	PendingCount  int32                  `protobuf:"varint,2,opt,name=pending_count,json=pendingCount,proto3" json:"pending_count,omitempty"` // 待确认执行数
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CountAiAutomationResponse) Reset() {
+	*x = CountAiAutomationResponse{}
+	mi := &file_base_v1_ai_automation_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CountAiAutomationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CountAiAutomationResponse) ProtoMessage() {}
+
+func (x *CountAiAutomationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_base_v1_ai_automation_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CountAiAutomationResponse.ProtoReflect.Descriptor instead.
+func (*CountAiAutomationResponse) Descriptor() ([]byte, []int) {
+	return file_base_v1_ai_automation_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *CountAiAutomationResponse) GetTotal() int32 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+func (x *CountAiAutomationResponse) GetPendingCount() int32 {
+	if x != nil {
+		return x.PendingCount
+	}
+	return 0
+}
+
 // 任务查询。
 type GetAiAutomationRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -602,7 +692,7 @@ type GetAiAutomationRequest struct {
 
 func (x *GetAiAutomationRequest) Reset() {
 	*x = GetAiAutomationRequest{}
-	mi := &file_base_v1_ai_automation_proto_msgTypes[6]
+	mi := &file_base_v1_ai_automation_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -614,7 +704,7 @@ func (x *GetAiAutomationRequest) String() string {
 func (*GetAiAutomationRequest) ProtoMessage() {}
 
 func (x *GetAiAutomationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_automation_proto_msgTypes[6]
+	mi := &file_base_v1_ai_automation_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -627,7 +717,7 @@ func (x *GetAiAutomationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAiAutomationRequest.ProtoReflect.Descriptor instead.
 func (*GetAiAutomationRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_automation_proto_rawDescGZIP(), []int{6}
+	return file_base_v1_ai_automation_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetAiAutomationRequest) GetId() string {
@@ -647,7 +737,7 @@ type GetAiAutomationRunRequest struct {
 
 func (x *GetAiAutomationRunRequest) Reset() {
 	*x = GetAiAutomationRunRequest{}
-	mi := &file_base_v1_ai_automation_proto_msgTypes[7]
+	mi := &file_base_v1_ai_automation_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -659,7 +749,7 @@ func (x *GetAiAutomationRunRequest) String() string {
 func (*GetAiAutomationRunRequest) ProtoMessage() {}
 
 func (x *GetAiAutomationRunRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_automation_proto_msgTypes[7]
+	mi := &file_base_v1_ai_automation_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -672,7 +762,7 @@ func (x *GetAiAutomationRunRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAiAutomationRunRequest.ProtoReflect.Descriptor instead.
 func (*GetAiAutomationRunRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_automation_proto_rawDescGZIP(), []int{7}
+	return file_base_v1_ai_automation_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetAiAutomationRunRequest) GetId() string {
@@ -692,7 +782,7 @@ type StopAiAutomationRunRequest struct {
 
 func (x *StopAiAutomationRunRequest) Reset() {
 	*x = StopAiAutomationRunRequest{}
-	mi := &file_base_v1_ai_automation_proto_msgTypes[8]
+	mi := &file_base_v1_ai_automation_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -704,7 +794,7 @@ func (x *StopAiAutomationRunRequest) String() string {
 func (*StopAiAutomationRunRequest) ProtoMessage() {}
 
 func (x *StopAiAutomationRunRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_automation_proto_msgTypes[8]
+	mi := &file_base_v1_ai_automation_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -717,7 +807,7 @@ func (x *StopAiAutomationRunRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StopAiAutomationRunRequest.ProtoReflect.Descriptor instead.
 func (*StopAiAutomationRunRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_automation_proto_rawDescGZIP(), []int{8}
+	return file_base_v1_ai_automation_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *StopAiAutomationRunRequest) GetId() string {
@@ -737,7 +827,7 @@ type ContinueAiAutomationRunRequest struct {
 
 func (x *ContinueAiAutomationRunRequest) Reset() {
 	*x = ContinueAiAutomationRunRequest{}
-	mi := &file_base_v1_ai_automation_proto_msgTypes[9]
+	mi := &file_base_v1_ai_automation_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -749,7 +839,7 @@ func (x *ContinueAiAutomationRunRequest) String() string {
 func (*ContinueAiAutomationRunRequest) ProtoMessage() {}
 
 func (x *ContinueAiAutomationRunRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_automation_proto_msgTypes[9]
+	mi := &file_base_v1_ai_automation_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -762,7 +852,7 @@ func (x *ContinueAiAutomationRunRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContinueAiAutomationRunRequest.ProtoReflect.Descriptor instead.
 func (*ContinueAiAutomationRunRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_automation_proto_rawDescGZIP(), []int{9}
+	return file_base_v1_ai_automation_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ContinueAiAutomationRunRequest) GetId() string {
@@ -782,7 +872,7 @@ type PreviewAiAutomationScheduleRequest struct {
 
 func (x *PreviewAiAutomationScheduleRequest) Reset() {
 	*x = PreviewAiAutomationScheduleRequest{}
-	mi := &file_base_v1_ai_automation_proto_msgTypes[10]
+	mi := &file_base_v1_ai_automation_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -794,7 +884,7 @@ func (x *PreviewAiAutomationScheduleRequest) String() string {
 func (*PreviewAiAutomationScheduleRequest) ProtoMessage() {}
 
 func (x *PreviewAiAutomationScheduleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_automation_proto_msgTypes[10]
+	mi := &file_base_v1_ai_automation_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -807,7 +897,7 @@ func (x *PreviewAiAutomationScheduleRequest) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use PreviewAiAutomationScheduleRequest.ProtoReflect.Descriptor instead.
 func (*PreviewAiAutomationScheduleRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_automation_proto_rawDescGZIP(), []int{10}
+	return file_base_v1_ai_automation_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *PreviewAiAutomationScheduleRequest) GetSchedule() *AiAutomationSchedule {
@@ -828,7 +918,7 @@ type PreviewAiAutomationScheduleResponse struct {
 
 func (x *PreviewAiAutomationScheduleResponse) Reset() {
 	*x = PreviewAiAutomationScheduleResponse{}
-	mi := &file_base_v1_ai_automation_proto_msgTypes[11]
+	mi := &file_base_v1_ai_automation_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -840,7 +930,7 @@ func (x *PreviewAiAutomationScheduleResponse) String() string {
 func (*PreviewAiAutomationScheduleResponse) ProtoMessage() {}
 
 func (x *PreviewAiAutomationScheduleResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_automation_proto_msgTypes[11]
+	mi := &file_base_v1_ai_automation_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -853,7 +943,7 @@ func (x *PreviewAiAutomationScheduleResponse) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use PreviewAiAutomationScheduleResponse.ProtoReflect.Descriptor instead.
 func (*PreviewAiAutomationScheduleResponse) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_automation_proto_rawDescGZIP(), []int{11}
+	return file_base_v1_ai_automation_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *PreviewAiAutomationScheduleResponse) GetTimes() []*timestamppb.Timestamp {
@@ -880,7 +970,7 @@ type CreateAiAutomationRequest struct {
 
 func (x *CreateAiAutomationRequest) Reset() {
 	*x = CreateAiAutomationRequest{}
-	mi := &file_base_v1_ai_automation_proto_msgTypes[12]
+	mi := &file_base_v1_ai_automation_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -892,7 +982,7 @@ func (x *CreateAiAutomationRequest) String() string {
 func (*CreateAiAutomationRequest) ProtoMessage() {}
 
 func (x *CreateAiAutomationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_automation_proto_msgTypes[12]
+	mi := &file_base_v1_ai_automation_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -905,7 +995,7 @@ func (x *CreateAiAutomationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAiAutomationRequest.ProtoReflect.Descriptor instead.
 func (*CreateAiAutomationRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_automation_proto_rawDescGZIP(), []int{12}
+	return file_base_v1_ai_automation_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *CreateAiAutomationRequest) GetAutomation() *AiAutomationForm {
@@ -927,7 +1017,7 @@ type UpdateAiAutomationRequest struct {
 
 func (x *UpdateAiAutomationRequest) Reset() {
 	*x = UpdateAiAutomationRequest{}
-	mi := &file_base_v1_ai_automation_proto_msgTypes[13]
+	mi := &file_base_v1_ai_automation_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -939,7 +1029,7 @@ func (x *UpdateAiAutomationRequest) String() string {
 func (*UpdateAiAutomationRequest) ProtoMessage() {}
 
 func (x *UpdateAiAutomationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_automation_proto_msgTypes[13]
+	mi := &file_base_v1_ai_automation_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -952,7 +1042,7 @@ func (x *UpdateAiAutomationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAiAutomationRequest.ProtoReflect.Descriptor instead.
 func (*UpdateAiAutomationRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_automation_proto_rawDescGZIP(), []int{13}
+	return file_base_v1_ai_automation_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *UpdateAiAutomationRequest) GetId() string {
@@ -988,7 +1078,7 @@ type SetAiAutomationStatusRequest struct {
 
 func (x *SetAiAutomationStatusRequest) Reset() {
 	*x = SetAiAutomationStatusRequest{}
-	mi := &file_base_v1_ai_automation_proto_msgTypes[14]
+	mi := &file_base_v1_ai_automation_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1000,7 +1090,7 @@ func (x *SetAiAutomationStatusRequest) String() string {
 func (*SetAiAutomationStatusRequest) ProtoMessage() {}
 
 func (x *SetAiAutomationStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_automation_proto_msgTypes[14]
+	mi := &file_base_v1_ai_automation_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1013,7 +1103,7 @@ func (x *SetAiAutomationStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetAiAutomationStatusRequest.ProtoReflect.Descriptor instead.
 func (*SetAiAutomationStatusRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_automation_proto_rawDescGZIP(), []int{14}
+	return file_base_v1_ai_automation_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *SetAiAutomationStatusRequest) GetId() string {
@@ -1049,7 +1139,7 @@ type RunAiAutomationRequest struct {
 
 func (x *RunAiAutomationRequest) Reset() {
 	*x = RunAiAutomationRequest{}
-	mi := &file_base_v1_ai_automation_proto_msgTypes[15]
+	mi := &file_base_v1_ai_automation_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1061,7 +1151,7 @@ func (x *RunAiAutomationRequest) String() string {
 func (*RunAiAutomationRequest) ProtoMessage() {}
 
 func (x *RunAiAutomationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_automation_proto_msgTypes[15]
+	mi := &file_base_v1_ai_automation_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1074,7 +1164,7 @@ func (x *RunAiAutomationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RunAiAutomationRequest.ProtoReflect.Descriptor instead.
 func (*RunAiAutomationRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_automation_proto_rawDescGZIP(), []int{15}
+	return file_base_v1_ai_automation_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *RunAiAutomationRequest) GetId() string {
@@ -1109,7 +1199,7 @@ type ListAiAutomationRunRequest struct {
 
 func (x *ListAiAutomationRunRequest) Reset() {
 	*x = ListAiAutomationRunRequest{}
-	mi := &file_base_v1_ai_automation_proto_msgTypes[16]
+	mi := &file_base_v1_ai_automation_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1121,7 +1211,7 @@ func (x *ListAiAutomationRunRequest) String() string {
 func (*ListAiAutomationRunRequest) ProtoMessage() {}
 
 func (x *ListAiAutomationRunRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_automation_proto_msgTypes[16]
+	mi := &file_base_v1_ai_automation_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1134,7 +1224,7 @@ func (x *ListAiAutomationRunRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAiAutomationRunRequest.ProtoReflect.Descriptor instead.
 func (*ListAiAutomationRunRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_automation_proto_rawDescGZIP(), []int{16}
+	return file_base_v1_ai_automation_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *ListAiAutomationRunRequest) GetAutomationId() string {
@@ -1161,7 +1251,7 @@ type ListAiAutomationRunResponse struct {
 
 func (x *ListAiAutomationRunResponse) Reset() {
 	*x = ListAiAutomationRunResponse{}
-	mi := &file_base_v1_ai_automation_proto_msgTypes[17]
+	mi := &file_base_v1_ai_automation_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1173,7 +1263,7 @@ func (x *ListAiAutomationRunResponse) String() string {
 func (*ListAiAutomationRunResponse) ProtoMessage() {}
 
 func (x *ListAiAutomationRunResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_automation_proto_msgTypes[17]
+	mi := &file_base_v1_ai_automation_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1186,7 +1276,7 @@ func (x *ListAiAutomationRunResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAiAutomationRunResponse.ProtoReflect.Descriptor instead.
 func (*ListAiAutomationRunResponse) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_automation_proto_rawDescGZIP(), []int{17}
+	return file_base_v1_ai_automation_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ListAiAutomationRunResponse) GetRuns() []*AiAutomationRun {
@@ -1261,7 +1351,11 @@ const file_base_v1_ai_automation_proto_rawDesc = "" +
 	"\akeyword\x18\x02 \x01(\tB\x1b\xbaG\x18\x92\x02\x15名称或指令搜索R\akeyword\"\xac\x01\n" +
 	"\x18ListAiAutomationResponse\x12K\n" +
 	"\vautomations\x18\x01 \x03(\v2\x15.base.v1.AiAutomationB\x12\xbaG\x0f\x92\x02\f本人任务R\vautomations\x12C\n" +
-	"\rpending_count\x18\x02 \x01(\x05B\x1e\xbaG\x1b\x92\x02\x18本人待确认执行数R\fpendingCount\"J\n" +
+	"\rpending_count\x18\x02 \x01(\x05B\x1e\xbaG\x1b\x92\x02\x18本人待确认执行数R\fpendingCount\"\x1a\n" +
+	"\x18CountAiAutomationRequest\"\x8d\x01\n" +
+	"\x19CountAiAutomationResponse\x121\n" +
+	"\x05total\x18\x01 \x01(\x05B\x1b\xbaG\x18\x92\x02\x15非归档任务总数R\x05total\x12=\n" +
+	"\rpending_count\x18\x02 \x01(\x05B\x18\xbaG\x15\x92\x02\x12待确认执行数R\fpendingCount\"J\n" +
 	"\x16GetAiAutomationRequest\x120\n" +
 	"\x02id\x18\x01 \x01(\tB \xbaG\t\x92\x02\x06编号\xbaH\x11r\x0f2\r^[1-9][0-9]*$R\x02id\"M\n" +
 	"\x19GetAiAutomationRunRequest\x120\n" +
@@ -1298,9 +1392,10 @@ const file_base_v1_ai_automation_proto_rawDesc = "" +
 	"\rautomation_id\x18\x01 \x01(\tB)\xbaG&\x92\x02#任务ID；留空查询本人全部R\fautomationId\x12?\n" +
 	"\x05limit\x18\x02 \x01(\x05B)\xbaG\x1d\x92\x02\x1a数量；默认50最多100\xbaH\x06\x1a\x04\x18d(\x00R\x05limit\"e\n" +
 	"\x1bListAiAutomationRunResponse\x12F\n" +
-	"\x04runs\x18\x01 \x03(\v2\x18.base.v1.AiAutomationRunB\x18\xbaG\x15\x92\x02\x12本人执行记录R\x04runs2\xe8\v\n" +
+	"\x04runs\x18\x01 \x03(\v2\x18.base.v1.AiAutomationRunB\x18\xbaG\x15\x92\x02\x12本人执行记录R\x04runs2\xef\f\n" +
 	"\x13AiAutomationService\x12{\n" +
-	"\x10ListAiAutomation\x12 .base.v1.ListAiAutomationRequest\x1a!.base.v1.ListAiAutomationResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/base/ai/automation\x12r\n" +
+	"\x10ListAiAutomation\x12 .base.v1.ListAiAutomationRequest\x1a!.base.v1.ListAiAutomationResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/base/ai/automation\x12\x84\x01\n" +
+	"\x11CountAiAutomation\x12!.base.v1.CountAiAutomationRequest\x1a\".base.v1.CountAiAutomationResponse\"(\x82\xd3\xe4\x93\x02\"\x12 /api/v1/base/ai/automation/count\x12r\n" +
 	"\x0fGetAiAutomation\x12\x1f.base.v1.GetAiAutomationRequest\x1a\x15.base.v1.AiAutomation\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/v1/base/ai/automation/{id}\x12\xa7\x01\n" +
 	"\x1bPreviewAiAutomationSchedule\x12+.base.v1.PreviewAiAutomationScheduleRequest\x1a,.base.v1.PreviewAiAutomationScheduleResponse\"-\x82\xd3\xe4\x93\x02':\x01*\"\"/api/v1/base/ai/automation-preview\x12v\n" +
 	"\x12CreateAiAutomation\x12\".base.v1.CreateAiAutomationRequest\x1a\x15.base.v1.AiAutomation\"%\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/api/v1/base/ai/automation\x12{\n" +
@@ -1325,7 +1420,7 @@ func file_base_v1_ai_automation_proto_rawDescGZIP() []byte {
 	return file_base_v1_ai_automation_proto_rawDescData
 }
 
-var file_base_v1_ai_automation_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_base_v1_ai_automation_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_base_v1_ai_automation_proto_goTypes = []any{
 	(*AiAutomationSchedule)(nil),                // 0: base.v1.AiAutomationSchedule
 	(*AiAutomationForm)(nil),                    // 1: base.v1.AiAutomationForm
@@ -1333,65 +1428,69 @@ var file_base_v1_ai_automation_proto_goTypes = []any{
 	(*AiAutomationRun)(nil),                     // 3: base.v1.AiAutomationRun
 	(*ListAiAutomationRequest)(nil),             // 4: base.v1.ListAiAutomationRequest
 	(*ListAiAutomationResponse)(nil),            // 5: base.v1.ListAiAutomationResponse
-	(*GetAiAutomationRequest)(nil),              // 6: base.v1.GetAiAutomationRequest
-	(*GetAiAutomationRunRequest)(nil),           // 7: base.v1.GetAiAutomationRunRequest
-	(*StopAiAutomationRunRequest)(nil),          // 8: base.v1.StopAiAutomationRunRequest
-	(*ContinueAiAutomationRunRequest)(nil),      // 9: base.v1.ContinueAiAutomationRunRequest
-	(*PreviewAiAutomationScheduleRequest)(nil),  // 10: base.v1.PreviewAiAutomationScheduleRequest
-	(*PreviewAiAutomationScheduleResponse)(nil), // 11: base.v1.PreviewAiAutomationScheduleResponse
-	(*CreateAiAutomationRequest)(nil),           // 12: base.v1.CreateAiAutomationRequest
-	(*UpdateAiAutomationRequest)(nil),           // 13: base.v1.UpdateAiAutomationRequest
-	(*SetAiAutomationStatusRequest)(nil),        // 14: base.v1.SetAiAutomationStatusRequest
-	(*RunAiAutomationRequest)(nil),              // 15: base.v1.RunAiAutomationRequest
-	(*ListAiAutomationRunRequest)(nil),          // 16: base.v1.ListAiAutomationRunRequest
-	(*ListAiAutomationRunResponse)(nil),         // 17: base.v1.ListAiAutomationRunResponse
-	(*AiPluginSelection)(nil),                   // 18: base.v1.AiPluginSelection
-	(*timestamppb.Timestamp)(nil),               // 19: google.protobuf.Timestamp
-	(*CreateAiSessionResponse)(nil),             // 20: base.v1.CreateAiSessionResponse
+	(*CountAiAutomationRequest)(nil),            // 6: base.v1.CountAiAutomationRequest
+	(*CountAiAutomationResponse)(nil),           // 7: base.v1.CountAiAutomationResponse
+	(*GetAiAutomationRequest)(nil),              // 8: base.v1.GetAiAutomationRequest
+	(*GetAiAutomationRunRequest)(nil),           // 9: base.v1.GetAiAutomationRunRequest
+	(*StopAiAutomationRunRequest)(nil),          // 10: base.v1.StopAiAutomationRunRequest
+	(*ContinueAiAutomationRunRequest)(nil),      // 11: base.v1.ContinueAiAutomationRunRequest
+	(*PreviewAiAutomationScheduleRequest)(nil),  // 12: base.v1.PreviewAiAutomationScheduleRequest
+	(*PreviewAiAutomationScheduleResponse)(nil), // 13: base.v1.PreviewAiAutomationScheduleResponse
+	(*CreateAiAutomationRequest)(nil),           // 14: base.v1.CreateAiAutomationRequest
+	(*UpdateAiAutomationRequest)(nil),           // 15: base.v1.UpdateAiAutomationRequest
+	(*SetAiAutomationStatusRequest)(nil),        // 16: base.v1.SetAiAutomationStatusRequest
+	(*RunAiAutomationRequest)(nil),              // 17: base.v1.RunAiAutomationRequest
+	(*ListAiAutomationRunRequest)(nil),          // 18: base.v1.ListAiAutomationRunRequest
+	(*ListAiAutomationRunResponse)(nil),         // 19: base.v1.ListAiAutomationRunResponse
+	(*AiPluginSelection)(nil),                   // 20: base.v1.AiPluginSelection
+	(*timestamppb.Timestamp)(nil),               // 21: google.protobuf.Timestamp
+	(*CreateAiSessionResponse)(nil),             // 22: base.v1.CreateAiSessionResponse
 }
 var file_base_v1_ai_automation_proto_depIdxs = []int32{
 	0,  // 0: base.v1.AiAutomationForm.schedule:type_name -> base.v1.AiAutomationSchedule
-	18, // 1: base.v1.AiAutomationForm.plugins:type_name -> base.v1.AiPluginSelection
+	20, // 1: base.v1.AiAutomationForm.plugins:type_name -> base.v1.AiPluginSelection
 	1,  // 2: base.v1.AiAutomation.configuration:type_name -> base.v1.AiAutomationForm
-	19, // 3: base.v1.AiAutomation.next_fire_at:type_name -> google.protobuf.Timestamp
+	21, // 3: base.v1.AiAutomation.next_fire_at:type_name -> google.protobuf.Timestamp
 	3,  // 4: base.v1.AiAutomation.last_run:type_name -> base.v1.AiAutomationRun
-	19, // 5: base.v1.AiAutomation.created_at:type_name -> google.protobuf.Timestamp
-	19, // 6: base.v1.AiAutomation.updated_at:type_name -> google.protobuf.Timestamp
+	21, // 5: base.v1.AiAutomation.created_at:type_name -> google.protobuf.Timestamp
+	21, // 6: base.v1.AiAutomation.updated_at:type_name -> google.protobuf.Timestamp
 	1,  // 7: base.v1.AiAutomationRun.configuration:type_name -> base.v1.AiAutomationForm
-	19, // 8: base.v1.AiAutomationRun.scheduled_for:type_name -> google.protobuf.Timestamp
-	19, // 9: base.v1.AiAutomationRun.started_at:type_name -> google.protobuf.Timestamp
-	19, // 10: base.v1.AiAutomationRun.finished_at:type_name -> google.protobuf.Timestamp
-	19, // 11: base.v1.AiAutomationRun.created_at:type_name -> google.protobuf.Timestamp
+	21, // 8: base.v1.AiAutomationRun.scheduled_for:type_name -> google.protobuf.Timestamp
+	21, // 9: base.v1.AiAutomationRun.started_at:type_name -> google.protobuf.Timestamp
+	21, // 10: base.v1.AiAutomationRun.finished_at:type_name -> google.protobuf.Timestamp
+	21, // 11: base.v1.AiAutomationRun.created_at:type_name -> google.protobuf.Timestamp
 	2,  // 12: base.v1.ListAiAutomationResponse.automations:type_name -> base.v1.AiAutomation
 	0,  // 13: base.v1.PreviewAiAutomationScheduleRequest.schedule:type_name -> base.v1.AiAutomationSchedule
-	19, // 14: base.v1.PreviewAiAutomationScheduleResponse.times:type_name -> google.protobuf.Timestamp
+	21, // 14: base.v1.PreviewAiAutomationScheduleResponse.times:type_name -> google.protobuf.Timestamp
 	1,  // 15: base.v1.CreateAiAutomationRequest.automation:type_name -> base.v1.AiAutomationForm
 	1,  // 16: base.v1.UpdateAiAutomationRequest.automation:type_name -> base.v1.AiAutomationForm
 	3,  // 17: base.v1.ListAiAutomationRunResponse.runs:type_name -> base.v1.AiAutomationRun
 	4,  // 18: base.v1.AiAutomationService.ListAiAutomation:input_type -> base.v1.ListAiAutomationRequest
-	6,  // 19: base.v1.AiAutomationService.GetAiAutomation:input_type -> base.v1.GetAiAutomationRequest
-	10, // 20: base.v1.AiAutomationService.PreviewAiAutomationSchedule:input_type -> base.v1.PreviewAiAutomationScheduleRequest
-	12, // 21: base.v1.AiAutomationService.CreateAiAutomation:input_type -> base.v1.CreateAiAutomationRequest
-	13, // 22: base.v1.AiAutomationService.UpdateAiAutomation:input_type -> base.v1.UpdateAiAutomationRequest
-	14, // 23: base.v1.AiAutomationService.SetAiAutomationStatus:input_type -> base.v1.SetAiAutomationStatusRequest
-	15, // 24: base.v1.AiAutomationService.RunAiAutomation:input_type -> base.v1.RunAiAutomationRequest
-	16, // 25: base.v1.AiAutomationService.ListAiAutomationRun:input_type -> base.v1.ListAiAutomationRunRequest
-	7,  // 26: base.v1.AiAutomationService.GetAiAutomationRun:input_type -> base.v1.GetAiAutomationRunRequest
-	8,  // 27: base.v1.AiAutomationService.StopAiAutomationRun:input_type -> base.v1.StopAiAutomationRunRequest
-	9,  // 28: base.v1.AiAutomationService.ContinueAiAutomationRun:input_type -> base.v1.ContinueAiAutomationRunRequest
-	5,  // 29: base.v1.AiAutomationService.ListAiAutomation:output_type -> base.v1.ListAiAutomationResponse
-	2,  // 30: base.v1.AiAutomationService.GetAiAutomation:output_type -> base.v1.AiAutomation
-	11, // 31: base.v1.AiAutomationService.PreviewAiAutomationSchedule:output_type -> base.v1.PreviewAiAutomationScheduleResponse
-	2,  // 32: base.v1.AiAutomationService.CreateAiAutomation:output_type -> base.v1.AiAutomation
-	2,  // 33: base.v1.AiAutomationService.UpdateAiAutomation:output_type -> base.v1.AiAutomation
-	2,  // 34: base.v1.AiAutomationService.SetAiAutomationStatus:output_type -> base.v1.AiAutomation
-	3,  // 35: base.v1.AiAutomationService.RunAiAutomation:output_type -> base.v1.AiAutomationRun
-	17, // 36: base.v1.AiAutomationService.ListAiAutomationRun:output_type -> base.v1.ListAiAutomationRunResponse
-	3,  // 37: base.v1.AiAutomationService.GetAiAutomationRun:output_type -> base.v1.AiAutomationRun
-	3,  // 38: base.v1.AiAutomationService.StopAiAutomationRun:output_type -> base.v1.AiAutomationRun
-	20, // 39: base.v1.AiAutomationService.ContinueAiAutomationRun:output_type -> base.v1.CreateAiSessionResponse
-	29, // [29:40] is the sub-list for method output_type
-	18, // [18:29] is the sub-list for method input_type
+	6,  // 19: base.v1.AiAutomationService.CountAiAutomation:input_type -> base.v1.CountAiAutomationRequest
+	8,  // 20: base.v1.AiAutomationService.GetAiAutomation:input_type -> base.v1.GetAiAutomationRequest
+	12, // 21: base.v1.AiAutomationService.PreviewAiAutomationSchedule:input_type -> base.v1.PreviewAiAutomationScheduleRequest
+	14, // 22: base.v1.AiAutomationService.CreateAiAutomation:input_type -> base.v1.CreateAiAutomationRequest
+	15, // 23: base.v1.AiAutomationService.UpdateAiAutomation:input_type -> base.v1.UpdateAiAutomationRequest
+	16, // 24: base.v1.AiAutomationService.SetAiAutomationStatus:input_type -> base.v1.SetAiAutomationStatusRequest
+	17, // 25: base.v1.AiAutomationService.RunAiAutomation:input_type -> base.v1.RunAiAutomationRequest
+	18, // 26: base.v1.AiAutomationService.ListAiAutomationRun:input_type -> base.v1.ListAiAutomationRunRequest
+	9,  // 27: base.v1.AiAutomationService.GetAiAutomationRun:input_type -> base.v1.GetAiAutomationRunRequest
+	10, // 28: base.v1.AiAutomationService.StopAiAutomationRun:input_type -> base.v1.StopAiAutomationRunRequest
+	11, // 29: base.v1.AiAutomationService.ContinueAiAutomationRun:input_type -> base.v1.ContinueAiAutomationRunRequest
+	5,  // 30: base.v1.AiAutomationService.ListAiAutomation:output_type -> base.v1.ListAiAutomationResponse
+	7,  // 31: base.v1.AiAutomationService.CountAiAutomation:output_type -> base.v1.CountAiAutomationResponse
+	2,  // 32: base.v1.AiAutomationService.GetAiAutomation:output_type -> base.v1.AiAutomation
+	13, // 33: base.v1.AiAutomationService.PreviewAiAutomationSchedule:output_type -> base.v1.PreviewAiAutomationScheduleResponse
+	2,  // 34: base.v1.AiAutomationService.CreateAiAutomation:output_type -> base.v1.AiAutomation
+	2,  // 35: base.v1.AiAutomationService.UpdateAiAutomation:output_type -> base.v1.AiAutomation
+	2,  // 36: base.v1.AiAutomationService.SetAiAutomationStatus:output_type -> base.v1.AiAutomation
+	3,  // 37: base.v1.AiAutomationService.RunAiAutomation:output_type -> base.v1.AiAutomationRun
+	19, // 38: base.v1.AiAutomationService.ListAiAutomationRun:output_type -> base.v1.ListAiAutomationRunResponse
+	3,  // 39: base.v1.AiAutomationService.GetAiAutomationRun:output_type -> base.v1.AiAutomationRun
+	3,  // 40: base.v1.AiAutomationService.StopAiAutomationRun:output_type -> base.v1.AiAutomationRun
+	22, // 41: base.v1.AiAutomationService.ContinueAiAutomationRun:output_type -> base.v1.CreateAiSessionResponse
+	30, // [30:42] is the sub-list for method output_type
+	18, // [18:30] is the sub-list for method input_type
 	18, // [18:18] is the sub-list for extension type_name
 	18, // [18:18] is the sub-list for extension extendee
 	0,  // [0:18] is the sub-list for field type_name
@@ -1410,7 +1509,7 @@ func file_base_v1_ai_automation_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_base_v1_ai_automation_proto_rawDesc), len(file_base_v1_ai_automation_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   18,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

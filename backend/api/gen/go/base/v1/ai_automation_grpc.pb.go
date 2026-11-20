@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	AiAutomationService_ListAiAutomation_FullMethodName            = "/base.v1.AiAutomationService/ListAiAutomation"
+	AiAutomationService_CountAiAutomation_FullMethodName           = "/base.v1.AiAutomationService/CountAiAutomation"
 	AiAutomationService_GetAiAutomation_FullMethodName             = "/base.v1.AiAutomationService/GetAiAutomation"
 	AiAutomationService_PreviewAiAutomationSchedule_FullMethodName = "/base.v1.AiAutomationService/PreviewAiAutomationSchedule"
 	AiAutomationService_CreateAiAutomation_FullMethodName          = "/base.v1.AiAutomationService/CreateAiAutomation"
@@ -41,6 +42,8 @@ const (
 type AiAutomationServiceClient interface {
 	// 查询本人自动化计划。
 	ListAiAutomation(ctx context.Context, in *ListAiAutomationRequest, opts ...grpc.CallOption) (*ListAiAutomationResponse, error)
+	// 统计本人自动化任务数量。
+	CountAiAutomation(ctx context.Context, in *CountAiAutomationRequest, opts ...grpc.CallOption) (*CountAiAutomationResponse, error)
 	// 查询本人自动化详情。
 	GetAiAutomation(ctx context.Context, in *GetAiAutomationRequest, opts ...grpc.CallOption) (*AiAutomation, error)
 	// 预览未来三次触发时间。
@@ -75,6 +78,16 @@ func (c *aiAutomationServiceClient) ListAiAutomation(ctx context.Context, in *Li
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListAiAutomationResponse)
 	err := c.cc.Invoke(ctx, AiAutomationService_ListAiAutomation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aiAutomationServiceClient) CountAiAutomation(ctx context.Context, in *CountAiAutomationRequest, opts ...grpc.CallOption) (*CountAiAutomationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CountAiAutomationResponse)
+	err := c.cc.Invoke(ctx, AiAutomationService_CountAiAutomation_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -189,6 +202,8 @@ func (c *aiAutomationServiceClient) ContinueAiAutomationRun(ctx context.Context,
 type AiAutomationServiceServer interface {
 	// 查询本人自动化计划。
 	ListAiAutomation(context.Context, *ListAiAutomationRequest) (*ListAiAutomationResponse, error)
+	// 统计本人自动化任务数量。
+	CountAiAutomation(context.Context, *CountAiAutomationRequest) (*CountAiAutomationResponse, error)
 	// 查询本人自动化详情。
 	GetAiAutomation(context.Context, *GetAiAutomationRequest) (*AiAutomation, error)
 	// 预览未来三次触发时间。
@@ -221,6 +236,9 @@ type UnimplementedAiAutomationServiceServer struct{}
 
 func (UnimplementedAiAutomationServiceServer) ListAiAutomation(context.Context, *ListAiAutomationRequest) (*ListAiAutomationResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListAiAutomation not implemented")
+}
+func (UnimplementedAiAutomationServiceServer) CountAiAutomation(context.Context, *CountAiAutomationRequest) (*CountAiAutomationResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CountAiAutomation not implemented")
 }
 func (UnimplementedAiAutomationServiceServer) GetAiAutomation(context.Context, *GetAiAutomationRequest) (*AiAutomation, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetAiAutomation not implemented")
@@ -287,6 +305,24 @@ func _AiAutomationService_ListAiAutomation_Handler(srv interface{}, ctx context.
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AiAutomationServiceServer).ListAiAutomation(ctx, req.(*ListAiAutomationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AiAutomationService_CountAiAutomation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CountAiAutomationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiAutomationServiceServer).CountAiAutomation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiAutomationService_CountAiAutomation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiAutomationServiceServer).CountAiAutomation(ctx, req.(*CountAiAutomationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -481,6 +517,10 @@ var AiAutomationService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListAiAutomation",
 			Handler:    _AiAutomationService_ListAiAutomation_Handler,
+		},
+		{
+			MethodName: "CountAiAutomation",
+			Handler:    _AiAutomationService_CountAiAutomation_Handler,
 		},
 		{
 			MethodName: "GetAiAutomation",

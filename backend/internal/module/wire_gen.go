@@ -612,7 +612,7 @@ func BuildModules(dispatcher *aiautomation.Dispatcher, migrations *migration.Mig
 	biCardCase := admin2.NewBiCardCase(baseCase, biCardRepository, biWorkbenchRepository, biQueryCase, biDashboardCase)
 	biCardService := admin3.NewBiCardService(biCardCase)
 	biSourceService := admin3.NewBiSourceService(biSourceCase)
-	biQueryRecordCase := admin2.NewBiQueryRecordCase(baseCase, biQueryRepository, baseUserRepository)
+	biQueryRecordCase := admin2.NewBiQueryRecordCase(baseCase, biQueryRepository, biCardRepository, baseUserRepository)
 	biQueryRecordService := admin3.NewBiQueryRecordService(biQueryRecordCase)
 	biDashboardService := admin3.NewBiDashboardService(biDashboardCase)
 	biServices := &bi2.Services{

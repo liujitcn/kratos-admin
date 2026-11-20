@@ -22,6 +22,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	AiFileService_PageAiFile_FullMethodName    = "/base.v1.AiFileService/PageAiFile"
+	AiFileService_CountAiFile_FullMethodName   = "/base.v1.AiFileService/CountAiFile"
 	AiFileService_RenameAiFile_FullMethodName  = "/base.v1.AiFileService/RenameAiFile"
 	AiFileService_TrashAiFile_FullMethodName   = "/base.v1.AiFileService/TrashAiFile"
 	AiFileService_RestoreAiFile_FullMethodName = "/base.v1.AiFileService/RestoreAiFile"
@@ -36,6 +37,8 @@ const (
 type AiFileServiceClient interface {
 	// 分页查询 AI 文件。
 	PageAiFile(ctx context.Context, in *PageAiFileRequest, opts ...grpc.CallOption) (*PageAiFileResponse, error)
+	// 统计 AI 文件数量。
+	CountAiFile(ctx context.Context, in *CountAiFileRequest, opts ...grpc.CallOption) (*CountAiFileResponse, error)
 	// 重命名 AI 文件，只修改元数据。
 	RenameAiFile(ctx context.Context, in *RenameAiFileRequest, opts ...grpc.CallOption) (*AiFile, error)
 	// 将 AI 文件移入回收站。
@@ -58,6 +61,16 @@ func (c *aiFileServiceClient) PageAiFile(ctx context.Context, in *PageAiFileRequ
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(PageAiFileResponse)
 	err := c.cc.Invoke(ctx, AiFileService_PageAiFile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aiFileServiceClient) CountAiFile(ctx context.Context, in *CountAiFileRequest, opts ...grpc.CallOption) (*CountAiFileResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CountAiFileResponse)
+	err := c.cc.Invoke(ctx, AiFileService_CountAiFile_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -112,6 +125,8 @@ func (c *aiFileServiceClient) DeleteAiFile(ctx context.Context, in *DeleteAiFile
 type AiFileServiceServer interface {
 	// 分页查询 AI 文件。
 	PageAiFile(context.Context, *PageAiFileRequest) (*PageAiFileResponse, error)
+	// 统计 AI 文件数量。
+	CountAiFile(context.Context, *CountAiFileRequest) (*CountAiFileResponse, error)
 	// 重命名 AI 文件，只修改元数据。
 	RenameAiFile(context.Context, *RenameAiFileRequest) (*AiFile, error)
 	// 将 AI 文件移入回收站。
@@ -132,6 +147,9 @@ type UnimplementedAiFileServiceServer struct{}
 
 func (UnimplementedAiFileServiceServer) PageAiFile(context.Context, *PageAiFileRequest) (*PageAiFileResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method PageAiFile not implemented")
+}
+func (UnimplementedAiFileServiceServer) CountAiFile(context.Context, *CountAiFileRequest) (*CountAiFileResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CountAiFile not implemented")
 }
 func (UnimplementedAiFileServiceServer) RenameAiFile(context.Context, *RenameAiFileRequest) (*AiFile, error) {
 	return nil, status.Error(codes.Unimplemented, "method RenameAiFile not implemented")
@@ -180,6 +198,24 @@ func _AiFileService_PageAiFile_Handler(srv interface{}, ctx context.Context, dec
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AiFileServiceServer).PageAiFile(ctx, req.(*PageAiFileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AiFileService_CountAiFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CountAiFileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiFileServiceServer).CountAiFile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiFileService_CountAiFile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiFileServiceServer).CountAiFile(ctx, req.(*CountAiFileRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -266,6 +302,10 @@ var AiFileService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PageAiFile",
 			Handler:    _AiFileService_PageAiFile_Handler,
+		},
+		{
+			MethodName: "CountAiFile",
+			Handler:    _AiFileService_CountAiFile_Handler,
 		},
 		{
 			MethodName: "RenameAiFile",

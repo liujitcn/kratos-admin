@@ -40,3 +40,12 @@ func (s *BiQueryRecordService) GetBiQuery(ctx context.Context, req *adminv1.GetB
 	}
 	return result, nil
 }
+
+// DeleteBiQuery 删除智能问数记录。
+func (s *BiQueryRecordService) DeleteBiQuery(ctx context.Context, req *adminv1.DeleteBiQueryRequest) (*adminv1.DeleteBiQueryResponse, error) {
+	if _, err := s.biQueryRecordCase.DeleteBiQuery(ctx, req); err != nil {
+		log.Error(fmt.Sprintf("DeleteBiQuery %v", err))
+		return nil, errorsx.WrapInternal(err, "删除智能问数记录失败")
+	}
+	return &adminv1.DeleteBiQueryResponse{}, nil
+}

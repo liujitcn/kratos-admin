@@ -450,6 +450,88 @@ func (x *BiQueryRecord) GetChartType() string {
 	return ""
 }
 
+// 删除智能问数记录请求。
+type DeleteBiQueryRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"` // 记录ID
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteBiQueryRequest) Reset() {
+	*x = DeleteBiQueryRequest{}
+	mi := &file_bi_admin_v1_bi_query_record_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteBiQueryRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteBiQueryRequest) ProtoMessage() {}
+
+func (x *DeleteBiQueryRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_bi_admin_v1_bi_query_record_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteBiQueryRequest.ProtoReflect.Descriptor instead.
+func (*DeleteBiQueryRequest) Descriptor() ([]byte, []int) {
+	return file_bi_admin_v1_bi_query_record_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *DeleteBiQueryRequest) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+// 删除智能问数记录响应。
+type DeleteBiQueryResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteBiQueryResponse) Reset() {
+	*x = DeleteBiQueryResponse{}
+	mi := &file_bi_admin_v1_bi_query_record_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteBiQueryResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteBiQueryResponse) ProtoMessage() {}
+
+func (x *DeleteBiQueryResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_bi_admin_v1_bi_query_record_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteBiQueryResponse.ProtoReflect.Descriptor instead.
+func (*DeleteBiQueryResponse) Descriptor() ([]byte, []int) {
+	return file_bi_admin_v1_bi_query_record_proto_rawDescGZIP(), []int{5}
+}
+
 var File_bi_admin_v1_bi_query_record_proto protoreflect.FileDescriptor
 
 const file_bi_admin_v1_bi_query_record_proto_rawDesc = "" +
@@ -496,15 +578,19 @@ const file_bi_admin_v1_bi_query_record_proto_rawDesc = "" +
 	"\tuser_name\x18\x12 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户账号R\buserName\x12g\n" +
 	"\x06result\x18\x13 \x01(\v2\x1a.bi.admin.v1.BiQueryResultB3\xbaG0\x92\x02-完整类型化查询结果，仅详情返回R\x06result\x12=\n" +
 	"\n" +
-	"chart_type\x18\x14 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18问数建议图表类型R\tchartType*i\n" +
+	"chart_type\x18\x14 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18问数建议图表类型R\tchartType\"=\n" +
+	"\x14DeleteBiQueryRequest\x12%\n" +
+	"\x02id\x18\x01 \x01(\x03B\x15\xbaG\v\x92\x02\b记录ID\xbaH\x04\"\x02 \x00R\x02id\"\x17\n" +
+	"\x15DeleteBiQueryResponse*i\n" +
 	"\rBiQueryStatus\x12\x1f\n" +
 	"\x1bBI_QUERY_STATUS_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17BI_QUERY_STATUS_SUCCESS\x10\x01\x12\x1a\n" +
-	"\x16BI_QUERY_STATUS_FAILED\x10\x022\x85\x02\n" +
+	"\x16BI_QUERY_STATUS_FAILED\x10\x022\x8a\x03\n" +
 	"\x14BiQueryRecordService\x12w\n" +
 	"\vPageBiQuery\x12\x1f.bi.admin.v1.PageBiQueryRequest\x1a .bi.admin.v1.PageBiQueryResponse\"%\x82\xd3\xe4\x93\x02\x1f\x12\x1d/api/v1/admin/bi/query-record\x12t\n" +
 	"\n" +
-	"GetBiQuery\x12\x1e.bi.admin.v1.GetBiQueryRequest\x1a\x1a.bi.admin.v1.BiQueryRecord\"*\x82\xd3\xe4\x93\x02$\x12\"/api/v1/admin/bi/query-record/{id}B\xbc\x01\n" +
+	"GetBiQuery\x12\x1e.bi.admin.v1.GetBiQueryRequest\x1a\x1a.bi.admin.v1.BiQueryRecord\"*\x82\xd3\xe4\x93\x02$\x12\"/api/v1/admin/bi/query-record/{id}\x12\x82\x01\n" +
+	"\rDeleteBiQuery\x12!.bi.admin.v1.DeleteBiQueryRequest\x1a\".bi.admin.v1.DeleteBiQueryResponse\"*\x82\xd3\xe4\x93\x02$*\"/api/v1/admin/bi/query-record/{id}B\xbc\x01\n" +
 	"\x0fcom.bi.admin.v1B\x12BiQueryRecordProtoP\x01ZGgithub.com/liujitcn/kratos-admin/backend/api/gen/go/bi/admin/v1;adminv1\xa2\x02\x03BAX\xaa\x02\vBi.Admin.V1\xca\x02\vBi\\Admin\\V1\xe2\x02\x17Bi\\Admin\\V1\\GPBMetadata\xea\x02\rBi::Admin::V1b\x06proto3"
 
 var (
@@ -520,26 +606,30 @@ func file_bi_admin_v1_bi_query_record_proto_rawDescGZIP() []byte {
 }
 
 var file_bi_admin_v1_bi_query_record_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_bi_admin_v1_bi_query_record_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_bi_admin_v1_bi_query_record_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_bi_admin_v1_bi_query_record_proto_goTypes = []any{
-	(BiQueryStatus)(0),          // 0: bi.admin.v1.BiQueryStatus
-	(*PageBiQueryRequest)(nil),  // 1: bi.admin.v1.PageBiQueryRequest
-	(*PageBiQueryResponse)(nil), // 2: bi.admin.v1.PageBiQueryResponse
-	(*GetBiQueryRequest)(nil),   // 3: bi.admin.v1.GetBiQueryRequest
-	(*BiQueryRecord)(nil),       // 4: bi.admin.v1.BiQueryRecord
-	(*BiQueryResult)(nil),       // 5: bi.admin.v1.BiQueryResult
+	(BiQueryStatus)(0),            // 0: bi.admin.v1.BiQueryStatus
+	(*PageBiQueryRequest)(nil),    // 1: bi.admin.v1.PageBiQueryRequest
+	(*PageBiQueryResponse)(nil),   // 2: bi.admin.v1.PageBiQueryResponse
+	(*GetBiQueryRequest)(nil),     // 3: bi.admin.v1.GetBiQueryRequest
+	(*BiQueryRecord)(nil),         // 4: bi.admin.v1.BiQueryRecord
+	(*DeleteBiQueryRequest)(nil),  // 5: bi.admin.v1.DeleteBiQueryRequest
+	(*DeleteBiQueryResponse)(nil), // 6: bi.admin.v1.DeleteBiQueryResponse
+	(*BiQueryResult)(nil),         // 7: bi.admin.v1.BiQueryResult
 }
 var file_bi_admin_v1_bi_query_record_proto_depIdxs = []int32{
 	0, // 0: bi.admin.v1.PageBiQueryRequest.status:type_name -> bi.admin.v1.BiQueryStatus
 	4, // 1: bi.admin.v1.PageBiQueryResponse.queries:type_name -> bi.admin.v1.BiQueryRecord
 	0, // 2: bi.admin.v1.BiQueryRecord.status:type_name -> bi.admin.v1.BiQueryStatus
-	5, // 3: bi.admin.v1.BiQueryRecord.result:type_name -> bi.admin.v1.BiQueryResult
+	7, // 3: bi.admin.v1.BiQueryRecord.result:type_name -> bi.admin.v1.BiQueryResult
 	1, // 4: bi.admin.v1.BiQueryRecordService.PageBiQuery:input_type -> bi.admin.v1.PageBiQueryRequest
 	3, // 5: bi.admin.v1.BiQueryRecordService.GetBiQuery:input_type -> bi.admin.v1.GetBiQueryRequest
-	2, // 6: bi.admin.v1.BiQueryRecordService.PageBiQuery:output_type -> bi.admin.v1.PageBiQueryResponse
-	4, // 7: bi.admin.v1.BiQueryRecordService.GetBiQuery:output_type -> bi.admin.v1.BiQueryRecord
-	6, // [6:8] is the sub-list for method output_type
-	4, // [4:6] is the sub-list for method input_type
+	5, // 6: bi.admin.v1.BiQueryRecordService.DeleteBiQuery:input_type -> bi.admin.v1.DeleteBiQueryRequest
+	2, // 7: bi.admin.v1.BiQueryRecordService.PageBiQuery:output_type -> bi.admin.v1.PageBiQueryResponse
+	4, // 8: bi.admin.v1.BiQueryRecordService.GetBiQuery:output_type -> bi.admin.v1.BiQueryRecord
+	6, // 9: bi.admin.v1.BiQueryRecordService.DeleteBiQuery:output_type -> bi.admin.v1.DeleteBiQueryResponse
+	7, // [7:10] is the sub-list for method output_type
+	4, // [4:7] is the sub-list for method input_type
 	4, // [4:4] is the sub-list for extension type_name
 	4, // [4:4] is the sub-list for extension extendee
 	0, // [0:4] is the sub-list for field type_name
@@ -558,7 +648,7 @@ func file_bi_admin_v1_bi_query_record_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_bi_admin_v1_bi_query_record_proto_rawDesc), len(file_bi_admin_v1_bi_query_record_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   4,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

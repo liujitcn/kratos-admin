@@ -6885,6 +6885,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/bi.admin.v1.BiQueryRecord'
+        delete:
+            tags:
+                - BiQueryRecordService
+            description: 删除当前账号的智能问数记录，已保存为卡片的记录不可删除。
+            operationId: BiQueryRecordService_DeleteBiQuery
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.DeleteBiQueryResponse'
     /api/v1/admin/bi/query/ask:
         post:
             tags:
@@ -8907,6 +8925,19 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.AiAutomationRun'
+    /api/v1/base/ai/automation/count:
+        get:
+            tags:
+                - AiAutomationService
+            description: 统计本人自动化任务数量。
+            operationId: AiAutomationService_CountAiAutomation
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.CountAiAutomationResponse'
     /api/v1/base/ai/automation/{id}:
         get:
             tags:
@@ -9037,6 +9068,35 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.PageAiFileResponse'
+    /api/v1/base/ai/file/count:
+        get:
+            tags:
+                - AiFileService
+            description: 统计 AI 文件数量。
+            operationId: AiFileService_CountAiFile
+            parameters:
+                - name: view
+                  in: query
+                  schema:
+                    enum:
+                        - AI_FILE_VIEW_UNSPECIFIED
+                        - AI_FILE_VIEW_ALL
+                        - AI_FILE_VIEW_UPLOADED
+                        - AI_FILE_VIEW_GENERATED
+                        - AI_FILE_VIEW_TRASHED
+                    type: string
+                    format: enum
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.CountAiFileResponse'
     /api/v1/base/ai/file/{id}:
         delete:
             tags:
@@ -9145,7 +9205,9 @@ paths:
         get:
             tags:
                 - AiPluginService
-            description: 查询当前身份可见的插件目录。
+            description: |-
+                查询当前身份可见的插件目录。
+                 查询插件目录。
             operationId: AiPluginService_ListAiPlugin
             parameters:
                 - name: keyword
@@ -9375,6 +9437,19 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.AiPluginConnection'
+    /api/v1/base/ai/plugin/count:
+        get:
+            tags:
+                - AiPluginService
+            description: 统计当前身份可见的插件与 MCP 工具数量。
+            operationId: AiPluginService_CountAiPlugin
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.CountAiPluginResponse'
     /api/v1/base/ai/plugin/{id}:
         get:
             tags:
@@ -9483,6 +9558,18 @@ paths:
                         - TERMINAL_ADMIN
                     type: string
                     format: enum
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -11740,6 +11827,41 @@ components:
                     type: string
                     description: 编号
             description: 从结果继续讨论请求。
+        base.v1.CountAiAutomationResponse:
+            type: object
+            properties:
+                total:
+                    type: integer
+                    description: 非归档任务总数
+                    format: int32
+                pending_count:
+                    type: integer
+                    description: 待确认执行数
+                    format: int32
+            description: 自动化任务数量统计结果。
+        base.v1.CountAiFileResponse:
+            type: object
+            properties:
+                total:
+                    type: string
+                    description: 文件总数
+            description: AI 文件数量统计结果。
+        base.v1.CountAiPluginResponse:
+            type: object
+            properties:
+                total:
+                    type: integer
+                    description: 可见插件总数
+                    format: int32
+                tool_total:
+                    type: integer
+                    description: 可见插件的 MCP 工具总数
+                    format: int32
+                connected_total:
+                    type: integer
+                    description: 本租户已连接插件账号数
+                    format: int32
+            description: 插件数量统计结果。
         base.v1.CreateAiAutomationRequest:
             type: object
             properties:
@@ -12252,6 +12374,9 @@ components:
                     items:
                         $ref: '#/components/schemas/base.v1.AiPluginTool'
                     description: 工具快照列表
+                total:
+                    type: string
+                    description: 符合条件的工具总数
             description: 插件工具查询结果。
         base.v1.ListAiProviderModelOptionsResponse:
             type: object
@@ -14023,6 +14148,10 @@ components:
             type: object
             properties: {}
             description: 删除 BI 仪表盘响应。
+        bi.admin.v1.DeleteBiQueryResponse:
+            type: object
+            properties: {}
+            description: 删除智能问数记录响应。
         bi.admin.v1.DeleteBiSourceResponse:
             type: object
             properties: {}

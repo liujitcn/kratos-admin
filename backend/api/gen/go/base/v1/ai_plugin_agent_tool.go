@@ -24,6 +24,12 @@ func NewAiPluginServiceAgentTools(aiPluginServiceServer AiPluginServiceServer) (
 		return nil, err
 	}
 	ts = append(ts, listAiPluginTool)
+	var countAiPluginTool tool.InvokableTool
+	countAiPluginTool, err = NewAiPluginServiceCountAiPluginAgentTool(aiPluginServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, countAiPluginTool)
 	var getAiPluginTool tool.InvokableTool
 	getAiPluginTool, err = NewAiPluginServiceGetAiPluginAgentTool(aiPluginServiceServer)
 	if err != nil {
@@ -117,16 +123,30 @@ func NewAiPluginServiceAgentTools(aiPluginServiceServer AiPluginServiceServer) (
 	return ts, nil
 }
 
-// NewAiPluginServiceListAiPluginAgentTool 创建查询当前身份可见的插件目录的 Agent Tool。
+// NewAiPluginServiceListAiPluginAgentTool 创建查询当前身份可见的插件目录。 查询插件目录的 Agent Tool。
 func NewAiPluginServiceListAiPluginAgentTool(aiPluginServiceServer AiPluginServiceServer) (tool.InvokableTool, error) {
 	return utils.InferTool[*ListAiPluginRequest, *ListAiPluginResponse](
 		"base_v1_ai_plugin_service_list_ai_plugin",
-		"查询当前身份可见的插件目录。",
+		"查询当前身份可见的插件目录。 查询插件目录。",
 		func(ctx context.Context, req *ListAiPluginRequest) (*ListAiPluginResponse, error) {
 			if req == nil {
 				req = &ListAiPluginRequest{}
 			}
 			return aiPluginServiceServer.ListAiPlugin(ctx, req)
+		},
+	)
+}
+
+// NewAiPluginServiceCountAiPluginAgentTool 创建统计当前身份可见的插件与 MCP 工具数量的 Agent Tool。
+func NewAiPluginServiceCountAiPluginAgentTool(aiPluginServiceServer AiPluginServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CountAiPluginRequest, *CountAiPluginResponse](
+		"base_v1_ai_plugin_service_count_ai_plugin",
+		"统计当前身份可见的插件与 MCP 工具数量。",
+		func(ctx context.Context, req *CountAiPluginRequest) (*CountAiPluginResponse, error) {
+			if req == nil {
+				req = &CountAiPluginRequest{}
+			}
+			return aiPluginServiceServer.CountAiPlugin(ctx, req)
 		},
 	)
 }

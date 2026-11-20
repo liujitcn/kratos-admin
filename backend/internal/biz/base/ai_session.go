@@ -69,8 +69,7 @@ func (c *AiSessionCase) ListAiSession(ctx context.Context, req *basev1.ListAiSes
 	}
 
 	query := c.Query(ctx).AiSession
-	opts := make([]repository.QueryOption, 0, 5)
-	opts = append(opts, repository.Where(query.TenantID.Eq(authInfo.TenantId)))
+	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
 	opts = append(opts, repository.Order(query.UpdatedAt.Desc(), query.ID.Desc()))
 	var list []*models.AiSession
@@ -374,8 +373,7 @@ func (c *AiSessionCase) FindCurrentUserSessionByRawID(ctx context.Context, rawID
 	}
 
 	query := c.Query(ctx).AiSession
-	opts := make([]repository.QueryOption, 0, 3)
-	opts = append(opts, repository.Where(query.TenantID.Eq(authInfo.TenantId)))
+	opts := make([]repository.QueryOption, 0, 2)
 	opts = append(opts, repository.Where(query.ID.Eq(sessionID)))
 	opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
 	var session *models.AiSession

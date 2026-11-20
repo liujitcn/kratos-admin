@@ -71,6 +71,15 @@
   "ai.plugin.listaiplugintoolrequest.plugin_id": {
     "other": "The plugin ID is invalid"
   },
+  "ai.plugin.listaiplugintoolrequest.keyword": {
+    "other": "The tool keyword must not exceed 100 characters"
+  },
+  "ai.plugin.listaiplugintoolrequest.page_num": {
+    "other": "The page number must not be less than 0"
+  },
+  "ai.plugin.listaiplugintoolrequest.page_size": {
+    "other": "The page size must be between 0 and 100"
+  },
   "ai.plugin.reauthorize.id": {
     "other": "The connection ID is invalid"
   },
@@ -136,6 +145,9 @@
   },
   "base.ai.approval.session_id.positive": {
     "other": "The session number is invalid"
+  },
+  "base.ai.file.count.keyword.max_len": {
+    "other": "File name keyword cannot exceed 100 characters"
   },
   "base.ai.file.delete.id.positive": {
     "other": "File ID must be greater than 0"
@@ -8098,5 +8110,86 @@
   },
   "legacy.error.f3317e9d97b10647": {
     "other": "The comparison metric in the metric grid must be a numeric field"
+  },
+  "legacy.error.1622479b89e3ef03": {
+    "other": "This query has been saved as a card and cannot be deleted"
+  },
+  "legacy.error.3ff5563312941610": {
+    "other": "Failed to delete the query record"
+  },
+  "legacy.error.1e844650ac277cf7": {
+    "other": "WeChat mini-program phone authorization is not configured"
+  },
+  "legacy.error.82062a069357ebb8": {
+    "other": "The table structure does not exist or has changed"
+  },
+  "legacy.error.0a9f55c8b704d14b": {
+    "other": "The tenant field does not exist or has changed"
+  },
+  "legacy.error.0bfb11e9f00dc320": {
+    "other": "The pagination parameters are invalid"
+  },
+  "legacy.error.f8386fa38e47bb03": {
+    "other": "The table structure has no fields available for preview"
+  },
+  "legacy.error.3ebfabb2b9ebc2ff": {
+    "other": "The table field identifier is invalid"
+  },
+  "legacy.error.d07e42c354b71c78": {
+    "other": "Failed to count BI table data"
+  },
+  "legacy.error.2fbc21b6c56e3467": {
+    "other": "The total data count exceeds the range supported by the API"
+  },
+  "legacy.error.63ee982e44dbb715": {
+    "other": "Failed to query BI table data"
+  },
+  "legacy.error.46287dc802e15c2d": {
+    "other": "Failed to read BI table data"
+  },
+  "legacy.error.25bf0013a346677c": {
+    "other": "Failed to iterate BI table data"
+  },
+  "legacy.error.e6d92553fa932bb8": {
+    "other": "Failed to create the secure web search client"
+  },
+  "legacy.error.6f20eff27a6b7bf6": {
+    "other": "WeChat mini-program login is not configured"
+  },
+  "legacy.error.5abed7fba4e129c8": {
+    "other": "The plugin already has a connection; do not connect again"
+  },
+  "legacy.error.29bf45a519315e2e": {
+    "other": "The event cursor is invalid"
+  },
+  "legacy.error.1168a48cf04f97bd": {
+    "other": "The message final state has not been persisted yet; verify it via the read-only API"
+  },
+  "legacy.error.a925acae33486d88": {
+    "other": "The message execution is no longer valid"
+  },
+  "legacy.error.b25f3e4eeced3bca": {
+    "other": "The context summary cache is corrupted"
+  },
+  "legacy.error.88ee3fd142011244": {
+    "other": "Failed to list BI table data"
+  },
+  "legacy.error.b92851029ea0c369": {
+    "other": "Failed to count AI files"
+  },
+  "legacy.error.34da24b6ed7a5751": {
+    "other": "Failed to read AI message events"
+  },
+  "legacy.error.f66cf023e8b2c227": {
+    "other": "Failed to count plugins and MCP tools"
+  },
+  "base.ai.event.cursor": {
+    "other": "The event cursor is invalid"
+  },
+  "base.ai.event.message_id.positive": {
+    "other": "The session or message ID is invalid"
+  },
+  "base.ai.event.session_id.positive": {
+    "other": "The session or message ID is invalid"
   }
 }

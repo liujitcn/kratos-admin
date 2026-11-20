@@ -121,13 +121,12 @@ func (c *BiSourceCase) requireHostClientAccess(ctx context.Context, host string)
 
 // PageBiSource 分页查询当前租户的数据源配置。
 func (c *BiSourceCase) PageBiSource(ctx context.Context, req *adminv1.PageBiSourceRequest) (*adminv1.PageBiSourceResponse, error) {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
+	// 租户隔离由数据隔离回调注入，这里仅保留认证守卫。
+	if _, err := c.GetAuthInfo(ctx); err != nil {
 		return nil, err
 	}
 	query := c.sourceRepo.Query(ctx).BiSource
 	opts := []repository.QueryOption{
-		repository.Where(query.TenantID.Eq(authInfo.TenantId)),
 		repository.Order(query.UpdatedAt.Desc()),
 		repository.Order(query.ID.Desc()),
 	}
@@ -145,6 +144,7 @@ func (c *BiSourceCase) PageBiSource(ctx context.Context, req *adminv1.PageBiSour
 	}
 	var items []*models.BiSource
 	var total int64
+	var err error
 	items, total, err = c.sourceRepo.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
 	if err != nil {
 		return nil, err

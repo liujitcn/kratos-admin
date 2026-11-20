@@ -201,7 +201,7 @@ async function loadTotals() {
     const responses = await Promise.all(
       tabs.value.map(tab =>
         defAiFileService
-          .PageAiFile({ view: tab.view, keyword: "", page_num: 1, page_size: 1 })
+          .CountAiFile({ view: tab.view, keyword: "" })
           .then(response => [tab.view, response.total] as const)
       )
     );

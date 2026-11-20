@@ -58,7 +58,7 @@ TiDB 使用 MySQL 兼容协议，主数据源将 `driver` 设置为 `tidb`，连
 data:
   database:
     driver: tidb
-    source: root:password@tcp(127.0.0.1:4000)/kratos_admin?charset=utf8mb4&parseTime=True&loc=Local
+    source: root:password@tcp(192.168.60.83:4000)/kratos_admin?charset=utf8mb4&parseTime=True&loc=Local
     enable_migrate: true
 ```
 

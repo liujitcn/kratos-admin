@@ -20,9 +20,11 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-admin/backend/pkg/agent"
 	"github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-kit/auth"
 	"github.com/liujitcn/kratos-kit/auth/authn/engine"
 	authdata "github.com/liujitcn/kratos-kit/auth/data"
 	databasegorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // TestAiEventReadOnly 验证补读不会偷偷过期消息、恢复模型或执行工具。
@@ -257,6 +259,7 @@ func newAiEventTestCase(t *testing.T) (*AiMessageCase, context.Context, *models.
 	if err = db.AutoMigrate(&models.AiSession{}, &models.AiMessage{}, &models.AiToolApproval{}, &models.AiMessageEvent{}, &models.AiFile{}); err != nil {
 		t.Fatal(err)
 	}
+	installTestTenantScope(t, db)
 	// SQLite 的 BIGINT 主键不等同 INTEGER ROWID，用测试回调模拟MySQL自增，不改生成模型。
 	var eventID atomic.Int64
 	if err = db.Callback().Create().Before("gorm:create").Register("test_event_id", func(tx *gorm.DB) {
@@ -297,4 +300,35 @@ func newAiEventTestCase(t *testing.T) (*AiMessageCase, context.Context, *models.
 		t.Fatal(err)
 	}
 	return c, ctx, session, message
+}
+
+// installTestTenantScope 给测试库安装与 kratos-kit 数据隔离回调同语义的租户条件注入；
+// 测试库不经 kit 客户端引导，缺失时查询/更新/删除不再自动按登录租户收敛。
+func installTestTenantScope(t *testing.T, db *gorm.DB) {
+	t.Helper()
+	scope := func(tx *gorm.DB) {
+		authInfo, err := auth.FromContext(tx.Statement.Context)
+		if err != nil || authInfo == nil || authInfo.TenantCode == databasegorm.DefaultTenantCode || authInfo.TenantId <= 0 {
+			return
+		}
+		if tx.Statement.Schema == nil {
+			return
+		}
+		if _, hasTenant := tx.Statement.Schema.FieldsByDBName["tenant_id"]; !hasTenant {
+			return
+		}
+		tx.Statement.AddClause(clause.Where{Exprs: []clause.Expression{clause.Eq{Column: clause.Column{Table: clause.CurrentTable, Name: "tenant_id"}, Value: authInfo.TenantId}}})
+	}
+	if err := db.Callback().Query().Before("gorm:query").Register("test_tenant_scope", scope); err != nil {
+		t.Fatal(err)
+	}
+	if err := db.Callback().Row().Before("gorm:row").Register("test_tenant_scope", scope); err != nil {
+		t.Fatal(err)
+	}
+	if err := db.Callback().Update().Before("gorm:update").Register("test_tenant_scope", scope); err != nil {
+		t.Fatal(err)
+	}
+	if err := db.Callback().Delete().Before("gorm:delete").Register("test_tenant_scope", scope); err != nil {
+		t.Fatal(err)
+	}
 }

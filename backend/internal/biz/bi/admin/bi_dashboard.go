@@ -58,7 +58,7 @@ func (c *BiDashboardCase) PageBiDashboard(ctx context.Context, req *adminv1.Page
 		return nil, err
 	}
 	query := c.dashboardRepo.Query(ctx).BiDashboard
-	opts := []repository.QueryOption{repository.Where(query.TenantID.Eq(authInfo.TenantId)), repository.Where(field.Or(query.OwnerID.Eq(authInfo.UserId), query.PublishedVersion.Gt(0))), repository.Order(query.UpdatedAt.Desc(), query.ID.Desc())}
+	opts := []repository.QueryOption{repository.Where(field.Or(query.OwnerID.Eq(authInfo.UserId), query.PublishedVersion.Gt(0))), repository.Order(query.UpdatedAt.Desc(), query.ID.Desc())}
 	if !hasAllProjectsScope(authInfo) {
 		opts = append(opts, repository.Where(query.ProjectID.In(allowedProjectIDs(authInfo)...)))
 	}
@@ -289,7 +289,7 @@ func (c *BiDashboardCase) DeleteBiDashboard(ctx context.Context, req *adminv1.De
 		return nil, err
 	}
 	query := c.dashboardRepo.Query(ctx).BiDashboard
-	if err = c.dashboardRepo.Delete(ctx, repository.Where(query.ID.Eq(item.ID), query.TenantID.Eq(authInfo.TenantId))); err != nil {
+	if err = c.dashboardRepo.Delete(ctx, repository.Where(query.ID.Eq(item.ID))); err != nil {
 		return nil, err
 	}
 	return &adminv1.DeleteBiDashboardResponse{}, nil
@@ -353,10 +353,10 @@ func (c *BiDashboardCase) GetBiDashboardData(ctx context.Context, req *adminv1.G
 	return &adminv1.BiDashboardDataResponse{SchemaJson: toBiDashboard(item, version.SchemaJSON).SchemaJson, Cards: results}, nil
 }
 
-// findAccessibleDashboard 限制租户、项目和草稿所有权，发布页面沿用项目与菜单授权。
+// findAccessibleDashboard 限制项目与草稿所有权（租户隔离由数据隔离回调注入），发布页面沿用项目与菜单授权。
 func (c *BiDashboardCase) findAccessibleDashboard(ctx context.Context, authInfo *authData.UserTokenPayload, id int64, permission int32) (*models.BiDashboard, error) {
 	query := c.dashboardRepo.Query(ctx).BiDashboard
-	opts := []repository.QueryOption{repository.Where(query.ID.Eq(id), query.TenantID.Eq(authInfo.TenantId))}
+	opts := []repository.QueryOption{repository.Where(query.ID.Eq(id))}
 	if permission == biDashboardPermissionEdit {
 		opts = append(opts, repository.Clauses(clause.Locking{Strength: "UPDATE"}))
 	}
@@ -395,7 +395,7 @@ func (c *BiDashboardCase) resolveSchema(ctx context.Context, authInfo *authData.
 	query := c.cardRepo.Query(ctx).BiCard
 	for index, placed := range layout.Cards {
 		var item *models.BiCard
-		opts := []repository.QueryOption{repository.Where(query.ID.Eq(placed.CardID), query.TenantID.Eq(authInfo.TenantId))}
+		opts := []repository.QueryOption{repository.Where(query.ID.Eq(placed.CardID))}
 		if publish {
 			opts = append(opts, repository.Clauses(clause.Locking{Strength: "UPDATE"}))
 		}

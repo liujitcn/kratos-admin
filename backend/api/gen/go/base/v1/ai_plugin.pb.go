@@ -835,6 +835,104 @@ func (x *ListAiPluginResponse) GetCanCreatePrivate() bool {
 	return false
 }
 
+// 插件数量统计条件（按当前身份可见范围计算）。
+type CountAiPluginRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CountAiPluginRequest) Reset() {
+	*x = CountAiPluginRequest{}
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CountAiPluginRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CountAiPluginRequest) ProtoMessage() {}
+
+func (x *CountAiPluginRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CountAiPluginRequest.ProtoReflect.Descriptor instead.
+func (*CountAiPluginRequest) Descriptor() ([]byte, []int) {
+	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{8}
+}
+
+// 插件数量统计结果。
+type CountAiPluginResponse struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Total          int32                  `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`                                         // 可见插件总数
+	ToolTotal      int32                  `protobuf:"varint,2,opt,name=tool_total,json=toolTotal,proto3" json:"tool_total,omitempty"`                // 可见插件的 MCP 工具总数
+	ConnectedTotal int32                  `protobuf:"varint,3,opt,name=connected_total,json=connectedTotal,proto3" json:"connected_total,omitempty"` // 本租户已连接插件账号数
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *CountAiPluginResponse) Reset() {
+	*x = CountAiPluginResponse{}
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CountAiPluginResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CountAiPluginResponse) ProtoMessage() {}
+
+func (x *CountAiPluginResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CountAiPluginResponse.ProtoReflect.Descriptor instead.
+func (*CountAiPluginResponse) Descriptor() ([]byte, []int) {
+	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *CountAiPluginResponse) GetTotal() int32 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+func (x *CountAiPluginResponse) GetToolTotal() int32 {
+	if x != nil {
+		return x.ToolTotal
+	}
+	return 0
+}
+
+func (x *CountAiPluginResponse) GetConnectedTotal() int32 {
+	if x != nil {
+		return x.ConnectedTotal
+	}
+	return 0
+}
+
 // 插件详情查询条件。
 type GetAiPluginRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -845,7 +943,7 @@ type GetAiPluginRequest struct {
 
 func (x *GetAiPluginRequest) Reset() {
 	*x = GetAiPluginRequest{}
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[8]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -857,7 +955,7 @@ func (x *GetAiPluginRequest) String() string {
 func (*GetAiPluginRequest) ProtoMessage() {}
 
 func (x *GetAiPluginRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[8]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -870,7 +968,7 @@ func (x *GetAiPluginRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAiPluginRequest.ProtoReflect.Descriptor instead.
 func (*GetAiPluginRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{8}
+	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *GetAiPluginRequest) GetId() string {
@@ -890,7 +988,7 @@ type CreateAiPluginRequest struct {
 
 func (x *CreateAiPluginRequest) Reset() {
 	*x = CreateAiPluginRequest{}
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[9]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -902,7 +1000,7 @@ func (x *CreateAiPluginRequest) String() string {
 func (*CreateAiPluginRequest) ProtoMessage() {}
 
 func (x *CreateAiPluginRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[9]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -915,7 +1013,7 @@ func (x *CreateAiPluginRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAiPluginRequest.ProtoReflect.Descriptor instead.
 func (*CreateAiPluginRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{9}
+	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *CreateAiPluginRequest) GetForm() *AiPluginForm {
@@ -937,7 +1035,7 @@ type UpdateAiPluginRequest struct {
 
 func (x *UpdateAiPluginRequest) Reset() {
 	*x = UpdateAiPluginRequest{}
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[10]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -949,7 +1047,7 @@ func (x *UpdateAiPluginRequest) String() string {
 func (*UpdateAiPluginRequest) ProtoMessage() {}
 
 func (x *UpdateAiPluginRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[10]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -962,7 +1060,7 @@ func (x *UpdateAiPluginRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAiPluginRequest.ProtoReflect.Descriptor instead.
 func (*UpdateAiPluginRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{10}
+	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *UpdateAiPluginRequest) GetId() string {
@@ -997,7 +1095,7 @@ type DeleteAiPluginRequest struct {
 
 func (x *DeleteAiPluginRequest) Reset() {
 	*x = DeleteAiPluginRequest{}
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[11]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1009,7 +1107,7 @@ func (x *DeleteAiPluginRequest) String() string {
 func (*DeleteAiPluginRequest) ProtoMessage() {}
 
 func (x *DeleteAiPluginRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[11]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1022,7 +1120,7 @@ func (x *DeleteAiPluginRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAiPluginRequest.ProtoReflect.Descriptor instead.
 func (*DeleteAiPluginRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{11}
+	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *DeleteAiPluginRequest) GetId() string {
@@ -1052,7 +1150,7 @@ type SetAiPluginInstallationRequest struct {
 
 func (x *SetAiPluginInstallationRequest) Reset() {
 	*x = SetAiPluginInstallationRequest{}
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[12]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1064,7 +1162,7 @@ func (x *SetAiPluginInstallationRequest) String() string {
 func (*SetAiPluginInstallationRequest) ProtoMessage() {}
 
 func (x *SetAiPluginInstallationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[12]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1077,7 +1175,7 @@ func (x *SetAiPluginInstallationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetAiPluginInstallationRequest.ProtoReflect.Descriptor instead.
 func (*SetAiPluginInstallationRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{12}
+	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *SetAiPluginInstallationRequest) GetPluginId() string {
@@ -1113,13 +1211,16 @@ type ListAiPluginToolRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	PluginId      string                 `protobuf:"bytes,1,opt,name=plugin_id,json=pluginId,proto3" json:"plugin_id,omitempty"`        // 插件ID
 	Terminal      Terminal               `protobuf:"varint,2,opt,name=terminal,proto3,enum=base.v1.Terminal" json:"terminal,omitempty"` // 工具能力配置，不代表登录来源
+	Keyword       string                 `protobuf:"bytes,3,opt,name=keyword,proto3" json:"keyword,omitempty"`                          // 工具名称或说明关键字
+	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`        // 当前页码，0表示不分页
+	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`     // 每页行数，0表示不分页
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListAiPluginToolRequest) Reset() {
 	*x = ListAiPluginToolRequest{}
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[13]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1131,7 +1232,7 @@ func (x *ListAiPluginToolRequest) String() string {
 func (*ListAiPluginToolRequest) ProtoMessage() {}
 
 func (x *ListAiPluginToolRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[13]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1144,7 +1245,7 @@ func (x *ListAiPluginToolRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAiPluginToolRequest.ProtoReflect.Descriptor instead.
 func (*ListAiPluginToolRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{13}
+	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ListAiPluginToolRequest) GetPluginId() string {
@@ -1161,17 +1262,39 @@ func (x *ListAiPluginToolRequest) GetTerminal() Terminal {
 	return Terminal_TERMINAL_UNSPECIFIED
 }
 
+func (x *ListAiPluginToolRequest) GetKeyword() string {
+	if x != nil {
+		return x.Keyword
+	}
+	return ""
+}
+
+func (x *ListAiPluginToolRequest) GetPageNum() int64 {
+	if x != nil {
+		return x.PageNum
+	}
+	return 0
+}
+
+func (x *ListAiPluginToolRequest) GetPageSize() int64 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
 // 插件工具查询结果。
 type ListAiPluginToolResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Tools         []*AiPluginTool        `protobuf:"bytes,1,rep,name=tools,proto3" json:"tools,omitempty"` // 工具快照列表
+	Tools         []*AiPluginTool        `protobuf:"bytes,1,rep,name=tools,proto3" json:"tools,omitempty"`  // 工具快照列表
+	Total         int64                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"` // 符合条件的工具总数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListAiPluginToolResponse) Reset() {
 	*x = ListAiPluginToolResponse{}
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[14]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1183,7 +1306,7 @@ func (x *ListAiPluginToolResponse) String() string {
 func (*ListAiPluginToolResponse) ProtoMessage() {}
 
 func (x *ListAiPluginToolResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[14]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1196,7 +1319,7 @@ func (x *ListAiPluginToolResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAiPluginToolResponse.ProtoReflect.Descriptor instead.
 func (*ListAiPluginToolResponse) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{14}
+	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *ListAiPluginToolResponse) GetTools() []*AiPluginTool {
@@ -1204,6 +1327,13 @@ func (x *ListAiPluginToolResponse) GetTools() []*AiPluginTool {
 		return x.Tools
 	}
 	return nil
+}
+
+func (x *ListAiPluginToolResponse) GetTotal() int64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
 }
 
 // 租户工具契约审核请求。
@@ -1222,7 +1352,7 @@ type SetAiPluginToolPolicyRequest struct {
 
 func (x *SetAiPluginToolPolicyRequest) Reset() {
 	*x = SetAiPluginToolPolicyRequest{}
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[15]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1234,7 +1364,7 @@ func (x *SetAiPluginToolPolicyRequest) String() string {
 func (*SetAiPluginToolPolicyRequest) ProtoMessage() {}
 
 func (x *SetAiPluginToolPolicyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[15]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1247,7 +1377,7 @@ func (x *SetAiPluginToolPolicyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetAiPluginToolPolicyRequest.ProtoReflect.Descriptor instead.
 func (*SetAiPluginToolPolicyRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{15}
+	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *SetAiPluginToolPolicyRequest) GetPluginId() string {
@@ -1309,7 +1439,7 @@ type ListAiPluginConnectionRequest struct {
 
 func (x *ListAiPluginConnectionRequest) Reset() {
 	*x = ListAiPluginConnectionRequest{}
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[16]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1321,7 +1451,7 @@ func (x *ListAiPluginConnectionRequest) String() string {
 func (*ListAiPluginConnectionRequest) ProtoMessage() {}
 
 func (x *ListAiPluginConnectionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[16]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1334,7 +1464,7 @@ func (x *ListAiPluginConnectionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAiPluginConnectionRequest.ProtoReflect.Descriptor instead.
 func (*ListAiPluginConnectionRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{16}
+	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *ListAiPluginConnectionRequest) GetPluginId() string {
@@ -1354,7 +1484,7 @@ type ListAiPluginConnectionResponse struct {
 
 func (x *ListAiPluginConnectionResponse) Reset() {
 	*x = ListAiPluginConnectionResponse{}
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[17]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1366,7 +1496,7 @@ func (x *ListAiPluginConnectionResponse) String() string {
 func (*ListAiPluginConnectionResponse) ProtoMessage() {}
 
 func (x *ListAiPluginConnectionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[17]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1379,7 +1509,7 @@ func (x *ListAiPluginConnectionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAiPluginConnectionResponse.ProtoReflect.Descriptor instead.
 func (*ListAiPluginConnectionResponse) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{17}
+	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ListAiPluginConnectionResponse) GetConnections() []*AiPluginConnection {
@@ -1402,7 +1532,7 @@ type CreateAiPluginConnectionRequest struct {
 
 func (x *CreateAiPluginConnectionRequest) Reset() {
 	*x = CreateAiPluginConnectionRequest{}
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[18]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1414,7 +1544,7 @@ func (x *CreateAiPluginConnectionRequest) String() string {
 func (*CreateAiPluginConnectionRequest) ProtoMessage() {}
 
 func (x *CreateAiPluginConnectionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[18]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1427,7 +1557,7 @@ func (x *CreateAiPluginConnectionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAiPluginConnectionRequest.ProtoReflect.Descriptor instead.
 func (*CreateAiPluginConnectionRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{18}
+	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *CreateAiPluginConnectionRequest) GetPluginId() string {
@@ -1469,7 +1599,7 @@ type RefreshAiPluginConnectionRequest struct {
 
 func (x *RefreshAiPluginConnectionRequest) Reset() {
 	*x = RefreshAiPluginConnectionRequest{}
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[19]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1481,7 +1611,7 @@ func (x *RefreshAiPluginConnectionRequest) String() string {
 func (*RefreshAiPluginConnectionRequest) ProtoMessage() {}
 
 func (x *RefreshAiPluginConnectionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[19]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1494,7 +1624,7 @@ func (x *RefreshAiPluginConnectionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RefreshAiPluginConnectionRequest.ProtoReflect.Descriptor instead.
 func (*RefreshAiPluginConnectionRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{19}
+	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *RefreshAiPluginConnectionRequest) GetId() string {
@@ -1522,7 +1652,7 @@ type DisconnectAiPluginConnectionRequest struct {
 
 func (x *DisconnectAiPluginConnectionRequest) Reset() {
 	*x = DisconnectAiPluginConnectionRequest{}
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[20]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1534,7 +1664,7 @@ func (x *DisconnectAiPluginConnectionRequest) String() string {
 func (*DisconnectAiPluginConnectionRequest) ProtoMessage() {}
 
 func (x *DisconnectAiPluginConnectionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[20]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1547,7 +1677,7 @@ func (x *DisconnectAiPluginConnectionRequest) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use DisconnectAiPluginConnectionRequest.ProtoReflect.Descriptor instead.
 func (*DisconnectAiPluginConnectionRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{20}
+	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *DisconnectAiPluginConnectionRequest) GetId() string {
@@ -1575,7 +1705,7 @@ type StartAiPluginOAuthRequest struct {
 
 func (x *StartAiPluginOAuthRequest) Reset() {
 	*x = StartAiPluginOAuthRequest{}
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[21]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1587,7 +1717,7 @@ func (x *StartAiPluginOAuthRequest) String() string {
 func (*StartAiPluginOAuthRequest) ProtoMessage() {}
 
 func (x *StartAiPluginOAuthRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[21]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1600,7 +1730,7 @@ func (x *StartAiPluginOAuthRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartAiPluginOAuthRequest.ProtoReflect.Descriptor instead.
 func (*StartAiPluginOAuthRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{21}
+	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *StartAiPluginOAuthRequest) GetId() string {
@@ -1627,7 +1757,7 @@ type StartAiPluginOAuthResponse struct {
 
 func (x *StartAiPluginOAuthResponse) Reset() {
 	*x = StartAiPluginOAuthResponse{}
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[22]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1639,7 +1769,7 @@ func (x *StartAiPluginOAuthResponse) String() string {
 func (*StartAiPluginOAuthResponse) ProtoMessage() {}
 
 func (x *StartAiPluginOAuthResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[22]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1652,7 +1782,7 @@ func (x *StartAiPluginOAuthResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartAiPluginOAuthResponse.ProtoReflect.Descriptor instead.
 func (*StartAiPluginOAuthResponse) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{22}
+	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *StartAiPluginOAuthResponse) GetAuthorizationUrl() string {
@@ -1675,7 +1805,7 @@ type CompleteAiPluginOAuthRequest struct {
 
 func (x *CompleteAiPluginOAuthRequest) Reset() {
 	*x = CompleteAiPluginOAuthRequest{}
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[23]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1687,7 +1817,7 @@ func (x *CompleteAiPluginOAuthRequest) String() string {
 func (*CompleteAiPluginOAuthRequest) ProtoMessage() {}
 
 func (x *CompleteAiPluginOAuthRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[23]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1700,7 +1830,7 @@ func (x *CompleteAiPluginOAuthRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CompleteAiPluginOAuthRequest.ProtoReflect.Descriptor instead.
 func (*CompleteAiPluginOAuthRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{23}
+	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *CompleteAiPluginOAuthRequest) GetState() string {
@@ -1743,7 +1873,7 @@ type ReauthorizeAiPluginConnectionRequest struct {
 
 func (x *ReauthorizeAiPluginConnectionRequest) Reset() {
 	*x = ReauthorizeAiPluginConnectionRequest{}
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[24]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1755,7 +1885,7 @@ func (x *ReauthorizeAiPluginConnectionRequest) String() string {
 func (*ReauthorizeAiPluginConnectionRequest) ProtoMessage() {}
 
 func (x *ReauthorizeAiPluginConnectionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[24]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1768,7 +1898,7 @@ func (x *ReauthorizeAiPluginConnectionRequest) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use ReauthorizeAiPluginConnectionRequest.ProtoReflect.Descriptor instead.
 func (*ReauthorizeAiPluginConnectionRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{24}
+	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *ReauthorizeAiPluginConnectionRequest) GetId() string {
@@ -1804,7 +1934,7 @@ type SetAiPluginConnectionSharingRequest struct {
 
 func (x *SetAiPluginConnectionSharingRequest) Reset() {
 	*x = SetAiPluginConnectionSharingRequest{}
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[25]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1816,7 +1946,7 @@ func (x *SetAiPluginConnectionSharingRequest) String() string {
 func (*SetAiPluginConnectionSharingRequest) ProtoMessage() {}
 
 func (x *SetAiPluginConnectionSharingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_plugin_proto_msgTypes[25]
+	mi := &file_base_v1_ai_plugin_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1829,7 +1959,7 @@ func (x *SetAiPluginConnectionSharingRequest) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use SetAiPluginConnectionSharingRequest.ProtoReflect.Descriptor instead.
 func (*SetAiPluginConnectionSharingRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{25}
+	return file_base_v1_ai_plugin_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *SetAiPluginConnectionSharingRequest) GetId() string {
@@ -1953,7 +2083,13 @@ const file_base_v1_ai_plugin_proto_rawDesc = "" +
 	"\aplugins\x18\x01 \x03(\v2\x11.base.v1.AiPluginB\x18\xbaG\x15\x92\x02\x12可见插件列表R\aplugins\x12]\n" +
 	"\x10can_manage_tools\x18\x02 \x01(\bB3\xbaG0\x92\x02-当前身份能否管理本租户工具策略R\x0ecanManageTools\x12a\n" +
 	"\x12can_manage_catalog\x18\x03 \x01(\bB3\xbaG0\x92\x02-当前身份能否管理授权范围内目录R\x10canManageCatalog\x12g\n" +
-	"\x12can_create_private\x18\x04 \x01(\bB9\xbaG6\x92\x023本租户是否允许接入已批准的个人端点R\x10canCreatePrivate\"\x8d\x01\n" +
+	"\x12can_create_private\x18\x04 \x01(\bB9\xbaG6\x92\x023本租户是否允许接入已批准的个人端点R\x10canCreatePrivate\"\x16\n" +
+	"\x14CountAiPluginRequest\"\xe0\x01\n" +
+	"\x15CountAiPluginResponse\x12.\n" +
+	"\x05total\x18\x01 \x01(\x05B\x18\xbaG\x15\x92\x02\x12可见插件总数R\x05total\x12E\n" +
+	"\n" +
+	"tool_total\x18\x02 \x01(\x05B&\xbaG#\x92\x02 可见插件的 MCP 工具总数R\ttoolTotal\x12P\n" +
+	"\x0fconnected_total\x18\x03 \x01(\x05B'\xbaG$\x92\x02!本租户已连接插件账号数R\x0econnectedTotal\"\x8d\x01\n" +
 	"\x12GetAiPluginRequest\x12w\n" +
 	"\x02id\x18\x01 \x01(\tBg\xbaG\v\x92\x02\b插件ID\xbaHV\xba\x01S\n" +
 	"\x1fai.plugin.getaipluginrequest.id\x12\x11插件ID不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\x02id\"\\\n" +
@@ -1977,13 +2113,20 @@ const file_base_v1_ai_plugin_proto_rawDesc = "" +
 	"\tterminals\x18\x03 \x03(\tB\xad\x01\xbaG\x0f\x92\x02\f允许终端\xbaH\x97\x01\xba\x01\x93\x01\n" +
 	"2ai.plugin.setaiplugininstallationrequest.terminals\x12\x15允许终端不合法\x1aFthis.size() <= 2 && this.unique() && this.all(t, t in ['admin','app'])R\tterminals\x12\xaa\x01\n" +
 	"\brevision\x18\x04 \x01(\x03B\x8d\x01\xbaG\x1f\x92\x02\x1c当前修订号；首次为0\xbaHh\xba\x01e\n" +
-	"1ai.plugin.setaiplugininstallationrequest.revision\x12%当前修订号；首次为0不合法\x1a\tthis >= 0R\brevision\"\x95\x02\n" +
+	"1ai.plugin.setaiplugininstallationrequest.revision\x12%当前修订号；首次为0不合法\x1a\tthis >= 0R\brevision\"\xaa\x06\n" +
 	"\x17ListAiPluginToolRequest\x12\x90\x01\n" +
 	"\tplugin_id\x18\x01 \x01(\tBs\xbaG\v\x92\x02\b插件ID\xbaHb\xba\x01_\n" +
 	"+ai.plugin.listaiplugintoolrequest.plugin_id\x12\x11插件ID不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\bpluginId\x12g\n" +
-	"\bterminal\x18\x02 \x01(\x0e2\x11.base.v1.TerminalB8\xbaG-\x92\x02*工具能力配置，不代表登录来源\xbaH\x05\x82\x01\x02\x10\x01R\bterminal\"a\n" +
+	"\bterminal\x18\x02 \x01(\x0e2\x11.base.v1.TerminalB8\xbaG-\x92\x02*工具能力配置，不代表登录来源\xbaH\x05\x82\x01\x02\x10\x01R\bterminal\x12\xad\x01\n" +
+	"\akeyword\x18\x03 \x01(\tB\x92\x01\xbaG!\x92\x02\x1e工具名称或说明关键字\xbaHk\xba\x01h\n" +
+	")ai.plugin.listaiplugintoolrequest.keyword\x12'工具关键字不能超过100个字符\x1a\x12this.size() <= 100R\akeyword\x12\x9f\x01\n" +
+	"\bpage_num\x18e \x01(\x03B\x83\x01\xbaG.\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\x00\x00\x92\x02\x1f当前页码，0表示不分页\xbaHO\xba\x01L\n" +
+	"*ai.plugin.listaiplugintoolrequest.page_num\x12\x13页码不能小于0\x1a\tthis >= 0R\apageNum\x12\xc0\x01\n" +
+	"\tpage_size\x18f \x01(\x03B\xa2\x01\xbaG.\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\x00\x00\x92\x02\x1f每页行数，0表示不分页\xbaHn\xba\x01k\n" +
+	"+ai.plugin.listaiplugintoolrequest.page_size\x12\"每页数量必须在0到100之间\x1a\x18this >= 0 && this <= 100R\bpageSize\"\x9a\x01\n" +
 	"\x18ListAiPluginToolResponse\x12E\n" +
-	"\x05tools\x18\x01 \x03(\v2\x15.base.v1.AiPluginToolB\x18\xbaG\x15\x92\x02\x12工具快照列表R\x05tools\"\xd5\b\n" +
+	"\x05tools\x18\x01 \x03(\v2\x15.base.v1.AiPluginToolB\x18\xbaG\x15\x92\x02\x12工具快照列表R\x05tools\x127\n" +
+	"\x05total\x18\x02 \x01(\x03B!\xbaG\x1e\x92\x02\x1b符合条件的工具总数R\x05total\"\xd5\b\n" +
 	"\x1cSetAiPluginToolPolicyRequest\x12\x95\x01\n" +
 	"\tplugin_id\x18\x01 \x01(\tBx\xbaG\v\x92\x02\b插件ID\xbaHg\xba\x01d\n" +
 	"0ai.plugin.setaiplugintoolpolicyrequest.plugin_id\x12\x11插件ID不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\bpluginId\x12\x8f\x01\n" +
@@ -2049,9 +2192,10 @@ const file_base_v1_ai_plugin_proto_rawDesc = "" +
 	"\brevision\x18\x02 \x01(\x03B[\xbaG\x18\x92\x02\x15当前配置修订号\xbaH=\xba\x01:\n" +
 	"\x1aai.plugin.sharing.revision\x12\x12修订号不合法\x1a\bthis > 0R\brevision\x12\x93\x01\n" +
 	"\asharing\x18\x03 \x01(\tBy\xbaG\"\x92\x02\x1f共享范围：private或tenant\xbaHQ\xba\x01N\n" +
-	"\x17ai.plugin.sharing.scope\x12\x15共享范围不合法\x1a\x1cthis in ['private','tenant']R\asharing2\xd5\x11\n" +
+	"\x17ai.plugin.sharing.scope\x12\x15共享范围不合法\x1a\x1cthis in ['private','tenant']R\asharing2\xcb\x12\n" +
 	"\x0fAiPluginService\x12k\n" +
-	"\fListAiPlugin\x12\x1c.base.v1.ListAiPluginRequest\x1a\x1d.base.v1.ListAiPluginResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/v1/base/ai/plugin\x12b\n" +
+	"\fListAiPlugin\x12\x1c.base.v1.ListAiPluginRequest\x1a\x1d.base.v1.ListAiPluginResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/v1/base/ai/plugin\x12t\n" +
+	"\rCountAiPlugin\x12\x1d.base.v1.CountAiPluginRequest\x1a\x1e.base.v1.CountAiPluginResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/base/ai/plugin/count\x12b\n" +
 	"\vGetAiPlugin\x12\x1b.base.v1.GetAiPluginRequest\x1a\x11.base.v1.AiPlugin\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/v1/base/ai/plugin/{id}\x12f\n" +
 	"\x0eCreateAiPlugin\x12\x1e.base.v1.CreateAiPluginRequest\x1a\x11.base.v1.AiPlugin\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/api/v1/base/ai/plugin\x12k\n" +
 	"\x0eUpdateAiPlugin\x12\x1e.base.v1.UpdateAiPluginRequest\x1a\x11.base.v1.AiPlugin\"&\x82\xd3\xe4\x93\x02 :\x01*\x1a\x1b/api/v1/base/ai/plugin/{id}\x12m\n" +
@@ -2081,7 +2225,7 @@ func file_base_v1_ai_plugin_proto_rawDescGZIP() []byte {
 	return file_base_v1_ai_plugin_proto_rawDescData
 }
 
-var file_base_v1_ai_plugin_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
+var file_base_v1_ai_plugin_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
 var file_base_v1_ai_plugin_proto_goTypes = []any{
 	(*AiPluginSelection)(nil),                    // 0: base.v1.AiPluginSelection
 	(*AiPlugin)(nil),                             // 1: base.v1.AiPlugin
@@ -2091,74 +2235,78 @@ var file_base_v1_ai_plugin_proto_goTypes = []any{
 	(*AiPluginConnection)(nil),                   // 5: base.v1.AiPluginConnection
 	(*ListAiPluginRequest)(nil),                  // 6: base.v1.ListAiPluginRequest
 	(*ListAiPluginResponse)(nil),                 // 7: base.v1.ListAiPluginResponse
-	(*GetAiPluginRequest)(nil),                   // 8: base.v1.GetAiPluginRequest
-	(*CreateAiPluginRequest)(nil),                // 9: base.v1.CreateAiPluginRequest
-	(*UpdateAiPluginRequest)(nil),                // 10: base.v1.UpdateAiPluginRequest
-	(*DeleteAiPluginRequest)(nil),                // 11: base.v1.DeleteAiPluginRequest
-	(*SetAiPluginInstallationRequest)(nil),       // 12: base.v1.SetAiPluginInstallationRequest
-	(*ListAiPluginToolRequest)(nil),              // 13: base.v1.ListAiPluginToolRequest
-	(*ListAiPluginToolResponse)(nil),             // 14: base.v1.ListAiPluginToolResponse
-	(*SetAiPluginToolPolicyRequest)(nil),         // 15: base.v1.SetAiPluginToolPolicyRequest
-	(*ListAiPluginConnectionRequest)(nil),        // 16: base.v1.ListAiPluginConnectionRequest
-	(*ListAiPluginConnectionResponse)(nil),       // 17: base.v1.ListAiPluginConnectionResponse
-	(*CreateAiPluginConnectionRequest)(nil),      // 18: base.v1.CreateAiPluginConnectionRequest
-	(*RefreshAiPluginConnectionRequest)(nil),     // 19: base.v1.RefreshAiPluginConnectionRequest
-	(*DisconnectAiPluginConnectionRequest)(nil),  // 20: base.v1.DisconnectAiPluginConnectionRequest
-	(*StartAiPluginOAuthRequest)(nil),            // 21: base.v1.StartAiPluginOAuthRequest
-	(*StartAiPluginOAuthResponse)(nil),           // 22: base.v1.StartAiPluginOAuthResponse
-	(*CompleteAiPluginOAuthRequest)(nil),         // 23: base.v1.CompleteAiPluginOAuthRequest
-	(*ReauthorizeAiPluginConnectionRequest)(nil), // 24: base.v1.ReauthorizeAiPluginConnectionRequest
-	(*SetAiPluginConnectionSharingRequest)(nil),  // 25: base.v1.SetAiPluginConnectionSharingRequest
-	(Terminal)(0),                                // 26: base.v1.Terminal
-	(*commonv1.SecretCrypto)(nil),                // 27: common.v1.SecretCrypto
-	(*emptypb.Empty)(nil),                        // 28: google.protobuf.Empty
+	(*CountAiPluginRequest)(nil),                 // 8: base.v1.CountAiPluginRequest
+	(*CountAiPluginResponse)(nil),                // 9: base.v1.CountAiPluginResponse
+	(*GetAiPluginRequest)(nil),                   // 10: base.v1.GetAiPluginRequest
+	(*CreateAiPluginRequest)(nil),                // 11: base.v1.CreateAiPluginRequest
+	(*UpdateAiPluginRequest)(nil),                // 12: base.v1.UpdateAiPluginRequest
+	(*DeleteAiPluginRequest)(nil),                // 13: base.v1.DeleteAiPluginRequest
+	(*SetAiPluginInstallationRequest)(nil),       // 14: base.v1.SetAiPluginInstallationRequest
+	(*ListAiPluginToolRequest)(nil),              // 15: base.v1.ListAiPluginToolRequest
+	(*ListAiPluginToolResponse)(nil),             // 16: base.v1.ListAiPluginToolResponse
+	(*SetAiPluginToolPolicyRequest)(nil),         // 17: base.v1.SetAiPluginToolPolicyRequest
+	(*ListAiPluginConnectionRequest)(nil),        // 18: base.v1.ListAiPluginConnectionRequest
+	(*ListAiPluginConnectionResponse)(nil),       // 19: base.v1.ListAiPluginConnectionResponse
+	(*CreateAiPluginConnectionRequest)(nil),      // 20: base.v1.CreateAiPluginConnectionRequest
+	(*RefreshAiPluginConnectionRequest)(nil),     // 21: base.v1.RefreshAiPluginConnectionRequest
+	(*DisconnectAiPluginConnectionRequest)(nil),  // 22: base.v1.DisconnectAiPluginConnectionRequest
+	(*StartAiPluginOAuthRequest)(nil),            // 23: base.v1.StartAiPluginOAuthRequest
+	(*StartAiPluginOAuthResponse)(nil),           // 24: base.v1.StartAiPluginOAuthResponse
+	(*CompleteAiPluginOAuthRequest)(nil),         // 25: base.v1.CompleteAiPluginOAuthRequest
+	(*ReauthorizeAiPluginConnectionRequest)(nil), // 26: base.v1.ReauthorizeAiPluginConnectionRequest
+	(*SetAiPluginConnectionSharingRequest)(nil),  // 27: base.v1.SetAiPluginConnectionSharingRequest
+	(Terminal)(0),                                // 28: base.v1.Terminal
+	(*commonv1.SecretCrypto)(nil),                // 29: common.v1.SecretCrypto
+	(*emptypb.Empty)(nil),                        // 30: google.protobuf.Empty
 }
 var file_base_v1_ai_plugin_proto_depIdxs = []int32{
 	3,  // 0: base.v1.AiPlugin.installation:type_name -> base.v1.AiPluginInstallation
 	4,  // 1: base.v1.AiPlugin.tools:type_name -> base.v1.AiPluginTool
-	26, // 2: base.v1.ListAiPluginRequest.terminal:type_name -> base.v1.Terminal
+	28, // 2: base.v1.ListAiPluginRequest.terminal:type_name -> base.v1.Terminal
 	1,  // 3: base.v1.ListAiPluginResponse.plugins:type_name -> base.v1.AiPlugin
 	2,  // 4: base.v1.CreateAiPluginRequest.form:type_name -> base.v1.AiPluginForm
 	2,  // 5: base.v1.UpdateAiPluginRequest.form:type_name -> base.v1.AiPluginForm
-	26, // 6: base.v1.ListAiPluginToolRequest.terminal:type_name -> base.v1.Terminal
+	28, // 6: base.v1.ListAiPluginToolRequest.terminal:type_name -> base.v1.Terminal
 	4,  // 7: base.v1.ListAiPluginToolResponse.tools:type_name -> base.v1.AiPluginTool
 	5,  // 8: base.v1.ListAiPluginConnectionResponse.connections:type_name -> base.v1.AiPluginConnection
-	27, // 9: base.v1.CreateAiPluginConnectionRequest.token:type_name -> common.v1.SecretCrypto
-	27, // 10: base.v1.ReauthorizeAiPluginConnectionRequest.token:type_name -> common.v1.SecretCrypto
+	29, // 9: base.v1.CreateAiPluginConnectionRequest.token:type_name -> common.v1.SecretCrypto
+	29, // 10: base.v1.ReauthorizeAiPluginConnectionRequest.token:type_name -> common.v1.SecretCrypto
 	6,  // 11: base.v1.AiPluginService.ListAiPlugin:input_type -> base.v1.ListAiPluginRequest
-	8,  // 12: base.v1.AiPluginService.GetAiPlugin:input_type -> base.v1.GetAiPluginRequest
-	9,  // 13: base.v1.AiPluginService.CreateAiPlugin:input_type -> base.v1.CreateAiPluginRequest
-	10, // 14: base.v1.AiPluginService.UpdateAiPlugin:input_type -> base.v1.UpdateAiPluginRequest
-	11, // 15: base.v1.AiPluginService.DeleteAiPlugin:input_type -> base.v1.DeleteAiPluginRequest
-	12, // 16: base.v1.AiPluginService.SetAiPluginInstallation:input_type -> base.v1.SetAiPluginInstallationRequest
-	13, // 17: base.v1.AiPluginService.ListAiPluginTool:input_type -> base.v1.ListAiPluginToolRequest
-	15, // 18: base.v1.AiPluginService.SetAiPluginToolPolicy:input_type -> base.v1.SetAiPluginToolPolicyRequest
-	16, // 19: base.v1.AiPluginService.ListAiPluginConnection:input_type -> base.v1.ListAiPluginConnectionRequest
-	18, // 20: base.v1.AiPluginService.CreateAiPluginConnection:input_type -> base.v1.CreateAiPluginConnectionRequest
-	19, // 21: base.v1.AiPluginService.RefreshAiPluginConnection:input_type -> base.v1.RefreshAiPluginConnectionRequest
-	20, // 22: base.v1.AiPluginService.DisconnectAiPluginConnection:input_type -> base.v1.DisconnectAiPluginConnectionRequest
-	21, // 23: base.v1.AiPluginService.StartAiPluginOAuth:input_type -> base.v1.StartAiPluginOAuthRequest
-	23, // 24: base.v1.AiPluginService.CompleteAiPluginOAuth:input_type -> base.v1.CompleteAiPluginOAuthRequest
-	24, // 25: base.v1.AiPluginService.ReauthorizeAiPluginConnection:input_type -> base.v1.ReauthorizeAiPluginConnectionRequest
-	25, // 26: base.v1.AiPluginService.SetAiPluginConnectionSharing:input_type -> base.v1.SetAiPluginConnectionSharingRequest
-	7,  // 27: base.v1.AiPluginService.ListAiPlugin:output_type -> base.v1.ListAiPluginResponse
-	1,  // 28: base.v1.AiPluginService.GetAiPlugin:output_type -> base.v1.AiPlugin
-	1,  // 29: base.v1.AiPluginService.CreateAiPlugin:output_type -> base.v1.AiPlugin
-	1,  // 30: base.v1.AiPluginService.UpdateAiPlugin:output_type -> base.v1.AiPlugin
-	28, // 31: base.v1.AiPluginService.DeleteAiPlugin:output_type -> google.protobuf.Empty
-	3,  // 32: base.v1.AiPluginService.SetAiPluginInstallation:output_type -> base.v1.AiPluginInstallation
-	14, // 33: base.v1.AiPluginService.ListAiPluginTool:output_type -> base.v1.ListAiPluginToolResponse
-	4,  // 34: base.v1.AiPluginService.SetAiPluginToolPolicy:output_type -> base.v1.AiPluginTool
-	17, // 35: base.v1.AiPluginService.ListAiPluginConnection:output_type -> base.v1.ListAiPluginConnectionResponse
-	5,  // 36: base.v1.AiPluginService.CreateAiPluginConnection:output_type -> base.v1.AiPluginConnection
-	5,  // 37: base.v1.AiPluginService.RefreshAiPluginConnection:output_type -> base.v1.AiPluginConnection
-	5,  // 38: base.v1.AiPluginService.DisconnectAiPluginConnection:output_type -> base.v1.AiPluginConnection
-	22, // 39: base.v1.AiPluginService.StartAiPluginOAuth:output_type -> base.v1.StartAiPluginOAuthResponse
-	5,  // 40: base.v1.AiPluginService.CompleteAiPluginOAuth:output_type -> base.v1.AiPluginConnection
-	5,  // 41: base.v1.AiPluginService.ReauthorizeAiPluginConnection:output_type -> base.v1.AiPluginConnection
-	5,  // 42: base.v1.AiPluginService.SetAiPluginConnectionSharing:output_type -> base.v1.AiPluginConnection
-	27, // [27:43] is the sub-list for method output_type
-	11, // [11:27] is the sub-list for method input_type
+	8,  // 12: base.v1.AiPluginService.CountAiPlugin:input_type -> base.v1.CountAiPluginRequest
+	10, // 13: base.v1.AiPluginService.GetAiPlugin:input_type -> base.v1.GetAiPluginRequest
+	11, // 14: base.v1.AiPluginService.CreateAiPlugin:input_type -> base.v1.CreateAiPluginRequest
+	12, // 15: base.v1.AiPluginService.UpdateAiPlugin:input_type -> base.v1.UpdateAiPluginRequest
+	13, // 16: base.v1.AiPluginService.DeleteAiPlugin:input_type -> base.v1.DeleteAiPluginRequest
+	14, // 17: base.v1.AiPluginService.SetAiPluginInstallation:input_type -> base.v1.SetAiPluginInstallationRequest
+	15, // 18: base.v1.AiPluginService.ListAiPluginTool:input_type -> base.v1.ListAiPluginToolRequest
+	17, // 19: base.v1.AiPluginService.SetAiPluginToolPolicy:input_type -> base.v1.SetAiPluginToolPolicyRequest
+	18, // 20: base.v1.AiPluginService.ListAiPluginConnection:input_type -> base.v1.ListAiPluginConnectionRequest
+	20, // 21: base.v1.AiPluginService.CreateAiPluginConnection:input_type -> base.v1.CreateAiPluginConnectionRequest
+	21, // 22: base.v1.AiPluginService.RefreshAiPluginConnection:input_type -> base.v1.RefreshAiPluginConnectionRequest
+	22, // 23: base.v1.AiPluginService.DisconnectAiPluginConnection:input_type -> base.v1.DisconnectAiPluginConnectionRequest
+	23, // 24: base.v1.AiPluginService.StartAiPluginOAuth:input_type -> base.v1.StartAiPluginOAuthRequest
+	25, // 25: base.v1.AiPluginService.CompleteAiPluginOAuth:input_type -> base.v1.CompleteAiPluginOAuthRequest
+	26, // 26: base.v1.AiPluginService.ReauthorizeAiPluginConnection:input_type -> base.v1.ReauthorizeAiPluginConnectionRequest
+	27, // 27: base.v1.AiPluginService.SetAiPluginConnectionSharing:input_type -> base.v1.SetAiPluginConnectionSharingRequest
+	7,  // 28: base.v1.AiPluginService.ListAiPlugin:output_type -> base.v1.ListAiPluginResponse
+	9,  // 29: base.v1.AiPluginService.CountAiPlugin:output_type -> base.v1.CountAiPluginResponse
+	1,  // 30: base.v1.AiPluginService.GetAiPlugin:output_type -> base.v1.AiPlugin
+	1,  // 31: base.v1.AiPluginService.CreateAiPlugin:output_type -> base.v1.AiPlugin
+	1,  // 32: base.v1.AiPluginService.UpdateAiPlugin:output_type -> base.v1.AiPlugin
+	30, // 33: base.v1.AiPluginService.DeleteAiPlugin:output_type -> google.protobuf.Empty
+	3,  // 34: base.v1.AiPluginService.SetAiPluginInstallation:output_type -> base.v1.AiPluginInstallation
+	16, // 35: base.v1.AiPluginService.ListAiPluginTool:output_type -> base.v1.ListAiPluginToolResponse
+	4,  // 36: base.v1.AiPluginService.SetAiPluginToolPolicy:output_type -> base.v1.AiPluginTool
+	19, // 37: base.v1.AiPluginService.ListAiPluginConnection:output_type -> base.v1.ListAiPluginConnectionResponse
+	5,  // 38: base.v1.AiPluginService.CreateAiPluginConnection:output_type -> base.v1.AiPluginConnection
+	5,  // 39: base.v1.AiPluginService.RefreshAiPluginConnection:output_type -> base.v1.AiPluginConnection
+	5,  // 40: base.v1.AiPluginService.DisconnectAiPluginConnection:output_type -> base.v1.AiPluginConnection
+	24, // 41: base.v1.AiPluginService.StartAiPluginOAuth:output_type -> base.v1.StartAiPluginOAuthResponse
+	5,  // 42: base.v1.AiPluginService.CompleteAiPluginOAuth:output_type -> base.v1.AiPluginConnection
+	5,  // 43: base.v1.AiPluginService.ReauthorizeAiPluginConnection:output_type -> base.v1.AiPluginConnection
+	5,  // 44: base.v1.AiPluginService.SetAiPluginConnectionSharing:output_type -> base.v1.AiPluginConnection
+	28, // [28:45] is the sub-list for method output_type
+	11, // [11:28] is the sub-list for method input_type
 	11, // [11:11] is the sub-list for extension type_name
 	11, // [11:11] is the sub-list for extension extendee
 	0,  // [0:11] is the sub-list for field type_name
@@ -2176,7 +2324,7 @@ func file_base_v1_ai_plugin_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_base_v1_ai_plugin_proto_rawDesc), len(file_base_v1_ai_plugin_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   26,
+			NumMessages:   28,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

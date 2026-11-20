@@ -58,9 +58,8 @@ func (c *WorkflowDelegationCase) PageWorkflowDelegation(ctx context.Context, req
 			return nil, errorsx.PermissionDenied("不能查询其他租户的审批委托")
 		}
 		opts = append(opts, repository.Where(query.TenantID.Eq(req.GetTenantId())))
-	} else if authInfo.TenantCode != gorm.DefaultTenantCode {
-		opts = append(opts, repository.Where(query.TenantID.Eq(authInfo.TenantId)))
 	}
+	// 非默认租户未指定编号时，租户隔离由数据隔离回调按登录身份注入。
 	if req.GetDelegatorUserId() > 0 {
 		opts = append(opts, repository.Where(query.DelegatorUserID.Eq(req.GetDelegatorUserId())))
 	}
@@ -106,8 +105,7 @@ func (c *WorkflowDelegationCase) SetWorkflowDelegation(ctx context.Context, req 
 	}
 
 	delegationQuery := c.Query(ctx).WorkflowDelegation
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(delegationQuery.TenantID.Eq(authInfo.TenantId)))
+	opts := make([]repository.QueryOption, 0, 1)
 	opts = append(opts, repository.Where(delegationQuery.DelegatorUserID.Eq(authInfo.UserId)))
 	existing, err := c.Find(ctx, opts...)
 	if err != nil && !errors.Is(err, gormDB.ErrRecordNotFound) {

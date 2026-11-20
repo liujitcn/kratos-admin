@@ -19,6 +19,7 @@ var _ = new(context.Context)
 const _ = http.SupportPackageIsVersion3
 
 const OperationAiAutomationServiceContinueAiAutomationRun = "/base.v1.AiAutomationService/ContinueAiAutomationRun"
+const OperationAiAutomationServiceCountAiAutomation = "/base.v1.AiAutomationService/CountAiAutomation"
 const OperationAiAutomationServiceCreateAiAutomation = "/base.v1.AiAutomationService/CreateAiAutomation"
 const OperationAiAutomationServiceGetAiAutomation = "/base.v1.AiAutomationService/GetAiAutomation"
 const OperationAiAutomationServiceGetAiAutomationRun = "/base.v1.AiAutomationService/GetAiAutomationRun"
@@ -33,6 +34,8 @@ const OperationAiAutomationServiceUpdateAiAutomation = "/base.v1.AiAutomationSer
 type AiAutomationServiceHTTPServer interface {
 	// ContinueAiAutomationRun 从冻结结果创建普通讨论会话。
 	ContinueAiAutomationRun(context.Context, *ContinueAiAutomationRunRequest) (*CreateAiSessionResponse, error)
+	// CountAiAutomation 统计本人自动化任务数量。
+	CountAiAutomation(context.Context, *CountAiAutomationRequest) (*CountAiAutomationResponse, error)
 	// CreateAiAutomation 创建本人自动化计划。
 	CreateAiAutomation(context.Context, *CreateAiAutomationRequest) (*AiAutomation, error)
 	// GetAiAutomation 查询本人自动化详情。
@@ -58,6 +61,7 @@ type AiAutomationServiceHTTPServer interface {
 func RegisterAiAutomationServiceHTTPServer(s *http.Server, srv AiAutomationServiceHTTPServer) {
 	r := s.Route("/")
 	r.Handle("GET", "/api/v1/base/ai/automation", _AiAutomationService_ListAiAutomation0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/base/ai/automation/count", _AiAutomationService_CountAiAutomation0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/base/ai/automation/{id}", _AiAutomationService_GetAiAutomation0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/base/ai/automation-preview", _AiAutomationService_PreviewAiAutomationSchedule0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/base/ai/automation", _AiAutomationService_CreateAiAutomation0_HTTP_Handler(srv))
@@ -85,6 +89,25 @@ func _AiAutomationService_ListAiAutomation0_HTTP_Handler(srv AiAutomationService
 			return err
 		}
 		reply := out.(*ListAiAutomationResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _AiAutomationService_CountAiAutomation0_HTTP_Handler(srv AiAutomationServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in CountAiAutomationRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAiAutomationServiceCountAiAutomation)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CountAiAutomation(ctx, req.(*CountAiAutomationRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*CountAiAutomationResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -303,6 +326,8 @@ func _AiAutomationService_ContinueAiAutomationRun0_HTTP_Handler(srv AiAutomation
 type AiAutomationServiceHTTPClient interface {
 	// ContinueAiAutomationRun 从冻结结果创建普通讨论会话。
 	ContinueAiAutomationRun(ctx context.Context, req *ContinueAiAutomationRunRequest, opts ...http.CallOption) (rsp *CreateAiSessionResponse, err error)
+	// CountAiAutomation 统计本人自动化任务数量。
+	CountAiAutomation(ctx context.Context, req *CountAiAutomationRequest, opts ...http.CallOption) (rsp *CountAiAutomationResponse, err error)
 	// CreateAiAutomation 创建本人自动化计划。
 	CreateAiAutomation(ctx context.Context, req *CreateAiAutomationRequest, opts ...http.CallOption) (rsp *AiAutomation, err error)
 	// GetAiAutomation 查询本人自动化详情。
@@ -345,6 +370,23 @@ func (c *AiAutomationServiceHTTPClientImpl) ContinueAiAutomationRun(ctx context.
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// CountAiAutomation 统计本人自动化任务数量。
+func (c *AiAutomationServiceHTTPClientImpl) CountAiAutomation(ctx context.Context, in *CountAiAutomationRequest, opts ...http.CallOption) (*CountAiAutomationResponse, error) {
+	var out CountAiAutomationResponse
+	pattern := "/api/v1/base/ai/automation/count"
+	path := http.BuildPath(pattern, in, http.WithQueryParams())
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.Operation(OperationAiAutomationServiceCountAiAutomation),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

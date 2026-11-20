@@ -51,7 +51,7 @@ func (c *AiAutomationCase) ListAiAutomation(ctx context.Context, req *basev1.Lis
 		return nil, err
 	}
 	query := c.Query(ctx).AiAutomation
-	opts := []repository.QueryOption{repository.Where(query.TenantID.Eq(auth.TenantId)), repository.Where(query.OwnerUserID.Eq(auth.UserId)), repository.Order(query.UpdatedAt.Desc(), query.ID.Desc())}
+	opts := []repository.QueryOption{repository.Where(query.OwnerUserID.Eq(auth.UserId)), repository.Order(query.UpdatedAt.Desc(), query.ID.Desc())}
 	if req.Status != "" && req.Status != "attention" {
 		opts = append(opts, repository.Where(query.Status.Eq(req.Status)))
 	} else {
@@ -79,9 +79,28 @@ func (c *AiAutomationCase) ListAiAutomation(ctx context.Context, req *basev1.Lis
 	}
 	runQuery := c.runRepo.Query(ctx).AiAutomationRun
 	var count int64
-	count, err = runQuery.WithContext(ctx).Where(runQuery.TenantID.Eq(auth.TenantId), runQuery.OwnerUserID.Eq(auth.UserId), runQuery.Status.Eq("waiting_approval")).Count()
+	count, err = runQuery.WithContext(ctx).Where(runQuery.OwnerUserID.Eq(auth.UserId), runQuery.Status.Eq("waiting_approval")).Count()
 	result.PendingCount = int32(count)
 	return result, err
+}
+
+// CountAiAutomation 统计当前租户当前用户的自动化任务与待确认执行数量。
+func (c *AiAutomationCase) CountAiAutomation(ctx context.Context, req *basev1.CountAiAutomationRequest) (*basev1.CountAiAutomationResponse, error) {
+	auth, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+	query := c.Query(ctx).AiAutomation
+	total, err := query.WithContext(ctx).Where(query.OwnerUserID.Eq(auth.UserId), query.Status.Neq("archived")).Count()
+	if err != nil {
+		return nil, err
+	}
+	runQuery := c.runRepo.Query(ctx).AiAutomationRun
+	pending, err := runQuery.WithContext(ctx).Where(runQuery.OwnerUserID.Eq(auth.UserId), runQuery.Status.Eq("waiting_approval")).Count()
+	if err != nil {
+		return nil, err
+	}
+	return &basev1.CountAiAutomationResponse{Total: int32(total), PendingCount: int32(pending)}, nil
 }
 
 // GetAiAutomation 按本人归属查询计划详情。
@@ -268,7 +287,7 @@ func (c *AiAutomationCase) ListAiAutomationRun(ctx context.Context, req *basev1.
 		return nil, err
 	}
 	query := c.runRepo.Query(ctx).AiAutomationRun
-	opts := []repository.QueryOption{repository.Where(query.TenantID.Eq(auth.TenantId)), repository.Where(query.OwnerUserID.Eq(auth.UserId)), repository.Order(query.ID.Desc()), repository.Limit(int(min(max(req.Limit, 1), 100)))}
+	opts := []repository.QueryOption{repository.Where(query.OwnerUserID.Eq(auth.UserId)), repository.Order(query.ID.Desc()), repository.Limit(int(min(max(req.Limit, 1), 100)))}
 	if req.Limit == 0 {
 		opts[len(opts)-1] = repository.Limit(50)
 	}
@@ -410,7 +429,7 @@ func (c *AiAutomationCase) ownedAutomation(ctx context.Context, rawID string) (*
 	}
 	query := c.Query(ctx).AiAutomation
 	var row *models.AiAutomation
-	row, err = c.Find(ctx, repository.Where(query.ID.Eq(id)), repository.Where(query.TenantID.Eq(auth.TenantId)), repository.Where(query.OwnerUserID.Eq(auth.UserId)))
+	row, err = c.Find(ctx, repository.Where(query.ID.Eq(id)), repository.Where(query.OwnerUserID.Eq(auth.UserId)))
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errorsx.ResourceNotFound("自动化计划不存在")
 	}
@@ -430,7 +449,7 @@ func (c *AiAutomationCase) ownedAutomationRun(ctx context.Context, rawID string)
 	}
 	query := c.runRepo.Query(ctx).AiAutomationRun
 	var row *models.AiAutomationRun
-	row, err = c.runRepo.Find(ctx, repository.Where(query.ID.Eq(id)), repository.Where(query.TenantID.Eq(auth.TenantId)), repository.Where(query.OwnerUserID.Eq(auth.UserId)))
+	row, err = c.runRepo.Find(ctx, repository.Where(query.ID.Eq(id)), repository.Where(query.OwnerUserID.Eq(auth.UserId)))
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errorsx.ResourceNotFound("执行记录不存在")
 	}

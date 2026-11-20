@@ -11,7 +11,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	coredata "github.com/liujitcn/kratos-core/data"
-	resourcebiz "github.com/liujitcn/kratos-core/resource/biz"
+	"github.com/liujitcn/kratos-core/resource/biz"
 	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -50,8 +50,8 @@ func TestSyncAiEventPermissions(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	var policyCase *resourcebiz.CasbinRuleCase
-	policyCase, err = resourcebiz.NewCasbinRuleCase(permissionStore, resourcebiz.NewBaseAPICase(adapter), nil)
+	var policyCase *biz.CasbinRuleCase
+	policyCase, err = biz.NewCasbinRuleCase(permissionStore, biz.NewBaseAPICase(adapter), nil)
 	if err != nil {
 		t.Fatal(err)
 	}

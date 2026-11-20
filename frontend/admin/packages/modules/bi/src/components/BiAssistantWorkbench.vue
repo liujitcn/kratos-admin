@@ -88,7 +88,7 @@
             <span class="bi-assistant-workbench__toolbox-icon"
               ><el-icon><Document /></el-icon
             ></span>
-            <span class="bi-assistant-workbench__toolbox-badge">2</span>
+            <span v-if="fileCount" class="bi-assistant-workbench__toolbox-badge">{{ fileCount }}</span>
             文件
           </el-button>
           <el-button @click="openWorkbenchTool('automations')">
@@ -96,6 +96,7 @@
               ><el-icon><Timer /></el-icon
             ></span>
             <span v-if="pendingAutomationCount" class="bi-assistant-workbench__toolbox-badge">{{ pendingAutomationCount }}</span>
+            <span v-else-if="automationTotal" class="bi-assistant-workbench__toolbox-badge is-warning">{{ automationTotal }}</span>
             <span v-else class="bi-assistant-workbench__toolbox-badge is-warning-dot" />
             自动化
           </el-button>
@@ -103,7 +104,7 @@
             <span class="bi-assistant-workbench__toolbox-icon is-plugin"
               ><el-icon><Grid /></el-icon
             ></span>
-            <span class="bi-assistant-workbench__toolbox-badge">5</span>
+            <span v-if="pluginCount" class="bi-assistant-workbench__toolbox-badge">{{ pluginCount }}</span>
             插件
           </el-button>
         </div>
@@ -114,7 +115,7 @@
       class="bi-assistant-workbench__body"
       :class="{ 'is-left-collapsed': collapsed.left, 'is-right-collapsed': collapsed.right }"
     >
-      <el-aside class="bi-assistant-workbench__zone" :class="{ 'is-collapsed': collapsed.left }">
+      <el-aside class="bi-assistant-workbench__zone is-left" :class="{ 'is-collapsed': collapsed.left }">
         <el-header class="bi-assistant-workbench__zone-head">
           <el-button
             text
@@ -139,7 +140,6 @@
             @refresh="refreshCard"
             @quote="quoteCard"
             @remove="removeCard"
-            @export="exportCard"
             @preview="previewCard"
           />
         </div>
@@ -181,7 +181,7 @@
         </ChatPanel>
       </el-main>
 
-      <el-aside class="bi-assistant-workbench__zone" :class="{ 'is-collapsed': collapsed.right }">
+      <el-aside class="bi-assistant-workbench__zone is-right" :class="{ 'is-collapsed': collapsed.right }">
         <el-header class="bi-assistant-workbench__zone-head">
           <el-button v-if="!collapsed.right" text type="primary" :icon="Plus" @click="openCardPicker('right')">{{
             t("bi.card.add_short")
@@ -211,7 +211,6 @@
             @refresh="refreshCard"
             @quote="quoteCard"
             @remove="removeCard"
-            @export="exportCard"
             @preview="previewCard"
           />
         </div>
@@ -257,7 +256,7 @@
             :can-manage-tools="pluginCapabilities.can_manage_tools"
             :can-manage-catalog="pluginCapabilities.can_manage_catalog"
             :can-create-private="pluginCapabilities.can_create_private"
-            @refresh="loadPlugins"
+            @refresh="refreshPluginTools"
             @select="addSessionPlugin"
           />
         </div>
@@ -328,7 +327,6 @@ import {
   DArrowRight,
   Delete,
   Document,
-  Download,
   EditPen,
   Grid,
   MoreFilled,
@@ -340,6 +338,9 @@ import {
 } from "@element-plus/icons-vue";
 import { t } from "@liujitcn/kratos-admin-core";
 import { useMediaQuery } from "@vueuse/core";
+import { defAiFileService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_file";
+import { AiFileView } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_file";
+import { defAiAutomationService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_automation";
 import { defAiKnowledgeService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_knowledge";
 import { defAiMessageService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_message";
 import { defAiModelService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_provider";
@@ -424,6 +425,44 @@ const sessionMenuOpen = ref(false);
 const toolboxOpen = ref(false);
 const workbenchView = ref<"chat" | "files" | "automations" | "plugins">("chat");
 const pendingAutomationCount = ref(0);
+/** 工具箱「自动化」角标：本人非归档任务总数。 */
+const automationTotal = ref(0);
+/** 工具箱「插件」角标：当前身份可见插件数量。 */
+const pluginCount = ref(0);
+/** 工具箱「文件」角标：AI 文件总数（全部视图）。 */
+const fileCount = ref(0);
+
+/** 查询自动化与插件统计，供工具箱角标展示。 */
+async function loadToolCounts() {
+  try {
+    const response = await defAiAutomationService.CountAiAutomation({});
+    automationTotal.value = response.total;
+    pendingAutomationCount.value = response.pending_count;
+  } catch {
+    // 角标仅做提示，查询失败时保持现有数值。
+  }
+  try {
+    const response = await defAiPluginService.CountAiPlugin({});
+    pluginCount.value = response.total;
+  } catch {
+    // 角标仅做提示，查询失败时保持现有数值。
+  }
+}
+
+/** 插件面板刷新后同步目录与角标统计。 */
+async function refreshPluginTools() {
+  await Promise.all([loadPlugins(), loadToolCounts()]);
+}
+
+/** 查询 AI 文件总数，供工具箱角标展示。 */
+async function loadFileCount() {
+  try {
+    const response = await defAiFileService.CountAiFile({ view: AiFileView.AI_FILE_VIEW_ALL, keyword: "" });
+    fileCount.value = response.total;
+  } catch {
+    // 角标仅做提示，查询失败时保持现有数值。
+  }
+}
 const plugins = ref<AiPlugin[]>([]),
   connections = ref<AiPluginConnection[]>([]);
 const pluginCapabilities = ref({ can_manage_tools: false, can_manage_catalog: false, can_create_private: false });
@@ -541,6 +580,7 @@ function openWorkbenchTool(view: "files" | "automations" | "plugins") {
   sessionMenuOpen.value = false;
   // 紧凑布局下先收起浮层卡片，避免遮挡工具面板
   if (compact.value) collapseAllZones();
+  if (view === "files") void loadFileCount();
   workbenchView.value = view;
 }
 
@@ -794,25 +834,6 @@ function quoteCard(card: BiCard) {
   ElMessage.success("已在输入框引用该卡片");
 }
 
-async function exportCard(card: BiCard) {
-  try {
-    const result = await defBiCardService.GetBiCardData({ id: card.id, range_days: 0 });
-    const header = (result.columns || []).map(item => item.name || item.code);
-    const rows = (result.rows || []).map(row => row.values || []);
-    const csv = [header, ...rows]
-      .map(row => row.map(value => '"' + String(value || "").replaceAll('"', '""') + '"').join(","))
-      .join("\n");
-    const url = URL.createObjectURL(new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" }));
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = card.name + ".csv";
-    link.click();
-    URL.revokeObjectURL(url);
-  } catch (cause) {
-    ElMessage.error(cause instanceof Error ? cause.message : t("bi.query.error"));
-  }
-}
-
 async function openCardPicker(zone: Zone) {
   cardPicker.zone = zone;
   cardPicker.keyword = "";
@@ -1015,7 +1036,7 @@ async function decideApproval(item: ChatMessageItem, approved: boolean) {
 onMounted(async () => {
   document.addEventListener("click", closeTopbarPopovers);
   try {
-    await Promise.all([loadCards(), loadChat(), loadPlugins()]);
+    await Promise.all([loadCards(), loadChat(), loadPlugins(), loadFileCount(), loadToolCounts()]);
   } catch (cause) {
     ElMessage.error(cause instanceof Error ? cause.message : t("bi.query.error"));
   }
@@ -1333,6 +1354,9 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
   background: var(--el-color-danger);
   border-radius: 8px;
 }
+.bi-assistant-workbench__toolbox-badge.is-warning {
+  background: var(--el-color-warning);
+}
 .bi-assistant-workbench__toolbox-badge.is-warning-dot {
   width: 8px;
   min-width: 8px;
@@ -1365,10 +1389,10 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
   padding: 0;
   background: var(--el-fill-color-light);
 }
-.bi-assistant-workbench__zone:first-child {
+.bi-assistant-workbench__zone.is-left {
   border-right: 1px solid var(--admin-page-divider-strong);
 }
-.bi-assistant-workbench__zone:last-child {
+.bi-assistant-workbench__zone.is-right {
   border-left: 1px solid var(--admin-page-divider-strong);
 }
 .bi-assistant-workbench__zone.is-collapsed {
@@ -1627,11 +1651,11 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
     width: min(360px, 86vw);
     box-shadow: 0 10px 36px rgb(15 23 42 / 18%);
   }
-  .bi-assistant-workbench__zone:first-child:not(.is-collapsed) {
+  .bi-assistant-workbench__zone.is-left:not(.is-collapsed) {
     left: 0;
     border-right: 1px solid var(--admin-page-divider-strong);
   }
-  .bi-assistant-workbench__zone:last-child:not(.is-collapsed) {
+  .bi-assistant-workbench__zone.is-right:not(.is-collapsed) {
     right: 0;
     border-left: 1px solid var(--admin-page-divider-strong);
   }

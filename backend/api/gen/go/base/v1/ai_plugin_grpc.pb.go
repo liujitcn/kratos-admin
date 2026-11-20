@@ -22,6 +22,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	AiPluginService_ListAiPlugin_FullMethodName                  = "/base.v1.AiPluginService/ListAiPlugin"
+	AiPluginService_CountAiPlugin_FullMethodName                 = "/base.v1.AiPluginService/CountAiPlugin"
 	AiPluginService_GetAiPlugin_FullMethodName                   = "/base.v1.AiPluginService/GetAiPlugin"
 	AiPluginService_CreateAiPlugin_FullMethodName                = "/base.v1.AiPluginService/CreateAiPlugin"
 	AiPluginService_UpdateAiPlugin_FullMethodName                = "/base.v1.AiPluginService/UpdateAiPlugin"
@@ -46,7 +47,10 @@ const (
 // AI 插件目录、安装策略与本人账号连接服务；管理写操作不向模型暴露。
 type AiPluginServiceClient interface {
 	// 查询当前身份可见的插件目录。
+	// 查询插件目录。
 	ListAiPlugin(ctx context.Context, in *ListAiPluginRequest, opts ...grpc.CallOption) (*ListAiPluginResponse, error)
+	// 统计当前身份可见的插件与 MCP 工具数量。
+	CountAiPlugin(ctx context.Context, in *CountAiPluginRequest, opts ...grpc.CallOption) (*CountAiPluginResponse, error)
 	// 查询插件详情。
 	GetAiPlugin(ctx context.Context, in *GetAiPluginRequest, opts ...grpc.CallOption) (*AiPlugin, error)
 	// 创建插件定义。
@@ -91,6 +95,16 @@ func (c *aiPluginServiceClient) ListAiPlugin(ctx context.Context, in *ListAiPlug
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListAiPluginResponse)
 	err := c.cc.Invoke(ctx, AiPluginService_ListAiPlugin_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aiPluginServiceClient) CountAiPlugin(ctx context.Context, in *CountAiPluginRequest, opts ...grpc.CallOption) (*CountAiPluginResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CountAiPluginResponse)
+	err := c.cc.Invoke(ctx, AiPluginService_CountAiPlugin_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -254,7 +268,10 @@ func (c *aiPluginServiceClient) SetAiPluginConnectionSharing(ctx context.Context
 // AI 插件目录、安装策略与本人账号连接服务；管理写操作不向模型暴露。
 type AiPluginServiceServer interface {
 	// 查询当前身份可见的插件目录。
+	// 查询插件目录。
 	ListAiPlugin(context.Context, *ListAiPluginRequest) (*ListAiPluginResponse, error)
+	// 统计当前身份可见的插件与 MCP 工具数量。
+	CountAiPlugin(context.Context, *CountAiPluginRequest) (*CountAiPluginResponse, error)
 	// 查询插件详情。
 	GetAiPlugin(context.Context, *GetAiPluginRequest) (*AiPlugin, error)
 	// 创建插件定义。
@@ -297,6 +314,9 @@ type UnimplementedAiPluginServiceServer struct{}
 
 func (UnimplementedAiPluginServiceServer) ListAiPlugin(context.Context, *ListAiPluginRequest) (*ListAiPluginResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListAiPlugin not implemented")
+}
+func (UnimplementedAiPluginServiceServer) CountAiPlugin(context.Context, *CountAiPluginRequest) (*CountAiPluginResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CountAiPlugin not implemented")
 }
 func (UnimplementedAiPluginServiceServer) GetAiPlugin(context.Context, *GetAiPluginRequest) (*AiPlugin, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetAiPlugin not implemented")
@@ -378,6 +398,24 @@ func _AiPluginService_ListAiPlugin_Handler(srv interface{}, ctx context.Context,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AiPluginServiceServer).ListAiPlugin(ctx, req.(*ListAiPluginRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AiPluginService_CountAiPlugin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CountAiPluginRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiPluginServiceServer).CountAiPlugin(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiPluginService_CountAiPlugin_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiPluginServiceServer).CountAiPlugin(ctx, req.(*CountAiPluginRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -662,6 +700,10 @@ var AiPluginService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListAiPlugin",
 			Handler:    _AiPluginService_ListAiPlugin_Handler,
+		},
+		{
+			MethodName: "CountAiPlugin",
+			Handler:    _AiPluginService_CountAiPlugin_Handler,
 		},
 		{
 			MethodName: "GetAiPlugin",

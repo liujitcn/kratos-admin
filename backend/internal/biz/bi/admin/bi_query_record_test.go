@@ -98,7 +98,7 @@ func TestAskBiQueryPersistsRecords(t *testing.T) {
 			if test.wantError == "" && answer.ChartType != test.wantChart {
 				t.Fatalf("未按结果结构修正图型建议: got=%q want=%q", answer.ChartType, test.wantChart)
 			}
-			recordCase := NewBiQueryRecordCase(baseCase, queryRepo, data.NewBaseUserRepository(store))
+			recordCase := NewBiQueryRecordCase(baseCase, queryRepo, data.NewBiCardRepository(store), data.NewBaseUserRepository(store))
 			var page *adminv1.PageBiQueryResponse
 			page, err = recordCase.PageBiQuery(ctx, &adminv1.PageBiQueryRequest{PageNum: 1, PageSize: 10})
 			if err != nil {
@@ -169,7 +169,7 @@ func TestBiExecutionsUseQueryRecords(t *testing.T) {
 			if (err != nil) != (test.queryErr != nil) {
 				t.Fatalf("执行结果错误: %v", err)
 			}
-			recordCase := NewBiQueryRecordCase(baseCase, queryRepo, data.NewBaseUserRepository(store))
+			recordCase := NewBiQueryRecordCase(baseCase, queryRepo, data.NewBiCardRepository(store), data.NewBaseUserRepository(store))
 			var page *adminv1.PageBiQueryResponse
 			page, err = recordCase.PageBiQuery(ctx, &adminv1.PageBiQueryRequest{PageNum: 1, PageSize: 10, SourceCode: "test"})
 			if err != nil {
@@ -220,7 +220,7 @@ func TestBiQueryRecordsRespectScope(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	c := NewBiQueryRecordCase(&biz.BaseCase{}, queryRepo, data.NewBaseUserRepository(store))
+	c := NewBiQueryRecordCase(&biz.BaseCase{}, queryRepo, data.NewBiCardRepository(store), data.NewBaseUserRepository(store))
 	ctx := biCardTestContext(1, 10, 42)
 	page, err := c.PageBiQuery(ctx, &adminv1.PageBiQueryRequest{PageNum: 1, PageSize: 10, SourceCode: "users"})
 	if err != nil {
@@ -237,14 +237,32 @@ func TestBiQueryRecordsRespectScope(t *testing.T) {
 	if _, err = c.GetBiQuery(biCardTestContext(1, 20, 42), &adminv1.GetBiQueryRequest{Id: 1}); err == nil {
 		t.Fatal("其他用户读到了问数结果快照")
 	}
-
+	cardRepo := data.NewBiCardRepository(store)
+	err = cardRepo.Create(t.Context(), &models.BiCard{ID: 1, TenantID: 1, ProjectID: 42, OwnerID: 10, SourceCode: "users", QueryRecordID: 1, Name: "用户卡片"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = c.DeleteBiQuery(ctx, &adminv1.DeleteBiQueryRequest{Id: 1}); err == nil || !strings.Contains(err.Error(), "该问数已保存为卡片") {
+		t.Fatalf("卡片来源记录应拒绝删除: %v", err)
+	}
+	if _, err = c.DeleteBiQuery(ctx, &adminv1.DeleteBiQueryRequest{Id: 4}); err != nil {
+		t.Fatalf("未保存为卡片的记录应可删除: %v", err)
+	}
+	if _, err = c.GetBiQuery(ctx, &adminv1.GetBiQueryRequest{Id: 4}); err == nil {
+		t.Fatal("删除后的记录仍可读取")
+	}
+	for _, id := range []int64{2, 3} {
+		if _, err = c.DeleteBiQuery(ctx, &adminv1.DeleteBiQueryRequest{Id: id}); err == nil {
+			t.Fatalf("允许删除其他租户或项目的记录: %d", id)
+		}
+	}
 }
 
 // newBiQueryRecordTestStore 创建隔离数据库，通过真实仓储验证问数写入和分页读取。
 func newBiQueryRecordTestStore(t *testing.T) *data.Data {
 	t.Helper()
 	driver.Opens["bi-query-record-test-sqlite"] = sqlite.Open
-	modelList := []any{&models.BiQuery{}, &models.BiSource{}, &models.BaseUser{}}
+	modelList := []any{&models.BiQuery{}, &models.BiSource{}, &models.BiCard{}, &models.BaseUser{}}
 	client, cleanup, err := databaseGorm.NewGormClient(&configv1.Data_Database{Driver: "bi-query-record-test-sqlite", Source: filepath.Join(t.TempDir(), "records.db")}, databaseGorm.WithMigrateModels(modelList...))
 	if err != nil {
 		t.Fatal(err)

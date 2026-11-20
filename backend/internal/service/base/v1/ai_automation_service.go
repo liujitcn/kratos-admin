@@ -30,6 +30,16 @@ func (s *AiAutomationService) ListAiAutomation(ctx context.Context, req *basev1.
 	return response, nil
 }
 
+// CountAiAutomation 统计本人自动化任务数量。
+func (s *AiAutomationService) CountAiAutomation(ctx context.Context, req *basev1.CountAiAutomationRequest) (*basev1.CountAiAutomationResponse, error) {
+	response, err := s.aiAutomationCase.CountAiAutomation(ctx, req)
+	if err != nil {
+		log.Error("CountAiAutomation", "error", err)
+		return nil, errorsx.WrapInternal(err, "AI自动化操作失败")
+	}
+	return response, nil
+}
+
 // GetAiAutomation 调用自动化业务并保留业务错误分类。
 func (s *AiAutomationService) GetAiAutomation(ctx context.Context, req *basev1.GetAiAutomationRequest) (*basev1.AiAutomation, error) {
 	response, err := s.aiAutomationCase.GetAiAutomation(ctx, req)

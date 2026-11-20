@@ -58,7 +58,7 @@
           </div>
         </el-button>
         <el-dropdown
-          v-if="editable !== false"
+          v-if="editable !== false || deletable"
           class="agent-session-menu"
           trigger="click"
           placement="bottom-end"
@@ -70,8 +70,8 @@
           </el-button>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item command="rename" :icon="EditPen">{{ t("system.ai.chat.action.rename") }}</el-dropdown-item>
-              <el-dropdown-item command="delete" :icon="Delete" divided>{{ t("common.action.delete") }}</el-dropdown-item>
+              <el-dropdown-item v-if="editable !== false" command="rename" :icon="EditPen">{{ t("system.ai.chat.action.rename") }}</el-dropdown-item>
+              <el-dropdown-item command="delete" :icon="Delete" :divided="editable !== false">{{ t("common.action.delete") }}</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
@@ -97,6 +97,8 @@ const props = defineProps<{
   sessions: T[];
   /** 可隐藏记录编辑菜单，供只读问数历史复用。 */
   editable?: boolean;
+  /** 只展示删除菜单，供记录不可重命名但允许删除的列表复用。 */
+  deletable?: boolean;
   /** 历史弹层不显示桌面折叠控件。 */
   hideCollapse?: boolean;
   /** 复用列表时提供当前业务的标题和搜索提示。 */

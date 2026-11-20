@@ -36,37 +36,44 @@ func NewAiFileCase(baseCase *biz.BaseCase, aiFileRepo *data.AiFileRepository) *A
 	return &AiFileCase{BaseCase: baseCase, AiFileRepository: aiFileRepo}
 }
 
-// PageAiFile 分页查询当前租户的 AI 文件。
-func (c *AiFileCase) PageAiFile(ctx context.Context, req *basev1.PageAiFileRequest) (*basev1.PageAiFileResponse, error) {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
+// aiFileFilterOptions 按视图与关键字构建 AI 文件查询条件，供分页与统计复用。
+func (c *AiFileCase) aiFileFilterOptions(ctx context.Context, view basev1.AiFileView, keyword string) ([]repository.QueryOption, error) {
+	// 租户隔离由数据隔离回调按登录身份注入，这里仅保留认证守卫。
+	if _, err := c.GetAuthInfo(ctx); err != nil {
 		return nil, err
 	}
 	if c.AiFileRepository == nil {
 		return nil, errorsx.Internal("AI文件元数据仓储未配置")
 	}
 	query := c.Query(ctx).AiFile
-	opts := []repository.QueryOption{
-		repository.Where(query.TenantID.Eq(authInfo.TenantId)),
-		repository.Order(query.CreatedAt.Desc()),
-		repository.Order(query.ID.Desc()),
-	}
-	switch req.GetView() {
+	opts := make([]repository.QueryOption, 0, 4)
+	switch view {
 	case basev1.AiFileView_AI_FILE_VIEW_TRASHED:
 		opts = append(opts, repository.Where(query.Status.Eq(aiFileStatusTrashed)))
 	default:
 		opts = append(opts, repository.Where(query.Status.Eq(aiFileStatusActive)))
-		if req.GetView() == basev1.AiFileView_AI_FILE_VIEW_UPLOADED {
+		if view == basev1.AiFileView_AI_FILE_VIEW_UPLOADED {
 			opts = append(opts, repository.Where(query.SourceType.Eq(aiFileSourceUpload)))
 		}
-		if req.GetView() == basev1.AiFileView_AI_FILE_VIEW_GENERATED {
+		if view == basev1.AiFileView_AI_FILE_VIEW_GENERATED {
 			opts = append(opts, repository.Where(query.SourceType.Eq(aiFileSourceGenerated)))
 		}
 	}
-	if keyword := req.GetKeyword(); keyword != "" {
+	if keyword != "" {
 		pattern := "%" + keyword + "%"
 		opts = append(opts, repository.Where(field.Or(query.FileName.Like(pattern), query.ContentHash.Like(pattern))))
 	}
+	return opts, nil
+}
+
+// PageAiFile 分页查询当前租户的 AI 文件。
+func (c *AiFileCase) PageAiFile(ctx context.Context, req *basev1.PageAiFileRequest) (*basev1.PageAiFileResponse, error) {
+	opts, err := c.aiFileFilterOptions(ctx, req.GetView(), req.GetKeyword())
+	if err != nil {
+		return nil, err
+	}
+	query := c.Query(ctx).AiFile
+	opts = append(opts, repository.Order(query.CreatedAt.Desc()), repository.Order(query.ID.Desc()))
 	var rows []*models.AiFile
 	var total int64
 	rows, total, err = c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
@@ -78,6 +85,19 @@ func (c *AiFileCase) PageAiFile(ctx context.Context, req *basev1.PageAiFileReque
 		files = append(files, aiFileDTO(row))
 	}
 	return &basev1.PageAiFileResponse{Files: files, Total: total}, nil
+}
+
+// CountAiFile 统计当前租户符合条件的 AI 文件数量。
+func (c *AiFileCase) CountAiFile(ctx context.Context, req *basev1.CountAiFileRequest) (*basev1.CountAiFileResponse, error) {
+	opts, err := c.aiFileFilterOptions(ctx, req.GetView(), req.GetKeyword())
+	if err != nil {
+		return nil, err
+	}
+	total, err := c.Count(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &basev1.CountAiFileResponse{Total: total}, nil
 }
 
 // RenameAiFile 修改当前租户 AI 文件的展示名称。
@@ -92,7 +112,7 @@ func (c *AiFileCase) RenameAiFile(ctx context.Context, req *basev1.RenameAiFileR
 	}
 	updatedAt := time.Now()
 	query := c.Query(ctx).AiFile
-	_, err = query.WithContext(ctx).Where(query.ID.Eq(row.ID), query.TenantID.Eq(authInfo.TenantId)).UpdateSimple(query.FileName.Value(req.GetFileName()), query.UpdatedBy.Value(authInfo.UserId), query.UpdatedAt.Value(updatedAt))
+	_, err = query.WithContext(ctx).Where(query.ID.Eq(row.ID)).UpdateSimple(query.FileName.Value(req.GetFileName()), query.UpdatedBy.Value(authInfo.UserId), query.UpdatedAt.Value(updatedAt))
 	if err != nil {
 		return nil, err
 	}
@@ -114,8 +134,8 @@ func (c *AiFileCase) RestoreAiFile(ctx context.Context, req *basev1.RestoreAiFil
 
 // DeleteAiFile 彻底删除当前租户的 AI 文件及对象。
 func (c *AiFileCase) DeleteAiFile(ctx context.Context, req *basev1.DeleteAiFileRequest) (*emptypb.Empty, error) {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
+	// 租户隔离由数据隔离回调按登录身份注入，这里仅保留认证守卫。
+	if _, err := c.GetAuthInfo(ctx); err != nil {
 		return nil, err
 	}
 	row, err := c.ownedAiFile(ctx, req.GetId(), aiFileStatusTrashed)
@@ -123,7 +143,7 @@ func (c *AiFileCase) DeleteAiFile(ctx context.Context, req *basev1.DeleteAiFileR
 		return nil, err
 	}
 	query := c.Query(ctx).AiFile
-	if err = c.Delete(ctx, repository.Unscoped(), repository.Where(query.ID.Eq(row.ID), query.TenantID.Eq(authInfo.TenantId))); err != nil {
+	if err = c.Delete(ctx, repository.Unscoped(), repository.Where(query.ID.Eq(row.ID))); err != nil {
 		return nil, err
 	}
 	if objectPath := aiFileObjectPath(row); objectPath != "" {
@@ -167,17 +187,17 @@ func (c *AiFileCase) RegisterGeneratedFile(ctx context.Context, file *models.AiF
 	return c.Create(ctx, file)
 }
 
-// ownedAiFile 按租户和状态读取文件，隐藏跨租户和错误状态记录。
+// ownedAiFile 按编号和状态读取当前用户可见的文件，租户隔离由数据隔离回调注入。
 func (c *AiFileCase) ownedAiFile(ctx context.Context, id int64, status string) (*models.AiFile, error) {
 	if c.AiFileRepository == nil {
 		return nil, errorsx.Internal("AI文件元数据仓储未配置")
 	}
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
+	// 认证守卫：无登录态时数据隔离回调会跳过注入，必须提前拦截。
+	if _, err := c.GetAuthInfo(ctx); err != nil {
 		return nil, err
 	}
 	query := c.Query(ctx).AiFile
-	opts := []repository.QueryOption{repository.Where(query.ID.Eq(id)), repository.Where(query.TenantID.Eq(authInfo.TenantId))}
+	opts := []repository.QueryOption{repository.Where(query.ID.Eq(id))}
 	if status != "" {
 		opts = append(opts, repository.Where(query.Status.Eq(status)))
 	}
@@ -200,7 +220,7 @@ func (c *AiFileCase) updateAiFileStatus(ctx context.Context, id int64, from, to 
 	}
 	updatedAt := time.Now()
 	query := c.Query(ctx).AiFile
-	_, err = query.WithContext(ctx).Where(query.ID.Eq(row.ID), query.TenantID.Eq(authInfo.TenantId), query.Status.Eq(from)).UpdateSimple(query.Status.Value(to), query.UpdatedBy.Value(authInfo.UserId), query.UpdatedAt.Value(updatedAt))
+	_, err = query.WithContext(ctx).Where(query.ID.Eq(row.ID), query.Status.Eq(from)).UpdateSimple(query.Status.Value(to), query.UpdatedBy.Value(authInfo.UserId), query.UpdatedAt.Value(updatedAt))
 	if err != nil {
 		return nil, err
 	}

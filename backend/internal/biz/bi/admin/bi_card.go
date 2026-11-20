@@ -104,11 +104,10 @@ func (c *BiCardCase) PageBiCard(ctx context.Context, req *adminv1.PageBiCardRequ
 	return &adminv1.PageBiCardResponse{Cards: result, Total: int32(total), Counts: counts}, nil
 }
 
-// visibleCardOptions 收敛租户、项目与卡片可见性，供列表和工作台共同使用。
+// visibleCardOptions 收敛项目与卡片可见性（租户隔离由数据隔离回调注入），供列表和工作台共同使用。
 func (c *BiCardCase) visibleCardOptions(ctx context.Context, authInfo *authData.UserTokenPayload) []repository.QueryOption {
 	query := c.cardRepo.Query(ctx).BiCard
 	opts := []repository.QueryOption{
-		repository.Where(query.TenantID.Eq(authInfo.TenantId)),
 		repository.Where(field.Or(query.OwnerID.Eq(0), query.OwnerID.Eq(authInfo.UserId), query.IsShared.Eq(1))),
 	}
 	if !hasAllProjectsScope(authInfo) {
@@ -151,7 +150,7 @@ func (c *BiCardCase) countCards(ctx context.Context, authInfo *authData.UserToke
 // loadWorkbench 读取当前用户配置，缺少记录时返回未配置状态。
 func (c *BiCardCase) loadWorkbench(ctx context.Context, authInfo *authData.UserTokenPayload) (*dto.WorkbenchConfig, error) {
 	query := c.workbenchRepo.Query(ctx).BiWorkbench
-	opts := []repository.QueryOption{repository.Where(query.TenantID.Eq(authInfo.TenantId), query.UserID.Eq(authInfo.UserId))}
+	opts := []repository.QueryOption{repository.Where(query.UserID.Eq(authInfo.UserId))}
 	item, err := c.workbenchRepo.Find(ctx, opts...)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
@@ -396,10 +395,10 @@ func (c *BiCardCase) SaveBiCard(ctx context.Context, req *adminv1.SaveBiCardRequ
 	return result, nil
 }
 
-// findCard 在取数、编辑和删除前检查卡片所属租户、项目与所有者。
+// findCard 在取数、编辑和删除前检查卡片的项目与所有者，租户隔离由数据隔离回调注入。
 func (c *BiCardCase) findCard(ctx context.Context, authInfo *authData.UserTokenPayload, id int64, editing bool) (*models.BiCard, error) {
 	query := c.cardRepo.Query(ctx).BiCard
-	opts := []repository.QueryOption{repository.Where(query.ID.Eq(id), query.TenantID.Eq(authInfo.TenantId))}
+	opts := []repository.QueryOption{repository.Where(query.ID.Eq(id))}
 	item, err := c.cardRepo.Find(ctx, opts...)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errorsx.ResourceNotFound("数据卡片不存在")
@@ -425,7 +424,7 @@ func (c *BiCardCase) DeleteBiCard(ctx context.Context, req *adminv1.DeleteBiCard
 		return nil, err
 	}
 	query := c.cardRepo.Query(ctx).BiCard
-	opts := []repository.QueryOption{repository.Where(query.ID.Eq(item.ID), query.TenantID.Eq(authInfo.TenantId), query.OwnerID.Eq(authInfo.UserId))}
+	opts := []repository.QueryOption{repository.Where(query.ID.Eq(item.ID), query.OwnerID.Eq(authInfo.UserId))}
 	if err = c.cardRepo.Delete(ctx, opts...); err != nil {
 		return nil, err
 	}

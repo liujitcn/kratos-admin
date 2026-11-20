@@ -29,12 +29,15 @@ test("已连接的 MCP 插件不能重复连接", () => {
   assert.equal(hasConnectedPluginConnection("1", [{ plugin_id: "2", state: "connected", can_manage: true }]), false);
 });
 
-test("工具页在插件列表就绪后自动选择并加载首个插件", async () => {
+test("工具页在插件列表就绪后自动选择并使用服务端分页", async () => {
   const source = await readFile(join(process.cwd(), "src/components/ai/workspace/PluginPanel.vue"), "utf8");
   assert.match(source, /watch\(\s*\[tab, managedPlugins\]/);
   assert.match(source, /const selectedPluginID = [\s\S]*plugins\[0\]\.id/);
   assert.match(source, /toolPluginID\.value = selectedPluginID/);
-  assert.match(source, /void loadTools\(\)/);
+  assert.match(source, /requestToolsTable/);
+  assert.match(source, /page_size: pageSize/);
+  assert.match(source, /reloadToolsTable/);
+  assert.match(source, /detailPageSize = 20/);
 });
 
 test("连接和工具操作列的按钮带图标并保留点击处理", async () => {

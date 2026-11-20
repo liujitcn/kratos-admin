@@ -29,6 +29,12 @@ func NewBiQueryRecordServiceAgentTools(biQueryRecordServiceServer BiQueryRecordS
 		return nil, err
 	}
 	ts = append(ts, getBiQueryTool)
+	var deleteBiQueryTool tool.InvokableTool
+	deleteBiQueryTool, err = NewBiQueryRecordServiceDeleteBiQueryAgentTool(biQueryRecordServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, deleteBiQueryTool)
 	return ts, nil
 }
 
@@ -56,6 +62,20 @@ func NewBiQueryRecordServiceGetBiQueryAgentTool(biQueryRecordServiceServer BiQue
 				req = &GetBiQueryRequest{}
 			}
 			return biQueryRecordServiceServer.GetBiQuery(ctx, req)
+		},
+	)
+}
+
+// NewBiQueryRecordServiceDeleteBiQueryAgentTool 创建删除当前账号的智能问数记录，已保存为卡片的记录不可删除的 Agent Tool。
+func NewBiQueryRecordServiceDeleteBiQueryAgentTool(biQueryRecordServiceServer BiQueryRecordServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*DeleteBiQueryRequest, *DeleteBiQueryResponse](
+		"bi_admin_v1_bi_query_record_service_delete_bi_query",
+		"删除当前账号的智能问数记录，已保存为卡片的记录不可删除。",
+		func(ctx context.Context, req *DeleteBiQueryRequest) (*DeleteBiQueryResponse, error) {
+			if req == nil {
+				req = &DeleteBiQueryRequest{}
+			}
+			return biQueryRecordServiceServer.DeleteBiQuery(ctx, req)
 		},
 	)
 }

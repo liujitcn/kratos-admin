@@ -17,6 +17,7 @@ import (
 // RegisterAiPluginServiceMCPTools 注册AI 插件目录、安装策略与本人账号连接服务；管理写操作不向模型暴露的 MCP Tool。
 func RegisterAiPluginServiceMCPTools(mcpServer *server.MCPServer, aiPluginServiceServer AiPluginServiceServer) {
 	RegisterAiPluginServiceListAiPluginMCPTool(mcpServer, aiPluginServiceServer)
+	RegisterAiPluginServiceCountAiPluginMCPTool(mcpServer, aiPluginServiceServer)
 	RegisterAiPluginServiceGetAiPluginMCPTool(mcpServer, aiPluginServiceServer)
 	RegisterAiPluginServiceCreateAiPluginMCPTool(mcpServer, aiPluginServiceServer)
 	RegisterAiPluginServiceUpdateAiPluginMCPTool(mcpServer, aiPluginServiceServer)
@@ -34,11 +35,11 @@ func RegisterAiPluginServiceMCPTools(mcpServer *server.MCPServer, aiPluginServic
 	RegisterAiPluginServiceSetAiPluginConnectionSharingMCPTool(mcpServer, aiPluginServiceServer)
 }
 
-// RegisterAiPluginServiceListAiPluginMCPTool 注册查询当前身份可见的插件目录的 MCP Tool。
+// RegisterAiPluginServiceListAiPluginMCPTool 注册查询当前身份可见的插件目录。 查询插件目录的 MCP Tool。
 func RegisterAiPluginServiceListAiPluginMCPTool(mcpServer *server.MCPServer, aiPluginServiceServer AiPluginServiceServer) {
 	mcpServer.AddTool(
 		mcp.NewTool("base_v1_ai_plugin_service_list_ai_plugin",
-			mcp.WithDescription("查询当前身份可见的插件目录。"),
+			mcp.WithDescription("查询当前身份可见的插件目录。 查询插件目录。"),
 			mcp.WithInputSchema[*ListAiPluginRequest](),
 			mcp.WithOutputSchema[*ListAiPluginResponse](),
 		),
@@ -50,6 +51,30 @@ func RegisterAiPluginServiceListAiPluginMCPTool(mcpServer *server.MCPServer, aiP
 			}
 			var reply *ListAiPluginResponse
 			reply, err = aiPluginServiceServer.ListAiPlugin(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
+		},
+	)
+}
+
+// RegisterAiPluginServiceCountAiPluginMCPTool 注册统计当前身份可见的插件与 MCP 工具数量的 MCP Tool。
+func RegisterAiPluginServiceCountAiPluginMCPTool(mcpServer *server.MCPServer, aiPluginServiceServer AiPluginServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_ai_plugin_service_count_ai_plugin",
+			mcp.WithDescription("统计当前身份可见的插件与 MCP 工具数量。"),
+			mcp.WithInputSchema[*CountAiPluginRequest](),
+			mcp.WithOutputSchema[*CountAiPluginResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CountAiPluginRequest{}
+			err := request.BindArguments(req)
+			if err != nil {
+				return nil, err
+			}
+			var reply *CountAiPluginResponse
+			reply, err = aiPluginServiceServer.CountAiPlugin(ctx, req)
 			if err != nil {
 				return mcp.NewToolResultError(err.Error()), nil
 			}

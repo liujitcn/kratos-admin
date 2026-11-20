@@ -71,6 +71,15 @@
   "ai.plugin.listaiplugintoolrequest.plugin_id": {
     "other": "プラグインIDが無効です"
   },
+  "ai.plugin.listaiplugintoolrequest.keyword": {
+    "other": "ツールキーワードは100文字以内で入力してください"
+  },
+  "ai.plugin.listaiplugintoolrequest.page_num": {
+    "other": "ページ番号は0以上にしてください"
+  },
+  "ai.plugin.listaiplugintoolrequest.page_size": {
+    "other": "ページあたりの件数は0から100の間にしてください"
+  },
   "ai.plugin.reauthorize.id": {
     "other": "接続IDが無効です"
   },
@@ -136,6 +145,9 @@
   },
   "base.ai.approval.session_id.positive": {
     "other": "セッション番号が無効です"
+  },
+  "base.ai.file.count.keyword.max_len": {
+    "other": "ファイル名キーワードは100文字以内で指定してください"
   },
   "base.ai.file.delete.id.positive": {
     "other": "ファイルIDは0より大きくしてください"
@@ -8098,5 +8110,86 @@
   },
   "legacy.error.f3317e9d97b10647": {
     "other": "メトリックグリッドの比較値は数値フィールドである必要があります"
+  },
+  "legacy.error.1622479b89e3ef03": {
+    "other": "この問い合わせはカードに保存されているため削除できません"
+  },
+  "legacy.error.3ff5563312941610": {
+    "other": "クエリ記録の削除に失敗しました"
+  },
+  "legacy.error.1e844650ac277cf7": {
+    "other": "WeChatミニプログラムの電話番号認証が設定されていません"
+  },
+  "legacy.error.82062a069357ebb8": {
+    "other": "テーブル構造が存在しないか、変更されています"
+  },
+  "legacy.error.0a9f55c8b704d14b": {
+    "other": "テナントフィールドが存在しないか、変更されています"
+  },
+  "legacy.error.0bfb11e9f00dc320": {
+    "other": "ページングパラメーターが無効です"
+  },
+  "legacy.error.f8386fa38e47bb03": {
+    "other": "テーブル構造にプレビュー可能なフィールドがありません"
+  },
+  "legacy.error.3ebfabb2b9ebc2ff": {
+    "other": "テーブルフィールド識別子が無効です"
+  },
+  "legacy.error.d07e42c354b71c78": {
+    "other": "BIテーブルデータの件数集計に失敗しました"
+  },
+  "legacy.error.2fbc21b6c56e3467": {
+    "other": "データ総数がAPIの対応範囲を超えています"
+  },
+  "legacy.error.63ee982e44dbb715": {
+    "other": "BIテーブルデータの照会に失敗しました"
+  },
+  "legacy.error.46287dc802e15c2d": {
+    "other": "BIテーブルデータの読み取りに失敗しました"
+  },
+  "legacy.error.25bf0013a346677c": {
+    "other": "BIテーブルデータの走査に失敗しました"
+  },
+  "legacy.error.e6d92553fa932bb8": {
+    "other": "セキュアなウェブ検索クライアントの作成に失敗しました"
+  },
+  "legacy.error.6f20eff27a6b7bf6": {
+    "other": "WeChatミニプログラムのログインが設定されていません"
+  },
+  "legacy.error.5abed7fba4e129c8": {
+    "other": "このプラグインには既に接続があります。重複して接続しないでください"
+  },
+  "legacy.error.29bf45a519315e2e": {
+    "other": "イベントカーソルが無効です"
+  },
+  "legacy.error.1168a48cf04f97bd": {
+    "other": "メッセージの最終状態がまだ永続化されていません。読み取り専用APIで確認してください"
+  },
+  "legacy.error.a925acae33486d88": {
+    "other": "メッセージの実行は無効になりました"
+  },
+  "legacy.error.b25f3e4eeced3bca": {
+    "other": "コンテキスト要約キャッシュが破損しています"
+  },
+  "legacy.error.88ee3fd142011244": {
+    "other": "BIテーブルデータのページング照会に失敗しました"
+  },
+  "legacy.error.b92851029ea0c369": {
+    "other": "AIファイルの件数集計に失敗しました"
+  },
+  "legacy.error.34da24b6ed7a5751": {
+    "other": "AIメッセージイベントの読み取りに失敗しました"
+  },
+  "legacy.error.f66cf023e8b2c227": {
+    "other": "プラグインとMCPツールの件数集計に失敗しました"
+  },
+  "base.ai.event.cursor": {
+    "other": "イベントカーソルが無効です"
+  },
+  "base.ai.event.message_id.positive": {
+    "other": "セッションまたはメッセージIDが無効です"
+  },
+  "base.ai.event.session_id.positive": {
+    "other": "セッションまたはメッセージIDが無効です"
   }
 }

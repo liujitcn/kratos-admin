@@ -42,6 +42,20 @@ export interface PageAiFileResponse {
   total: number;
 }
 
+/** AI 文件数量统计条件。 */
+export interface CountAiFileRequest {
+  /** 文件视图 */
+  view: AiFileView;
+  /** 文件名关键字 */
+  keyword: string;
+}
+
+/** AI 文件数量统计结果。 */
+export interface CountAiFileResponse {
+  /** 文件总数 */
+  total: number;
+}
+
 /** AI 文件元数据。 */
 export interface AiFile {
   /** 文件ID */
@@ -104,6 +118,8 @@ export interface DeleteAiFileRequest {
 export interface AiFileService {
   /** 分页查询 AI 文件。 */
   PageAiFile(request: PageAiFileRequest): Promise<PageAiFileResponse>;
+  /** 统计 AI 文件数量。 */
+  CountAiFile(request: CountAiFileRequest): Promise<CountAiFileResponse>;
   /** 重命名 AI 文件，只修改元数据。 */
   RenameAiFile(request: RenameAiFileRequest): Promise<AiFile>;
   /** 将 AI 文件移入回收站。 */

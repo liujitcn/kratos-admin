@@ -15,6 +15,10 @@ service AiAutomationService {
   rpc ListAiAutomation(ListAiAutomationRequest) returns (ListAiAutomationResponse) {
     option (google.api.http) = { get: "/api/v1/base/ai/automation" };
   }
+  // 统计本人自动化任务数量。
+  rpc CountAiAutomation(CountAiAutomationRequest) returns (CountAiAutomationResponse) {
+    option (google.api.http) = { get: "/api/v1/base/ai/automation/count" };
+  }
   // 查询本人自动化详情。
   rpc GetAiAutomation(GetAiAutomationRequest) returns (AiAutomation) {
     option (google.api.http) = { get: "/api/v1/base/ai/automation/{id}" };
@@ -122,6 +126,16 @@ message ListAiAutomationRequest {
 message ListAiAutomationResponse {
   repeated AiAutomation automations = 1 [(gnostic.openapi.v3.property) = {description: "本人任务"}]; // 本人任务
   int32 pending_count = 2 [(gnostic.openapi.v3.property) = {description: "本人待确认执行数"}]; // 本人待确认执行数
+}
+
+// 自动化任务数量统计条件（按当前租户与用户计算）。
+message CountAiAutomationRequest {
+}
+
+// 自动化任务数量统计结果。
+message CountAiAutomationResponse {
+  int32 total = 1 [(gnostic.openapi.v3.property) = {description: "非归档任务总数"}]; // 非归档任务总数
+  int32 pending_count = 2 [(gnostic.openapi.v3.property) = {description: "待确认执行数"}]; // 待确认执行数
 }
 
 // 任务查询。

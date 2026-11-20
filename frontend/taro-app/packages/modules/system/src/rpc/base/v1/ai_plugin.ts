@@ -219,12 +219,20 @@ export interface ListAiPluginToolRequest {
   plugin_id: string;
   /** 工具能力配置，不代表登录来源 */
   terminal: Terminal;
+  /** 工具名称或说明关键字 */
+  keyword: string;
+  /** 当前页码，0表示不分页 */
+  page_num: number;
+  /** 每页行数，0表示不分页 */
+  page_size: number;
 }
 
 /** 插件工具查询结果。 */
 export interface ListAiPluginToolResponse {
   /** 工具快照列表 */
   tools: AiPluginTool[];
+  /** 符合条件的工具总数 */
+  total: number;
 }
 
 /** 租户工具契约审核请求。 */

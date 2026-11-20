@@ -53,7 +53,7 @@ func (c *BaseTenantProjectGrantCase) PageBaseTenantProjectGrant(ctx context.Cont
 		if req.GetTenantId() > 0 && req.GetTenantId() != identity.TenantId {
 			return nil, errorsx.PermissionDenied("不能查询其他租户的项目授权")
 		}
-		opts = append(opts, repository.Where(query.TenantID.Eq(identity.TenantId)))
+		// 非默认租户的隔离条件由数据隔离回调按登录身份注入。
 	} else if req.GetTenantId() > 0 {
 		opts = append(opts, repository.Where(query.TenantID.Eq(req.GetTenantId())))
 	}

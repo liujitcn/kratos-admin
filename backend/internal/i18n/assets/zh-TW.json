@@ -71,6 +71,15 @@
   "ai.plugin.listaiplugintoolrequest.plugin_id": {
     "other": "外掛ID不合法"
   },
+  "ai.plugin.listaiplugintoolrequest.keyword": {
+    "other": "工具關鍵字不可超過100個字元"
+  },
+  "ai.plugin.listaiplugintoolrequest.page_num": {
+    "other": "頁碼不可小於0"
+  },
+  "ai.plugin.listaiplugintoolrequest.page_size": {
+    "other": "每頁數量必須在0到100之間"
+  },
   "ai.plugin.reauthorize.id": {
     "other": "連線編號不合法"
   },
@@ -136,6 +145,9 @@
   },
   "base.ai.approval.session_id.positive": {
     "other": "會話編號不合法"
+  },
+  "base.ai.file.count.keyword.max_len": {
+    "other": "檔名關鍵字不可超過100個字元"
   },
   "base.ai.file.delete.id.positive": {
     "other": "檔案ID必須大於0"
@@ -8098,5 +8110,86 @@
   },
   "legacy.error.f3317e9d97b10647": {
     "other": "指標網格比較指標必須是數值欄位"
+  },
+  "legacy.error.1622479b89e3ef03": {
+    "other": "該問數已儲存為卡片，不可刪除"
+  },
+  "legacy.error.3ff5563312941610": {
+    "other": "刪除智能問數記錄失敗"
+  },
+  "legacy.error.1e844650ac277cf7": {
+    "other": "微信小程式手機號授權未配置"
+  },
+  "legacy.error.82062a069357ebb8": {
+    "other": "表結構不存在或已變化"
+  },
+  "legacy.error.0a9f55c8b704d14b": {
+    "other": "租戶欄位不存在或已變化"
+  },
+  "legacy.error.0bfb11e9f00dc320": {
+    "other": "分頁參數無效"
+  },
+  "legacy.error.f8386fa38e47bb03": {
+    "other": "表結構沒有可預覽欄位"
+  },
+  "legacy.error.3ebfabb2b9ebc2ff": {
+    "other": "表欄位標識不合法"
+  },
+  "legacy.error.d07e42c354b71c78": {
+    "other": "統計 BI 表數據失敗"
+  },
+  "legacy.error.2fbc21b6c56e3467": {
+    "other": "數據總數超過介面支援範圍"
+  },
+  "legacy.error.63ee982e44dbb715": {
+    "other": "查詢 BI 表數據失敗"
+  },
+  "legacy.error.46287dc802e15c2d": {
+    "other": "讀取 BI 表數據失敗"
+  },
+  "legacy.error.25bf0013a346677c": {
+    "other": "遍歷 BI 表數據失敗"
+  },
+  "legacy.error.e6d92553fa932bb8": {
+    "other": "建立聯網搜尋安全用戶端失敗"
+  },
+  "legacy.error.6f20eff27a6b7bf6": {
+    "other": "微信小程式登入未配置"
+  },
+  "legacy.error.5abed7fba4e129c8": {
+    "other": "該外掛已有連線，請勿重複連線"
+  },
+  "legacy.error.29bf45a519315e2e": {
+    "other": "事件游標不合法"
+  },
+  "legacy.error.1168a48cf04f97bd": {
+    "other": "訊息終態尚未持久化，請透過唯讀介面核實"
+  },
+  "legacy.error.a925acae33486d88": {
+    "other": "訊息執行已失效"
+  },
+  "legacy.error.b25f3e4eeced3bca": {
+    "other": "上下文摘要快取損壞"
+  },
+  "legacy.error.88ee3fd142011244": {
+    "other": "分頁查詢 BI 表數據失敗"
+  },
+  "legacy.error.b92851029ea0c369": {
+    "other": "統計AI檔案數量失敗"
+  },
+  "legacy.error.34da24b6ed7a5751": {
+    "other": "讀取AI訊息事件失敗"
+  },
+  "legacy.error.f66cf023e8b2c227": {
+    "other": "統計外掛與MCP工具數量失敗"
+  },
+  "base.ai.event.cursor": {
+    "other": "事件游標不合法"
+  },
+  "base.ai.event.message_id.positive": {
+    "other": "會話或訊息編號不合法"
+  },
+  "base.ai.event.session_id.positive": {
+    "other": "會話或訊息編號不合法"
   }
 }

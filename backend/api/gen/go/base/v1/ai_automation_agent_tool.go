@@ -23,6 +23,12 @@ func NewAiAutomationServiceAgentTools(aiAutomationServiceServer AiAutomationServ
 		return nil, err
 	}
 	ts = append(ts, listAiAutomationTool)
+	var countAiAutomationTool tool.InvokableTool
+	countAiAutomationTool, err = NewAiAutomationServiceCountAiAutomationAgentTool(aiAutomationServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, countAiAutomationTool)
 	var getAiAutomationTool tool.InvokableTool
 	getAiAutomationTool, err = NewAiAutomationServiceGetAiAutomationAgentTool(aiAutomationServiceServer)
 	if err != nil {
@@ -96,6 +102,20 @@ func NewAiAutomationServiceListAiAutomationAgentTool(aiAutomationServiceServer A
 				req = &ListAiAutomationRequest{}
 			}
 			return aiAutomationServiceServer.ListAiAutomation(ctx, req)
+		},
+	)
+}
+
+// NewAiAutomationServiceCountAiAutomationAgentTool 创建统计本人自动化任务数量的 Agent Tool。
+func NewAiAutomationServiceCountAiAutomationAgentTool(aiAutomationServiceServer AiAutomationServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CountAiAutomationRequest, *CountAiAutomationResponse](
+		"base_v1_ai_automation_service_count_ai_automation",
+		"统计本人自动化任务数量。",
+		func(ctx context.Context, req *CountAiAutomationRequest) (*CountAiAutomationResponse, error) {
+			if req == nil {
+				req = &CountAiAutomationRequest{}
+			}
+			return aiAutomationServiceServer.CountAiAutomation(ctx, req)
 		},
 	)
 }

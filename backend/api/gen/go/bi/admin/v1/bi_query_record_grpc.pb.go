@@ -20,8 +20,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BiQueryRecordService_PageBiQuery_FullMethodName = "/bi.admin.v1.BiQueryRecordService/PageBiQuery"
-	BiQueryRecordService_GetBiQuery_FullMethodName  = "/bi.admin.v1.BiQueryRecordService/GetBiQuery"
+	BiQueryRecordService_PageBiQuery_FullMethodName   = "/bi.admin.v1.BiQueryRecordService/PageBiQuery"
+	BiQueryRecordService_GetBiQuery_FullMethodName    = "/bi.admin.v1.BiQueryRecordService/GetBiQuery"
+	BiQueryRecordService_DeleteBiQuery_FullMethodName = "/bi.admin.v1.BiQueryRecordService/DeleteBiQuery"
 )
 
 // BiQueryRecordServiceClient is the client API for BiQueryRecordService service.
@@ -34,6 +35,8 @@ type BiQueryRecordServiceClient interface {
 	PageBiQuery(ctx context.Context, in *PageBiQueryRequest, opts ...grpc.CallOption) (*PageBiQueryResponse, error)
 	// 查询智能问数记录详情。
 	GetBiQuery(ctx context.Context, in *GetBiQueryRequest, opts ...grpc.CallOption) (*BiQueryRecord, error)
+	// 删除当前账号的智能问数记录，已保存为卡片的记录不可删除。
+	DeleteBiQuery(ctx context.Context, in *DeleteBiQueryRequest, opts ...grpc.CallOption) (*DeleteBiQueryResponse, error)
 }
 
 type biQueryRecordServiceClient struct {
@@ -64,6 +67,16 @@ func (c *biQueryRecordServiceClient) GetBiQuery(ctx context.Context, in *GetBiQu
 	return out, nil
 }
 
+func (c *biQueryRecordServiceClient) DeleteBiQuery(ctx context.Context, in *DeleteBiQueryRequest, opts ...grpc.CallOption) (*DeleteBiQueryResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteBiQueryResponse)
+	err := c.cc.Invoke(ctx, BiQueryRecordService_DeleteBiQuery_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BiQueryRecordServiceServer is the server API for BiQueryRecordService service.
 // All implementations must embed UnimplementedBiQueryRecordServiceServer
 // for forward compatibility.
@@ -74,6 +87,8 @@ type BiQueryRecordServiceServer interface {
 	PageBiQuery(context.Context, *PageBiQueryRequest) (*PageBiQueryResponse, error)
 	// 查询智能问数记录详情。
 	GetBiQuery(context.Context, *GetBiQueryRequest) (*BiQueryRecord, error)
+	// 删除当前账号的智能问数记录，已保存为卡片的记录不可删除。
+	DeleteBiQuery(context.Context, *DeleteBiQueryRequest) (*DeleteBiQueryResponse, error)
 	mustEmbedUnimplementedBiQueryRecordServiceServer()
 }
 
@@ -89,6 +104,9 @@ func (UnimplementedBiQueryRecordServiceServer) PageBiQuery(context.Context, *Pag
 }
 func (UnimplementedBiQueryRecordServiceServer) GetBiQuery(context.Context, *GetBiQueryRequest) (*BiQueryRecord, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetBiQuery not implemented")
+}
+func (UnimplementedBiQueryRecordServiceServer) DeleteBiQuery(context.Context, *DeleteBiQueryRequest) (*DeleteBiQueryResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteBiQuery not implemented")
 }
 func (UnimplementedBiQueryRecordServiceServer) mustEmbedUnimplementedBiQueryRecordServiceServer() {}
 func (UnimplementedBiQueryRecordServiceServer) testEmbeddedByValue()                              {}
@@ -147,6 +165,24 @@ func _BiQueryRecordService_GetBiQuery_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BiQueryRecordService_DeleteBiQuery_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteBiQueryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BiQueryRecordServiceServer).DeleteBiQuery(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BiQueryRecordService_DeleteBiQuery_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BiQueryRecordServiceServer).DeleteBiQuery(ctx, req.(*DeleteBiQueryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BiQueryRecordService_ServiceDesc is the grpc.ServiceDesc for BiQueryRecordService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -161,6 +197,10 @@ var BiQueryRecordService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetBiQuery",
 			Handler:    _BiQueryRecordService_GetBiQuery_Handler,
+		},
+		{
+			MethodName: "DeleteBiQuery",
+			Handler:    _BiQueryRecordService_DeleteBiQuery_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

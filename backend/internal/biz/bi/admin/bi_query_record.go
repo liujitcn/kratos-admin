@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"strconv"
 	"strings"
 
 	"github.com/liujitcn/go-utils/mapper"
@@ -22,15 +23,17 @@ import (
 type BiQueryRecordCase struct {
 	*biz.BaseCase
 	biQueryRepo  *data.BiQueryRepository
+	biCardRepo   *data.BiCardRepository
 	baseUserRepo *data.BaseUserRepository
 	recordMapper *mapper.CopierMapper[adminv1.BiQueryRecord, models.BiQuery]
 }
 
 // NewBiQueryRecordCase 创建智能问数记录管理业务实例。
-func NewBiQueryRecordCase(baseCase *biz.BaseCase, biQueryRepo *data.BiQueryRepository, baseUserRepo *data.BaseUserRepository) *BiQueryRecordCase {
+func NewBiQueryRecordCase(baseCase *biz.BaseCase, biQueryRepo *data.BiQueryRepository, biCardRepo *data.BiCardRepository, baseUserRepo *data.BaseUserRepository) *BiQueryRecordCase {
 	return &BiQueryRecordCase{
 		BaseCase:     baseCase,
 		biQueryRepo:  biQueryRepo,
+		biCardRepo:   biCardRepo,
 		baseUserRepo: baseUserRepo,
 		recordMapper: mapper.NewCopierMapper[adminv1.BiQueryRecord, models.BiQuery](),
 	}
@@ -95,6 +98,35 @@ func (c *BiQueryRecordCase) GetBiQuery(ctx context.Context, req *adminv1.GetBiQu
 	return result, nil
 }
 
+// DeleteBiQuery 删除当前账号的智能问数记录，已保存为卡片的来源记录不允许删除。
+func (c *BiQueryRecordCase) DeleteBiQuery(ctx context.Context, req *adminv1.DeleteBiQueryRequest) (*adminv1.DeleteBiQueryResponse, error) {
+	opts, err := c.scopeOptions(ctx)
+	if err != nil {
+		return nil, err
+	}
+	query := c.biQueryRepo.Query(ctx).BiQuery
+	opts = append(opts, repository.Where(query.ID.Eq(req.GetId())))
+	if _, err = c.biQueryRepo.Find(ctx, opts...); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errorsx.ResourceNotFound("智能问数记录不存在")
+		}
+		return nil, err
+	}
+	cardQuery := c.biCardRepo.Query(ctx).BiCard
+	var cards []*models.BiCard
+	cards, err = c.biCardRepo.List(ctx, repository.Where(cardQuery.QueryRecordID.Eq(req.GetId())))
+	if err != nil {
+		return nil, err
+	}
+	if len(cards) > 0 {
+		return nil, errorsx.InvalidArgument("该问数已保存为卡片，不可删除").WithMetadata(map[string]string{"card_id": strconv.FormatInt(cards[0].ID, 10), "card_name": cards[0].Name})
+	}
+	if err = c.biQueryRepo.Delete(ctx, opts...); err != nil {
+		return nil, err
+	}
+	return &adminv1.DeleteBiQueryResponse{}, nil
+}
+
 // scopeOptions 限制查询记录的租户和项目范围，避免结果快照跨范围泄露。
 func (c *BiQueryRecordCase) scopeOptions(ctx context.Context) ([]repository.QueryOption, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
@@ -107,7 +139,7 @@ func (c *BiQueryRecordCase) scopeOptions(ctx context.Context) ([]repository.Quer
 		return nil, err
 	}
 	query := c.biQueryRepo.Query(ctx).BiQuery
-	opts := []repository.QueryOption{repository.Where(query.TenantID.Eq(authInfo.TenantId), query.UserID.Eq(authInfo.UserId))}
+	opts := []repository.QueryOption{repository.Where(query.UserID.Eq(authInfo.UserId))}
 	if projectID != 0 {
 		opts = append(opts, repository.Where(query.ProjectID.Eq(projectID)))
 	}

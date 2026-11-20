@@ -190,11 +190,11 @@ Docker 镜像 `TAG` 默认读取 `backend/internal/const/project.go` 中的服�
 
 报告使用独立的 [Eino 报告组件](backend/components/report/README.md)。宿主需要时显式 import，传入 Gotenberg 服务基础地址和现有文件保存回调，并通过 `AdminModules.RegisterAIPlugin` 登记为 `LOCAL` 写工具。可选模块未装配时跳过接入，主服务正常启动。PDF 由独立 Gotenberg 9 服务转换，业务宿主与基础镜像均不安装 Chromium 或报告字体；本地地址为 `http://127.0.0.1:3000`，容器间通过同一 Docker 网络访问 `http://gotenberg:3000`。报告历史文件仍按宿主文件权限访问。
 
-Xberg MCP 使用 `docker compose -f docker-compose/xberg/docker-compose.yaml up -d` 启动，MCP HTTP 地址为 `http://192.168.60.52:8001/mcp`；该 Compose 文件只启动 MCP 服务，不影响现有的 Xberg REST 服务。
+Xberg MCP 使用 `docker compose -f docker-compose/xberg/docker-compose.yaml up -d` 启动，MCP HTTP 地址为 `http://192.168.60.83:8001/mcp`；该 Compose 文件只启动 MCP 服务，不影响现有的 Xberg REST 服务。
 
-MarkItDown MCP 使用 `bash docker-compose/markitdown/init.sh` 启动，脚本通过根聚合 Compose 的 `kratos-admin-local` 项目启动 `markitdown-mcp` 服务。MCP HTTP 地址为 `http://192.168.60.52:8003/mcp`。服务只挂载 `docker-compose/markitdown/data`，不带认证且仅绑定私网地址；需要读取的文件先放入该目录。MarkItDown CLI 已包含在同一容器中，可执行 `docker compose --env-file docker-compose/gotenberg/.env -f docker-compose/docker-compose.yaml run --rm --no-deps --entrypoint markitdown markitdown-mcp /workdir/example.docx` 将文件转换为 Markdown。镜像构建固定使用 Microsoft MarkItDown 提交 `ed178952a6672abdfd35b5f9e76a80b6cefc086e`。
+MarkItDown MCP 使用 `bash docker-compose/markitdown/init.sh` 启动，脚本通过根聚合 Compose 的 `kratos-admin-local` 项目启动 `markitdown-mcp` 服务。MCP HTTP 地址为 `http://192.168.60.83:8003/mcp`。服务只挂载 `docker-compose/markitdown/data`，不带认证且仅绑定私网地址；需要读取的文件先放入该目录。MarkItDown CLI 已包含在同一容器中，可执行 `docker compose --env-file docker-compose/gotenberg/.env -f docker-compose/docker-compose.yaml run --rm --no-deps --entrypoint markitdown markitdown-mcp /workdir/example.docx` 将文件转换为 Markdown。镜像构建固定使用 Microsoft MarkItDown 提交 `ed178952a6672abdfd35b5f9e76a80b6cefc086e`。
 
-Gotenberg 与第三方 MCP 适配器使用 `docker compose --env-file docker-compose/gotenberg/.env -f docker-compose/gotenberg/docker-compose.yaml up -d --build` 启动，Gotenberg 地址为 `http://192.168.60.52:3000`，MCP 地址为 `http://192.168.60.52:8002/mcp`。适配器源码固定在 `avhulst/coolify-gotenberg-mcp` 的提交 `f0c1264`；当前无官方 Gotenberg MCP 实现，且该第三方项目星数较低，令牌模板见 `docker-compose/gotenberg/.env.example`。
+Gotenberg 与第三方 MCP 适配器使用 `docker compose --env-file docker-compose/gotenberg/.env -f docker-compose/gotenberg/docker-compose.yaml up -d --build` 启动，Gotenberg 地址为 `http://192.168.60.83:3000`，MCP 地址为 `http://192.168.60.83:8002/mcp`。适配器源码固定在 `avhulst/coolify-gotenberg-mcp` 的提交 `f0c1264`；当前无官方 Gotenberg MCP 实现，且该第三方项目星数较低，令牌模板见 `docker-compose/gotenberg/.env.example`。
 
 需要同时启动三套 MCP 时，可使用聚合文件：`docker compose --env-file docker-compose/gotenberg/.env -f docker-compose/docker-compose.yaml up -d --build`。
 

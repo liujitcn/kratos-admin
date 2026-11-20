@@ -17,6 +17,10 @@ service BiQueryRecordService {
   rpc GetBiQuery(GetBiQueryRequest) returns (BiQueryRecord) {
     option (google.api.http) = {get: "/api/v1/admin/bi/query-record/{id}"};
   }
+  // 删除当前账号的智能问数记录，已保存为卡片的记录不可删除。
+  rpc DeleteBiQuery(DeleteBiQueryRequest) returns (DeleteBiQueryResponse) {
+    option (google.api.http) = {delete: "/api/v1/admin/bi/query-record/{id}"};
+  }
 }
 
 // 智能问数状态枚举。
@@ -72,3 +76,14 @@ message BiQueryRecord {
   BiQueryResult result = 19 [(gnostic.openapi.v3.property) = {description: "完整类型化查询结果，仅详情返回"}]; // 完整类型化查询结果，仅详情返回
   string chart_type = 20 [(gnostic.openapi.v3.property) = {description: "问数建议图表类型"}]; // 问数建议图表类型
 }
+
+// 删除智能问数记录请求。
+message DeleteBiQueryRequest {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "记录ID"},
+    (buf.validate.field).int64.gt = 0
+  ]; // 记录ID
+}
+
+// 删除智能问数记录响应。
+message DeleteBiQueryResponse {}

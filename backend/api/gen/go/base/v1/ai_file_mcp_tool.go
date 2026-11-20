@@ -17,6 +17,7 @@ import (
 // RegisterAiFileServiceMCPTools 注册AI 助手文件服务，只管理当前租户的 AI 上传和生成文件的 MCP Tool。
 func RegisterAiFileServiceMCPTools(mcpServer *server.MCPServer, aiFileServiceServer AiFileServiceServer) {
 	RegisterAiFileServicePageAiFileMCPTool(mcpServer, aiFileServiceServer)
+	RegisterAiFileServiceCountAiFileMCPTool(mcpServer, aiFileServiceServer)
 	RegisterAiFileServiceRenameAiFileMCPTool(mcpServer, aiFileServiceServer)
 	RegisterAiFileServiceTrashAiFileMCPTool(mcpServer, aiFileServiceServer)
 	RegisterAiFileServiceRestoreAiFileMCPTool(mcpServer, aiFileServiceServer)
@@ -39,6 +40,30 @@ func RegisterAiFileServicePageAiFileMCPTool(mcpServer *server.MCPServer, aiFileS
 			}
 			var reply *PageAiFileResponse
 			reply, err = aiFileServiceServer.PageAiFile(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
+		},
+	)
+}
+
+// RegisterAiFileServiceCountAiFileMCPTool 注册统计 AI 文件数量的 MCP Tool。
+func RegisterAiFileServiceCountAiFileMCPTool(mcpServer *server.MCPServer, aiFileServiceServer AiFileServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_ai_file_service_count_ai_file",
+			mcp.WithDescription("统计 AI 文件数量。"),
+			mcp.WithInputSchema[*CountAiFileRequest](),
+			mcp.WithOutputSchema[*CountAiFileResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &CountAiFileRequest{}
+			err := request.BindArguments(req)
+			if err != nil {
+				return nil, err
+			}
+			var reply *CountAiFileResponse
+			reply, err = aiFileServiceServer.CountAiFile(ctx, req)
 			if err != nil {
 				return mcp.NewToolResultError(err.Error()), nil
 			}

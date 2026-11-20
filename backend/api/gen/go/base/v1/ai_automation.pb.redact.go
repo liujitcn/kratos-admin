@@ -64,6 +64,17 @@ func (s *redactedAiAutomationServiceServer) ListAiAutomation(ctx context.Context
 	return res, err
 }
 
+// CountAiAutomation is the redacted wrapper for the actual AiAutomationServiceServer.CountAiAutomation method
+// Unary RPC
+func (s *redactedAiAutomationServiceServer) CountAiAutomation(ctx context.Context, in *CountAiAutomationRequest) (*CountAiAutomationResponse, error) {
+	res, err := s.srv.CountAiAutomation(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/base.v1.AiAutomationService/CountAiAutomation"), redact.DirectionResponse), nil, res)
+	}
+	return res, err
+}
+
 // GetAiAutomation is the redacted wrapper for the actual AiAutomationServiceServer.GetAiAutomation method
 // Unary RPC
 func (s *redactedAiAutomationServiceServer) GetAiAutomation(ctx context.Context, in *GetAiAutomationRequest) (*AiAutomation, error) {
@@ -316,6 +327,30 @@ func (x *ListAiAutomationResponse) Redact() {
 	}
 
 	// Safe field: Automations
+
+	// Safe field: PendingCount
+}
+
+// Ensure CountAiAutomationRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*CountAiAutomationRequest)(nil)
+
+// Redact method implementation for CountAiAutomationRequest
+func (x *CountAiAutomationRequest) Redact() {
+	if x == nil {
+		return
+	}
+}
+
+// Ensure CountAiAutomationResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*CountAiAutomationResponse)(nil)
+
+// Redact method implementation for CountAiAutomationResponse
+func (x *CountAiAutomationResponse) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Total
 
 	// Safe field: PendingCount
 }

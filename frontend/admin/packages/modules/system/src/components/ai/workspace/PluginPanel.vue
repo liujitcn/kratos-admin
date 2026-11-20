@@ -68,36 +68,110 @@
       <el-input v-model="connectionKeyword" class="workspace-query" clearable :placeholder="t('system.ai.workspace.search')" />
       <ProTable row-key="id" :columns="connectionColumns" :data="visibleConnections" :pagination="false" :tool-button="false" />
     </div>
-    <div v-else-if="canManage" v-loading="toolsLoading">
+    <div v-else-if="canManage">
       <div class="workspace-toolbar">
-        <el-select v-model="toolPluginID" :placeholder="t('system.ai.workspace.plugins')" @change="loadTools"
+        <el-select v-model="toolPluginID" :placeholder="t('system.ai.workspace.plugins')" @change="reloadToolsTable"
           ><el-option v-for="plugin in managedPlugins" :key="plugin.id" :label="plugin.name" :value="plugin.id"
         /></el-select>
-        <el-input v-model="toolKeyword" clearable :placeholder="t('system.ai.workspace.search')" />
+        <el-input
+          v-model="toolKeyword"
+          clearable
+          :placeholder="t('system.ai.workspace.search')"
+          @keyup.enter="reloadToolsTable"
+          @clear="reloadToolsTable"
+        />
       </div>
       <el-alert v-if="toolError" :title="toolError" type="error" :closable="false" />
-      <ProTable row-key="id" :columns="toolColumns" :data="visibleTools" :pagination="false" :tool-button="false" />
+      <ProTable
+        ref="toolsTable"
+        row-key="id"
+        :columns="toolColumns"
+        :request-api="requestToolsTable"
+        :init-param="toolTableInitParam"
+        :request-error="handleToolsError"
+        :tool-button="false"
+      />
     </div>
-    <ProDialog v-model="detailOpen" :title="detail?.name" :show-footer="false" width="min(700px, 96vw)">
-      <div v-if="detail" class="plugin-detail-meta">
-        <span>{{ t("system.ai.workspace.code") }}：{{ detail.code }}</span>
-        <span>{{ t("system.ai.workspace.endpoint") }}：{{ detail.endpoint || "-" }}</span>
-        <span>{{ t("system.ai.workspace.tools") }}：{{ detail.tools?.length ?? 0 }}</span>
+    <el-drawer
+      v-model="detailOpen"
+      class="plugin-detail-drawer"
+      :title="detail?.name"
+      :size="mobile ? '100%' : 'min(860px, 94vw)'"
+      destroy-on-close
+    >
+      <template #header>
+        <div v-if="detail" class="plugin-detail-heading">
+          <div class="plugin-detail-heading__title">
+            <strong>{{ detail.name }}</strong>
+            <el-tag size="small">{{ detail.source }}</el-tag>
+          </div>
+          <el-text>{{ detail.description }}</el-text>
+        </div>
+      </template>
+      <div v-if="detail" class="plugin-detail-content">
+        <div class="plugin-detail-meta">
+          <span>{{ t("system.ai.workspace.code") }}：{{ detail.code }}</span>
+          <span>{{ t("system.ai.workspace.endpoint") }}：{{ detail.endpoint || "-" }}</span>
+        </div>
+        <el-alert v-if="detail.unavailable_reason" :title="detail.unavailable_reason" type="warning" :closable="false" />
+        <el-alert v-if="detailError" :title="detailError" type="error" :closable="false" />
+        <div v-loading="detailLoading" class="plugin-detail-layout">
+          <aside class="plugin-tool-nav">
+            <div class="plugin-tool-nav__header">
+              <strong>{{ t("system.ai.workspace.tools") }}</strong>
+              <el-text type="info">{{ detailTotal }}</el-text>
+            </div>
+            <el-input
+              v-model="detailToolKeyword"
+              clearable
+              :placeholder="t('system.ai.workspace.search')"
+              @keyup.enter="searchDetailTools"
+              @clear="searchDetailTools"
+            />
+            <nav class="plugin-tool-nav__items" :aria-label="t('system.ai.workspace.tools')">
+              <button
+                v-for="item in detailTools"
+                :key="item.id"
+                type="button"
+                class="plugin-tool-nav__item"
+                :class="{ 'is-active': selectedDetailTool?.id === item.id }"
+                @click="selectedDetailToolId = item.id"
+              >
+                <strong>{{ item.source_name }}</strong>
+                <span>{{ item.description || "-" }}</span>
+              </button>
+            </nav>
+            <el-pagination
+              v-if="detailTotal > detailPageSize"
+              v-model:current-page="detailPageNum"
+              :page-size="detailPageSize"
+              :total="detailTotal"
+              layout="prev, pager, next"
+              background
+              small
+              @current-change="loadDetailTools"
+            />
+            <el-empty v-if="!detailLoading && !detailTools.length" :description="t('system.ai.workspace.no_matches')" />
+          </aside>
+          <main v-if="selectedDetailTool" class="plugin-tool-preview">
+            <div class="plugin-tool-preview__heading">
+              <strong>{{ selectedDetailTool.source_name }}</strong>
+              <el-tag size="small">
+                {{
+                  selectedDetailTool.effect === "read"
+                    ? t("system.ai.workspace.read")
+                    : t("system.ai.workspace.requires_confirmation")
+                }}
+              </el-tag>
+            </div>
+            <el-text class="plugin-tool-preview__description">{{ selectedDetailTool.description || "-" }}</el-text>
+            <span class="plugin-tool-preview__label">{{ t("system.ai.workspace.schema") }}</span>
+            <pre>{{ selectedDetailTool.input_schema || "-" }}</pre>
+          </main>
+          <el-empty v-else-if="!detailLoading" :description="t('system.ai.workspace.no_matches')" />
+        </div>
       </div>
-      <el-text tag="p">{{ detail?.description }}</el-text>
-      <el-alert v-if="detail?.unavailable_reason" :title="detail.unavailable_reason" type="warning" :closable="false" />
-      <div v-loading="toolsLoading">
-        <el-empty v-if="!toolsLoading && !detail?.tools?.length" :description="t('system.ai.workspace.no_matches')" />
-        <article v-for="item in detail?.tools ?? []" :key="item.id" class="tool-detail">
-          <el-text tag="strong">{{ item.source_name }}</el-text>
-          ><el-tag size="small">{{
-            item.effect === "read" ? t("system.ai.workspace.read") : t("system.ai.workspace.requires_confirmation")
-          }}</el-tag>
-          <el-text tag="p">{{ item.description }}</el-text>
-          <pre>{{ item.input_schema }}</pre>
-        </article>
-      </div>
-    </ProDialog>
+    </el-drawer>
     <FormDialog
       ref="formRef"
       v-model="formOpen"
@@ -124,7 +198,6 @@ import { t } from "@liujitcn/kratos-admin-core";
 import { encryptSecret } from "@liujitcn/kratos-admin-core/security";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
-import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import type { ColumnProps } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import type { ProFormField } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import { defAiPluginService as api } from "@liujitcn/kratos-admin-system/api/base/v1/ai_plugin";
@@ -166,12 +239,20 @@ const visiblePlugins = computed(() =>
       `${item.name} ${item.description}`.toLowerCase().includes(keyword.value.toLowerCase())
   )
 );
-const tools = ref<AiPluginTool[]>([]),
-  toolPluginID = ref(""),
-  toolsLoading = ref(false),
+const toolPluginID = ref(""),
   toolError = ref("");
 const detail = ref<AiPlugin>(),
-  detailOpen = ref(false);
+  detailOpen = ref(false),
+  detailToolKeyword = ref(""),
+  selectedDetailToolId = ref("");
+const detailTools = ref<AiPluginTool[]>([]),
+  detailTotal = ref(0),
+  detailPageNum = ref(1),
+  detailLoading = ref(false),
+  detailError = ref("");
+const toolsTable = ref<InstanceType<typeof ProTable>>();
+const toolTableInitParam = { page_size: 20 };
+const detailPageSize = 20;
 const formOpen = ref(false),
   formRef = ref<InstanceType<typeof FormDialog>>(),
   saving = ref(false);
@@ -183,6 +264,7 @@ const form = ref<Record<string, any>>({});
 const authorizing = ref(false);
 let authorizationPopup: Window | null = null;
 let authorizationTimer: ReturnType<typeof setInterval> | undefined;
+let detailRequestSerial = 0;
 
 const dialogTitle = computed(() => t(`system.ai.workspace.${kind.value}`));
 const visibleConnections = computed(() =>
@@ -192,8 +274,8 @@ const visibleConnections = computed(() =>
       .includes(connectionKeyword.value.toLowerCase())
   )
 );
-const visibleTools = computed(() =>
-  tools.value.filter(item => `${item.source_name} ${item.description}`.toLowerCase().includes(toolKeyword.value.toLowerCase()))
+const selectedDetailTool = computed(
+  () => detailTools.value.find(item => item.id === selectedDetailToolId.value) ?? detailTools.value[0]
 );
 const connectionColumns = computed<ColumnProps[]>(() => [
   {
@@ -203,7 +285,11 @@ const connectionColumns = computed<ColumnProps[]>(() => [
   },
   { prop: "label", label: t("system.ai.workspace.account") },
   { prop: "sharing", label: t("system.ai.workspace.scope"), render: ({ row }) => t(`system.ai.workspace.${row.sharing}`) },
-  { prop: "state", label: t("system.ai.workspace.state"), render: ({ row }) => t(`system.ai.workspace.connection_${row.state}`) },
+  {
+    prop: "state",
+    label: t("system.ai.workspace.connection_state"),
+    render: ({ row }) => t(`system.ai.workspace.connection_${row.state}`)
+  },
   { prop: "scopes", label: t("system.ai.workspace.authorization_scope") },
   { prop: "last_error", label: t("system.ai.workspace.reason") },
   {
@@ -368,25 +454,72 @@ const fields = computed<ProFormField[]>(() => {
     { prop: "enabled", label: t("system.ai.workspace.enabled"), component: "switch" }
   ];
 });
-/** 从服务端读取工具快照，失败保留明确错误。 */
-async function loadTools() {
-  if (!toolPluginID.value) return;
-  toolsLoading.value = true;
+/** 读取工具配置页当前分页，搜索和分页均由服务端处理。 */
+async function requestToolsTable(params: Record<string, unknown>) {
+  if (!toolPluginID.value) return { data: { list: [], total: 0 } };
+  const pageNum = Number(params.page_num) || 1;
+  const pageSize = Number(params.page_size) || toolTableInitParam.page_size;
+  const response = await api.ListAiPluginTool({
+    plugin_id: toolPluginID.value,
+    terminal: Terminal.TERMINAL_ADMIN,
+    keyword: toolKeyword.value,
+    page_num: pageNum,
+    page_size: pageSize
+  });
+  return { data: { list: response.tools ?? [], total: response.total } };
+}
+/** 重新加载工具配置页并回到第一页。 */
+function reloadToolsTable() {
   toolError.value = "";
+  toolsTable.value?.reset();
+}
+/** 展示工具配置页请求错误。 */
+function handleToolsError(error: unknown) {
+  toolError.value = error instanceof Error ? error.message : t("system.ai.workspace.failed");
+}
+/** 读取详情抽屉当前页工具，避免一次加载全部 Schema。 */
+async function loadDetailTools(pageNum = detailPageNum.value) {
+  if (!detail.value) return;
+  const requestSerial = ++detailRequestSerial;
+  detailPageNum.value = pageNum;
+  detailLoading.value = true;
+  detailError.value = "";
   try {
-    tools.value = (await api.ListAiPluginTool({ plugin_id: toolPluginID.value, terminal: Terminal.TERMINAL_ADMIN })).tools ?? [];
+    const response = await api.ListAiPluginTool({
+      plugin_id: detail.value.id,
+      terminal: Terminal.TERMINAL_ADMIN,
+      keyword: detailToolKeyword.value,
+      page_num: detailPageNum.value,
+      page_size: detailPageSize
+    });
+    if (requestSerial !== detailRequestSerial) return;
+    detailTools.value = response.tools ?? [];
+    detailTotal.value = response.total;
   } catch (error) {
-    toolError.value = error instanceof Error ? error.message : t("system.ai.workspace.failed");
+    if (requestSerial !== detailRequestSerial) return;
+    detailTools.value = [];
+    detailTotal.value = 0;
+    detailError.value = error instanceof Error ? error.message : t("system.ai.workspace.failed");
   } finally {
-    toolsLoading.value = false;
+    if (requestSerial === detailRequestSerial) detailLoading.value = false;
   }
 }
-/** 读取插件详情及完整工具定义。 */
+/** 重置详情搜索并请求第一页。 */
+function searchDetailTools() {
+  detailPageNum.value = 1;
+  void loadDetailTools();
+}
+/** 打开插件详情并按页加载工具快照。 */
 async function openDetail(plugin: AiPlugin) {
-  detail.value = await api.GetAiPlugin({ id: plugin.id });
-  toolPluginID.value = plugin.id;
-  tools.value = detail.value.tools ?? [];
+  detail.value = plugin;
+  detailTools.value = [];
+  detailTotal.value = 0;
+  detailPageNum.value = 1;
+  detailToolKeyword.value = "";
+  selectedDetailToolId.value = "";
+  detailError.value = "";
   detailOpen.value = true;
+  await loadDetailTools();
 }
 /** 打开本人账号连接表单，已有连接时不重复打开。 */
 function openConnection(plugin: AiPlugin) {
@@ -473,7 +606,7 @@ async function saveForm() {
         effect: form.value.effect,
         prompts: form.value.prompts
       });
-      await loadTools();
+      await toolsTable.value?.getTableList();
     }
     formOpen.value = false;
     emit("refresh");
@@ -601,18 +734,20 @@ watch(
     if (currentTab !== "tools") return;
     if (!plugins.length) {
       toolPluginID.value = "";
-      tools.value = [];
       toolError.value = "";
       return;
     }
     const selectedPluginID = plugins.some(plugin => plugin.id === toolPluginID.value) ? toolPluginID.value : plugins[0].id;
-    const needsLoad = selectedPluginID !== toolPluginID.value || tools.value.length === 0;
+    const changed = selectedPluginID !== toolPluginID.value;
     toolPluginID.value = selectedPluginID;
-    if (!needsLoad) return;
-    void loadTools();
+    if (changed) reloadToolsTable();
   },
   { immediate: true }
 );
+
+watch(detailTools, items => {
+  if (!items.some(item => item.id === selectedDetailToolId.value)) selectedDetailToolId.value = items[0]?.id ?? "";
+});
 
 watch(
   () => props.mobile,
@@ -685,22 +820,116 @@ p {
   max-height: calc(100dvh - 160px);
   overflow-y: auto;
 }
-.tool-detail {
-  border-bottom: 1px solid var(--el-border-color);
-  padding: 14px 0;
+.plugin-detail-heading {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.plugin-detail-heading__title,
+.plugin-tool-nav__header,
+.plugin-tool-preview__heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.plugin-detail-heading__title strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.plugin-detail-content {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 14px;
+  min-height: 100%;
 }
 .plugin-detail-meta {
   display: grid;
   gap: 8px;
-  margin: 14px 0;
   color: var(--admin-page-text-secondary);
   overflow-wrap: anywhere;
 }
-.tool-detail .el-tag {
-  margin-left: 8px;
+.plugin-detail-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 30%) minmax(0, 1fr);
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--el-border-color);
+  border-radius: var(--admin-page-radius);
+}
+.plugin-tool-nav {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  background: var(--el-fill-color-light);
+  border-right: 1px solid var(--el-border-color);
+}
+.plugin-tool-nav__header {
+  justify-content: space-between;
+}
+.plugin-tool-nav :deep(.el-pagination) {
+  justify-content: center;
+}
+.plugin-tool-nav__items {
+  display: grid;
+  min-height: 0;
+  gap: 4px;
+  overflow-y: auto;
+  align-content: start;
+}
+.plugin-tool-nav__item {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  padding: 10px;
+  color: var(--admin-page-text-regular);
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--admin-page-radius);
+  cursor: pointer;
+}
+.plugin-tool-nav__item:hover,
+.plugin-tool-nav__item.is-active {
+  color: var(--el-color-primary);
+  background: var(--el-bg-color);
+  border-color: var(--el-color-primary-light-5);
+}
+.plugin-tool-nav__item:focus-visible {
+  outline: 2px solid var(--el-color-primary);
+  outline-offset: -2px;
+}
+.plugin-tool-nav__item span {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--admin-page-text-secondary);
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.plugin-tool-preview {
+  min-width: 0;
+  padding: 20px;
+  overflow: auto;
+}
+.plugin-tool-preview__heading {
+  justify-content: space-between;
+}
+.plugin-tool-preview__description {
+  display: block;
+  margin-top: 12px;
+  white-space: pre-wrap;
+}
+.plugin-tool-preview__label {
+  display: block;
+  margin-top: 22px;
+  color: var(--admin-page-text-secondary);
 }
 pre {
-  max-height: 240px;
+  max-height: none;
   overflow: auto;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -709,9 +938,21 @@ pre {
   padding: 12px;
   border-radius: var(--admin-page-radius);
 }
+:global(.plugin-detail-drawer .el-drawer__body) {
+  min-height: 0;
+  overflow: hidden;
+}
 @media (width <= 768px) {
   .assistant-workspace {
     padding: 12px;
+  }
+  .plugin-detail-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(220px, 42%) minmax(0, 1fr);
+  }
+  .plugin-tool-nav {
+    border-right: 0;
+    border-bottom: 1px solid var(--el-border-color);
   }
 }
 </style>

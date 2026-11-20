@@ -210,6 +210,104 @@ func (x *PageAiFileResponse) GetTotal() int64 {
 	return 0
 }
 
+// AI 文件数量统计条件。
+type CountAiFileRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	View          AiFileView             `protobuf:"varint,1,opt,name=view,proto3,enum=base.v1.AiFileView" json:"view,omitempty"` // 文件视图
+	Keyword       string                 `protobuf:"bytes,2,opt,name=keyword,proto3" json:"keyword,omitempty"`                    // 文件名关键字
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CountAiFileRequest) Reset() {
+	*x = CountAiFileRequest{}
+	mi := &file_base_v1_ai_file_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CountAiFileRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CountAiFileRequest) ProtoMessage() {}
+
+func (x *CountAiFileRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_base_v1_ai_file_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CountAiFileRequest.ProtoReflect.Descriptor instead.
+func (*CountAiFileRequest) Descriptor() ([]byte, []int) {
+	return file_base_v1_ai_file_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *CountAiFileRequest) GetView() AiFileView {
+	if x != nil {
+		return x.View
+	}
+	return AiFileView_AI_FILE_VIEW_UNSPECIFIED
+}
+
+func (x *CountAiFileRequest) GetKeyword() string {
+	if x != nil {
+		return x.Keyword
+	}
+	return ""
+}
+
+// AI 文件数量统计结果。
+type CountAiFileResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Total         int64                  `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"` // 文件总数
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CountAiFileResponse) Reset() {
+	*x = CountAiFileResponse{}
+	mi := &file_base_v1_ai_file_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CountAiFileResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CountAiFileResponse) ProtoMessage() {}
+
+func (x *CountAiFileResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_base_v1_ai_file_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CountAiFileResponse.ProtoReflect.Descriptor instead.
+func (*CountAiFileResponse) Descriptor() ([]byte, []int) {
+	return file_base_v1_ai_file_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *CountAiFileResponse) GetTotal() int64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
 // AI 文件元数据。
 type AiFile struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -232,7 +330,7 @@ type AiFile struct {
 
 func (x *AiFile) Reset() {
 	*x = AiFile{}
-	mi := &file_base_v1_ai_file_proto_msgTypes[2]
+	mi := &file_base_v1_ai_file_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -244,7 +342,7 @@ func (x *AiFile) String() string {
 func (*AiFile) ProtoMessage() {}
 
 func (x *AiFile) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_file_proto_msgTypes[2]
+	mi := &file_base_v1_ai_file_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -257,7 +355,7 @@ func (x *AiFile) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AiFile.ProtoReflect.Descriptor instead.
 func (*AiFile) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_file_proto_rawDescGZIP(), []int{2}
+	return file_base_v1_ai_file_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *AiFile) GetId() int64 {
@@ -362,7 +460,7 @@ type RenameAiFileRequest struct {
 
 func (x *RenameAiFileRequest) Reset() {
 	*x = RenameAiFileRequest{}
-	mi := &file_base_v1_ai_file_proto_msgTypes[3]
+	mi := &file_base_v1_ai_file_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -374,7 +472,7 @@ func (x *RenameAiFileRequest) String() string {
 func (*RenameAiFileRequest) ProtoMessage() {}
 
 func (x *RenameAiFileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_file_proto_msgTypes[3]
+	mi := &file_base_v1_ai_file_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -387,7 +485,7 @@ func (x *RenameAiFileRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RenameAiFileRequest.ProtoReflect.Descriptor instead.
 func (*RenameAiFileRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_file_proto_rawDescGZIP(), []int{3}
+	return file_base_v1_ai_file_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *RenameAiFileRequest) GetId() int64 {
@@ -414,7 +512,7 @@ type TrashAiFileRequest struct {
 
 func (x *TrashAiFileRequest) Reset() {
 	*x = TrashAiFileRequest{}
-	mi := &file_base_v1_ai_file_proto_msgTypes[4]
+	mi := &file_base_v1_ai_file_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -426,7 +524,7 @@ func (x *TrashAiFileRequest) String() string {
 func (*TrashAiFileRequest) ProtoMessage() {}
 
 func (x *TrashAiFileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_file_proto_msgTypes[4]
+	mi := &file_base_v1_ai_file_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -439,7 +537,7 @@ func (x *TrashAiFileRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TrashAiFileRequest.ProtoReflect.Descriptor instead.
 func (*TrashAiFileRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_file_proto_rawDescGZIP(), []int{4}
+	return file_base_v1_ai_file_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *TrashAiFileRequest) GetId() int64 {
@@ -459,7 +557,7 @@ type RestoreAiFileRequest struct {
 
 func (x *RestoreAiFileRequest) Reset() {
 	*x = RestoreAiFileRequest{}
-	mi := &file_base_v1_ai_file_proto_msgTypes[5]
+	mi := &file_base_v1_ai_file_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -471,7 +569,7 @@ func (x *RestoreAiFileRequest) String() string {
 func (*RestoreAiFileRequest) ProtoMessage() {}
 
 func (x *RestoreAiFileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_file_proto_msgTypes[5]
+	mi := &file_base_v1_ai_file_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -484,7 +582,7 @@ func (x *RestoreAiFileRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RestoreAiFileRequest.ProtoReflect.Descriptor instead.
 func (*RestoreAiFileRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_file_proto_rawDescGZIP(), []int{5}
+	return file_base_v1_ai_file_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *RestoreAiFileRequest) GetId() int64 {
@@ -504,7 +602,7 @@ type DeleteAiFileRequest struct {
 
 func (x *DeleteAiFileRequest) Reset() {
 	*x = DeleteAiFileRequest{}
-	mi := &file_base_v1_ai_file_proto_msgTypes[6]
+	mi := &file_base_v1_ai_file_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -516,7 +614,7 @@ func (x *DeleteAiFileRequest) String() string {
 func (*DeleteAiFileRequest) ProtoMessage() {}
 
 func (x *DeleteAiFileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_file_proto_msgTypes[6]
+	mi := &file_base_v1_ai_file_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -529,7 +627,7 @@ func (x *DeleteAiFileRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAiFileRequest.ProtoReflect.Descriptor instead.
 func (*DeleteAiFileRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_file_proto_rawDescGZIP(), []int{6}
+	return file_base_v1_ai_file_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *DeleteAiFileRequest) GetId() int64 {
@@ -554,7 +652,13 @@ const file_base_v1_ai_file_proto_rawDesc = "" +
 	"!base.ai.file.page.page_size.range\x12\"每页行数必须在1到100之间\x1a\x17this > 0 && this <= 100R\bpageSize\"v\n" +
 	"\x12PageAiFileResponse\x12<\n" +
 	"\x05files\x18\x01 \x03(\v2\x0f.base.v1.AiFileB\x15\xbaG\x12\x92\x02\x0fAI 文件列表R\x05files\x12\"\n" +
-	"\x05total\x18\x02 \x01(\x03B\f\xbaG\t\x92\x02\x06总数R\x05total\"\x99\x06\n" +
+	"\x05total\x18\x02 \x01(\x03B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xf9\x01\n" +
+	"\x12CountAiFileRequest\x12C\n" +
+	"\x04view\x18\x01 \x01(\x0e2\x13.base.v1.AiFileViewB\x1a\xbaG\x0f\x92\x02\f文件视图\xbaH\x05\x82\x01\x02\x10\x01R\x04view\x12\x9d\x01\n" +
+	"\akeyword\x18\x02 \x01(\tB\x82\x01\xbaG\x15\x92\x02\x12文件名关键字\xbaHg\xba\x01d\n" +
+	"\"base.ai.file.count.keyword.max_len\x12*文件名关键字不能超过100个字符\x1a\x12this.size() <= 100R\akeyword\"?\n" +
+	"\x13CountAiFileResponse\x12(\n" +
+	"\x05total\x18\x01 \x01(\x03B\x12\xbaG\x0f\x92\x02\f文件总数R\x05total\"\x99\x06\n" +
 	"\x06AiFile\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b文件IDR\x02id\x12+\n" +
 	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12B\n" +
@@ -594,10 +698,11 @@ const file_base_v1_ai_file_proto_rawDesc = "" +
 	"\x10AI_FILE_VIEW_ALL\x10\x01\x12\x19\n" +
 	"\x15AI_FILE_VIEW_UPLOADED\x10\x02\x12\x1a\n" +
 	"\x16AI_FILE_VIEW_GENERATED\x10\x03\x12\x18\n" +
-	"\x14AI_FILE_VIEW_TRASHED\x10\x042\x9f\x04\n" +
+	"\x14AI_FILE_VIEW_TRASHED\x10\x042\x8d\x05\n" +
 	"\rAiFileService\x12c\n" +
 	"\n" +
-	"PageAiFile\x12\x1a.base.v1.PageAiFileRequest\x1a\x1b.base.v1.PageAiFileResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\x12\x14/api/v1/base/ai/file\x12h\n" +
+	"PageAiFile\x12\x1a.base.v1.PageAiFileRequest\x1a\x1b.base.v1.PageAiFileResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\x12\x14/api/v1/base/ai/file\x12l\n" +
+	"\vCountAiFile\x12\x1b.base.v1.CountAiFileRequest\x1a\x1c.base.v1.CountAiFileResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/base/ai/file/count\x12h\n" +
 	"\fRenameAiFile\x12\x1c.base.v1.RenameAiFileRequest\x1a\x0f.base.v1.AiFile\")\x82\xd3\xe4\x93\x02#:\x01*\x1a\x1e/api/v1/base/ai/file/{id}/name\x12g\n" +
 	"\vTrashAiFile\x12\x1b.base.v1.TrashAiFileRequest\x1a\x0f.base.v1.AiFile\"*\x82\xd3\xe4\x93\x02$:\x01*\x1a\x1f/api/v1/base/ai/file/{id}/trash\x12m\n" +
 	"\rRestoreAiFile\x12\x1d.base.v1.RestoreAiFileRequest\x1a\x0f.base.v1.AiFile\",\x82\xd3\xe4\x93\x02&:\x01*\x1a!/api/v1/base/ai/file/{id}/restore\x12g\n" +
@@ -617,39 +722,44 @@ func file_base_v1_ai_file_proto_rawDescGZIP() []byte {
 }
 
 var file_base_v1_ai_file_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_base_v1_ai_file_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_base_v1_ai_file_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_base_v1_ai_file_proto_goTypes = []any{
 	(AiFileView)(0),               // 0: base.v1.AiFileView
 	(*PageAiFileRequest)(nil),     // 1: base.v1.PageAiFileRequest
 	(*PageAiFileResponse)(nil),    // 2: base.v1.PageAiFileResponse
-	(*AiFile)(nil),                // 3: base.v1.AiFile
-	(*RenameAiFileRequest)(nil),   // 4: base.v1.RenameAiFileRequest
-	(*TrashAiFileRequest)(nil),    // 5: base.v1.TrashAiFileRequest
-	(*RestoreAiFileRequest)(nil),  // 6: base.v1.RestoreAiFileRequest
-	(*DeleteAiFileRequest)(nil),   // 7: base.v1.DeleteAiFileRequest
-	(*timestamppb.Timestamp)(nil), // 8: google.protobuf.Timestamp
-	(*emptypb.Empty)(nil),         // 9: google.protobuf.Empty
+	(*CountAiFileRequest)(nil),    // 3: base.v1.CountAiFileRequest
+	(*CountAiFileResponse)(nil),   // 4: base.v1.CountAiFileResponse
+	(*AiFile)(nil),                // 5: base.v1.AiFile
+	(*RenameAiFileRequest)(nil),   // 6: base.v1.RenameAiFileRequest
+	(*TrashAiFileRequest)(nil),    // 7: base.v1.TrashAiFileRequest
+	(*RestoreAiFileRequest)(nil),  // 8: base.v1.RestoreAiFileRequest
+	(*DeleteAiFileRequest)(nil),   // 9: base.v1.DeleteAiFileRequest
+	(*timestamppb.Timestamp)(nil), // 10: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),         // 11: google.protobuf.Empty
 }
 var file_base_v1_ai_file_proto_depIdxs = []int32{
-	0, // 0: base.v1.PageAiFileRequest.view:type_name -> base.v1.AiFileView
-	3, // 1: base.v1.PageAiFileResponse.files:type_name -> base.v1.AiFile
-	8, // 2: base.v1.AiFile.created_at:type_name -> google.protobuf.Timestamp
-	8, // 3: base.v1.AiFile.updated_at:type_name -> google.protobuf.Timestamp
-	1, // 4: base.v1.AiFileService.PageAiFile:input_type -> base.v1.PageAiFileRequest
-	4, // 5: base.v1.AiFileService.RenameAiFile:input_type -> base.v1.RenameAiFileRequest
-	5, // 6: base.v1.AiFileService.TrashAiFile:input_type -> base.v1.TrashAiFileRequest
-	6, // 7: base.v1.AiFileService.RestoreAiFile:input_type -> base.v1.RestoreAiFileRequest
-	7, // 8: base.v1.AiFileService.DeleteAiFile:input_type -> base.v1.DeleteAiFileRequest
-	2, // 9: base.v1.AiFileService.PageAiFile:output_type -> base.v1.PageAiFileResponse
-	3, // 10: base.v1.AiFileService.RenameAiFile:output_type -> base.v1.AiFile
-	3, // 11: base.v1.AiFileService.TrashAiFile:output_type -> base.v1.AiFile
-	3, // 12: base.v1.AiFileService.RestoreAiFile:output_type -> base.v1.AiFile
-	9, // 13: base.v1.AiFileService.DeleteAiFile:output_type -> google.protobuf.Empty
-	9, // [9:14] is the sub-list for method output_type
-	4, // [4:9] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	0,  // 0: base.v1.PageAiFileRequest.view:type_name -> base.v1.AiFileView
+	5,  // 1: base.v1.PageAiFileResponse.files:type_name -> base.v1.AiFile
+	0,  // 2: base.v1.CountAiFileRequest.view:type_name -> base.v1.AiFileView
+	10, // 3: base.v1.AiFile.created_at:type_name -> google.protobuf.Timestamp
+	10, // 4: base.v1.AiFile.updated_at:type_name -> google.protobuf.Timestamp
+	1,  // 5: base.v1.AiFileService.PageAiFile:input_type -> base.v1.PageAiFileRequest
+	3,  // 6: base.v1.AiFileService.CountAiFile:input_type -> base.v1.CountAiFileRequest
+	6,  // 7: base.v1.AiFileService.RenameAiFile:input_type -> base.v1.RenameAiFileRequest
+	7,  // 8: base.v1.AiFileService.TrashAiFile:input_type -> base.v1.TrashAiFileRequest
+	8,  // 9: base.v1.AiFileService.RestoreAiFile:input_type -> base.v1.RestoreAiFileRequest
+	9,  // 10: base.v1.AiFileService.DeleteAiFile:input_type -> base.v1.DeleteAiFileRequest
+	2,  // 11: base.v1.AiFileService.PageAiFile:output_type -> base.v1.PageAiFileResponse
+	4,  // 12: base.v1.AiFileService.CountAiFile:output_type -> base.v1.CountAiFileResponse
+	5,  // 13: base.v1.AiFileService.RenameAiFile:output_type -> base.v1.AiFile
+	5,  // 14: base.v1.AiFileService.TrashAiFile:output_type -> base.v1.AiFile
+	5,  // 15: base.v1.AiFileService.RestoreAiFile:output_type -> base.v1.AiFile
+	11, // 16: base.v1.AiFileService.DeleteAiFile:output_type -> google.protobuf.Empty
+	11, // [11:17] is the sub-list for method output_type
+	5,  // [5:11] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_base_v1_ai_file_proto_init() }
@@ -663,7 +773,7 @@ func file_base_v1_ai_file_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_base_v1_ai_file_proto_rawDesc), len(file_base_v1_ai_file_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   7,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

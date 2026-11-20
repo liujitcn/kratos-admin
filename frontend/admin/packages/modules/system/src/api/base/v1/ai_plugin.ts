@@ -14,6 +14,8 @@ import type {
   GetAiPluginRequest,
   ListAiPluginConnectionRequest,
   ListAiPluginConnectionResponse,
+  CountAiPluginRequest,
+  CountAiPluginResponse,
   ListAiPluginRequest,
   ListAiPluginResponse,
   ListAiPluginToolRequest,
@@ -33,6 +35,10 @@ export class AiPluginServiceImpl implements AiPluginService {
   /** ListAiPlugin 调用服务端插件能力。 */
   ListAiPlugin(request: ListAiPluginRequest): Promise<ListAiPluginResponse> {
     return service<ListAiPluginRequest, ListAiPluginResponse>({ url: `/v1/base/ai/plugin`, method: "get", params: request });
+  }
+  /** CountAiPlugin 调用服务端插件能力。 */
+  CountAiPlugin(request: CountAiPluginRequest): Promise<CountAiPluginResponse> {
+    return service<CountAiPluginRequest, CountAiPluginResponse>({ url: `/v1/base/ai/plugin/count`, method: "get", params: request });
   }
   /** GetAiPlugin 调用服务端插件能力。 */
   GetAiPlugin(request: GetAiPluginRequest): Promise<AiPlugin> {

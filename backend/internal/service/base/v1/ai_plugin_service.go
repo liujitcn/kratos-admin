@@ -31,6 +31,16 @@ func (s *AiPluginService) ListAiPlugin(ctx context.Context, req *basev1.ListAiPl
 	return response, nil
 }
 
+// CountAiPlugin 统计当前身份可见的插件与 MCP 工具数量。
+func (s *AiPluginService) CountAiPlugin(ctx context.Context, req *basev1.CountAiPluginRequest) (*basev1.CountAiPluginResponse, error) {
+	response, err := s.aiPluginCase.CountAiPlugin(ctx, req)
+	if err != nil {
+		log.Error("CountAiPlugin", "error", err)
+		return nil, errorsx.WrapInternal(err, "统计插件与MCP工具数量失败")
+	}
+	return response, nil
+}
+
 // GetAiPlugin 查询插件详情。
 func (s *AiPluginService) GetAiPlugin(ctx context.Context, req *basev1.GetAiPluginRequest) (*basev1.AiPlugin, error) {
 	response, err := s.aiPluginCase.GetAiPlugin(ctx, req)

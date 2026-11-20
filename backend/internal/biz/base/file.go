@@ -238,14 +238,13 @@ func (c *FileCase) recordUploadedFile(ctx context.Context, tenantID int64, fileN
 	return nil
 }
 
-// DownloadFile 下载文件内容。
+// DownloadFile 下载文件内容，AI 文件仅限当前用户租户内的活跃文件。
 func (c *FileCase) DownloadFile(ctx context.Context, req *basev1.DownloadFileRequest) (*wrapperspb.BytesValue, error) {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
+	// 认证守卫：AI 文件租户隔离由数据隔离回调按登录身份注入。
+	if _, err := c.GetAuthInfo(ctx); err != nil {
 		return nil, err
 	}
-	var objectPath string
-	objectPath, err = objectFilePath(req.GetPath())
+	objectPath, err := objectFilePath(req.GetPath())
 	if err != nil {
 		return nil, err
 	}
@@ -254,7 +253,7 @@ func (c *FileCase) DownloadFile(ctx context.Context, req *basev1.DownloadFileReq
 			return nil, errorsx.Internal("AI文件元数据仓储未配置")
 		}
 		query := c.aiFileRepo.Query(ctx).AiFile
-		if _, err = c.aiFileRepo.Find(ctx, repository.Where(query.TenantID.Eq(authInfo.TenantId)), repository.Where(query.LinkURL.Eq(objectPath)), repository.Where(query.Status.Eq("active"))); err != nil {
+		if _, err = c.aiFileRepo.Find(ctx, repository.Where(query.LinkURL.Eq(objectPath)), repository.Where(query.Status.Eq("active"))); err != nil {
 			return nil, errorsx.ResourceNotFound("文件不存在或无权访问").WithCause(err)
 		}
 	} else {

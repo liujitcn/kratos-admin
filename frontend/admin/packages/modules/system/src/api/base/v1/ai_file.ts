@@ -2,6 +2,8 @@ import service from "@liujitcn/kratos-admin-core/request";
 import type {
   AiFile,
   AiFileService,
+  CountAiFileRequest,
+  CountAiFileResponse,
   DeleteAiFileRequest,
   PageAiFileRequest,
   PageAiFileResponse,
@@ -12,12 +14,18 @@ import type {
 import type { Empty } from "@liujitcn/kratos-admin-system/rpc/google/protobuf/empty";
 
 const AI_FILE_URL = "/v1/base/ai/file";
+const AI_FILE_COUNT_URL = "/v1/base/ai/file/count";
 
 /** AI 助手文件服务。 */
 export class AiFileServiceImpl implements AiFileService {
   /** 分页查询 AI 文件。 */
   PageAiFile(request: PageAiFileRequest): Promise<PageAiFileResponse> {
     return service<PageAiFileRequest, PageAiFileResponse>({ url: AI_FILE_URL, method: "get", params: request });
+  }
+
+  /** 统计 AI 文件数量。 */
+  CountAiFile(request: CountAiFileRequest): Promise<CountAiFileResponse> {
+    return service<CountAiFileRequest, CountAiFileResponse>({ url: AI_FILE_COUNT_URL, method: "get", params: request });
   }
 
   /** 重命名 AI 文件。 */

@@ -24,15 +24,15 @@ func NewBaseUserCase(baseCase *biz.BaseCase, baseUserRepo *data.BaseUserReposito
 	}
 }
 
-// 按手机号查询用户
+// 按手机号查询当前租户用户，租户隔离由数据隔离回调注入。
 func (c *BaseUserCase) findByPhone(ctx context.Context, phone string) (*models.BaseUser, error) {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
+	// 认证守卫：无登录态时数据隔离回调会跳过注入，必须提前拦截。
+	if _, err := c.GetAuthInfo(ctx); err != nil {
 		return nil, err
 	}
 	query := c.Query(ctx).BaseUser
-	opts := make([]repository.QueryOption, 0, 3)
+	opts := make([]repository.QueryOption, 0, 2)
 	opts = append(opts, repository.Select(query.ID, query.TenantID))
-	opts = append(opts, repository.Where(query.TenantID.Eq(authInfo.TenantId)), repository.Where(query.Phone.Eq(phone)))
+	opts = append(opts, repository.Where(query.Phone.Eq(phone)))
 	return c.Find(ctx, opts...)
 }

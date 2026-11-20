@@ -24,6 +24,12 @@ func NewAiFileServiceAgentTools(aiFileServiceServer AiFileServiceServer) ([]tool
 		return nil, err
 	}
 	ts = append(ts, pageAiFileTool)
+	var countAiFileTool tool.InvokableTool
+	countAiFileTool, err = NewAiFileServiceCountAiFileAgentTool(aiFileServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, countAiFileTool)
 	var renameAiFileTool tool.InvokableTool
 	renameAiFileTool, err = NewAiFileServiceRenameAiFileAgentTool(aiFileServiceServer)
 	if err != nil {
@@ -61,6 +67,20 @@ func NewAiFileServicePageAiFileAgentTool(aiFileServiceServer AiFileServiceServer
 				req = &PageAiFileRequest{}
 			}
 			return aiFileServiceServer.PageAiFile(ctx, req)
+		},
+	)
+}
+
+// NewAiFileServiceCountAiFileAgentTool 创建统计 AI 文件数量的 Agent Tool。
+func NewAiFileServiceCountAiFileAgentTool(aiFileServiceServer AiFileServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CountAiFileRequest, *CountAiFileResponse](
+		"base_v1_ai_file_service_count_ai_file",
+		"统计 AI 文件数量。",
+		func(ctx context.Context, req *CountAiFileRequest) (*CountAiFileResponse, error) {
+			if req == nil {
+				req = &CountAiFileRequest{}
+			}
+			return aiFileServiceServer.CountAiFile(ctx, req)
 		},
 	)
 }

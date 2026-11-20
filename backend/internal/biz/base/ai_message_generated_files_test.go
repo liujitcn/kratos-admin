@@ -26,12 +26,12 @@ var generatedTestDSNFlag = flag.String("generated-test-dsn", "", "生成文件�
 // TestCollectGeneratedProducts 验证工具输出的结构化产物与裸链接两类解析形态。
 func TestCollectGeneratedProducts(t *testing.T) {
 	// Gotenberg 真实输出形态：外层 content parts，内层 JSON 携带无后缀签名链接与 filename。
-	output := `[{"type":"text","text":"{\"download_url\": \"http://192.168.60.52:8002/files/2JVMRX0l9tznRFzHOCSqNPGx?exp=1794556954&sig=abc\", \"filename\": \"html.pdf\", \"bytes\": 546606, \"expires_at\": \"2026-11-13T08:02:34+00:00\"}"}]`
+	output := `[{"type":"text","text":"{\"download_url\": \"http://192.168.60.83:8002/files/2JVMRX0l9tznRFzHOCSqNPGx?exp=1794556954&sig=abc\", \"filename\": \"html.pdf\", \"bytes\": 546606, \"expires_at\": \"2026-11-13T08:02:34+00:00\"}"}]`
 	products := collectGeneratedProducts([]agent.ToolUsage{{Name: "gotenberg", Output: output}})
 	if len(products) != 1 {
 		t.Fatalf("结构化产物数量 = %d, 期望 1", len(products))
 	}
-	if products[0].downloadURL != "http://192.168.60.52:8002/files/2JVMRX0l9tznRFzHOCSqNPGx?exp=1794556954&sig=abc" {
+	if products[0].downloadURL != "http://192.168.60.83:8002/files/2JVMRX0l9tznRFzHOCSqNPGx?exp=1794556954&sig=abc" {
 		t.Fatalf("解析链接 = %s", products[0].downloadURL)
 	}
 	if products[0].filename != "html.pdf" {

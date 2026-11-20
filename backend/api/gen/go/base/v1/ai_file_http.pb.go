@@ -19,6 +19,7 @@ var _ = new(context.Context)
 
 const _ = http.SupportPackageIsVersion3
 
+const OperationAiFileServiceCountAiFile = "/base.v1.AiFileService/CountAiFile"
 const OperationAiFileServiceDeleteAiFile = "/base.v1.AiFileService/DeleteAiFile"
 const OperationAiFileServicePageAiFile = "/base.v1.AiFileService/PageAiFile"
 const OperationAiFileServiceRenameAiFile = "/base.v1.AiFileService/RenameAiFile"
@@ -26,6 +27,8 @@ const OperationAiFileServiceRestoreAiFile = "/base.v1.AiFileService/RestoreAiFil
 const OperationAiFileServiceTrashAiFile = "/base.v1.AiFileService/TrashAiFile"
 
 type AiFileServiceHTTPServer interface {
+	// CountAiFile 统计 AI 文件数量。
+	CountAiFile(context.Context, *CountAiFileRequest) (*CountAiFileResponse, error)
 	// DeleteAiFile 彻底删除 AI 文件及其对象。
 	DeleteAiFile(context.Context, *DeleteAiFileRequest) (*emptypb.Empty, error)
 	// PageAiFile 分页查询 AI 文件。
@@ -41,6 +44,7 @@ type AiFileServiceHTTPServer interface {
 func RegisterAiFileServiceHTTPServer(s *http.Server, srv AiFileServiceHTTPServer) {
 	r := s.Route("/")
 	r.Handle("GET", "/api/v1/base/ai/file", _AiFileService_PageAiFile0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/base/ai/file/count", _AiFileService_CountAiFile0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/base/ai/file/{id}/name", _AiFileService_RenameAiFile0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/base/ai/file/{id}/trash", _AiFileService_TrashAiFile0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/base/ai/file/{id}/restore", _AiFileService_RestoreAiFile0_HTTP_Handler(srv))
@@ -62,6 +66,25 @@ func _AiFileService_PageAiFile0_HTTP_Handler(srv AiFileServiceHTTPServer) func(c
 			return err
 		}
 		reply := out.(*PageAiFileResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _AiFileService_CountAiFile0_HTTP_Handler(srv AiFileServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in CountAiFileRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAiFileServiceCountAiFile)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CountAiFile(ctx, req.(*CountAiFileRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*CountAiFileResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -155,6 +178,8 @@ func _AiFileService_DeleteAiFile0_HTTP_Handler(srv AiFileServiceHTTPServer) func
 }
 
 type AiFileServiceHTTPClient interface {
+	// CountAiFile 统计 AI 文件数量。
+	CountAiFile(ctx context.Context, req *CountAiFileRequest, opts ...http.CallOption) (rsp *CountAiFileResponse, err error)
 	// DeleteAiFile 彻底删除 AI 文件及其对象。
 	DeleteAiFile(ctx context.Context, req *DeleteAiFileRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// PageAiFile 分页查询 AI 文件。
@@ -173,6 +198,23 @@ type AiFileServiceHTTPClientImpl struct {
 
 func NewAiFileServiceHTTPClient(client *http.Client) AiFileServiceHTTPClient {
 	return &AiFileServiceHTTPClientImpl{client}
+}
+
+// CountAiFile 统计 AI 文件数量。
+func (c *AiFileServiceHTTPClientImpl) CountAiFile(ctx context.Context, in *CountAiFileRequest, opts ...http.CallOption) (*CountAiFileResponse, error) {
+	var out CountAiFileResponse
+	pattern := "/api/v1/base/ai/file/count"
+	path := http.BuildPath(pattern, in, http.WithQueryParams())
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.Operation(OperationAiFileServiceCountAiFile),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
 }
 
 // DeleteAiFile 彻底删除 AI 文件及其对象。

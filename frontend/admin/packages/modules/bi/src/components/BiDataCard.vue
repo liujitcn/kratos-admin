@@ -24,6 +24,14 @@
         </div>
       </div>
       <slot name="actions" />
+      <div class="bi-data-card__native-actions">
+        <el-tooltip :content="t('bi.card.export')" placement="top">
+          <el-button text circle :icon="Download" :disabled="!data" @click.stop="exportResult" />
+        </el-tooltip>
+        <el-tooltip v-if="previewable" :content="t('bi.card.enlarge')" placement="top">
+          <el-button text circle :icon="ZoomIn" @click.stop="emit('preview')" />
+        </el-tooltip>
+      </div>
     </el-header>
     <div v-loading="loading" class="bi-data-card__chart" :aria-busy="loading">
       <div v-if="error" class="bi-data-card__error" role="alert">
@@ -42,6 +50,8 @@
 
 <script setup lang="ts">
 import { computed, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from "vue";
+import { ElMessage } from "element-plus";
+import { Download, ZoomIn } from "@element-plus/icons-vue";
 import { t } from "@liujitcn/kratos-admin-core";
 import BiCardVisualization from "./BiCardVisualization.vue";
 import { cardRefreshDelay } from "../card-schema";
@@ -60,10 +70,12 @@ const props = withDefaults(
     rangeDays?: number;
     showPeriodFilter?: boolean;
     showCategory?: boolean;
+    /** 是否展示内置「放大查看」按钮（仅父级接入放大弹窗时开启）。 */
+    previewable?: boolean;
   }>(),
-  { sourceName: "", refreshKey: 0, rangeDays: 0, showPeriodFilter: false, showCategory: true }
+  { sourceName: "", refreshKey: 0, rangeDays: 0, showPeriodFilter: false, showCategory: true, previewable: false }
 );
-const emit = defineEmits<{ "update:rangeDays": [value: number] }>();
+const emit = defineEmits<{ "update:rangeDays": [value: number]; preview: [] }>();
 const effectiveRangeDays = computed(() => (props.showPeriodFilter ? props.rangeDays : 0));
 const periodLabel = computed(() => {
   const range = props.card.query?.time_range;
@@ -121,6 +133,25 @@ function stop() {
   requestID++;
   loading.value = false;
   clearTimeout(timer);
+}
+
+/** 将当前卡片数据（含预览快照）导出为 CSV。 */
+function exportResult() {
+  const current = data.value;
+  if (!current) return;
+  const csv = [
+    (current.columns || []).map(item => '"' + String(item.name || item.code || "").replaceAll('"', '""') + '"'),
+    ...(current.rows || []).map(row => (row.values || []).map(value => '"' + String(value ?? "").replaceAll('"', '""') + '"'))
+  ]
+    .map(row => row.join(","))
+    .join("\n");
+  const url = URL.createObjectURL(new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = props.card.name + ".csv";
+  link.click();
+  URL.revokeObjectURL(url);
+  ElMessage.success(t("bi.card.export_success", { name: props.card.name }));
 }
 watch(
   () => [props.card.id, props.card.updated_at, props.refreshKey, effectiveRangeDays.value],
@@ -192,6 +223,12 @@ onBeforeUnmount(() => {
   width: 130px;
 }
 
+.bi-data-card__native-actions {
+  display: flex;
+  flex: none;
+  gap: 2px;
+  align-items: center;
+}
 .bi-data-card__error {
   display: flex;
   height: 100%;

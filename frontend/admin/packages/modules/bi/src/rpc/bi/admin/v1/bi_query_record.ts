@@ -93,10 +93,22 @@ export interface BiQueryRecord {
   chart_type: string;
 }
 
+/** 删除智能问数记录请求。 */
+export interface DeleteBiQueryRequest {
+  /** 记录ID */
+  id: number;
+}
+
+/** 删除智能问数记录响应。 */
+export interface DeleteBiQueryResponse {
+}
+
 /** BI 查询记录管理服务。 */
 export interface BiQueryRecordService {
   /** 分页查询当前用户的自然语言问数历史。 */
   PageBiQuery(request: PageBiQueryRequest): Promise<PageBiQueryResponse>;
   /** 查询智能问数记录详情。 */
   GetBiQuery(request: GetBiQueryRequest): Promise<BiQueryRecord>;
+  /** 删除当前账号的智能问数记录，已保存为卡片的记录不可删除。 */
+  DeleteBiQuery(request: DeleteBiQueryRequest): Promise<DeleteBiQueryResponse>;
 }

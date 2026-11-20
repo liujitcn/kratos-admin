@@ -24,6 +24,7 @@ import (
 	"github.com/liujitcn/kratos-core/errorsx"
 	authdata "github.com/liujitcn/kratos-kit/auth/data"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"gorm.io/gen/field"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -188,6 +189,50 @@ func (c *AiPluginCase) ListAiPlugin(ctx context.Context, req *basev1.ListAiPlugi
 		result.Plugins = append(result.Plugins, item)
 	}
 	return result, nil
+}
+
+// CountAiPlugin 统计当前身份可见的插件、MCP 工具与已连接账号数量。
+func (c *AiPluginCase) CountAiPlugin(ctx context.Context, req *basev1.CountAiPluginRequest) (*basev1.CountAiPluginResponse, error) {
+	identity, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+	query := c.Query(ctx).AiPlugin
+	// 与 pluginVisible 保持一致：租户管理员与平台身份可见本租户全部定义，其余身份仅可见本人私有定义。
+	var visible repository.QueryOption
+	if identity.RoleCode == "tenant" || pluginPlatform(identity) {
+		visible = repository.Where(field.Or(query.Visibility.Eq("system"), field.And(query.TenantID.Eq(identity.TenantId), query.Visibility.In("tenant", "private"))))
+	} else {
+		visible = repository.Where(field.Or(
+			query.Visibility.Eq("system"),
+			field.And(query.TenantID.Eq(identity.TenantId), field.Or(
+				query.Visibility.Eq("tenant"),
+				field.And(query.Visibility.Eq("private"), query.OwnerUserID.Eq(identity.UserId)),
+			)),
+		))
+	}
+	rows, err := c.List(ctx, visible)
+	if err != nil {
+		return nil, err
+	}
+	ids := make([]int64, 0, len(rows))
+	for _, row := range rows {
+		ids = append(ids, row.ID)
+	}
+	toolQuery := c.toolRepo.Query(ctx).AiPluginTool
+	var toolTotal int64
+	if len(ids) > 0 {
+		toolTotal, err = toolQuery.WithContext(ctx).Where(toolQuery.PluginID.In(ids...)).Count()
+		if err != nil {
+			return nil, err
+		}
+	}
+	connQuery := c.Query(ctx).AiPluginConnection
+	connected, err := connQuery.WithContext(ctx).Count()
+	if err != nil {
+		return nil, err
+	}
+	return &basev1.CountAiPluginResponse{Total: int32(len(rows)), ToolTotal: int32(toolTotal), ConnectedTotal: int32(connected)}, nil
 }
 
 // GetAiPlugin 查询已校验可见范围的插件详情。

@@ -66,6 +66,17 @@ func (s *redactedAiFileServiceServer) PageAiFile(ctx context.Context, in *PageAi
 	return res, err
 }
 
+// CountAiFile is the redacted wrapper for the actual AiFileServiceServer.CountAiFile method
+// Unary RPC
+func (s *redactedAiFileServiceServer) CountAiFile(ctx context.Context, in *CountAiFileRequest) (*CountAiFileResponse, error) {
+	res, err := s.srv.CountAiFile(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/base.v1.AiFileService/CountAiFile"), redact.DirectionResponse), nil, res)
+	}
+	return res, err
+}
+
 // RenameAiFile is the redacted wrapper for the actual AiFileServiceServer.RenameAiFile method
 // Unary RPC
 func (s *redactedAiFileServiceServer) RenameAiFile(ctx context.Context, in *RenameAiFileRequest) (*AiFile, error) {
@@ -138,6 +149,32 @@ func (x *PageAiFileResponse) Redact() {
 	}
 
 	// Safe field: Files
+
+	// Safe field: Total
+}
+
+// Ensure CountAiFileRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*CountAiFileRequest)(nil)
+
+// Redact method implementation for CountAiFileRequest
+func (x *CountAiFileRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: View
+
+	// Safe field: Keyword
+}
+
+// Ensure CountAiFileResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*CountAiFileResponse)(nil)
+
+// Redact method implementation for CountAiFileResponse
+func (x *CountAiFileResponse) Redact() {
+	if x == nil {
+		return
+	}
 
 	// Safe field: Total
 }
