@@ -1,6 +1,6 @@
 <template>
   <div class="generate-confirm">
-    <p class="generate-confirm__message">{{ message }}</p>
+    <el-text tag="p" class="generate-confirm__message">{{ message }}</el-text>
     <template v-if="count">
       <el-alert
         :title="t('system.code.gen.table.dialog.missing_count', { count })"

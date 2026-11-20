@@ -1,5 +1,5 @@
 <template>
-  <aside class="agent-session-panel">
+  <el-aside class="agent-session-panel" style="--el-aside-width: auto">
     <div class="agent-session-search">
       <el-input
         :model-value="keyword"
@@ -9,9 +9,9 @@
         @update:model-value="handleKeywordUpdate"
       />
       <el-tooltip :content="t('system.ai.chat.action.collapse_sessions')" placement="top">
-        <el-button text
+        <el-button
           v-if="!hideCollapse"
-          class="agent-panel-icon"
+          class="admin-custom-button agent-panel-icon"
           native-type="button"
           :aria-label="t('system.ai.chat.action.collapse_sessions')"
           @click="$emit('toggleCollapse')"
@@ -25,8 +25,8 @@
     <div class="agent-panel-header">
       <div class="agent-panel-title">{{ title || t("system.ai.chat.title.recent_conversations") }}</div>
       <div class="agent-panel-actions">
-        <el-button text
-          class="agent-panel-create"
+        <el-button
+          class="admin-custom-button agent-panel-create"
           native-type="button"
           :aria-label="t('system.ai.chat.action.new_conversation')"
           @click="handleCreateSession"
@@ -44,8 +44,8 @@
         :class="{ 'is-active': item.id === active }"
         @click="handleSessionChange(item)"
       >
-        <el-button text
-          class="agent-session-item"
+        <el-button
+          class="admin-custom-button agent-session-item"
           native-type="button"
           :title="item.title"
           :aria-current="item.id === active ? 'page' : undefined"
@@ -65,7 +65,7 @@
           @click.stop
           @command="command => handleMenuCommand(command, item)"
         >
-          <el-button text class="agent-session-more" native-type="button" :aria-label="t('system.ai.chat.action.conversation_menu')">
+          <el-button class="admin-custom-button agent-session-more" native-type="button" :aria-label="t('system.ai.chat.action.conversation_menu')">
             <el-icon><MoreFilled /></el-icon>
           </el-button>
           <template #dropdown>
@@ -77,7 +77,7 @@
         </el-dropdown>
       </li>
     </ul>
-  </aside>
+  </el-aside>
 </template>
 
 <script setup lang="ts" name="SessionPanel" generic="T extends Pick<AiSession, 'id' | 'title' | 'summary'>">
@@ -289,7 +289,7 @@ function handleCreateSession() {
   align-items: center;
   min-width: 0;
   min-height: 66px;
-  padding: 11px 14px 11px 32px;
+  padding: 11px 14px;
   box-sizing: border-box;
   margin: 0;
   font: inherit;

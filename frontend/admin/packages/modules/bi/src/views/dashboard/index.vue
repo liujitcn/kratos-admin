@@ -1,11 +1,11 @@
 <template>
-  <main class="bi-dashboard-page">
+  <el-main class="bi-dashboard-page" style="--el-main-padding: 0; flex: 0 1 auto; overflow: visible">
     <el-alert v-if="error" :title="error" type="error" show-icon :closable="false" /><el-skeleton
       v-else-if="loading"
       :rows="8"
       animated
     /><BiDashboard v-else :schema="layout" :results="results" />
-  </main>
+  </el-main>
 </template>
 <script setup lang="ts">
 import { computed, ref, watch, onBeforeUnmount } from "vue";

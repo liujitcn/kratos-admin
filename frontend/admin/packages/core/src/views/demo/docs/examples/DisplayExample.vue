@@ -13,7 +13,7 @@
           :on-click="event => (selected = `${event.name}：${event.value}`)"
         />
       </div>
-      <p class="example-tip" role="status">{{ selected || "点击图表数据查看回调结果。" }}</p>
+      <el-text tag="p" class="example-tip" role="status">{{ selected || "点击图表数据查看回调结果。" }}</el-text>
     </template>
     <DataPanelCard v-else-if="componentId === 'DataPanelCard'" title="本月访问" description="最近四周的本地示例数据" primary>
       <template #extra><el-button size="small" @click="visits += 120">模拟新增</el-button></template>
@@ -27,12 +27,12 @@
       <Grid class="grid-example" :cols="{ xs: 1, sm: 2, md: 2, lg: 3, xl: 3 }" :gap="16" :collapsed="collapsed">
         <GridItem v-for="(item, index) in gridItems" :key="item.title" :index="index" :span="item.span" :xs="{ span: 1 }">
           <div class="grid-cell">
-            <strong>{{ item.title }}</strong
+            <el-text tag="strong">{{ item.title }}</el-text>
             ><span>{{ item.description }}</span>
           </div>
         </GridItem>
       </Grid>
-      <p class="example-tip">调整窗口宽度可观察响应式列数，最后一项跨两列。</p>
+      <el-text tag="p" class="example-tip">调整窗口宽度可观察响应式列数，最后一项跨两列。</el-text>
     </template>
   </div>
 </template>

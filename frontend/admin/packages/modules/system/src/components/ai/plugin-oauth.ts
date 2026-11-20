@@ -1,6 +1,6 @@
 import { t } from "@liujitcn/kratos-admin-core";
 import { defAiPluginService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_plugin";
-import { readAiPluginOAuthCallback } from "../../views/ai/chat/workspace/state";
+import { readAiPluginOAuthCallback } from "./workspace/state";
 
 /** 完成专用插件回调；状态归属、一次性消费和PKCE兑换全部由服务端负责。 */
 export async function completeAiPluginOAuthCallback(): Promise<void> {

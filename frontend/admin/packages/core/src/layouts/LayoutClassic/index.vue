@@ -4,7 +4,7 @@
     <el-header>
       <div class="header-lf mask-image">
         <div class="logo flx-center">
-          <img
+          <el-image
             class="logo-img"
             :src="logoUrl"
             :alt="t('core.layout.logo_alt')"

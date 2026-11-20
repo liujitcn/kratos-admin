@@ -3,8 +3,8 @@
     <div v-for="metric in data.metrics" :key="metric.code" class="bi-card-metric-grid__item">
       <span class="bi-card-metric-grid__name">{{ metric.name }}</span>
       <div class="bi-card-metric-grid__value">
-        <strong>{{ formatCardMetric(metric.value) }}</strong>
-        <small v-if="metric.unit">{{ metric.unit }}</small>
+        <el-text tag="strong">{{ formatCardMetric(metric.value) }}</el-text>
+        <el-text tag="small" v-if="metric.unit">{{ metric.unit }}</el-text>
       </div>
       <div v-if="metric.delta && metric.trend" class="bi-card-metric-grid__trend" :class="`is-${metric.trend}`">
         <el-icon><component :is="trendIcons[metric.trend]" /></el-icon>
@@ -15,7 +15,7 @@
   <div v-else-if="data.metricOnly" class="bi-card-metrics" :class="{ 'is-multiple': data.metrics.length > 1, 'is-compact': compact }">
     <div v-for="metric in data.metrics" :key="metric.code" class="bi-card-metrics__item">
       <span v-if="data.metrics.length > 1">{{ metric.name }}</span
-      ><strong>{{ formatCardMetric(metric.value) }}</strong>
+      ><el-text tag="strong">{{ formatCardMetric(metric.value) }}</el-text>
     </div>
   </div>
   <div v-else class="bi-card-plot">

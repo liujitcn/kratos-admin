@@ -2,15 +2,15 @@
   <div v-if="active" class="selection-example">
     <template v-if="componentId === 'AiModelSelector'">
       <AiModelSelector :model-providers="providers" :provider-id="providerId" :model-name="modelName" @change="selectModel" />
-      <p aria-live="polite">当前选择：{{ providerId }} / {{ modelName }}</p>
+      <el-text tag="p" aria-live="polite">当前选择：{{ providerId }} / {{ modelName }}</el-text>
     </template>
     <template v-else-if="componentId === 'TenantProjectSelect'">
       <TenantProjectSelect v-model="project" :options="projectOptions" aria-label="选择演示租户项目" />
-      <p aria-live="polite">{{ project ? JSON.stringify(project) : "尚未选择项目" }}</p>
+      <el-text tag="p" aria-live="polite">{{ project ? JSON.stringify(project) : "尚未选择项目" }}</el-text>
     </template>
     <template v-else-if="componentId === 'ApiTransfer'">
       <ApiTransfer v-model="selectedApis" :options="apiOptions" :titles="['可选 API', '已选 API']" :panel-height="220" />
-      <p aria-live="polite">已选：{{ selectedApis.join("、") || "无" }}</p>
+      <el-text tag="p" aria-live="polite">已选：{{ selectedApis.join("、") || "无" }}</el-text>
     </template>
   </div>
 </template>

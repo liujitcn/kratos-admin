@@ -4,7 +4,7 @@
     <el-aside>
       <div class="aside-box" :style="{ width: isCollapse ? '65px' : '240px' }">
         <div ref="logoWrapperRef" :class="['logo', { 'logo--text-only': !showLogoIcon && !isCollapse }]">
-          <img
+          <el-image
             v-show="isCollapse || showLogoIcon"
             ref="logoIconRef"
             class="logo-img"
@@ -44,7 +44,7 @@
 </template>
 
 <script setup lang="ts" name="layoutVertical">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch, type ComponentPublicInstance } from "vue";
 import { useRoute } from "vue-router";
 import { useAuthStore } from "@/stores/modules/auth";
 import { useConfigStore } from "@/stores/modules/config";
@@ -69,7 +69,7 @@ const title = computed(() => configStore.display.sysName || import.meta.env.VITE
 const configuredLogoUrl = computed(() => configStore.display.adminLogo);
 const { logoUrl, handleLogoError } = useLogoUrl(configuredLogoUrl);
 const logoWrapperRef = ref<HTMLElement>();
-const logoIconRef = ref<HTMLImageElement>();
+const logoIconRef = ref<ComponentPublicInstance>();
 const logoTextRef = ref<HTMLElement>();
 const showLogoIcon = ref(true);
 
@@ -88,7 +88,8 @@ async function updateLogoLayout() {
   }
 
   const wrapperElement = logoWrapperRef.value;
-  const iconElement = logoIconRef.value;
+  // el-image 是组件，实际 DOM 节点在 $el 上
+  const iconElement = logoIconRef.value?.$el as HTMLElement | undefined;
   const textElement = logoTextRef.value;
   if (!wrapperElement || !textElement) return;
 

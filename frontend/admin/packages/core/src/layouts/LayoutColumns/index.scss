@@ -14,7 +14,10 @@
       height: 55px;
       .logo-img {
         width: 32px;
-        object-fit: contain;
+        // el-image 容器高度自适应，保持 Logo 固有比例
+        :deep(img) {
+          height: auto;
+        }
       }
     }
     .el-scrollbar {

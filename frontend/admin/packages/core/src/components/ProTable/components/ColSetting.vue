@@ -12,7 +12,7 @@
         </el-table-column>
         <template #empty>
           <div class="table-empty">
-            <img src="@/assets/images/notData.png" :alt="t('core.table.no_configurable_columns')" />
+            <el-image class="table-empty-img" :src="notDataImg" :alt="t('core.table.no_configurable_columns')" />
             <div>{{ t("core.table.no_configurable_columns") }}</div>
           </div>
         </template>
@@ -23,6 +23,7 @@
 
 <script setup lang="ts" name="ColSetting">
 import { ref } from "vue";
+import notDataImg from "@/assets/images/notData.png";
 import { ColumnProps } from "@/components/ProTable/interface";
 import { useLocaleStore } from "@/locales";
 

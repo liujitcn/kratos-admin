@@ -1,15 +1,15 @@
 <template>
   <div v-if="lockScreenStore.setupVisible" class="lock-setup-mask" role="presentation">
     <section class="lock-setup-dialog" role="dialog" aria-modal="true" :aria-label="t('core.layout.lock_screen')">
-      <header class="lock-dialog-header">
-        <h2>{{ t("core.layout.lock_screen") }}</h2>
-        <el-button text class="lock-icon-button" native-type="button" :aria-label="t('common.action.close')" @click="closeSetup">
+      <el-header class="lock-dialog-header" style="--el-header-height: auto; --el-header-padding: 0">
+        <el-text tag="h2">{{ t("core.layout.lock_screen") }}</el-text>
+        <el-button class="admin-custom-button lock-icon-button" native-type="button" :aria-label="t('common.action.close')" @click="closeSetup">
           <el-icon><Close /></el-icon>
         </el-button>
-      </header>
+      </el-header>
       <div class="lock-dialog-body">
         <div class="lock-avatar lock-avatar--setup">
-          <img :src="avatarSrc" :alt="t('core.layout.avatar')" @error="handleAvatarError" />
+          <el-image class="lock-avatar__img" :src="avatarSrc" :alt="t('core.layout.avatar')" fit="cover" @error="handleAvatarError" />
         </div>
         <div class="lock-user-name">{{ displayName }}</div>
         <el-form class="lock-form" @submit.prevent="handleLock">
@@ -23,7 +23,7 @@
             :placeholder="t('core.layout.lock_screen_password_placeholder')"
             :aria-label="t('core.layout.lock_screen_password_placeholder')"
           />
-          <p v-if="setupError" class="lock-form-error">{{ setupError }}</p>
+          <el-text tag="p" v-if="setupError" class="lock-form-error">{{ setupError }}</el-text>
           <el-button class="lock-submit lock-submit--lock" size="large" native-type="submit" :loading="settingLock">
             <el-icon><Lock /></el-icon>
             {{ t("core.layout.lock_screen_action") }}
@@ -35,9 +35,9 @@
 
   <div v-if="lockScreenStore.isLocked" class="lock-screen" role="dialog" aria-modal="true">
     <div class="lock-screen__trigger-wrap">
-      <el-button text
+      <el-button
         v-if="!lockScreenStore.unlockVisible"
-        class="lock-screen__trigger"
+        class="admin-custom-button lock-screen__trigger"
         native-type="button"
         @click="openUnlock"
       >
@@ -46,7 +46,7 @@
       </el-button>
       <section v-else class="unlock-panel" :aria-label="t('core.layout.lock_screen')">
         <div class="lock-avatar lock-avatar--unlock">
-          <img :src="avatarSrc" :alt="t('core.layout.avatar')" @error="handleAvatarError" />
+          <el-image class="lock-avatar__img" :src="avatarSrc" :alt="t('core.layout.avatar')" fit="cover" @error="handleAvatarError" />
         </div>
         <el-form class="lock-form" @submit.prevent="handleUnlock">
           <el-input
@@ -61,16 +61,16 @@
             :placeholder="t('core.layout.lock_screen_password_placeholder')"
             :aria-label="t('core.layout.lock_screen_password_placeholder')"
           />
-          <p v-if="lockScreenStore.unlockError" class="lock-form-error">{{ t("core.layout.lock_screen_password_invalid") }}</p>
+          <el-text tag="p" v-if="lockScreenStore.unlockError" class="lock-form-error">{{ t("core.layout.lock_screen_password_invalid") }}</el-text>
           <el-button class="lock-submit" type="primary" size="large" native-type="submit" :loading="unlocking">
             {{ t("core.layout.lock_screen_enter") }}
           </el-button>
         </el-form>
-        <el-button text class="lock-text-button" native-type="button" :disabled="loggingOut" @click="returnToLogin">
+        <el-button class="admin-custom-button lock-text-button" native-type="button" :disabled="loggingOut" @click="returnToLogin">
           <el-icon><SwitchButton /></el-icon>
           <span>{{ t("core.layout.lock_screen_return_login") }}</span>
         </el-button>
-        <el-button text class="lock-text-button" native-type="button" @click="closeUnlock">
+        <el-button class="admin-custom-button lock-text-button" native-type="button" @click="closeUnlock">
           <el-icon><ArrowLeft /></el-icon>
           <span>{{ t("common.action.back") }}</span>
         </el-button>
@@ -302,11 +302,10 @@ const handleAvatarError = () => {
   background: var(--el-fill-color-light);
   border: 1px solid var(--el-border-color-light);
   border-radius: 50%;
-  img {
+  :deep(.lock-avatar__img) {
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: cover;
   }
   &--setup {
     width: 136px;

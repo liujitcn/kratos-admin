@@ -7,7 +7,7 @@
     </div>
     <template v-else>
       <div v-for="item in layout.cards.slice(0, 2)" :key="item.id" class="bi-workbench-preview__card">
-        <h4 :title="item.name">{{ item.name }}</h4>
+        <el-text tag="h4" :title="item.name">{{ item.name }}</el-text>
         <div class="bi-workbench-preview__chart">
           <BiCardVisualization
             v-if="results.get(item.id)"

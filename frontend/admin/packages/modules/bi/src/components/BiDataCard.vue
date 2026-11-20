@@ -1,11 +1,11 @@
 <template>
   <article class="bi-data-card">
-    <header class="bi-data-card__header">
+    <el-header class="bi-data-card__header" style="--el-header-height: auto; --el-header-padding: 0">
       <div class="bi-data-card__heading">
-        <h3 class="bi-data-card__title">
+        <el-text tag="h3" class="bi-data-card__title">
           <el-icon class="bi-data-card__icon"><component :is="icon" /></el-icon>{{ card.name }}
           <el-tag v-if="card.chart_type === 'metric_grid'" size="small" effect="light" type="success">{{ t("bi.card.ai_generated") }}</el-tag>
-        </h3>
+        </el-text>
         <div class="bi-data-card__meta">
           <el-tag v-if="showCategory" size="small" effect="plain" type="info">{{ t(`bi.card.category.${card.category || "mine"}`) }}</el-tag>
           <el-select
@@ -24,7 +24,7 @@
         </div>
       </div>
       <slot name="actions" />
-    </header>
+    </el-header>
     <div v-loading="loading" class="bi-data-card__chart" :aria-busy="loading">
       <div v-if="error" class="bi-data-card__error" role="alert">
         <span>{{ error }}</span>
@@ -36,7 +36,7 @@
     <div v-if="sourceName" class="bi-data-card__source">
       <el-icon><component :is="sourceIcon" /></el-icon>{{ sourceName }}
     </div>
-    <footer v-if="$slots.footer" class="bi-data-card__footer"><slot name="footer" /></footer>
+    <el-footer v-if="$slots.footer" class="bi-data-card__footer" style="--el-footer-height: auto; --el-footer-padding: 0"><slot name="footer" /></el-footer>
   </article>
 </template>
 

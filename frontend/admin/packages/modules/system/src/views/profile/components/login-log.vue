@@ -3,8 +3,8 @@
     <template #header>
       <div class="login-log-header">
         <div>
-          <h3>{{ t("system.profile.login_log.title") }}</h3>
-          <p>{{ t("system.profile.login_log.description") }}</p>
+          <el-text tag="h3">{{ t("system.profile.login_log.title") }}</el-text>
+          <el-text tag="p">{{ t("system.profile.login_log.description") }}</el-text>
         </div>
         <el-button :loading="loading" @click="refresh">
           <el-icon><Refresh /></el-icon>

@@ -74,7 +74,7 @@
           </el-tooltip>
         </div>
       </div>
-      <p class="tenant-credentials-warning">{{ t("system.base.tenant.message.initial_credentials_warning") }}</p>
+      <el-text tag="p" class="tenant-credentials-warning">{{ t("system.base.tenant.message.initial_credentials_warning") }}</el-text>
       <template #footer>
         <el-button type="primary" @click="credentialsDialog.visible = false">{{ t("common.action.confirm") }}</el-button>
       </template>

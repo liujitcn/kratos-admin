@@ -31,7 +31,7 @@
               <upload-filled />
             </el-icon>
             <div class="el-upload__text">
-              {{ t("core.upload.drag_or_click") }}<em>{{ t("core.upload.click") }}</em>
+              {{ t("core.upload.drag_or_click") }}<el-text tag="em">{{ t("core.upload.click") }}</el-text>
             </div>
           </slot>
           <template #tip>

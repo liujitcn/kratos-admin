@@ -23,7 +23,7 @@
         </slot>
       </div>
       <template #file="{ file }">
-        <img :src="formatSrc(file.url ?? '')" class="upload-image" />
+        <el-image class="upload-image" :src="formatSrc(file.url ?? '')" fit="contain" />
         <div class="upload-handle" @click.stop>
           <div class="handle-icon" @click="handlePictureCardPreview(file)">
             <el-icon><ZoomIn /></el-icon>
@@ -266,7 +266,6 @@ const handlePictureCardPreview: UploadProps["onPreview"] = file => {
     .upload-image {
       width: 100%;
       height: 100%;
-      object-fit: contain;
     }
     .upload-handle {
       position: absolute;

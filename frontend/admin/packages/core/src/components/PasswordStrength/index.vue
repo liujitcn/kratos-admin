@@ -2,9 +2,9 @@
   <div class="password-strength">
     <div class="password-strength__header">
       <span>{{ t("core.password.strength") }}</span>
-      <strong :class="`password-strength__label password-strength__label--${strength.level}`">
+      <el-text tag="strong" :class="`password-strength__label password-strength__label--${strength.level}`">
         {{ t(`core.password.strength.${strength.level}`) }}
-      </strong>
+      </el-text>
     </div>
     <div class="password-strength__bars">
       <span
@@ -17,7 +17,7 @@
         }"
       />
     </div>
-    <p class="password-strength__tip">{{ displayedTip }}</p>
+    <el-text tag="p" class="password-strength__tip">{{ displayedTip }}</el-text>
   </div>
 </template>
 

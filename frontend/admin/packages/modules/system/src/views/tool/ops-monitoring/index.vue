@@ -3,9 +3,9 @@
     <section class="ops-kpi-grid" :aria-label="t('system.ops_monitoring.core_metrics')">
       <el-card v-for="item in kpiItems" :key="item.label" class="ops-kpi-card" shadow="never">
         <span class="ops-kpi-label">{{ item.label }}</span>
-        <strong class="ops-kpi-value">{{ item.value }}</strong>
+        <el-text tag="strong" class="ops-kpi-value">{{ item.value }}</el-text>
         <span class="ops-kpi-foot" :class="item.tone"
-          >{{ item.change }} <em>{{ item.context }}</em></span
+          >{{ item.change }} <el-text tag="em">{{ item.context }}</el-text></span
         >
         <i class="ops-kpi-rule" :style="{ backgroundColor: item.color }" />
       </el-card>
@@ -16,8 +16,8 @@
         <template #header>
           <div class="ops-section-head">
             <div>
-              <h2>{{ t("system.ops_monitoring.request_latency_trend") }}</h2>
-              <p>{{ t("system.ops_monitoring.aggregation", { minutes: windowMinutes }) }}</p>
+              <el-text tag="h2">{{ t("system.ops_monitoring.request_latency_trend") }}</el-text>
+              <el-text tag="p">{{ t("system.ops_monitoring.aggregation", { minutes: windowMinutes }) }}</el-text>
             </div>
             <el-tag size="small" type="success" effect="plain">{{ t("system.ops_monitoring.realtime") }}</el-tag>
           </div>
@@ -29,7 +29,7 @@
         <div class="ops-trend-plot-row">
           <div class="ops-trend-chart-shell">
             <div class="ops-trend-scale is-left" aria-hidden="true">
-              <span>{{ formatNumber(trendChart.qpsMax) }}<small>req/s</small></span>
+              <span>{{ formatNumber(trendChart.qpsMax) }}<el-text tag="small">req/s</el-text></span>
               <span>0</span>
             </div>
             <svg
@@ -62,18 +62,18 @@
               </g>
             </svg>
             <div class="ops-trend-scale is-right" aria-hidden="true">
-              <span>{{ formatNumber(trendChart.latencyMax) }}<small>ms</small></span>
+              <span>{{ formatNumber(trendChart.latencyMax) }}<el-text tag="small">ms</el-text></span>
               <span>0</span>
             </div>
           </div>
           <div class="ops-trend-current" aria-hidden="true">
             <div>
               <span class="is-teal">QPS</span>
-              <strong>{{ formatNumber(trafficSummary?.qps) }}<small>req/s</small></strong>
+              <el-text tag="strong">{{ formatNumber(trafficSummary?.qps) }}<el-text tag="small">req/s</el-text></el-text>
             </div>
             <div>
               <span class="is-amber">P95</span>
-              <strong>{{ formatNumber(trafficSummary?.p95_latency_ms) }}<small>ms</small></strong>
+              <el-text tag="strong">{{ formatNumber(trafficSummary?.p95_latency_ms) }}<el-text tag="small">ms</el-text></el-text>
             </div>
           </div>
         </div>
@@ -86,8 +86,8 @@
         <template #header>
           <div class="ops-section-head">
             <div>
-              <h2>{{ t("system.ops_monitoring.service_availability") }}</h2>
-              <p>{{ t("system.ops_monitoring.service_dependency") }}</p>
+              <el-text tag="h2">{{ t("system.ops_monitoring.service_availability") }}</el-text>
+              <el-text tag="p">{{ t("system.ops_monitoring.service_dependency") }}</el-text>
             </div>
             <el-tag :type="onlineCount === serviceCount ? 'success' : 'warning'" effect="plain">
               {{ t("system.ops_monitoring.online", { online: onlineCount, total: serviceCount }) }}
@@ -98,11 +98,11 @@
           <div v-for="item in availabilityItems" :key="item.label" class="ops-summary-row">
             <div class="ops-summary-main">
               <span>{{ item.label }}</span>
-              <strong :class="`is-${item.tone}`"><i />{{ item.value }}</strong>
+              <el-text tag="strong" :class="`is-${item.tone}`"><i />{{ item.value }}</el-text>
             </div>
             <div v-if="item.metrics.length" class="ops-summary-metrics">
               <span v-for="metric in item.metrics" :key="metric.label">
-                <b>{{ metric.label }}</b><em>{{ metric.value }}</em>
+                <el-text tag="b">{{ metric.label }}</el-text><el-text tag="em">{{ metric.value }}</el-text>
               </span>
             </div>
           </div>
@@ -117,7 +117,7 @@
             <div class="ops-storage-name">
               <span class="ops-storage-mark" :style="{ backgroundColor: item.color }">{{ item.shortName }}</span>
               <div>
-                <h2>{{ item.name }}</h2>
+                <el-text tag="h2">{{ item.name }}</el-text>
                 <code>{{ item.address }}</code>
               </div>
             </div>
@@ -128,7 +128,7 @@
         </template>
         <div class="ops-storage-metrics">
           <div v-for="metric in item.metrics" :key="metric.label">
-            <strong>{{ metric.value }}</strong
+            <el-text tag="strong">{{ metric.value }}</el-text>
             ><span>{{ metric.label }}</span>
           </div>
         </div>
@@ -146,8 +146,8 @@
         <template #header>
           <div class="ops-section-head">
             <div>
-              <h2>{{ t("system.ops_monitoring.interface_response") }}</h2>
-              <p>{{ t("system.ops_monitoring.sort_recent", { minutes: windowMinutes }) }}</p>
+              <el-text tag="h2">{{ t("system.ops_monitoring.interface_response") }}</el-text>
+              <el-text tag="p">{{ t("system.ops_monitoring.sort_recent", { minutes: windowMinutes }) }}</el-text>
             </div>
             <span class="ops-muted">{{ t("system.ops_monitoring.endpoint_count", { count: endpointItems.length }) }}</span>
           </div>
@@ -173,8 +173,8 @@
         <template #header>
           <div class="ops-section-head">
             <div>
-              <h2>{{ t("system.ops_monitoring.instance_resources") }}</h2>
-              <p>{{ t("system.ops_monitoring.current_recent_sample") }}</p>
+              <el-text tag="h2">{{ t("system.ops_monitoring.instance_resources") }}</el-text>
+              <el-text tag="p">{{ t("system.ops_monitoring.current_recent_sample") }}</el-text>
             </div>
             <span class="ops-muted">{{ t("system.ops_monitoring.instance_count", { count: nodeItems.length }) }}</span>
           </div>
@@ -191,7 +191,7 @@
                       {{ t("system.ops_monitoring.node_metric.current") }} {{ metric.usedLabel }} /
                       {{ t("system.ops_monitoring.node_metric.total") }} {{ metric.totalLabel }}
                     </span>
-                    <strong>{{ metric.percentageLabel }}</strong>
+                    <el-text tag="strong">{{ metric.percentageLabel }}</el-text>
                   </span>
                 </div>
                 <el-progress :percentage="metric.percentage" :show-text="false" :stroke-width="8" :color="metric.color" />
@@ -206,8 +206,8 @@
       <template #header>
         <div class="ops-section-head">
           <div>
-            <h2>{{ t("system.ops_monitoring.alert_events") }}</h2>
-            <p>{{ t("system.ops_monitoring.alert_attention") }}</p>
+            <el-text tag="h2">{{ t("system.ops_monitoring.alert_events") }}</el-text>
+            <el-text tag="p">{{ t("system.ops_monitoring.alert_attention") }}</el-text>
           </div>
           <el-tag type="warning" effect="plain">{{ t("system.ops_monitoring.unresolved", { count: alertItems.length }) }}</el-tag>
         </div>
@@ -216,7 +216,7 @@
         <div v-for="alert in alertItems" :key="alert.title" class="ops-alert-row">
           <i :class="`is-${alert.tone}`" />
           <div>
-            <strong>{{ alert.title }}</strong
+            <el-text tag="strong">{{ alert.title }}</el-text>
             ><span>{{ alert.detail }}</span>
           </div>
           <time>{{ formatRelativeTime(alert.at) }}</time>

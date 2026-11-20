@@ -46,7 +46,18 @@
 <script setup lang="ts">
 import { computed, h, onMounted, ref } from "vue";
 import { ElIcon, ElMessage, ElMessageBox } from "element-plus";
-import { Delete, Document, Download, EditPen, Headset, Picture, RefreshLeft, Search, VideoCamera, View } from "@element-plus/icons-vue";
+import {
+  Delete,
+  Document,
+  Download,
+  EditPen,
+  Headset,
+  Picture,
+  RefreshLeft,
+  Search,
+  VideoCamera,
+  View
+} from "@element-plus/icons-vue";
 import { t } from "@liujitcn/kratos-admin-core";
 import { formatSrc } from "@liujitcn/kratos-admin-core/format";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";

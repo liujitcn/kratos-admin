@@ -25,8 +25,8 @@
           <div v-for="table in filteredTables" :key="table.key" class="source-model__table-row">
             <el-checkbox :model-value="isSelected(table.key)" :disabled="!isSelected(table.key) && model.tables.length >= 8" @change="toggleTable(table, Boolean($event))" />
             <div class="source-model__table-info">
-              <strong :title="schemaLabel(table)">{{ schemaLabel(table) }}</strong>
-              <small>{{ table.schema_name }} · {{ table.columns.length }} {{ t('bi.source.model.fields_count') }}</small>
+              <el-text tag="strong" :title="schemaLabel(table)">{{ schemaLabel(table) }}</el-text>
+              <el-text tag="small">{{ table.schema_name }} · {{ table.columns.length }} {{ t('bi.source.model.fields_count') }}</el-text>
             </div>
             <el-select
               v-if="isSelected(table.key)"
@@ -74,15 +74,15 @@
           <template #node-table="{ data }">
             <article class="source-model__node" :class="{ 'is-base': data.key === model.base_table }">
               <Handle id="in" type="target" :position="data.targetPosition" :style="data.key === model.base_table ? { top: '12px' } : undefined" />
-              <header>
-                <strong :title="schemaLabel(tableFor(data.key), data.name)">{{ schemaLabel(tableFor(data.key), data.name) }}</strong>
+              <el-header style="--el-header-height: auto; --el-header-padding: 0">
+                <el-text tag="strong" :title="schemaLabel(tableFor(data.key), data.name)">{{ schemaLabel(tableFor(data.key), data.name) }}</el-text>
                 <el-tag v-if="data.key === model.base_table" size="small" type="success">{{ t('bi.source.model.field.base_table') }}</el-tag>
-              </header>
-              <small>{{ data.schema_name }}</small>
+              </el-header>
+              <el-text tag="small">{{ data.schema_name }}</el-text>
               <div class="source-model__node-columns nodrag nowheel">
                 <div v-for="column in tableFor(data.key)?.columns" :key="column.name">
                   <span :title="schemaLabel(column)">{{ schemaLabel(column) }}</span>
-                  <small>{{ column.data_type }}</small>
+                  <el-text tag="small">{{ column.data_type }}</el-text>
                 </div>
               </div>
               <Handle v-for="handle in data.handles" :id="handle.id" :key="handle.id" type="source" :position="handle.position" :style="{ top: `${handle.top}%` }" />
@@ -90,10 +90,10 @@
           </template>
         </VueFlow>
 
-        <aside class="source-model__relation-panel">
+        <el-aside class="source-model__relation-panel" style="--el-aside-width: auto; overflow: visible">
           <template v-if="selectedRelation">
             <div class="source-model__relation-heading">
-              <strong>{{ t('bi.source.model.field.relation') }}</strong>
+              <el-text tag="strong">{{ t('bi.source.model.field.relation') }}</el-text>
               <el-button text type="danger" :icon="Delete" @click="removeRelation" />
             </div>
             <el-form label-position="top">
@@ -116,15 +116,15 @@
             </el-form>
           </template>
           <el-empty v-else :description="t('bi.source.model.relation_empty')" :image-size="72" />
-        </aside>
+        </el-aside>
       </section>
 
       <section v-else class="source-model__semantics">
         <div class="source-model__semantic-section">
-          <header>
-            <strong>{{ t('bi.source.model.field.dimensions') }}</strong>
+          <el-header style="--el-header-height: auto; --el-header-padding: 0">
+            <el-text tag="strong">{{ t('bi.source.model.field.dimensions') }}</el-text>
             <el-button size="small" :icon="CirclePlus" @click="addDimension">{{ t('bi.source.model.action.add_dimension') }}</el-button>
-          </header>
+          </el-header>
           <el-table :data="model.dimensions" size="small" border>
             <el-table-column :label="t('bi.source.model.field.code')" min-width="135">
               <template #default="{ row }"><el-input v-model="row.code" /></template>
@@ -159,10 +159,10 @@
         </div>
 
         <div class="source-model__semantic-section">
-          <header>
-            <strong>{{ t('bi.source.model.field.measures') }}</strong>
+          <el-header style="--el-header-height: auto; --el-header-padding: 0">
+            <el-text tag="strong">{{ t('bi.source.model.field.measures') }}</el-text>
             <el-button size="small" :icon="CirclePlus" @click="addMeasure">{{ t('bi.source.model.action.add_measure') }}</el-button>
-          </header>
+          </el-header>
           <el-table :data="model.measures" size="small" border>
             <el-table-column :label="t('bi.source.model.field.code')" min-width="135">
               <template #default="{ row }"><el-input v-model="row.code" :disabled="row.revision > 0" maxlength="128" /></template>
@@ -186,15 +186,15 @@
         <div v-if="impact" class="source-model__preview">
           <el-alert :title="t('bi.sql.impact', { cards: impact.affected_cards, dashboards: impact.affected_dashboards })" type="warning" show-icon :closable="false" />
           <div v-for="change in impact.changes ?? []" :key="change.after?.code ?? change.before?.code">
-            <strong>{{ change.after?.name ?? change.before?.name }}</strong>
+            <el-text tag="strong">{{ change.after?.name ?? change.before?.name }}</el-text>
             <pre>{{ change.before?.expression ?? '∅' }} → {{ change.after?.expression ?? '∅' }}</pre>
           </div>
         </div>
         <div v-if="previewResult" class="source-model__preview">
-          <header>
-            <strong>{{ t('bi.query.result') }}</strong>
+          <el-header style="--el-header-height: auto; --el-header-padding: 0">
+            <el-text tag="strong">{{ t('bi.query.result') }}</el-text>
             <span>{{ t('bi.query.elapsed', {ms: previewResult.elapsed_ms}) }}</span>
-          </header>
+          </el-header>
           <el-table :data="previewRows" size="small" border>
             <el-table-column v-for="(column, index) in previewResult.columns" :key="column.code" :label="column.name" min-width="130">
               <template #default="{ row }">{{ row[`value_${index}`] }}</template>

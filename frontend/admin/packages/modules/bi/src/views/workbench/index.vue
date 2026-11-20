@@ -1,5 +1,5 @@
 <template>
-  <main class="bi-workbench">
+  <el-main class="bi-workbench" style="--el-main-padding: 0; flex: 0 1 auto; overflow: visible">
     <el-skeleton v-if="loading" :rows="6" animated /><el-empty
       v-else-if="!dashboards.length"
       :description="t('bi.workbench.empty')"
@@ -29,29 +29,29 @@
         />
         <div class="bi-workbench__info">
           <div class="bi-workbench__title">
-            <h3 :title="item.name">{{ item.name }}</h3>
+            <el-text tag="h3" :title="item.name">{{ item.name }}</el-text>
             <el-tag size="small" effect="light" :type="item.requires_republish ? 'warning' : undefined">{{
               t(item.requires_republish ? "bi.sql.requires_republish" : "bi.dashboard.status_published")
             }}</el-tag>
           </div>
-          <p class="bi-workbench__meta">
+          <el-text tag="p" class="bi-workbench__meta">
             <span v-if="item.cardCount !== undefined">{{ t("bi.card.total", { count: item.cardCount }) }} · </span>v{{
               item.published_version
             }}
-          </p>
-          <p v-if="item.description" class="bi-workbench__description">{{ item.description }}</p>
-          <footer>
+          </el-text>
+          <el-text tag="p" v-if="item.description" class="bi-workbench__description">{{ item.description }}</el-text>
+          <el-footer style="--el-footer-height: auto; --el-footer-padding: 0">
             <el-button
               type="primary"
               @click="router.push(item.requires_republish ? '/bi/manage' : `/bi/dashboard/${item.id}`)"
               >{{ t(item.requires_republish ? "bi.dashboard.manage" : "bi.workbench.open_dashboard")
               }}<el-icon class="el-icon--right"><ArrowRight /></el-icon
             ></el-button>
-          </footer>
+          </el-footer>
         </div>
       </article>
     </div>
-  </main>
+  </el-main>
 </template>
 <script setup lang="ts">
 import { computed, onActivated, onMounted, ref } from "vue";

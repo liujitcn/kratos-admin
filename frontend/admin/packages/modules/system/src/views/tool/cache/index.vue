@@ -1,5 +1,5 @@
 <template>
-  <div class="table-box cache-page">
+  <div class="table-box">
     <ProTable ref="proTable" row-key="key" :columns="columns" :request-api="requestCacheTable" />
 
     <ProDialog
@@ -243,9 +243,6 @@ function formatTtl(ttl: number) {
 </script>
 
 <style lang="scss" scoped>
-.cache-page {
-  padding: 16px;
-}
 :deep(.cache-preview) {
   display: flex;
   gap: 8px;

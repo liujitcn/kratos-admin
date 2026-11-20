@@ -41,15 +41,15 @@
               ]"
             >
               <Handle v-if="data.type !== 'START'" id="in" type="target" :position="Position.Left" />
-              <strong>{{ t(nodeTypeI18nKey(data.type)) }}</strong>
-              <small>{{ id }}</small>
+              <el-text tag="strong">{{ t(nodeTypeI18nKey(data.type)) }}</el-text>
+              <el-text tag="small">{{ id }}</el-text>
               <Handle v-if="data.type !== 'END'" id="out" type="source" :position="Position.Right" />
             </div>
           </template>
           <div class="workflow-node-detail">
             <div class="workflow-node-detail-title">
-              <strong>{{ t(nodeTypeI18nKey(data.type)) }}</strong>
-              <small>{{ id }}</small>
+              <el-text tag="strong">{{ t(nodeTypeI18nKey(data.type)) }}</el-text>
+              <el-text tag="small">{{ id }}</el-text>
             </div>
             <div v-if="nodeDetails[id]?.activities.length" class="workflow-node-activities">
               <div
@@ -61,8 +61,8 @@
                   <el-tag size="small" :type="activity.tagType">{{ activity.label }}</el-tag>
                   <span>{{ activity.operator || "-" }}</span>
                 </div>
-                <small>{{ activity.timestamp || "-" }}</small>
-                <p v-if="activity.comment">{{ activity.comment }}</p>
+                <el-text tag="small">{{ activity.timestamp || "-" }}</el-text>
+                <el-text tag="p" v-if="activity.comment">{{ activity.comment }}</el-text>
               </div>
             </div>
             <span v-else class="workflow-node-empty">-</span>
@@ -78,8 +78,8 @@
           ]"
         >
           <Handle v-if="data.type !== 'START'" id="in" type="target" :position="Position.Left" />
-          <strong>{{ t(nodeTypeI18nKey(data.type)) }}</strong>
-          <small>{{ id }}</small>
+          <el-text tag="strong">{{ t(nodeTypeI18nKey(data.type)) }}</el-text>
+          <el-text tag="small">{{ id }}</el-text>
           <Handle v-if="data.type !== 'END'" id="out" type="source" :position="Position.Right" />
         </div>
       </template>

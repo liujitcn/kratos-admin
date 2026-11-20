@@ -1,7 +1,7 @@
 <!-- 数据库迁移升级历史 -->
 <template>
   <div v-loading="loading" class="table-box migration-page">
-    <main class="migration-content">
+    <el-main class="migration-content" style="--el-main-padding: 0">
       <el-form class="migration-filters" :model="filters" inline @submit.prevent="handleSearch">
         <el-form-item :label="t('system.base.migration.field.module')">
           <el-input
@@ -40,19 +40,19 @@
       <el-empty v-if="!loading && !histories.length" :description="t('system.base.migration.message.empty_history')" />
 
       <section v-else class="migration-workspace" :aria-label="t('system.base.migration.title.history')">
-        <aside class="migration-list-panel">
+        <el-aside class="migration-list-panel" style="--el-aside-width: auto">
           <div class="migration-list-scroll" role="listbox" :aria-label="t('system.base.migration.title.list')">
-            <el-button text
+            <el-button
               v-for="history in histories"
               :key="history.id"
               native-type="button"
-              class="migration-list-item"
+              class="admin-custom-button migration-list-item"
               :class="{ 'is-active': selectedMigrationId === history.id }"
               :aria-selected="selectedMigrationId === history.id"
               @click="selectMigration(history.id)"
             >
               <div class="migration-list-item__top">
-                <strong>{{ history.version }}</strong>
+                <el-text tag="strong">{{ history.version }}</el-text>
               </div>
               <div class="migration-list-item__data-source">
                 {{ history.module || t("system.base.migration.value.default_module") }} · {{ history.data_source || t("system.base.migration.value.default_source") }}
@@ -76,7 +76,7 @@
               @current-change="handleCurrentPageChange"
             />
           </div>
-        </aside>
+        </el-aside>
 
         <section class="migration-detail-panel">
           <div v-if="detailLoading && !selectedMigration" class="detail-loading">
@@ -144,7 +144,7 @@
           <el-empty v-else :description="t('system.base.migration.message.select_record')" />
         </section>
       </section>
-    </main>
+    </el-main>
   </div>
 </template>
 
@@ -361,7 +361,7 @@ onMounted(() => {
 .migration-workspace {
   display: grid;
   flex: 1;
-  grid-template-columns: 360px minmax(0, 1fr);
+  grid-template-columns: minmax(240px, 286px) minmax(0, 1fr);
   gap: 0;
   width: 100%;
   height: auto;
@@ -451,6 +451,7 @@ onMounted(() => {
 
 .migration-pagination {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 12px;
   justify-content: flex-end;
@@ -591,7 +592,7 @@ onMounted(() => {
   }
 
   .migration-workspace {
-    grid-template-columns: 280px minmax(0, 1fr);
+    grid-template-columns: 220px minmax(0, 1fr);
   }
 }
 
@@ -605,6 +606,13 @@ onMounted(() => {
     width: 100%;
   }
 
+  .detail-scroll {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+}
+
+@media (max-width: 680px) {
   .migration-workspace {
     display: flex;
     height: auto;
@@ -629,11 +637,6 @@ onMounted(() => {
     padding-right: 12px;
     padding-left: 12px;
     overflow-x: auto;
-  }
-
-  .detail-scroll {
-    padding-right: 16px;
-    padding-left: 16px;
   }
 }
 </style>

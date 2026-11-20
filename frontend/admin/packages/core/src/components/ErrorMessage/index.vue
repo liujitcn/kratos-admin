@@ -20,10 +20,10 @@ const { t } = useLocaleStore();
 
 <template>
   <div class="not-container">
-    <img :src="image" class="not-img" :alt="code" />
+    <el-image :src="image" class="not-img" :alt="code" />
     <div class="not-detail">
-      <h2>{{ code }}</h2>
-      <h4>{{ message }}</h4>
+      <el-text tag="h2">{{ code }}</el-text>
+      <el-text tag="h4">{{ message }}</el-text>
       <el-button type="primary" @click="router.back()">{{ t("common.action.back") }}</el-button>
     </div>
   </div>
@@ -38,6 +38,11 @@ const { t } = useLocaleStore();
   height: 100%;
   .not-img {
     margin-right: 120px;
+    // el-image 容器不定尺寸，由图片固有尺寸撑开
+    :deep(img) {
+      width: auto;
+      height: auto;
+    }
   }
   .not-detail {
     display: flex;

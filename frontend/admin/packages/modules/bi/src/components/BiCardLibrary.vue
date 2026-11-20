@@ -1,11 +1,11 @@
 <template>
-  <main class="bi-card-library">
+  <el-main class="bi-card-library" style="--el-main-padding: 0; flex: 0 1 auto; overflow: visible">
     <el-card class="admin-page-card" shadow="never">
       <el-tabs v-model="category" @tab-change="search">
         <el-tab-pane v-for="item in categories" :key="item" :name="item">
           <template #label>
             <span>{{ t(`bi.card.category.${item || "all"}`) }}</span>
-            <small class="bi-card-library__count">{{ counts[item || "all"] }}</small>
+            <el-text tag="small" class="bi-card-library__count">{{ counts[item || "all"] }}</el-text>
           </template>
         </el-tab-pane>
       </el-tabs>
@@ -85,7 +85,7 @@
       @confirm="addToDashboard"
       @closed="target.id = undefined"
     />
-  </main>
+  </el-main>
 </template>
 <script setup lang="ts">
 import { computed, onMounted, onActivated, reactive, ref } from "vue";

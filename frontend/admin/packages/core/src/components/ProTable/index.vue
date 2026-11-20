@@ -111,7 +111,7 @@
       <template #empty>
         <div class="table-empty">
           <slot name="empty">
-            <img src="@/assets/images/notData.png" :alt="t('common.message.no_data')" />
+            <el-image class="table-empty-img" :src="notDataImg" :alt="t('common.message.no_data')" />
             <div>{{ t("common.message.no_data") }}</div>
           </slot>
         </div>
@@ -148,6 +148,7 @@ import {
   toRaw
 } from "vue";
 import { ElTable, type TableInstance } from "element-plus";
+import notDataImg from "@/assets/images/notData.png";
 import { useTable } from "@/hooks/useTable";
 import { useSelection } from "@/hooks/useSelection";
 import {

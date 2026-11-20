@@ -1,13 +1,13 @@
 <template>
   <el-dropdown ref="dropdownRef" trigger="click" placement="bottom-end" popper-class="header-avatar-dropdown">
     <div class="avatar">
-      <img :src="avatarSrc" :alt="t('core.layout.avatar')" @error="handleAvatarError" />
+      <el-image class="avatar-img" :src="avatarSrc" :alt="t('core.layout.avatar')" fit="cover" @error="handleAvatarError" />
     </div>
     <template #dropdown>
       <div class="user-panel">
         <div class="user-panel__summary">
           <div class="user-panel__avatar">
-            <img :src="avatarSrc" :alt="t('core.layout.avatar')" @error="handleAvatarError" />
+            <el-image class="avatar-img" :src="avatarSrc" :alt="t('core.layout.avatar')" fit="cover" @error="handleAvatarError" />
           </div>
           <div class="user-panel__identity">
             <div class="user-panel__name">{{ displayName }}</div>
@@ -15,21 +15,21 @@
           </div>
         </div>
         <div class="user-panel__actions">
-          <el-button text
+          <el-button
             v-for="action in availableUserMenuActions"
             :key="action.name"
-            class="action-btn action-btn--primary"
+            class="admin-custom-button action-btn action-btn--primary"
             native-type="button"
             @click.stop="handleUserMenuAction(action.path)"
           >
             <el-icon v-if="action.icon"><component :is="action.icon" /></el-icon>
 			<span>{{ t(action.labelKey) }}</span>
           </el-button>
-          <el-button text class="action-btn action-btn--lock" native-type="button" @click.stop="lockScreen">
+          <el-button class="admin-custom-button action-btn action-btn--lock" native-type="button" @click.stop="lockScreen">
             <el-icon><Lock /></el-icon>
             <span>{{ t("core.layout.lock_screen") }}</span>
           </el-button>
-          <el-button text class="action-btn action-btn--danger" native-type="button" @click="logout">
+          <el-button class="admin-custom-button action-btn action-btn--danger" native-type="button" @click="logout">
             <el-icon><SwitchButton /></el-icon>
             <span>{{ t("common.action.logout") }}</span>
           </el-button>
@@ -135,11 +135,10 @@ const lockScreen = () => {
   border: 2px solid rgb(255 255 255 / 85%);
   border-radius: 50%;
   box-shadow: 0 8px 18px rgb(15 23 42 / 12%);
-  img {
+  :deep(.avatar-img) {
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: cover;
   }
 }
 .user-panel {
@@ -162,11 +161,10 @@ const lockScreen = () => {
     overflow: hidden;
     background: #edf2f7;
     border-radius: 50%;
-    img {
+    :deep(.avatar-img) {
       display: block;
       width: 100%;
       height: 100%;
-      object-fit: cover;
     }
   }
   &__identity {

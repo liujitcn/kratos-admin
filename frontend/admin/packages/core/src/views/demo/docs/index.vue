@@ -1,15 +1,14 @@
 <template>
-  <div class="component-docs">
-    <aside class="docs-sidebar" aria-label="组件目录">
+  <div ref="documentRef" class="component-docs">
+    <el-aside class="docs-sidebar" style="--el-aside-width: auto; overflow: visible" aria-label="组件目录">
       <el-input v-model="state.query" clearable placeholder="搜索组件名称…" aria-label="搜索组件名称" />
-      <el-button class="docs-overview-link" text @click="selectDoc('')">组件总览</el-button>
       <nav aria-label="组件分类">
         <details v-for="group in navigationGroups" :key="group.label" :open="group.open">
           <summary>{{ group.label }}</summary>
-          <el-button text
+          <el-button
             v-for="entry in group.entries"
             :key="entry.id"
-            class="docs-nav-item"
+            class="admin-custom-button docs-nav-item"
             native-type="button"
             :aria-current="state.id === entry.id ? 'page' : undefined"
             @click="selectDoc(entry.id)"
@@ -19,7 +18,7 @@
         </details>
       </nav>
       <el-empty v-if="!navigationEntries.length" description="没有匹配的组件" :image-size="50" />
-    </aside>
+    </el-aside>
 
     <div class="docs-mobile-picker">
       <el-input v-model="state.query" clearable placeholder="搜索组件名称…" aria-label="搜索组件名称" />
@@ -31,33 +30,32 @@
       </el-select>
     </div>
 
-    <main ref="documentRef" class="docs-document" aria-label="组件说明">
+    <el-main class="docs-document" style="--el-main-padding: 0; flex: 0 1 auto; overflow: visible" aria-label="组件说明">
       <template v-if="!selected">
-        <h1>组件总览</h1>
+        <el-text tag="h1">组件总览</el-text>
         <div class="docs-scopes" aria-label="组件所属范围">
           <el-button
             v-for="owner in owners"
             :key="owner"
             :type="state.owner === owner ? 'primary' : 'default'"
             plain
-            size="small"
             :aria-pressed="state.owner === owner"
             @click="state.owner = owner"
             >{{ owner }}</el-button
           >
         </div>
         <section v-for="group in overviewGroups" :key="group.label" class="docs-overview-group">
-          <h2>{{ group.label }}</h2>
+          <el-text tag="h2">{{ group.label }}</el-text>
           <div class="docs-cards">
-            <el-button text
+            <el-button
               v-for="entry in group.entries"
               :key="entry.id"
-              class="docs-component-card"
+              class="admin-custom-button docs-component-card"
               native-type="button"
               @click="selectDoc(entry.id)"
             >
-              <strong>{{ entry.label }}</strong>
-              <p>{{ entry.description }}</p>
+              <el-text tag="strong">{{ entry.label }}</el-text>
+              <el-text tag="p">{{ entry.description }}</el-text>
             </el-button>
           </div>
         </section>
@@ -73,14 +71,14 @@
       </template>
 
       <template v-else>
-        <el-button class="docs-back" size="small" @click="goBack">返回{{ backLabel }}</el-button>
-        <h1>
+        <el-button class="docs-back" @click="goBack">返回{{ backLabel }}</el-button>
+        <el-text tag="h1">
           {{ selected.id }} <span>{{ selected.label }}</span>
-        </h1>
-        <p class="docs-intro">{{ selected.description }}</p>
+        </el-text>
+        <el-text tag="p" class="docs-intro">{{ selected.description }}</el-text>
 
         <section id="component-docs-basic" class="docs-section">
-          <h2>基础用法</h2>
+          <el-text tag="h2">基础用法</el-text>
           <div v-show="selected.example" class="docs-example">
             <div class="docs-preview">
               <KeepAlive :max="20">
@@ -88,8 +86,8 @@
               </KeepAlive>
             </div>
             <div class="docs-example-tools">
-              <el-button text size="small" @click="copyCode">复制代码</el-button>
-              <el-button text size="small" :aria-expanded="sourceVisible" @click="sourceVisible = !sourceVisible">{{
+              <el-button text @click="copyCode">复制代码</el-button>
+              <el-button text :aria-expanded="sourceVisible" @click="sourceVisible = !sourceVisible">{{
                 sourceVisible ? "收起源码" : "查看源码"
               }}</el-button>
             </div>
@@ -99,7 +97,7 @@
         </section>
 
         <section id="component-docs-api" class="docs-section">
-          <h2>{{ selected.id }} API</h2>
+          <el-text tag="h2">{{ selected.id }} API</el-text>
           <el-tabs v-model="state.api">
             <el-tab-pane v-for="tab in apiTabs" :key="tab.key" :name="tab.key" :label="tab.label" />
           </el-tabs>
@@ -133,8 +131,8 @@
         </section>
 
         <section id="component-docs-usage" class="docs-section">
-          <h2>使用说明</h2>
-          <p class="docs-usage">{{ selected.usage }}</p>
+          <el-text tag="h2">使用说明</el-text>
+          <el-text tag="p" class="docs-usage">{{ selected.usage }}</el-text>
           <div v-if="related.length" class="docs-related">
             <el-button v-for="entry in related" :key="entry.id" link type="primary" @click="selectDoc(entry.id)">{{
               entry.label
@@ -142,10 +140,10 @@
           </div>
         </section>
       </template>
-    </main>
+    </el-main>
 
     <nav v-if="selected" class="docs-toc" aria-label="本页目录">
-      <strong>本页目录</strong>
+      <el-text tag="strong">本页目录</el-text>
       <el-button text @click="scrollTo('basic')">基础用法</el-button>
       <el-button text @click="scrollTo('api')">API</el-button>
       <el-button text @click="scrollTo('usage')">使用说明</el-button>
@@ -293,15 +291,10 @@ function scrollTo(section: string) {
   }
   summary {
     padding: 8px 4px;
-    font-size: 12px;
+    font-size: var(--el-font-size-base);
     color: var(--admin-page-text-secondary);
     cursor: pointer;
   }
-}
-.docs-overview-link {
-  width: 100%;
-  margin-top: 12px;
-  margin-bottom: 8px;
 }
 .docs-nav-item {
   display: block;
@@ -309,7 +302,7 @@ function scrollTo(section: string) {
   padding: 8px 10px;
   margin-bottom: 2px;
   font: inherit;
-  font-size: 12px;
+  font-size: var(--el-font-size-base);
   color: var(--admin-page-text-primary);
   text-align: left;
   cursor: pointer;
@@ -353,7 +346,7 @@ function scrollTo(section: string) {
 .docs-intro,
 .docs-usage {
   margin: 12px 0 0;
-  font-size: 13px;
+  font-size: var(--el-font-size-medium);
   line-height: 1.9;
   color: var(--admin-page-text-secondary);
   white-space: pre-line;
@@ -388,12 +381,12 @@ function scrollTo(section: string) {
   border: 1px solid var(--admin-page-card-border);
   border-radius: var(--admin-page-radius);
   strong {
-    font-size: 14px;
+    font-size: var(--el-font-size-medium);
     font-weight: 500;
   }
   p {
     margin: 8px 0 0;
-    font-size: 12px;
+    font-size: var(--el-font-size-base);
     line-height: 1.8;
     color: var(--admin-page-text-secondary);
   }
@@ -421,7 +414,7 @@ function scrollTo(section: string) {
   border-top: 1px solid var(--admin-page-divider);
 }
 .docs-api-table code {
-  font-size: 12px;
+  font-size: var(--el-font-size-base);
   overflow-wrap: anywhere;
   white-space: pre-wrap;
 }
@@ -440,7 +433,7 @@ function scrollTo(section: string) {
 .docs-toc {
   display: none;
   padding: 30px 12px;
-  font-size: 12px;
+  font-size: var(--el-font-size-base);
   .el-button {
     justify-content: flex-start;
     margin-left: 0;

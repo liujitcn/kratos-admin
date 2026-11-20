@@ -4,8 +4,8 @@
       <template #header>
         <div class="panel-header">
           <div>
-            <h3>{{ t("system.profile.password.title") }}</h3>
-            <p>{{ t("system.profile.password.description") }}</p>
+            <el-text tag="h3">{{ t("system.profile.password.title") }}</el-text>
+            <el-text tag="p">{{ t("system.profile.password.description") }}</el-text>
           </div>
           <el-tag type="warning" effect="plain">{{ t("system.profile.password.value.strong_recommended") }}</el-tag>
         </div>

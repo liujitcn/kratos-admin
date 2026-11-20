@@ -27,8 +27,8 @@
         <div class="agent-prefix-actions">
           <el-popover placement="top-start" :width="236" trigger="click" popper-class="agent-sender-popover">
             <template #reference>
-              <el-button text
-                class="agent-icon-button"
+              <el-button
+                class="admin-custom-button agent-icon-button"
                 native-type="button"
                 :disabled="sending || uploading"
                 :aria-label="t('system.ai.chat.action.upload_attachment')"
@@ -42,7 +42,7 @@
             <div class="agent-popover-card">
               <div class="agent-popover-title">{{ t("system.ai.chat.action.upload_attachment") }}</div>
               <div class="agent-popover-desc">{{ t("system.ai.chat.message.attachment_hint") }}</div>
-              <el-button text class="agent-popover-action" native-type="button" :disabled="sending || uploading" @click="handleSelectAttachment">
+              <el-button class="admin-custom-button agent-popover-action" native-type="button" :disabled="sending || uploading" @click="handleSelectAttachment">
                 {{ uploading ? t("system.ai.chat.status.uploading") : t("system.ai.chat.action.select_local_file") }}
               </el-button>
             </div>
@@ -70,8 +70,8 @@
             popper-class="agent-model-popper"
           >
             <template #reference>
-              <el-button text
-                class="agent-model-selector"
+              <el-button
+                class="admin-custom-button agent-model-selector"
                 :class="{ 'is-disabled': sending || !knowledgeOptions.length, 'is-selected': selectedKnowledgeCount > 0 }"
                 native-type="button"
                 :disabled="sending || !knowledgeOptions.length"
@@ -92,10 +92,10 @@
                 <span class="agent-model-panel__meta">{{ t("system.ai.knowledge.select_hint") }}</span>
               </div>
               <div class="agent-model-panel__list">
-                <el-button text
+                <el-button
                   v-for="option in knowledgeOptions"
                   :key="option.id"
-                  class="agent-model-row"
+                  class="admin-custom-button agent-model-row"
                   :class="{ 'is-selected': isKnowledgeSelected(option.id) }"
                   native-type="button"
                   @click="handleKnowledgeToggle(option.id)"
@@ -110,7 +110,7 @@
                   </el-icon>
                 </el-button>
               </div>
-              <el-button text v-if="aiKnowledgeRoute" class="agent-model-panel__manage" native-type="button" @click="openKnowledgeManage">
+              <el-button v-if="aiKnowledgeRoute" class="admin-custom-button agent-model-panel__manage" native-type="button" @click="openKnowledgeManage">
                 <el-icon><Setting /></el-icon>
                 <span>{{ t("system.ai.knowledge.manage") }}</span>
                 <el-icon class="agent-model-panel__manage-arrow"><ArrowRight /></el-icon>
@@ -124,8 +124,8 @@
             :content="recording ? t('system.ai.chat.action.stop_voice_input') : t('system.ai.chat.action.voice_input')"
             placement="top"
           >
-            <el-button text
-              class="agent-icon-button"
+            <el-button
+              class="admin-custom-button agent-icon-button"
               :class="{ 'is-active': recording }"
               native-type="button"
               :disabled="sending"
@@ -140,8 +140,8 @@
             </el-button>
           </el-tooltip>
           <el-tooltip :content="t('system.ai.chat.action.send')" placement="top">
-            <el-button text
-              class="agent-send-button"
+            <el-button
+              class="admin-custom-button agent-send-button"
               native-type="button"
               :disabled="sending || uploading || recording || isSubmitDisabled"
               :aria-label="t('system.ai.chat.action.send')"

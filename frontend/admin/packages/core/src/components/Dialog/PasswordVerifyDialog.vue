@@ -16,7 +16,7 @@
     @close="handleClose"
     @closed="handleClosed"
   >
-    <p v-if="description" class="password-verify-dialog__description">{{ description }}</p>
+    <el-text tag="p" v-if="description" class="password-verify-dialog__description">{{ description }}</el-text>
     <ProForm
       ref="formRef"
       :model="form"

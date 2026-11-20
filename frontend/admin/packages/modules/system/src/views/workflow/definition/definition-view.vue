@@ -12,7 +12,7 @@
     <el-skeleton v-if="loading" :rows="8" animated />
     <div v-else class="definition-view-content">
       <section class="definition-view-section">
-        <h3>{{ t("system.workflow.definition.section.basic") }}</h3>
+        <el-text tag="h3">{{ t("system.workflow.definition.section.basic") }}</el-text>
         <el-descriptions :column="2" border>
           <el-descriptions-item :label="t('system.workflow.definition.field.name')">{{ formData.name }}</el-descriptions-item>
           <el-descriptions-item :label="t('system.workflow.definition.field.code')">{{ formData.code }}</el-descriptions-item>
@@ -23,7 +23,7 @@
 
       <section class="definition-view-section">
         <div class="definition-view-heading">
-          <h3>{{ t("system.workflow.definition.form_builder.preview") }}</h3>
+          <el-text tag="h3">{{ t("system.workflow.definition.form_builder.preview") }}</el-text>
           <el-tag size="small" effect="plain">{{ formFields.length }}</el-tag>
         </div>
         <el-empty v-if="!formFields.length" :description="t('system.workflow.definition.form_builder.preview_empty')" :image-size="64" />
@@ -39,7 +39,7 @@
       </section>
 
       <section class="definition-view-section">
-        <h3>{{ t("system.workflow.definition.section.graph") }}</h3>
+        <el-text tag="h3">{{ t("system.workflow.definition.section.graph") }}</el-text>
         <div class="definition-view-graph">
           <WorkflowGraph
             ref="graphRef"
@@ -50,8 +50,8 @@
             @select="selectNode"
             @select-edge="selectEdge"
           />
-          <aside class="definition-view-properties">
-            <h4>{{ t("system.workflow.definition.section.properties") }}</h4>
+          <el-aside class="definition-view-properties" style="--el-aside-width: auto; overflow: visible">
+            <el-text tag="h4">{{ t("system.workflow.definition.section.properties") }}</el-text>
             <el-empty
               v-if="!selectedNode && !selectedEdge"
               :description="t('system.workflow.definition.placeholder.select_object')"
@@ -83,7 +83,7 @@
                 </el-descriptions-item>
               </el-descriptions>
             </template>
-          </aside>
+          </el-aside>
         </div>
       </section>
     </div>

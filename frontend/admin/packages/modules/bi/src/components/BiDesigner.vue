@@ -1,13 +1,13 @@
 <template>
   <div class="bi-designer">
-    <aside class="bi-designer__library">
-      <header class="bi-designer__library-header">
-        <h3>{{ t("bi.card.library") }}</h3>
-        <p>{{ t("bi.dashboard.choose_cards") }}</p>
-      </header>
+    <el-aside class="bi-designer__library" style="--el-aside-width: auto">
+      <el-header class="bi-designer__library-header" style="--el-header-height: auto; --el-header-padding: 0">
+        <el-text tag="h3">{{ t("bi.card.library") }}</el-text>
+        <el-text tag="p">{{ t("bi.dashboard.choose_cards") }}</el-text>
+      </el-header>
       <div class="bi-designer__library-list">
         <div v-for="card in cards" :key="card.id" class="bi-designer__library-item">
-          <h4>{{ card.name }}</h4>
+          <el-text tag="h4">{{ card.name }}</el-text>
           <div class="bi-designer__library-meta">
             <span>{{ ["metric", "metric_grid"].includes(card.chart_type) ? t(`bi.card.chart.${card.chart_type}`) : messages(`types.${card.chart_type}`) }}</span>
             <span v-if="addedCardIDs.has(card.id)" class="bi-designer__added">
@@ -28,11 +28,11 @@
         </div>
         <el-empty v-if="!cards.length" :image-size="48" :description="t('bi.card.empty')" />
       </div>
-      <footer class="bi-designer__library-footer">
+      <el-footer class="bi-designer__library-footer" style="--el-footer-height: auto; --el-footer-padding: 0">
         <el-button :icon="plusIcon" plain type="primary" @click="emit('create-card')">{{ t("bi.card.create") }}</el-button>
-      </footer>
-    </aside>
-    <main class="bi-designer__canvas">
+      </el-footer>
+    </el-aside>
+    <el-main class="bi-designer__canvas" style="--el-main-padding: 0; flex: 0 1 auto; overflow: visible">
       <div
         v-for="(item, index) in modelValue.cards"
         :key="item.id"
@@ -92,7 +92,7 @@
         <el-alert v-else type="warning" :closable="false" :title="t('bi.dashboard.card_missing')" />
       </div>
       <el-empty v-if="!modelValue.cards.length" :description="t('bi.dashboard.choose_cards')" />
-    </main>
+    </el-main>
   </div>
 </template>
 <script setup lang="ts">

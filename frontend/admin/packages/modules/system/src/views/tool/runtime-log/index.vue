@@ -1,26 +1,26 @@
 <template>
   <div class="app-container runtime-log-page">
-    <aside class="runtime-log-sources">
+    <el-aside class="runtime-log-sources" style="--el-aside-width: auto; overflow: visible">
       <div class="source-panel__header">
-        <h2>{{ t("system.runtime.log.section.sources") }}</h2>
+        <el-text tag="h2">{{ t("system.runtime.log.section.sources") }}</el-text>
         <el-tooltip :content="t('common.action.refresh')" placement="top">
           <el-button circle text :icon="Refresh" :loading="filesLoading" @click="loadFiles" />
         </el-tooltip>
       </div>
 
-      <el-button text
+      <el-button
         native-type="button"
-        class="source-item source-item--live"
+        class="admin-custom-button source-item source-item--live"
         :class="{ 'is-active': activeSource.kind === 'live' }"
         @click="selectLiveConsole"
       >
         <span class="source-item__icon"><el-icon><Operation /></el-icon></span>
         <span class="source-item__body">
-          <strong>{{ t("system.runtime.log.value.live_console") }}</strong>
-          <small>
+          <el-text tag="strong">{{ t("system.runtime.log.value.live_console") }}</el-text>
+          <el-text tag="small">
             <i class="status-dot" :class="`is-${connectionState}`" />
             {{ connectionStatusText }}
-          </small>
+          </el-text>
         </span>
       </el-button>
 
@@ -38,18 +38,18 @@
       </div>
 
       <el-scrollbar class="source-panel__list">
-        <el-button text
+        <el-button
           v-for="file in filteredFiles"
           :key="file.file_id"
           native-type="button"
-          class="source-item source-item--file"
+          class="admin-custom-button source-item source-item--file"
           :class="{ 'is-active': activeFile?.file_id === file.file_id }"
           @click="selectHistoryFile(file)"
         >
           <span class="source-item__icon"><el-icon><Document /></el-icon></span>
           <span class="source-item__body">
-            <strong :title="file.name">{{ file.name }}</strong>
-            <small>{{ formatFileSize(file.size_bytes) }} · {{ formatDateTime(file.modified_at) }}</small>
+            <el-text tag="strong" :title="file.name">{{ file.name }}</el-text>
+            <el-text tag="small">{{ formatFileSize(file.size_bytes) }} · {{ formatDateTime(file.modified_at) }}</el-text>
           </span>
           <el-tag v-if="file.is_compressed" size="small" effect="plain">GZ</el-tag>
         </el-button>
@@ -59,24 +59,24 @@
           :description="t('system.runtime.log.empty.files')"
         />
       </el-scrollbar>
-    </aside>
+    </el-aside>
 
-    <main class="runtime-log-workspace">
-      <header class="workspace-header">
+    <el-main class="runtime-log-workspace" style="--el-main-padding: 0; flex: 0 1 auto">
+      <el-header class="workspace-header" style="--el-header-height: auto; --el-header-padding: 0">
         <div class="workspace-title">
           <div class="workspace-title__row">
-            <h1 :title="activeTitle">{{ activeTitle }}</h1>
+            <el-text tag="h1" :title="activeTitle">{{ activeTitle }}</el-text>
             <el-tag v-if="activeSource.kind === 'live'" size="small" :type="connectionTagType" effect="plain">
               {{ connectionStatusText }}
             </el-tag>
             <el-tag v-else-if="activeFile?.is_compressed" size="small" effect="plain">GZIP</el-tag>
           </div>
-          <p v-if="activeSource.kind === 'live'">
+          <el-text tag="p" v-if="activeSource.kind === 'live'">
             {{ t("system.runtime.log.value.instance", { id: instanceId || "-" }) }}
-          </p>
-          <p v-else-if="activeFile">
+          </el-text>
+          <el-text tag="p" v-else-if="activeFile">
             {{ formatFileSize(activeFile.size_bytes) }} · {{ formatDateTime(activeFile.modified_at) }}
-          </p>
+          </el-text>
         </div>
 
         <div class="workspace-actions">
@@ -105,7 +105,7 @@
             />
           </el-tooltip>
         </div>
-      </header>
+      </el-header>
 
       <div class="workspace-filters">
         <el-input
@@ -171,7 +171,7 @@
           <span>{{ t("system.runtime.log.status.loading") }}</span>
         </div>
       </section>
-    </main>
+    </el-main>
   </div>
 </template>
 

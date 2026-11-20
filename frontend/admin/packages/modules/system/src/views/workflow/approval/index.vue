@@ -76,10 +76,10 @@
         <el-table-column prop="next_retry_at" :label="t('system.workflow.script.next_retry')" width="170" />
         <el-table-column type="expand"
           ><template #default="{ row }">
-            <p>{{ t("system.workflow.script.error") }}: {{ row.last_error || "-" }}</p>
-            <p>{{ t("system.workflow.script.input") }}</p>
+            <el-text tag="p">{{ t("system.workflow.script.error") }}: {{ row.last_error || "-" }}</el-text>
+            <el-text tag="p">{{ t("system.workflow.script.input") }}</el-text>
             <el-input :model-value="row.input_json" type="textarea" readonly />
-            <p>{{ t("system.workflow.script.output") }}</p>
+            <el-text tag="p">{{ t("system.workflow.script.output") }}</el-text>
             <el-input :model-value="row.output_json" type="textarea" readonly /> </template
         ></el-table-column>
         <el-table-column :label="t('common.field.operation')" width="100"

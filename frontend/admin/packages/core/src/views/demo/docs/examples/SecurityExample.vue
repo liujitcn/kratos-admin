@@ -2,7 +2,7 @@
   <div v-if="active" class="security-example">
     <template v-if="componentId === 'SecretInput'">
       <SecretInput v-model="password" placeholder="输入示例密钥" />
-      <p class="example-tip">点击眼睛切换本地输入的明文与掩码，不读取账号密钥。</p>
+      <el-text tag="p" class="example-tip">点击眼睛切换本地输入的明文与掩码，不读取账号密钥。</el-text>
     </template>
     <template v-else-if="componentId === 'PasswordStrength'">
       <el-input v-model="password" type="password" show-password placeholder="输入示例密码" />
@@ -10,11 +10,11 @@
     </template>
     <template v-else-if="componentId === 'MfaSetupPanel'">
       <MfaSetupPanel :uri="setupUri" />
-      <p class="example-tip">此二维码使用公开演示密钥，仅用于查看绑定面板。</p>
+      <el-text tag="p" class="example-tip">此二维码使用公开演示密钥，仅用于查看绑定面板。</el-text>
     </template>
     <template v-else>
       <el-button type="primary" @click="visible = true">查看示例恢复码</el-button>
-      <p class="example-tip" role="status">{{ saved ? "已确认保存演示恢复码。" : "可查看、复制并确认保存恢复码。" }}</p>
+      <el-text tag="p" class="example-tip" role="status">{{ saved ? "已确认保存演示恢复码。" : "可查看、复制并确认保存恢复码。" }}</el-text>
       <MfaRecoveryCodesDialog v-model="visible" :codes="codes" @confirm="saved = true" />
     </template>
   </div>

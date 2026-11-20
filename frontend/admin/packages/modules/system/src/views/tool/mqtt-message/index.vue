@@ -33,11 +33,11 @@
         </el-descriptions>
 
         <section v-if="detail.item.payload_json" class="mqtt-payload-section">
-          <h3>{{ t('system.mqtt_message.field.payload_json') }}</h3>
+          <el-text tag="h3">{{ t('system.mqtt_message.field.payload_json') }}</el-text>
           <pre class="mqtt-payload">{{ prettyJson(detail.item.payload_json) }}</pre>
         </section>
         <section class="mqtt-payload-section">
-          <h3>{{ t('system.mqtt_message.field.payload_raw') }}</h3>
+          <el-text tag="h3">{{ t('system.mqtt_message.field.payload_raw') }}</el-text>
           <pre class="mqtt-payload">{{ decodePayload(detail.item.payload_raw, detail.item.payload_format) }}</pre>
         </section>
       </template>

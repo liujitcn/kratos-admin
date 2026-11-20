@@ -2,7 +2,7 @@
   <div v-if="active" class="component-editor-example">
     <template v-if="componentId === 'CodeEditor'">
       <CodeEditor v-model="code" language="typescript" height="280px" />
-      <p class="example-tip">修改内容会通过 v-model 回传。</p>
+      <el-text tag="p" class="example-tip">修改内容会通过 v-model 回传。</el-text>
     </template>
     <YamlEditor v-else-if="componentId === 'YamlEditor'" v-model="yaml" min-height="240px" max-height="360px" />
     <template v-else-if="componentId === 'MarkdownEditor'">
@@ -12,7 +12,7 @@
       <div @drop.capture.prevent>
         <WangEditor v-model:value="html" height="320px" :toolbar-config="richToolbar" :editor-config="richConfig" />
       </div>
-      <p class="example-tip">本例提供文本格式编辑；图片和视频上传请接入文件服务。</p>
+      <el-text tag="p" class="example-tip">本例提供文本格式编辑；图片和视频上传请接入文件服务。</el-text>
     </template>
     <MarkdownPreview v-else-if="componentId === 'MarkdownPreview'" :model-value="markdown" :is-dark="globalStore.isDark" />
     <RichTextPreview v-else-if="componentId === 'RichTextPreview'" :model-value="html" />

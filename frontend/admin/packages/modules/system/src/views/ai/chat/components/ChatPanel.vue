@@ -1,5 +1,5 @@
 <template>
-  <main class="agent-chat-panel" :class="{ 'is-empty': isEmptyState, 'has-shortcuts': hasShortcutPanel }">
+  <el-main class="agent-chat-panel" :class="{ 'is-empty': isEmptyState, 'has-shortcuts': hasShortcutPanel }" style="--el-main-padding: 0; flex: 0 1 auto">
     <div v-if="activeSession?.read_only" class="agent-result-banner">
       <span>{{ t("system.ai.workspace.frozen_result") }}</span
       ><el-button text type="primary" @click="emit('continueResult')">{{
@@ -18,9 +18,9 @@
             </div>
             <div class="agent-shortcuts__actions">
               <span class="agent-shortcuts__count">{{ shortcutBatchLabel }}</span>
-              <el-button text
+              <el-button
                 v-if="canRefreshShortcutBatch"
-                class="agent-shortcuts__refresh"
+                class="admin-custom-button agent-shortcuts__refresh"
                 native-type="button"
                 :disabled="sending"
                 @click="refreshShortcutBatch"
@@ -34,10 +34,10 @@
             {{ t("system.ai.chat.message.loading_shortcuts") }}
           </div>
           <div v-else class="agent-shortcuts__grid">
-            <el-button text
+            <el-button
               v-for="shortcut in shortcutVisibleList"
               :key="shortcut.key"
-              class="agent-shortcut"
+              class="admin-custom-button agent-shortcut"
               native-type="button"
               :disabled="sending"
               @click="handleShortcutClick(shortcut)"
@@ -102,8 +102,8 @@
                 class="agent-message-activity"
                 :aria-label="t('system.ai.chat.title.activity')"
               >
-                <el-button text
-                  class="agent-message-activity__summary"
+                <el-button
+                  class="admin-custom-button agent-message-activity__summary"
                   native-type="button"
                   :aria-expanded="isActivityExpanded(item)"
                   @click="toggleActivity(item)"
@@ -157,8 +157,8 @@
                         {{ resolveToolStatusText(tool.status) }}
                         <el-icon v-if="!isToolFailed(tool.status)"><Check /></el-icon>
                       </span>
-                      <el-button text
-                        class="agent-message-tool-copy"
+                      <el-button
+                        class="admin-custom-button agent-message-tool-copy"
                         native-type="button"
                         :aria-label="t('system.ai.chat.action.copy_request')"
                         @click.stop="handleCopyToolRequest(tool)"
@@ -189,20 +189,20 @@
                 role="region"
                 :aria-label="t('system.ai.chat.approval.title')"
               >
-                <strong>{{ t("system.ai.chat.approval.title") }}</strong>
-                <p>{{ t("system.ai.chat.approval.description") }}</p>
+                <el-text tag="strong">{{ t("system.ai.chat.approval.title") }}</el-text>
+                <el-text tag="p">{{ t("system.ai.chat.approval.description") }}</el-text>
                 <div v-for="(call, index) in item.output_content.approval.calls" :key="index" class="agent-approval__call">
-                  <strong>{{ call.title || call.name }}</strong>
+                  <el-text tag="strong">{{ call.title || call.name }}</el-text>
                   <div>{{ call.name }}</div>
                   <pre>{{ formatToolPayload(call.arguments) }}</pre>
                 </div>
-                <p>
+                <el-text tag="p">
                   {{
                     t("system.ai.chat.approval.expires_at", {
                       time: formatDateTime(resolveTimestamp(item.output_content.approval.expires_at))
                     })
                   }}
-                </p>
+                </el-text>
                 <div class="agent-approval__actions">
                   <el-button type="danger" :loading="sending" @click="emit('approvalDecision', item, true)">
                     {{ t("system.ai.chat.approval.confirm") }}
@@ -294,8 +294,8 @@
                     @confirm="handleMessageAction(action.key, item)"
                   >
                     <template #reference>
-                      <el-button text
-                        class="agent-message-action"
+                      <el-button
+                        class="admin-custom-button agent-message-action"
                         native-type="button"
                         :disabled="sending || item.progressState === 'streaming'"
                         :aria-label="action.label"
@@ -305,8 +305,8 @@
                     </template>
                   </el-popconfirm>
                   <el-tooltip v-else :content="action.label" placement="top">
-                    <el-button text
-                      class="agent-message-action"
+                    <el-button
+                      class="admin-custom-button agent-message-action"
                       native-type="button"
                       :disabled="sending || item.progressState === 'streaming'"
                       :aria-label="action.label"
@@ -324,8 +324,8 @@
                   width="260"
                 >
                   <template #reference>
-                    <el-button text
-                      class="agent-message-action agent-message-runtime-trigger"
+                    <el-button
+                      class="admin-custom-button agent-message-action agent-message-runtime-trigger"
                       native-type="button"
                       :aria-label="t('system.ai.chat.action.view_runtime')"
                       :disabled="item.progressState === 'streaming'"
@@ -341,30 +341,30 @@
                       <div class="agent-runtime-detail__section-title">Token</div>
                       <div class="agent-runtime-detail__row">
                         <span>{{ t("system.ai.chat.field.input_tokens") }}</span>
-                        <strong>{{ formatNumber(item.token?.input) }}</strong>
+                        <el-text tag="strong">{{ formatNumber(item.token?.input) }}</el-text>
                       </div>
                       <div class="agent-runtime-detail__row">
                         <span>{{ t("system.ai.chat.field.output_tokens") }}</span>
-                        <strong>{{ formatNumber(item.token?.output) }}</strong>
+                        <el-text tag="strong">{{ formatNumber(item.token?.output) }}</el-text>
                       </div>
                       <div v-if="(item.token?.cache ?? 0) > 0" class="agent-runtime-detail__row">
                         <span>{{ t("system.ai.chat.field.cache_tokens") }}</span>
-                        <strong>{{ formatNumber(item.token?.cache) }}</strong>
+                        <el-text tag="strong">{{ formatNumber(item.token?.cache) }}</el-text>
                       </div>
                       <div class="agent-runtime-detail__row is-total">
                         <span>{{ t("system.ai.chat.field.total_tokens") }}</span>
-                        <strong>{{ formatNumber(item.token?.total) }}</strong>
+                        <el-text tag="strong">{{ formatNumber(item.token?.total) }}</el-text>
                       </div>
                     </div>
                     <div v-if="item.first_token_ms > 0 || item.duration_ms > 0" class="agent-runtime-detail__section">
                       <div class="agent-runtime-detail__section-title">{{ t("system.ai.chat.field.duration") }}</div>
                       <div v-if="item.first_token_ms > 0" class="agent-runtime-detail__row">
                         <span>{{ t("system.ai.chat.field.first_token") }}</span>
-                        <strong>{{ formatDurationMs(item.first_token_ms) }}</strong>
+                        <el-text tag="strong">{{ formatDurationMs(item.first_token_ms) }}</el-text>
                       </div>
                       <div v-if="item.duration_ms > 0" class="agent-runtime-detail__row is-total">
                         <span>{{ t("system.ai.chat.field.total_duration") }}</span>
-                        <strong>{{ formatDurationMs(item.duration_ms) }}</strong>
+                        <el-text tag="strong">{{ formatDurationMs(item.duration_ms) }}</el-text>
                       </div>
                     </div>
                   </div>
@@ -404,9 +404,9 @@
             </div>
             <div class="agent-shortcuts__actions">
               <span class="agent-shortcuts__count">{{ shortcutBatchLabel }}</span>
-              <el-button text
+              <el-button
                 v-if="canRefreshShortcutBatch"
-                class="agent-shortcuts__refresh"
+                class="admin-custom-button agent-shortcuts__refresh"
                 native-type="button"
                 :disabled="sending"
                 @click="refreshShortcutBatch"
@@ -420,10 +420,10 @@
             {{ t("system.ai.chat.message.loading_shortcuts") }}
           </div>
           <div v-else class="agent-shortcuts__grid">
-            <el-button text
+            <el-button
               v-for="shortcut in shortcutVisibleList"
               :key="shortcut.key"
-              class="agent-shortcut"
+              class="admin-custom-button agent-shortcut"
               native-type="button"
               :disabled="sending"
               @click="handleShortcutClick(shortcut)"
@@ -463,7 +463,7 @@
       :guide="biCardDialog.guide"
       @saved="handleBiCardSaved"
     />
-  </main>
+  </el-main>
 </template>
 
 <script setup lang="ts" name="ChatPanel">

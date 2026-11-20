@@ -1,8 +1,8 @@
 <template>
-  <main class="bi-designer-page">
+  <el-main class="bi-designer-page" style="--el-main-padding: 0; flex: 0 1 auto; overflow: visible">
     <el-card class="admin-page-card bi-designer-page__toolbar" shadow="never">
-      <header>
-        <h2>{{ dashboard?.name || t("bi.dashboard.edit") }}</h2>
+      <el-header style="--el-header-height: auto; --el-header-padding: 0">
+        <el-text tag="h2">{{ dashboard?.name || t("bi.dashboard.edit") }}</el-text>
         <div>
           <el-button :icon="icons.ArrowLeft" @click="router.push('/bi/manage')">{{ t("common.action.back") }}</el-button
           ><el-button :icon="icons.Document" :loading="saving" :disabled="!dashboard" @click="save(false)">{{
@@ -17,7 +17,7 @@
             >{{ t("bi.dashboard.publish") }}</el-button
           >
         </div>
-      </header>
+      </el-header>
     </el-card>
     <el-skeleton v-if="loading" :rows="6" animated /><el-alert
       v-else-if="!dashboard"
@@ -30,7 +30,7 @@
       :card="editingCard"
       @saved="loadCards"
     />
-  </main>
+  </el-main>
 </template>
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";

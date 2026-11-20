@@ -16,7 +16,8 @@
       >
       <template #navigation>
         <nav class="assistant-nav" :aria-label="t('system.ai.workspace.navigation')">
-          <el-button text
+          <el-button
+            class="admin-custom-button"
             v-for="item in functions"
             :key="item.key"
             :class="{ 'is-active': view === item.key }"
@@ -31,8 +32,8 @@
     </SessionPanel>
     <template v-else-if="!mobile">
       <el-tooltip :content="t('system.ai.chat.action.expand_sessions')" placement="right">
-        <el-button text
-          class="assistant-icon"
+        <el-button
+          class="admin-custom-button assistant-icon"
           native-type="button"
           :aria-label="t('system.ai.chat.action.expand_sessions')"
           @click="emit('toggle')"
@@ -47,7 +48,8 @@
           :content="item.key === 'automations' ? `${item.label} (${pending})` : item.label"
           placement="right"
         >
-          <el-button text
+          <el-button
+            class="admin-custom-button"
             native-type="button"
             :class="{ 'is-active': view === item.key }"
             :aria-label="item.key === 'automations' ? `${item.label} (${pending})` : item.label"
@@ -59,8 +61,8 @@
       </nav>
       <div class="assistant-nav-divider" />
       <el-tooltip :content="t('system.ai.chat.action.new_conversation')" placement="right"
-        ><el-button text
-          class="assistant-icon"
+        ><el-button
+          class="admin-custom-button assistant-icon"
           native-type="button"
           :aria-label="t('system.ai.chat.action.new_conversation')"
           @click="emit('create')"
@@ -68,8 +70,8 @@
           <el-icon><Plus /></el-icon></el-button
       ></el-tooltip>
       <el-tooltip :content="t('system.ai.chat.title.recent_conversations')" placement="right"
-        ><el-button text
-          class="assistant-icon"
+        ><el-button
+          class="admin-custom-button assistant-icon"
           native-type="button"
           :aria-label="t('system.ai.chat.title.recent_conversations')"
           @click="historyOpen = true"
@@ -79,8 +81,8 @@
     </template>
     <template v-else>
       <el-dropdown trigger="click" @command="changeView">
-        <el-button text
-          class="assistant-mobile-trigger"
+        <el-button
+          class="admin-custom-button assistant-mobile-trigger"
           native-type="button"
           :aria-label="`${t('system.ai.workspace.functions')} · ${currentLabel} (${pending})`"
         >
@@ -95,16 +97,16 @@
             /></el-dropdown-item> </el-dropdown-menu
         ></template>
       </el-dropdown>
-      <el-button text
-        class="assistant-icon"
+      <el-button
+        class="admin-custom-button assistant-icon"
         native-type="button"
         :aria-label="t('system.ai.chat.title.recent_conversations')"
         @click="historyOpen = true"
       >
         <el-icon><RefreshLeft /></el-icon>
       </el-button>
-      <el-button text
-        class="assistant-icon"
+      <el-button
+        class="admin-custom-button assistant-icon"
         native-type="button"
         :aria-label="t('system.ai.chat.action.new_conversation')"
         @click="emit('create')"
@@ -143,7 +145,7 @@ import { t } from "@liujitcn/kratos-admin-core";
 import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import SessionPanel from "@liujitcn/kratos-admin-system/components/AiSessionPanel/index.vue";
 import type { AiSession } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
-import { isAssistantView, type AssistantView } from "./state";
+import { isAssistantView, type AssistantView } from "@liujitcn/kratos-admin-system/components/ai/workspace/state";
 import type { SessionAction } from "../types";
 const props = defineProps<{
   active: string;

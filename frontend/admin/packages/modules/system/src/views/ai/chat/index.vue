@@ -106,10 +106,14 @@ import { defAiAutomationService } from "@liujitcn/kratos-admin-system/api/base/v
 import type { AiPlugin, AiPluginConnection, AiPluginSelection } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_plugin";
 import { useAiChatStream } from "@liujitcn/kratos-admin-system/components/ai/useAiChatStream";
 import AssistantNavigation from "./workspace/AssistantNavigation.vue";
-import AutomationPanel from "./workspace/AutomationPanel.vue";
-import FilePanel from "./workspace/FilePanel.vue";
-import PluginPanel from "./workspace/PluginPanel.vue";
-import { isAssistantView, pluginSelectionKey, type AssistantView } from "./workspace/state";
+import AutomationPanel from "@liujitcn/kratos-admin-system/components/ai/workspace/AutomationPanel.vue";
+import FilePanel from "@liujitcn/kratos-admin-system/components/ai/workspace/FilePanel.vue";
+import PluginPanel from "@liujitcn/kratos-admin-system/components/ai/workspace/PluginPanel.vue";
+import {
+  isAssistantView,
+  pluginSelectionKey,
+  type AssistantView
+} from "@liujitcn/kratos-admin-system/components/ai/workspace/state";
 import {
   createLocalUserMessage,
   createThinkingMessage,
@@ -125,13 +129,7 @@ import {
   resolveModelSelection,
   saveModelSelection
 } from "@liujitcn/kratos-admin-system/components/AiModelSelector/modelSelection";
-import type {
-  ChatMessageAction,
-  ChatMessageEditPayload,
-  ChatMessageItem,
-  SessionAction,
-  SubmitPayload
-} from "./types";
+import type { ChatMessageAction, ChatMessageEditPayload, ChatMessageItem, SessionAction, SubmitPayload } from "./types";
 
 defineOptions({
   name: "AiChat"
@@ -194,9 +192,9 @@ const filteredSessions = computed(() => {
   return sessions.value.filter(item => item.title.includes(keyword) || item.summary.includes(keyword));
 });
 
-const pluginTerminal = computed(() => assistantView.value === "automations"
-  ? Terminal.TERMINAL_ADMIN
-  : activeSession.value?.terminal ?? Terminal.TERMINAL_ADMIN);
+const pluginTerminal = computed(() =>
+  assistantView.value === "automations" ? Terminal.TERMINAL_ADMIN : (activeSession.value?.terminal ?? Terminal.TERMINAL_ADMIN)
+);
 
 const aiFlowBlockRenderers = getAdminAiFlowBlockRenderers();
 

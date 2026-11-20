@@ -1,24 +1,24 @@
 <template>
   <div class="profile-page">
     <section class="profile-shell">
-      <aside class="profile-nav">
-        <el-button text
+      <el-aside class="profile-nav" style="--el-aside-width: auto; overflow: visible">
+        <el-button
           v-for="tab in profileTabs"
           :key="tab.value"
           native-type="button"
-          class="nav-item"
+          class="admin-custom-button nav-item"
           :class="{ 'nav-item--active': activeTab === tab.value }"
           @click="handleTabChange(tab.value)"
         >
           <div class="nav-item__content">
-            <strong>{{ tab.label }}</strong>
+            <el-text tag="strong">{{ tab.label }}</el-text>
             <span>{{ tab.description }}</span>
           </div>
           <el-icon><ArrowRight /></el-icon>
         </el-button>
-      </aside>
+      </el-aside>
 
-      <main class="profile-content">
+      <el-main class="profile-content" style="--el-main-padding: 0; flex: 0 1 auto; overflow: visible">
         <ProfileBase v-if="activeTab === 'account'" :profile="userProfileForm" @refreshed="loadUserProfile" />
         <ProfileSecurity
           v-else-if="activeTab === 'security'"
@@ -29,7 +29,7 @@
         <ProfileSession v-else-if="activeTab === 'session'" />
         <ProfileLoginLog v-else-if="activeTab === 'login-log'" />
         <ProfilePassword v-else />
-      </main>
+      </el-main>
     </section>
   </div>
 </template>

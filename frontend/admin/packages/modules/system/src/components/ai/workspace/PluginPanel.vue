@@ -25,10 +25,10 @@
       <div class="plugin-grid">
         <article v-for="plugin in visiblePlugins" :key="plugin.id" class="plugin-card">
           <div class="plugin-card-title">
-            <h3>{{ plugin.name }}</h3>
+            <el-text tag="h3">{{ plugin.name }}</el-text>
             <el-tag size="small">{{ plugin.source }}</el-tag>
           </div>
-          <p>{{ plugin.description }}</p>
+          <el-text tag="p">{{ plugin.description }}</el-text>
           <el-tag :type="plugin.unavailable_reason ? 'warning' : 'info'">{{
             plugin.unavailable_reason ||
             (plugin.installation?.enabled ? t("system.ai.workspace.enabled") : t("system.ai.workspace.disabled"))
@@ -47,7 +47,11 @@
               :disabled="!plugin.enabled || !plugin.installation?.enabled || connectedPluginIDs.has(plugin.id)"
               type="primary"
               @click="openConnection(plugin)"
-              >{{ connectedPluginIDs.has(plugin.id) ? t("system.ai.workspace.connection_connected") : t("system.ai.workspace.connect") }}</el-button
+              >{{
+                connectedPluginIDs.has(plugin.id)
+                  ? t("system.ai.workspace.connection_connected")
+                  : t("system.ai.workspace.connect")
+              }}</el-button
             >
             <el-button v-if="!mobile && canManageTools" @click="openInstallation(plugin)">{{
               t("system.ai.workspace.installation")
@@ -80,16 +84,16 @@
         <span>{{ t("system.ai.workspace.endpoint") }}：{{ detail.endpoint || "-" }}</span>
         <span>{{ t("system.ai.workspace.tools") }}：{{ detail.tools?.length ?? 0 }}</span>
       </div>
-      <p>{{ detail?.description }}</p>
+      <el-text tag="p">{{ detail?.description }}</el-text>
       <el-alert v-if="detail?.unavailable_reason" :title="detail.unavailable_reason" type="warning" :closable="false" />
       <div v-loading="toolsLoading">
         <el-empty v-if="!toolsLoading && !detail?.tools?.length" :description="t('system.ai.workspace.no_matches')" />
         <article v-for="item in detail?.tools ?? []" :key="item.id" class="tool-detail">
-          <strong>{{ item.source_name }}</strong
+          <el-text tag="strong">{{ item.source_name }}</el-text>
           ><el-tag size="small">{{
             item.effect === "read" ? t("system.ai.workspace.read") : t("system.ai.workspace.requires_confirmation")
           }}</el-tag>
-          <p>{{ item.description }}</p>
+          <el-text tag="p">{{ item.description }}</el-text>
           <pre>{{ item.input_schema }}</pre>
         </article>
       </div>
@@ -152,7 +156,8 @@ const tab = ref("catalog"),
 const managedPlugins = computed(() => props.plugins);
 const canManage = computed(() => canConfigureAssistant(props.mobile, props.canManageTools));
 const connectedPluginIDs = computed(
-  () => new Set(props.plugins.filter(plugin => hasConnectedPluginConnection(plugin.id, props.connections)).map(plugin => plugin.id))
+  () =>
+    new Set(props.plugins.filter(plugin => hasConnectedPluginConnection(plugin.id, props.connections)).map(plugin => plugin.id))
 );
 const visiblePlugins = computed(() =>
   props.plugins.filter(

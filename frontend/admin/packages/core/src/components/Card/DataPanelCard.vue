@@ -2,8 +2,8 @@
   <article class="data-panel-card" :class="cardClass">
     <div class="data-panel-card__header">
       <div>
-        <h3 class="data-panel-card__title">{{ title }}</h3>
-        <p v-if="description" class="data-panel-card__desc">{{ description }}</p>
+        <el-text tag="h3" class="data-panel-card__title">{{ title }}</el-text>
+        <el-text tag="p" v-if="description" class="data-panel-card__desc">{{ description }}</el-text>
       </div>
       <slot name="extra" />
     </div>

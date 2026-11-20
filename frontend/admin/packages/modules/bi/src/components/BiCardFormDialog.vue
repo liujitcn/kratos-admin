@@ -33,16 +33,16 @@
         <el-alert :title="t(canEditMetrics ? 'bi.sql.shared_notice' : 'bi.sql.readonly_notice')" type="info" show-icon :closable="false" />
         <el-alert v-if="pendingSave && !saving" :title="t('bi.sql.save_pending')" type="warning" show-icon :closable="false" />
         <div v-for="metric in editedMetrics" :key="metric.code" class="bi-card-formulas__metric">
-          <strong>{{ metric.name }} <small>{{ metric.unit }}</small></strong>
+          <el-text tag="strong">{{ metric.name }} <el-text tag="small">{{ metric.unit }}</el-text></el-text>
           <CodeEditor v-model="metric.expression" language="sql" height="120px" :readonly="!canEditMetrics || Boolean(pendingSave)" />
         </div>
         <template v-if="sql">
-          <strong>{{ t('bi.sql.full_sql') }}</strong>
+          <el-text tag="strong">{{ t('bi.sql.full_sql') }}</el-text>
           <CodeEditor :model-value="sql" language="sql" height="220px" readonly />
         </template>
         <el-alert v-if="impact?.changes?.length" :title="t('bi.sql.impact', { cards: impact.affected_cards, dashboards: impact.affected_dashboards })" type="warning" show-icon :closable="false" />
         <div v-for="change in impact?.changes ?? []" :key="change.after?.code ?? change.before?.code" class="bi-card-formulas__diff">
-          <strong>{{ change.after?.name ?? change.before?.name }}</strong>
+          <el-text tag="strong">{{ change.after?.name ?? change.before?.name }}</el-text>
           <code>{{ change.before?.expression }} → {{ change.after?.expression }}</code>
         </div>
         <el-button v-if="card" :disabled="saving || previewing || Boolean(pendingSave)" @click="loadDetails(true)">{{ t('bi.sql.refresh_model') }}</el-button>

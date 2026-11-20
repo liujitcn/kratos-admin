@@ -1,8 +1,8 @@
 <template>
   <div class="card filter">
-    <h4 v-if="title" class="title sle">
+    <el-text tag="h4" v-if="title" class="title sle">
       {{ title }}
-    </h4>
+    </el-text>
     <div class="search">
       <el-input v-model="filterText" :placeholder="t('core.tree.filter_placeholder')" clearable />
       <el-dropdown trigger="click">

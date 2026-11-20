@@ -4,11 +4,11 @@
       <SwitchDark class="dark" />
       <LocaleSwitch v-if="languageOptions.length > 1" class="locale" />
       <div class="login-left">
-        <img class="login-left-img" :src="backgroundUrl" :alt="t('core.login.background_alt')" @error="handleBackgroundError" />
+        <el-image class="login-left-img" :src="backgroundUrl" :alt="t('core.login.background_alt')" @error="handleBackgroundError" />
       </div>
       <div ref="loginFormRef" class="login-form">
         <div ref="loginLogoRef" class="login-logo">
-          <img v-show="showLogoIcon" class="login-icon" :src="logoUrl" alt="" @error="handleLogoError" />
+          <el-image v-show="showLogoIcon" class="login-icon" :src="logoUrl" alt="" fit="contain" @error="handleLogoError" />
           <h2 ref="logoTextRef" class="logo-text" :style="{ fontSize: `${logoFontSize}px` }">
             <span>{{ projectName }}</span>
             <span v-if="configStore.version" class="login-version">v{{ configStore.version }}</span>

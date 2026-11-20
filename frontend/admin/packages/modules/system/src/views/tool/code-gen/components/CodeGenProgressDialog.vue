@@ -12,7 +12,7 @@
       <template v-if="task">
         <div class="task-heading">
           <div>
-            <strong>{{ task.message }}</strong>
+            <el-text tag="strong">{{ task.message }}</el-text>
             <span v-if="task.current_table_name">
               {{ t("system.code.gen.progress.value.current", { table: task.current_table_name }) }}
             </span>
@@ -38,7 +38,7 @@
           <el-collapse-item v-for="table in task.tables" :key="table.table_id" :name="table.table_id">
             <template #title>
               <div class="table-heading">
-                <strong>{{ table.table_name }}</strong>
+                <el-text tag="strong">{{ table.table_name }}</el-text>
                 <span>{{ table.completed_steps }} / {{ table.total_steps }}</span>
                 <el-tag :type="statusMeta(table.status).type" size="small" effect="plain">
                   {{ statusMeta(table.status).label }}

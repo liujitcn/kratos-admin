@@ -14,7 +14,7 @@
         </el-button>
       </el-tooltip>
     </div>
-    <p class="mfa-recovery-dialog__warning">{{ t("core.login.mfa_recovery_codes_warning") }}</p>
+    <el-text tag="p" class="mfa-recovery-dialog__warning">{{ t("core.login.mfa_recovery_codes_warning") }}</el-text>
     <template #footer>
       <el-button type="primary" @click="handleConfirm">{{ t("core.login.mfa_recovery_codes_confirm") }}</el-button>
     </template>

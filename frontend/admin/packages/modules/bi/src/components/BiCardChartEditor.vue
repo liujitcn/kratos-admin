@@ -12,7 +12,7 @@
         >{{ ["metric", "metric_grid"].includes(type) ? t(`bi.card.chart.${type}`) : messages(`types.${type}`) }}</el-button
       >
     </div>
-    <p class="bi-card-chart-editor__hint">{{ t("bi.card.chart_hint") }}</p>
+    <el-text tag="p" class="bi-card-chart-editor__hint">{{ t("bi.card.chart_hint") }}</el-text>
     <el-form label-position="top">
       <el-form-item v-if="!['metric', 'metric_grid', 'gauge'].includes(chartType)" :label="t('bi.card.dimension_field')">
         <el-select :model-value="modelValue.encoding.dimension || dimensionFields[0]?.code" @change="patchEncoding({ dimension: $event })"

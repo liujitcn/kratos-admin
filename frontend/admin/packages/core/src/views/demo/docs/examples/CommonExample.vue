@@ -2,7 +2,7 @@
   <div v-if="active" class="component-common-example">
     <template v-if="componentId === 'SelectIcon'">
       <SelectIcon v-model:icon-value="icon" title="选择图标" />
-      <p class="example-tip">当前图标：{{ icon || "未选择" }}</p>
+      <el-text tag="p" class="example-tip">当前图标：{{ icon || "未选择" }}</el-text>
     </template>
     <template v-else-if="componentId === 'SvgIcon'">
       <svg class="svg-symbol" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -14,21 +14,21 @@
       <div class="icon-sizes">
         <SvgIcon v-for="size in [20, 32, 48]" :key="size" icon-class="circle" prefix="component-docs" :size="size" />
       </div>
-      <p class="example-tip">按 SVG symbol 名称引用，同一图标可设置不同尺寸。</p>
+      <el-text tag="p" class="example-tip">按 SVG symbol 名称引用，同一图标可设置不同尺寸。</el-text>
     </template>
     <template v-else-if="componentId === 'SwitchDark'">
       <SwitchDark />
-      <p class="example-tip">切换后立即应用当前管理端的明暗主题。</p>
+      <el-text tag="p" class="example-tip">切换后立即应用当前管理端的明暗主题。</el-text>
     </template>
     <template v-else-if="componentId === 'LocaleSwitch'">
       <div class="locale-control"><LocaleSwitch /><span>点击选择语言</span></div>
-      <p class="example-tip">使用管理端全局语言设置；当前语言：{{ locale }}。</p>
+      <el-text tag="p" class="example-tip">使用管理端全局语言设置；当前语言：{{ locale }}。</el-text>
     </template>
     <template v-else-if="componentId === 'Loading'">
       <el-switch v-model="loading" active-text="显示加载状态" />
       <div class="loading-example">
         <Loading v-if="loading" />
-        <p v-else class="example-tip">内容已经准备就绪。</p>
+        <el-text tag="p" v-else class="example-tip">内容已经准备就绪。</el-text>
       </div>
     </template>
     <div v-else class="error-example"><ErrorMessage code="404" :image="notFound" message="未找到你要访问的页面" /></div>

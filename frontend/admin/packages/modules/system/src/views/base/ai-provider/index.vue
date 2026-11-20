@@ -25,7 +25,7 @@
             <div v-for="(model, index) in form.models" :key="`${model.model_name}-${index}`" class="provider-models__item">
               <div class="provider-models__content">
                 <div class="provider-models__heading">
-                  <strong>{{ model.model_name }}</strong>
+                  <el-text tag="strong">{{ model.model_name }}</el-text>
                   <span v-if="model.display_name" class="provider-models__alias">✦ {{ model.display_name }}</span>
                   <el-tag size="small" effect="plain">{{ categoryLabel(model.category) }}</el-tag>
                   <el-tag size="small" effect="plain" :type="model.status === Status.STATUS_ENABLE ? 'success' : 'info'">

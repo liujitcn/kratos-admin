@@ -6,7 +6,7 @@
     placement="bottom"
     :show-after="200"
   >
-    <el-button text class="ai" native-type="button" :aria-label="t('system.ai.chat.action.open_assistant')" @click="openAi">
+    <el-button class="admin-custom-button ai" native-type="button" :aria-label="t('system.ai.chat.action.open_assistant')" @click="openAi">
       <el-icon><ChatDotRound /></el-icon>
     </el-button>
   </el-tooltip>

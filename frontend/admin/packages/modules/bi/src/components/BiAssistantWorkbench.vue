@@ -1,20 +1,28 @@
 <template>
   <el-container class="bi-assistant-workbench">
-    <header class="bi-assistant-workbench__topbar" @click="handleTopbarClick">
+    <el-header
+      class="bi-assistant-workbench__topbar"
+      style="--el-header-height: auto; --el-header-padding: 0"
+      @click="handleTopbarClick"
+    >
+      <el-button class="bi-assistant-workbench__icon-button" title="工具箱" @click.stop="toggleToolbox">
+        <el-icon><Grid /></el-icon>
+        <span class="bi-assistant-workbench__dot" />
+      </el-button>
+
       <div class="bi-assistant-workbench__session-wrap">
-        <button
+        <el-button
           class="bi-assistant-workbench__session-switch"
           :class="{ 'is-open': sessionMenuOpen }"
-          type="button"
           @click.stop="toggleSessionMenu()"
         >
           <span>{{ activeSessionTitle }}</span>
           <el-icon><ArrowDown /></el-icon>
-        </button>
+        </el-button>
         <div v-if="sessionMenuOpen" class="bi-assistant-workbench__session-menu" @click.stop>
           <div class="bi-assistant-workbench__session-search">
             <el-icon><Search /></el-icon>
-            <input v-model="sessionKeyword" type="text" placeholder="搜索会话" @keydown.esc="closeSessionMenu" />
+            <el-input v-model="sessionKeyword" placeholder="搜索会话" @keydown.esc="closeSessionMenu" />
           </div>
           <div class="bi-assistant-workbench__session-list">
             <template v-for="group in sessionGroups" :key="group.label">
@@ -39,9 +47,9 @@
                   @click.stop
                   @command="command => handleSessionMenuCommand(command, session)"
                 >
-                  <button class="bi-assistant-workbench__session-more" type="button" title="会话操作" @click.stop>
+                  <el-button class="bi-assistant-workbench__session-more" title="会话操作" @click.stop>
                     <el-icon><MoreFilled /></el-icon>
-                  </button>
+                  </el-button>
                   <template #dropdown>
                     <el-dropdown-menu>
                       <el-dropdown-item command="rename" :icon="EditPen">重命名</el-dropdown-item>
@@ -54,94 +62,93 @@
                 </el-dropdown>
               </div>
             </template>
-            <div v-if="!sessionGroups.some(group => group.items.length)" class="bi-assistant-workbench__session-empty">暂无匹配会话</div>
+            <div v-if="!sessionGroups.some(group => group.items.length)" class="bi-assistant-workbench__session-empty">
+              暂无匹配会话
+            </div>
           </div>
           <div class="bi-assistant-workbench__session-foot">
-            <button class="bi-assistant-workbench__plain-button" type="button" @click="createSessionFromMenu">
+            <el-button class="bi-assistant-workbench__plain-button" @click="createSessionFromMenu">
               <el-icon><Plus /></el-icon>
               新建会话
-            </button>
+            </el-button>
           </div>
         </div>
       </div>
 
-      <button class="bi-assistant-workbench__icon-button" type="button" title="新建会话" @click.stop="createSession">
+      <el-button class="bi-assistant-workbench__icon-button" title="新建会话" @click.stop="createSession">
         <el-icon><Plus /></el-icon>
-      </button>
-
-      <div
-        class="bi-assistant-workbench__topbar-search"
-        :class="{ open: topSearchOpen }"
-        title="搜索会话"
-        @click.stop="openTopSearch"
-      >
-        <el-icon><Search /></el-icon>
-        <input
-          v-if="topSearchOpen"
-          ref="topSearchInput"
-          v-model="sessionKeyword"
-          type="text"
-          placeholder="搜索会话..."
-          @keydown.esc="closeTopSearch"
-        />
-        <button v-if="topSearchOpen" class="bi-assistant-workbench__search-clear" type="button" title="关闭" @click.stop="closeTopSearch">
-          <el-icon><Close /></el-icon>
-        </button>
-      </div>
+      </el-button>
 
       <span class="bi-assistant-workbench__spacer" />
-
-      <button class="bi-assistant-workbench__icon-button" type="button" title="工具箱" @click.stop="toggleToolbox">
-        <el-icon><Grid /></el-icon>
-        <span class="bi-assistant-workbench__dot" />
-      </button>
-      <span class="bi-assistant-workbench__topbar-sep" />
-      <div class="bi-assistant-workbench__avatar" title="寇豆码">寇</div>
 
       <div v-if="toolboxOpen" class="bi-assistant-workbench__toolbox" @click.stop>
         <div class="bi-assistant-workbench__toolbox-title">工作台工具</div>
         <div class="bi-assistant-workbench__toolbox-grid">
-          <button type="button" @click="openToolMenu('files')">
-            <span class="bi-assistant-workbench__toolbox-icon"><el-icon><Document /></el-icon></span>
+          <el-button @click="openWorkbenchTool('files')">
+            <span class="bi-assistant-workbench__toolbox-icon"
+              ><el-icon><Document /></el-icon
+            ></span>
             <span class="bi-assistant-workbench__toolbox-badge">2</span>
             文件
-          </button>
-          <button type="button" @click="openToolMenu('auto')">
-            <span class="bi-assistant-workbench__toolbox-icon is-warning"><el-icon><Timer /></el-icon></span>
-            <span class="bi-assistant-workbench__toolbox-badge is-warning-dot" />
+          </el-button>
+          <el-button @click="openWorkbenchTool('automations')">
+            <span class="bi-assistant-workbench__toolbox-icon is-warning"
+              ><el-icon><Timer /></el-icon
+            ></span>
+            <span v-if="pendingAutomationCount" class="bi-assistant-workbench__toolbox-badge">{{ pendingAutomationCount }}</span>
+            <span v-else class="bi-assistant-workbench__toolbox-badge is-warning-dot" />
             自动化
-          </button>
-          <button type="button" @click="openToolMenu('plugins')">
-            <span class="bi-assistant-workbench__toolbox-icon is-plugin"><el-icon><Grid /></el-icon></span>
+          </el-button>
+          <el-button @click="openWorkbenchTool('plugins')">
+            <span class="bi-assistant-workbench__toolbox-icon is-plugin"
+              ><el-icon><Grid /></el-icon
+            ></span>
             <span class="bi-assistant-workbench__toolbox-badge">5</span>
             插件
-          </button>
+          </el-button>
         </div>
       </div>
+    </el-header>
 
-      <div v-if="toolMenuKind" class="bi-assistant-workbench__menu-pop" @click.stop>
-        <button v-for="item in toolMenuItems" :key="item.label" type="button" @click="openAssistantTool(item.action)">
-          <span>{{ item.label }}</span><small>{{ item.actionLabel }}</small>
-        </button>
-      </div>
-    </header>
-
-    <el-main class="bi-assistant-workbench__body">
+    <el-main
+      class="bi-assistant-workbench__body"
+      :class="{ 'is-left-collapsed': collapsed.left, 'is-right-collapsed': collapsed.right }"
+    >
       <el-aside class="bi-assistant-workbench__zone" :class="{ 'is-collapsed': collapsed.left }">
         <el-header class="bi-assistant-workbench__zone-head">
-          <el-button text circle :icon="collapsed.left ? ArrowRight : ArrowLeft" @click="toggleZone('left')" />
-          <span v-if="!collapsed.left" class="bi-assistant-workbench__zone-title">左侧工作台</span>
+          <el-button
+            text
+            circle
+            :icon="collapsed.left ? DArrowRight : DArrowLeft"
+            :title="collapsed.left ? '展开左侧工作台' : '收起左侧工作台'"
+            @click="toggleZone('left')"
+          />
           <span v-if="!collapsed.left" class="bi-assistant-workbench__spacer" />
-          <el-button v-if="!collapsed.left" text :icon="Plus" @click="openCardPicker('left')">{{ t("bi.card.add_short") }}</el-button>
+          <el-button v-if="!collapsed.left" text type="primary" :icon="Plus" @click="openCardPicker('left')">{{
+            t("bi.card.add_short")
+          }}</el-button>
         </el-header>
         <div v-if="!collapsed.left" class="bi-assistant-workbench__zone-body" @dragover.prevent @drop.prevent="dropCard('left')">
-          <BiAssistantCardZone zone="left" :cards="leftCards" :refresh-keys="refreshKeys" @drag-start="startCardDrag" @drag-end="dragged = undefined" @drop="dropCard" @refresh="refreshCard" @quote="quoteCard" @remove="removeCard" @export="exportCard" @preview="previewCard" />
+          <BiAssistantCardZone
+            zone="left"
+            :cards="leftCards"
+            :refresh-keys="refreshKeys"
+            @drag-start="startCardDrag"
+            @drag-end="dragged = undefined"
+            @drop="dropCard"
+            @refresh="refreshCard"
+            @quote="quoteCard"
+            @remove="removeCard"
+            @export="exportCard"
+            @preview="previewCard"
+          />
         </div>
         <span v-else class="bi-assistant-workbench__vertical-label">左</span>
       </el-aside>
 
       <el-main class="bi-assistant-workbench__chat">
         <ChatPanel
+          v-show="workbenchView === 'chat'"
           :active-session="activeSession"
           :messages="currentMessages"
           :sending="currentSessionSending"
@@ -163,33 +170,114 @@
           @bi-card-saved="handleBiCardSaved"
         >
           <template #flow-blocks="{ message, activeFlowMessageId }">
-            <AiFlowBlocks v-if="message.blocks?.length" :message="message" :active-flow-message-id="activeFlowMessageId" :renderers="flowBlockRenderers" @flow-action="handleFlowAction" />
+            <AiFlowBlocks
+              v-if="message.blocks?.length"
+              :message="message"
+              :active-flow-message-id="activeFlowMessageId"
+              :renderers="flowBlockRenderers"
+              @flow-action="handleFlowAction"
+            />
           </template>
         </ChatPanel>
       </el-main>
 
       <el-aside class="bi-assistant-workbench__zone" :class="{ 'is-collapsed': collapsed.right }">
         <el-header class="bi-assistant-workbench__zone-head">
-          <span v-if="!collapsed.right" class="bi-assistant-workbench__zone-title">右侧工作台</span>
+          <el-button v-if="!collapsed.right" text type="primary" :icon="Plus" @click="openCardPicker('right')">{{
+            t("bi.card.add_short")
+          }}</el-button>
           <span v-if="!collapsed.right" class="bi-assistant-workbench__spacer" />
-          <el-button v-if="!collapsed.right" text :icon="Plus" @click="openCardPicker('right')">{{ t("bi.card.add_short") }}</el-button>
-          <el-button text circle :icon="collapsed.right ? ArrowLeft : ArrowRight" @click="toggleZone('right')" />
+          <el-button
+            text
+            circle
+            :icon="collapsed.right ? DArrowLeft : DArrowRight"
+            :title="collapsed.right ? '展开右侧工作台' : '收起右侧工作台'"
+            @click="toggleZone('right')"
+          />
         </el-header>
-        <div v-if="!collapsed.right" class="bi-assistant-workbench__zone-body" @dragover.prevent @drop.prevent="dropCard('right')">
-          <BiAssistantCardZone zone="right" :cards="rightCards" :refresh-keys="refreshKeys" @drag-start="startCardDrag" @drag-end="dragged = undefined" @drop="dropCard" @refresh="refreshCard" @quote="quoteCard" @remove="removeCard" @export="exportCard" @preview="previewCard" />
+        <div
+          v-if="!collapsed.right"
+          class="bi-assistant-workbench__zone-body"
+          @dragover.prevent
+          @drop.prevent="dropCard('right')"
+        >
+          <BiAssistantCardZone
+            zone="right"
+            :cards="rightCards"
+            :refresh-keys="refreshKeys"
+            @drag-start="startCardDrag"
+            @drag-end="dragged = undefined"
+            @drop="dropCard"
+            @refresh="refreshCard"
+            @quote="quoteCard"
+            @remove="removeCard"
+            @export="exportCard"
+            @preview="previewCard"
+          />
         </div>
         <span v-else class="bi-assistant-workbench__vertical-label">右</span>
       </el-aside>
+
+      <!-- 紧凑布局浮层遮罩：点击收起已展开的卡片区 -->
+      <div v-if="zoneScrimVisible" class="bi-assistant-workbench__zone-scrim" @click="collapseAllZones" />
+
+      <!-- 工作台工具全屏覆盖层：打开时覆盖左右工作台与对话区，不再跳转 AI 对话页 -->
+      <div v-show="workbenchView !== 'chat'" class="bi-assistant-workbench__tool-view">
+        <el-header class="bi-assistant-workbench__tool-head" style="--el-header-height: auto; --el-header-padding: 0">
+          <span class="bi-assistant-workbench__tool-title">{{ workbenchViewTitle }}</span>
+          <span class="bi-assistant-workbench__spacer" />
+          <el-button text :icon="Close" @click="workbenchView = 'chat'">返回对话</el-button>
+        </el-header>
+        <div class="bi-assistant-workbench__tool-body">
+          <!-- v-if 按需挂载：避免表格在隐藏状态渲染导致列宽塌缩，切换时自动重新加载 -->
+          <AutomationPanel
+            v-if="workbenchView === 'automations'"
+            :active="true"
+            :mobile="mobile"
+            :model-providers="modelProviders"
+            :knowledge-options="knowledgeOptions"
+            :plugins="plugins"
+            :connections="connections"
+            :provider-id="selectedProviderId"
+            :model-name="selectedModelName"
+            :knowledge-ids="selectedKnowledgeIds"
+            :selected-plugins="activeSession?.plugins || []"
+            @pending="pendingAutomationCount = $event"
+            @result="openResultSession"
+            @session="openDiscussion"
+          />
+          <FilePanel v-if="workbenchView === 'files'" />
+          <PluginPanel
+            v-if="workbenchView === 'plugins'"
+            :plugins="plugins"
+            :connections="connections"
+            :mobile="mobile"
+            :loading="pluginsLoading"
+            :error="pluginsError"
+            :can-manage-tools="pluginCapabilities.can_manage_tools"
+            :can-manage-catalog="pluginCapabilities.can_manage_catalog"
+            :can-create-private="pluginCapabilities.can_create_private"
+            @refresh="loadPlugins"
+            @select="addSessionPlugin"
+          />
+        </div>
+      </div>
     </el-main>
 
-    <el-dialog v-model="cardPicker.open" class="bi-assistant-workbench__picker-dialog" :title="t('bi.card.library')" width="min(880px, calc(100vw - 64px))" destroy-on-close>
+    <el-dialog
+      v-model="cardPicker.open"
+      class="bi-assistant-workbench__picker-dialog"
+      :title="t('bi.card.library')"
+      width="min(880px, calc(100vw - 64px))"
+      destroy-on-close
+    >
       <div class="bi-assistant-workbench__picker-subrow">
         <span>{{ t("bi.card.library_hint") }}</span>
         <span class="bi-assistant-workbench__spacer" />
         <span class="bi-assistant-workbench__picker-label">添加到</span>
         <div class="bi-assistant-workbench__zone-picker">
-          <button type="button" :class="{ active: cardPicker.zone === 'left' }" @click="cardPicker.zone = 'left'">左侧</button>
-          <button type="button" :class="{ active: cardPicker.zone === 'right' }" @click="cardPicker.zone = 'right'">右侧</button>
+          <el-button :class="{ active: cardPicker.zone === 'left' }" @click="cardPicker.zone = 'left'">左侧</el-button>
+          <el-button :class="{ active: cardPicker.zone === 'right' }" @click="cardPicker.zone = 'right'">右侧</el-button>
         </div>
       </div>
       <div class="bi-assistant-workbench__picker-head">
@@ -197,9 +285,20 @@
         <el-input v-model="cardPicker.keyword" clearable :prefix-icon="Search" :placeholder="t('bi.card.search')" />
       </div>
       <div v-loading="cardPicker.loading" class="bi-assistant-workbench__picker-list">
-        <el-button v-for="card in pickerCards" :key="card.id" class="bi-assistant-workbench__picker-item" text @click="addCard(card)">
-          <span class="bi-assistant-workbench__picker-icon"><el-icon><DataAnalysis /></el-icon></span>
-          <span class="bi-assistant-workbench__picker-text"><strong>{{ card.name }}</strong><small>{{ card.source_code }} · {{ card.chart_type }}</small></span>
+        <el-button
+          v-for="card in pickerCards"
+          :key="card.id"
+          class="bi-assistant-workbench__picker-item"
+          text
+          @click="addCard(card)"
+        >
+          <span class="bi-assistant-workbench__picker-icon"
+            ><el-icon><DataAnalysis /></el-icon
+          ></span>
+          <span class="bi-assistant-workbench__picker-text"
+            ><el-text tag="strong">{{ card.name }}</el-text
+            ><el-text tag="small">{{ card.source_code }} · {{ card.chart_type }}</el-text></span
+          >
           <el-icon><Plus /></el-icon>
         </el-button>
         <el-empty v-if="!cardPicker.loading && !pickerCards.length" :description="t('bi.card.empty')" />
@@ -218,15 +317,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import {
   ArrowDown,
-  ArrowLeft,
-  ArrowRight,
   Close,
   CopyDocument,
   DataAnalysis,
+  DArrowLeft,
+  DArrowRight,
   Delete,
   Document,
   Download,
@@ -239,21 +338,26 @@ import {
   Star,
   Timer
 } from "@element-plus/icons-vue";
-import { navigateTo } from "@liujitcn/kratos-admin-core/navigation";
 import { t } from "@liujitcn/kratos-admin-core";
-import { useRouter } from "vue-router";
+import { useMediaQuery } from "@vueuse/core";
 import { defAiKnowledgeService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_knowledge";
 import { defAiMessageService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_message";
 import { defAiModelService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_provider";
+import { defAiPluginService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_plugin";
 import { defAiSessionService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_session";
 import { defAiToolService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_tool";
 import { AiMessageStatus } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import type { AiSession } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import { Terminal } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
 import type { AiAction } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_message";
+import type { AiPlugin, AiPluginConnection, AiPluginSelection } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_plugin";
+import { pluginSelectionKey } from "@liujitcn/kratos-admin-system/components/ai/workspace/state";
 import { getAdminAiFlowBlockRenderers } from "@liujitcn/kratos-admin-system";
 import AiFlowBlocks from "@liujitcn/kratos-admin-system/components/ai/AiFlowBlocks.vue";
 import ChatPanel from "@liujitcn/kratos-admin-system/components/ai/ChatPanel.vue";
+import AutomationPanel from "@liujitcn/kratos-admin-system/components/ai/workspace/AutomationPanel.vue";
+import FilePanel from "@liujitcn/kratos-admin-system/components/ai/workspace/FilePanel.vue";
+import PluginPanel from "@liujitcn/kratos-admin-system/components/ai/workspace/PluginPanel.vue";
 import {
   createLocalUserMessage,
   createThinkingMessage,
@@ -265,8 +369,16 @@ import {
   useAiChatState,
   useAiChatStream
 } from "@liujitcn/kratos-admin-system/components/ai/chat";
-import type { ChatMessageAction, ChatMessageEditPayload, ChatMessageItem, SubmitPayload } from "@liujitcn/kratos-admin-system/components/ai/chat";
-import { resolveModelSelection, saveModelSelection } from "@liujitcn/kratos-admin-system/components/AiModelSelector/modelSelection";
+import type {
+  ChatMessageAction,
+  ChatMessageEditPayload,
+  ChatMessageItem,
+  SubmitPayload
+} from "@liujitcn/kratos-admin-system/components/ai/chat";
+import {
+  resolveModelSelection,
+  saveModelSelection
+} from "@liujitcn/kratos-admin-system/components/AiModelSelector/modelSelection";
 import type { BiCard, BiWorkbench } from "../rpc/bi/admin/v1/bi_card";
 import { defBiCardService } from "../api/bi/admin/v1/bi_card";
 import BiDataCard from "./BiDataCard.vue";
@@ -304,13 +416,21 @@ const aiStream = useAiChatStream({
   onSession: session => upsertSession(normalizeSession(session)),
   onError: error => ElMessage.error(error.message)
 });
-const router = useRouter();
+const mobile = useMediaQuery("(max-width: 768px)");
+/** 紧凑布局：小屏下卡片区默认收起、展开时以浮层覆盖聊天区 */
+const compact = useMediaQuery("(max-width: 1280px)");
 const sessionKeyword = ref("");
 const sessionMenuOpen = ref(false);
-const topSearchOpen = ref(false);
 const toolboxOpen = ref(false);
-const toolMenuKind = ref<"files" | "auto" | "plugins">();
-const topSearchInput = ref<HTMLInputElement>();
+const workbenchView = ref<"chat" | "files" | "automations" | "plugins">("chat");
+const pendingAutomationCount = ref(0);
+const plugins = ref<AiPlugin[]>([]),
+  connections = ref<AiPluginConnection[]>([]);
+const pluginCapabilities = ref({ can_manage_tools: false, can_manage_catalog: false, can_create_private: false });
+const pluginsLoading = ref(false),
+  pluginsError = ref("");
+const savingPlugins = ref(false),
+  pluginSelection = ref<AiPluginSelection[]>([]);
 const pinnedSessionIDs = ref<string[]>(readPinnedSessionIDs());
 const leftCards = ref<BiCard[]>([]);
 const rightCards = ref<BiCard[]>([]);
@@ -326,7 +446,9 @@ const zoneStorageKey = "kratos-admin:bi-assistant-workbench:zones";
 
 const visibleSessions = computed(() => {
   const keyword = sessionKeyword.value.trim().toLowerCase();
-  const filtered = keyword ? sessions.value.filter(item => (item.title + " " + item.summary).toLowerCase().includes(keyword)) : sessions.value;
+  const filtered = keyword
+    ? sessions.value.filter(item => (item.title + " " + item.summary).toLowerCase().includes(keyword))
+    : sessions.value;
   return [...filtered].sort((left, right) => {
     const pinDiff = Number(pinnedSessionIDs.value.includes(right.id)) - Number(pinnedSessionIDs.value.includes(left.id));
     return pinDiff || sessionTime(right).getTime() - sessionTime(left).getTime();
@@ -349,34 +471,16 @@ const sessionGroups = computed(() => {
   });
   return groups;
 });
-const toolMenuItems = computed(() => {
-  const menus = {
-    files: [
-      { label: "营收月报_2026-11.xlsx", actionLabel: "打开", action: "files" as const },
-      { label: "设备巡检记录_11-15.pdf", actionLabel: "打开", action: "files" as const },
-      { label: "活跃用户明细_11-16.csv", actionLabel: "打开", action: "files" as const },
-      { label: "+ 上传文件", actionLabel: "上传", action: "files" as const }
-    ],
-    auto: [
-      { label: "周报自动生成 · 待确认", actionLabel: "查看", action: "auto" as const },
-      { label: "异常数据巡检 · 运行中", actionLabel: "查看", action: "auto" as const },
-      { label: "每日报表推送 · 已启用", actionLabel: "配置", action: "auto" as const },
-      { label: "+ 新建自动化", actionLabel: "新建", action: "auto" as const }
-    ],
-    plugins: [
-      { label: "BI 问数 · 已启用", actionLabel: "配置", action: "plugins" as const },
-      { label: "工单同步 · 已启用", actionLabel: "配置", action: "plugins" as const },
-      { label: "Doris 查询 · 已启用", actionLabel: "配置", action: "plugins" as const },
-      { label: "数据大屏推送 · 已停用", actionLabel: "启用", action: "plugins" as const },
-      { label: "导出中心 · 已启用", actionLabel: "配置", action: "plugins" as const }
-    ]
-  };
-  return toolMenuKind.value ? menus[toolMenuKind.value] : [];
+const workbenchViewTitle = computed(() => {
+  const titles = { files: "文件", automations: "定时任务", plugins: "插件" } as const;
+  return workbenchView.value === "chat" ? "" : titles[workbenchView.value];
 });
 const pickerCards = computed(() => {
   const used = new Set([...leftCards.value, ...rightCards.value].map(item => item.id));
   const keyword = cardPicker.keyword.trim().toLowerCase();
-  return allCards.value.filter(item => !used.has(item.id) && (!keyword || (item.name + " " + item.source_code).toLowerCase().includes(keyword)));
+  return allCards.value.filter(
+    item => !used.has(item.id) && (!keyword || (item.name + " " + item.source_code).toLowerCase().includes(keyword))
+  );
 });
 
 /** 读取工作台会话置顶状态。 */
@@ -405,7 +509,6 @@ function persistPinnedSessionIDs() {
 function closeTopbarPopovers() {
   sessionMenuOpen.value = false;
   toolboxOpen.value = false;
-  toolMenuKind.value = undefined;
 }
 
 /** 处理顶部空白区域点击，关闭已打开的弹层。 */
@@ -418,7 +521,6 @@ function toggleSessionMenu(force?: boolean) {
   sessionMenuOpen.value = force ?? !sessionMenuOpen.value;
   if (sessionMenuOpen.value) {
     toolboxOpen.value = false;
-    toolMenuKind.value = undefined;
   }
 }
 
@@ -427,40 +529,88 @@ function closeSessionMenu() {
   sessionMenuOpen.value = false;
 }
 
-/** 打开顶部会话搜索并聚焦输入框。 */
-async function openTopSearch() {
-  topSearchOpen.value = true;
-  sessionMenuOpen.value = true;
-  toolboxOpen.value = false;
-  toolMenuKind.value = undefined;
-  await nextTick();
-  topSearchInput.value?.focus();
-}
-
-/** 关闭顶部会话搜索并清空过滤条件。 */
-function closeTopSearch() {
-  topSearchOpen.value = false;
-  sessionKeyword.value = "";
-  sessionMenuOpen.value = false;
-}
-
 /** 切换工具箱面板。 */
 function toggleToolbox() {
   toolboxOpen.value = !toolboxOpen.value;
   sessionMenuOpen.value = false;
-  toolMenuKind.value = undefined;
 }
 
-/** 打开工具箱二级菜单。 */
-function openToolMenu(kind: "files" | "auto" | "plugins") {
+/** 打开工作台工具面板，内容直接内嵌展示，不再跳转 AI 对话页。 */
+function openWorkbenchTool(view: "files" | "automations" | "plugins") {
   toolboxOpen.value = false;
-  toolMenuKind.value = kind;
+  sessionMenuOpen.value = false;
+  // 紧凑布局下先收起浮层卡片，避免遮挡工具面板
+  if (compact.value) collapseAllZones();
+  workbenchView.value = view;
 }
 
-/** 将工具箱操作跳转到现有 AI 助手功能面板。 */
-async function openAssistantTool(kind: "files" | "auto" | "plugins") {
-  toolMenuKind.value = undefined;
-  await navigateTo(router, "/ai/chat", { view: kind === "files" ? "files" : kind === "auto" ? "automations" : "plugins" });
+/** 自动化按管理员终端读取目录；插件目录同样固定管理端。 */
+const pluginTerminal = computed(() => Terminal.TERMINAL_ADMIN);
+
+/** 按终端读取插件目录、连接账号与当前账号的能力开关。 */
+async function loadPlugins() {
+  if (pluginsLoading.value) return;
+  pluginsLoading.value = true;
+  pluginsError.value = "";
+  plugins.value = [];
+  try {
+    const [catalog, accounts] = await Promise.all([
+      defAiPluginService.ListAiPlugin({ keyword: "", terminal: pluginTerminal.value }),
+      defAiPluginService.ListAiPluginConnection({ plugin_id: "" })
+    ]);
+    plugins.value = catalog.plugins ?? [];
+    connections.value = accounts.connections ?? [];
+    pluginCapabilities.value = {
+      can_manage_tools: catalog.can_manage_tools,
+      can_manage_catalog: catalog.can_manage_catalog,
+      can_create_private: catalog.can_create_private
+    };
+  } catch (error) {
+    pluginsError.value = error instanceof Error ? error.message : t("bi.query.error");
+  } finally {
+    pluginsLoading.value = false;
+  }
+}
+
+/** 保存显式插件选择，空数组表示关闭所有插件。 */
+async function savePluginSelection() {
+  if (pluginsError.value || pluginsLoading.value || activeSession.value?.read_only) return;
+  savingPlugins.value = true;
+  try {
+    const id = await ensureSession();
+    if (!id) return;
+    const response = await defAiSessionService.SetAiSessionPlugins({ id, plugins: pluginSelection.value });
+    if (response.session) upsertSession(normalizeSession(response.session));
+  } finally {
+    savingPlugins.value = false;
+  }
+}
+
+/** 从插件目录选用确定账号并回到对话视图。 */
+async function addSessionPlugin(selection: AiPluginSelection) {
+  if (activeSession.value?.read_only) {
+    ElMessage.warning("只读会话不能修改插件");
+    return;
+  }
+  pluginSelection.value = [...(activeSession.value?.plugins ?? [])];
+  if (!pluginSelection.value.some(item => pluginSelectionKey(item) === pluginSelectionKey(selection)))
+    pluginSelection.value.push(selection);
+  await savePluginSelection();
+  workbenchView.value = "chat";
+}
+
+/** 打开自动化执行结果会话并回到对话视图。 */
+async function openResultSession(id: string) {
+  workbenchView.value = "chat";
+  activeSessionID.value = id;
+  await selectSession(id);
+}
+
+/** 从执行结果继续讨论时切换到服务端新建的普通会话。 */
+function openDiscussion(session: AiSession) {
+  const normalized = normalizeSession(session);
+  upsertSession(normalized);
+  void openResultSession(normalized.id);
 }
 
 /** 从顶部菜单切换会话并加载消息。 */
@@ -514,14 +664,48 @@ async function createSessionFromMenu() {
   await createSession();
 }
 
+/** 紧凑布局下是否有卡片区处于浮层展开态（用于显示遮罩） */
+const zoneScrimVisible = computed(
+  () => compact.value && (!collapsed.left || !collapsed.right) && workbenchView.value === "chat"
+);
+
+/** 收起两侧卡片区（遮罩点击 / 进入紧凑布局时调用） */
+function collapseAllZones() {
+  collapsed.left = true;
+  collapsed.right = true;
+}
+
 function toggleZone(zone: Zone) {
+  const willOpen = collapsed[zone];
+  // 紧凑布局：展开一侧时先收起另一侧，避免两个浮层叠加遮挡
+  if (willOpen && compact.value) collapsed[zone === "left" ? "right" : "left"] = true;
   collapsed[zone] = !collapsed[zone];
 }
+
+/** 仅跨越断点时重置卡片区布局；小屏内 resize 不打断用户已展开的浮层 */
+watch(
+  compact,
+  isCompact => {
+    if (isCompact) collapseAllZones();
+    else {
+      collapsed.left = false;
+      collapsed.right = false;
+    }
+  },
+  { immediate: true }
+);
 
 async function loadCards() {
   const [config, page] = await Promise.all([
     defBiCardService.GetBiWorkbench({}),
-    defBiCardService.PageBiCard({ name: "", source_code: "", category: "favorite", search_source_codes: [], page_num: 1, page_size: 100 })
+    defBiCardService.PageBiCard({
+      name: "",
+      source_code: "",
+      category: "favorite",
+      search_source_codes: [],
+      page_num: 1,
+      page_size: 100
+    })
   ]);
   workbench.value = config;
   allCards.value = page.cards;
@@ -549,7 +733,13 @@ function readZoneLayout(cards: BiCard[]): { left: BiCard[]; right: BiCard[] } {
 }
 
 function persistZoneLayout() {
-  localStorage.setItem(zoneStorageKey, JSON.stringify({ left: leftCards.value.map(item => item.id), right: rightCards.value.map(item => item.id) } satisfies StoredZoneLayout));
+  localStorage.setItem(
+    zoneStorageKey,
+    JSON.stringify({
+      left: leftCards.value.map(item => item.id),
+      right: rightCards.value.map(item => item.id)
+    } satisfies StoredZoneLayout)
+  );
 }
 
 async function saveFavorites() {
@@ -609,7 +799,9 @@ async function exportCard(card: BiCard) {
     const result = await defBiCardService.GetBiCardData({ id: card.id, range_days: 0 });
     const header = (result.columns || []).map(item => item.name || item.code);
     const rows = (result.rows || []).map(row => row.values || []);
-    const csv = [header, ...rows].map(row => row.map(value => '"' + String(value || "").replaceAll('"', '""') + '"').join(",")).join("\n");
+    const csv = [header, ...rows]
+      .map(row => row.map(value => '"' + String(value || "").replaceAll('"', '""') + '"').join(","))
+      .join("\n");
     const url = URL.createObjectURL(new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" }));
     const link = document.createElement("a");
     link.href = url;
@@ -628,7 +820,14 @@ async function openCardPicker(zone: Zone) {
   if (cardPicker.allLoaded) return;
   cardPicker.loading = true;
   try {
-    const page = await defBiCardService.PageBiCard({ name: "", source_code: "", category: "", search_source_codes: [], page_num: 1, page_size: 100 });
+    const page = await defBiCardService.PageBiCard({
+      name: "",
+      source_code: "",
+      category: "",
+      search_source_codes: [],
+      page_num: 1,
+      page_size: 100
+    });
     allCards.value = page.cards;
     cardPicker.allLoaded = true;
   } catch (cause) {
@@ -816,7 +1015,7 @@ async function decideApproval(item: ChatMessageItem, approved: boolean) {
 onMounted(async () => {
   document.addEventListener("click", closeTopbarPopovers);
   try {
-    await Promise.all([loadCards(), loadChat()]);
+    await Promise.all([loadCards(), loadChat(), loadPlugins()]);
   } catch (cause) {
     ElMessage.error(cause instanceof Error ? cause.message : t("bi.query.error"));
   }
@@ -838,20 +1037,14 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
 }
 .bi-assistant-workbench__topbar {
   position: relative;
+  box-sizing: border-box;
   display: flex;
   flex: none;
-  align-items: center;
   gap: 6px;
-  box-sizing: border-box;
+  align-items: center;
   min-height: 42px;
   padding: 4px 10px;
   border-bottom: 1px solid var(--admin-page-divider-strong);
-}
-.bi-assistant-workbench__topbar-sep {
-  width: 1px;
-  height: 18px;
-  flex: none;
-  background: var(--el-border-color-lighter);
 }
 .bi-assistant-workbench__session-wrap {
   position: relative;
@@ -860,14 +1053,14 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
 }
 .bi-assistant-workbench__session-switch {
   display: inline-flex;
+  gap: 6px;
+  align-items: center;
   max-width: 260px;
   height: 32px;
-  align-items: center;
-  gap: 6px;
   padding: 0 8px;
-  color: var(--admin-page-text-primary);
   font-size: 13px;
   font-weight: 500;
+  color: var(--admin-page-text-primary);
   text-align: left;
   background: transparent;
   border: 1px solid transparent;
@@ -896,11 +1089,12 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
 .bi-assistant-workbench__icon-button {
   position: relative;
   display: inline-flex;
-  width: 32px;
-  height: 32px;
   flex: none;
   align-items: center;
   justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
   color: var(--admin-page-text-secondary);
   background: transparent;
   border: 0;
@@ -919,85 +1113,12 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
   background: var(--el-color-danger);
   border-radius: 50%;
 }
-.bi-assistant-workbench__topbar-search {
-  display: flex;
-  width: 32px;
-  height: 32px;
-  flex: none;
-  align-items: center;
-  gap: 6px;
-  padding: 0;
-  color: var(--admin-page-text-secondary);
-  cursor: pointer;
-  overflow: hidden;
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  transition: width 0.2s ease, padding 0.2s ease, border-color 0.2s ease;
-}
-.bi-assistant-workbench__topbar-search > .el-icon {
-  flex: none;
-  margin-left: 8px;
-}
-.bi-assistant-workbench__topbar-search:hover {
-  color: var(--admin-page-text-primary);
-  background: var(--el-fill-color-light);
-}
-.bi-assistant-workbench__topbar-search.open {
-  width: min(220px, 100%);
-  padding-right: 6px;
-  cursor: text;
-  background: var(--el-bg-color-overlay);
-  border-color: var(--el-color-primary-light-7);
-  box-shadow: 0 1px 4px rgb(15 23 42 / 6%);
-}
-.bi-assistant-workbench__topbar-search input {
-  min-width: 0;
-  flex: 1;
-  color: var(--el-text-color-primary);
-  font: inherit;
-  font-size: 13px;
-  background: transparent;
-  border: 0;
-  outline: 0;
-}
-.bi-assistant-workbench__search-clear {
-  display: inline-flex;
-  width: 16px;
-  height: 16px;
-  flex: none;
-  align-items: center;
-  justify-content: center;
-  color: var(--admin-page-text-placeholder);
-  background: transparent;
-  border: 0;
-  border-radius: 3px;
-}
-.bi-assistant-workbench__search-clear:hover {
-  background: var(--el-fill-color);
-}
 .bi-assistant-workbench__spacer {
   flex: 1;
   min-width: 0;
 }
-.bi-assistant-workbench__avatar {
-  display: flex;
-  width: 30px;
-  height: 30px;
-  flex: none;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 600;
-  user-select: none;
-  cursor: default;
-  background: linear-gradient(135deg, var(--el-color-primary), var(--el-color-info));
-  border-radius: 50%;
-}
 .bi-assistant-workbench__session-menu,
-.bi-assistant-workbench__toolbox,
-.bi-assistant-workbench__menu-pop {
+.bi-assistant-workbench__toolbox {
   position: absolute;
   z-index: 30;
   background: var(--el-bg-color-overlay);
@@ -1008,30 +1129,39 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
   top: 40px;
   left: 0;
   display: flex;
+  flex-direction: column;
   width: min(320px, calc(100vw - 32px));
   max-height: 440px;
-  flex-direction: column;
   overflow: hidden;
   border-radius: var(--admin-page-radius);
 }
 .bi-assistant-workbench__session-search {
   display: flex;
-  height: 30px;
-  align-items: center;
   gap: 6px;
-  margin: 10px 10px 6px;
+  align-items: center;
+  height: 30px;
   padding: 0 10px;
+  margin: 10px 10px 6px;
   color: var(--admin-page-text-placeholder);
   border: 1px solid var(--el-border-color);
   border-radius: 4px;
 }
-.bi-assistant-workbench__session-search input {
-  min-width: 0;
+.bi-assistant-workbench__session-search .el-input {
   flex: 1;
+  min-width: 0;
+}
+.bi-assistant-workbench__session-search :deep(.el-input__wrapper) {
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.bi-assistant-workbench__session-search input {
+  flex: 1;
+  min-width: 0;
   font-size: 13px;
+  outline: 0;
   background: transparent;
   border: 0;
-  outline: 0;
 }
 .bi-assistant-workbench__session-list {
   flex: 1;
@@ -1040,15 +1170,15 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
 }
 .bi-assistant-workbench__group-label {
   padding: 10px 6px 3px;
-  color: var(--admin-page-text-placeholder);
   font-size: 11px;
+  color: var(--admin-page-text-placeholder);
 }
 .bi-assistant-workbench__session-item {
   display: flex;
+  gap: 6px;
+  align-items: center;
   width: 100%;
   min-width: 0;
-  align-items: center;
-  gap: 6px;
   padding: 8px 8px 8px 10px;
   text-align: left;
   background: transparent;
@@ -1061,10 +1191,10 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
 }
 .bi-assistant-workbench__session-text {
   display: flex;
-  min-width: 0;
   flex: 1;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
 }
 .bi-assistant-workbench__session-title,
 .bi-assistant-workbench__session-meta {
@@ -1073,29 +1203,30 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
   white-space: nowrap;
 }
 .bi-assistant-workbench__session-title {
-  color: var(--admin-page-text-primary);
   font-size: 13px;
   font-weight: 500;
+  color: var(--admin-page-text-primary);
 }
 .bi-assistant-workbench__session-item.is-active .bi-assistant-workbench__session-title {
   color: var(--el-color-primary);
 }
 .bi-assistant-workbench__session-meta {
-  color: var(--admin-page-text-placeholder);
   font-size: 11px;
+  color: var(--admin-page-text-placeholder);
 }
 .bi-assistant-workbench__session-more {
   display: inline-flex;
-  width: 20px;
-  height: 20px;
   flex: none;
   align-items: center;
   justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
   color: var(--admin-page-text-placeholder);
-  opacity: 0;
   background: transparent;
   border: 0;
   border-radius: 4px;
+  opacity: 0;
 }
 .bi-assistant-workbench__session-item:hover .bi-assistant-workbench__session-more,
 .bi-assistant-workbench__session-more:focus-visible {
@@ -1107,8 +1238,8 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
 }
 .bi-assistant-workbench__session-empty {
   padding: 28px 10px;
-  color: var(--admin-page-text-placeholder);
   font-size: 12px;
+  color: var(--admin-page-text-placeholder);
   text-align: center;
 }
 .bi-assistant-workbench__session-foot {
@@ -1117,24 +1248,25 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
 }
 .bi-assistant-workbench__plain-button {
   display: inline-flex;
-  width: 100%;
-  height: 30px;
+  gap: 6px;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  width: 100%;
+  height: 30px;
+  padding: 0;
   color: var(--admin-page-text-regular);
-  background: #fff;
+  background: #ffffff;
   border: 1px solid var(--el-border-color);
   border-radius: 4px;
 }
 .bi-assistant-workbench__plain-button:hover {
   color: var(--el-color-primary);
-  border-color: var(--el-color-primary-light-7);
   background: var(--el-color-primary-light-9);
+  border-color: var(--el-color-primary-light-7);
 }
 .bi-assistant-workbench__toolbox {
   top: 100%;
-  right: 10px;
+  left: 0;
   box-sizing: border-box;
   width: min(288px, calc(100% - 20px));
   padding: 12px;
@@ -1142,8 +1274,8 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
 }
 .bi-assistant-workbench__toolbox-title {
   margin: 0 2px 8px;
-  color: var(--admin-page-text-placeholder);
   font-size: 12px;
+  color: var(--admin-page-text-placeholder);
 }
 .bi-assistant-workbench__toolbox-grid {
   display: grid;
@@ -1154,11 +1286,13 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
   position: relative;
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 6px;
+  align-items: center;
+  height: auto;
   padding: 12px 4px 10px;
-  color: var(--admin-page-text-regular);
   font-size: 12px;
+  font-weight: 400;
+  color: var(--admin-page-text-regular);
   background: transparent;
   border: 0;
   border-radius: 6px;
@@ -1169,10 +1303,10 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
 }
 .bi-assistant-workbench__toolbox-icon {
   display: inline-flex;
-  width: 34px;
-  height: 34px;
   align-items: center;
   justify-content: center;
+  width: 34px;
+  height: 34px;
   color: var(--el-color-primary);
   background: var(--el-color-primary-light-9);
   border-radius: 8px;
@@ -1192,9 +1326,9 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
   min-width: 16px;
   height: 16px;
   padding: 0 4px;
-  color: #fff;
   font-size: 10px;
   line-height: 16px;
+  color: #ffffff;
   text-align: center;
   background: var(--el-color-danger);
   border-radius: 8px;
@@ -1205,50 +1339,31 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
   padding: 0;
   background: var(--el-color-warning);
 }
-.bi-assistant-workbench__menu-pop {
-  top: 100%;
-  right: 10px;
-  min-width: 220px;
-  padding: 4px;
-  border-radius: 6px;
-}
-.bi-assistant-workbench__menu-pop button {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 8px 10px;
-  color: var(--admin-page-text-regular);
-  font-size: 13px;
-  text-align: left;
-  background: transparent;
-  border: 0;
-  border-radius: 4px;
-}
-.bi-assistant-workbench__menu-pop button:hover {
-  color: var(--el-text-color-primary);
-  background: var(--el-fill-color-light);
-}
-.bi-assistant-workbench__menu-pop small {
-  flex: none;
-  color: var(--admin-page-text-placeholder);
-  font-size: 11px;
-}
 .bi-assistant-workbench__body {
+  /* 左右工作台列宽：沿用项目弹性区间，上限对齐原型 360px；折叠态 44px */
+  --zone-left-w: minmax(248px, 360px);
+  --zone-right-w: minmax(248px, 360px);
+
+  position: relative;
   display: grid;
   flex: 1;
+  grid-template-columns: var(--zone-left-w) minmax(460px, 1fr) var(--zone-right-w);
   min-height: 0;
   padding: 0;
-  grid-template-columns: minmax(248px, 300px) minmax(460px, 1fr) minmax(248px, 300px);
+}
+.bi-assistant-workbench__body.is-left-collapsed {
+  --zone-left-w: 44px;
+}
+.bi-assistant-workbench__body.is-right-collapsed {
+  --zone-right-w: 44px;
 }
 .bi-assistant-workbench__zone {
   display: flex;
+  flex-direction: column;
   min-width: 0;
   min-height: 0;
-  flex-direction: column;
-  background: var(--el-fill-color-light);
   padding: 0;
+  background: var(--el-fill-color-light);
 }
 .bi-assistant-workbench__zone:first-child {
   border-right: 1px solid var(--admin-page-divider-strong);
@@ -1257,26 +1372,20 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
   border-left: 1px solid var(--admin-page-divider-strong);
 }
 .bi-assistant-workbench__zone.is-collapsed {
-  width: 44px;
   align-items: center;
+  width: 44px;
   background: var(--admin-page-card-bg);
 }
 .bi-assistant-workbench__zone-head {
   display: flex;
   flex: none;
-  align-items: center;
-  min-height: 48px;
-  height: 48px;
   gap: 6px;
+  align-items: center;
+  height: 48px;
+  min-height: 48px;
   padding: 0 10px;
   background: var(--admin-page-card-bg);
   border-bottom: 1px solid var(--admin-page-divider);
-}
-.bi-assistant-workbench__zone-title {
-  color: var(--el-text-color-primary);
-  font-size: 13px;
-  font-weight: 600;
-  white-space: nowrap;
 }
 .bi-assistant-workbench__zone-body {
   flex: 1;
@@ -1287,17 +1396,48 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
 .bi-assistant-workbench__chat {
   min-width: 0;
   min-height: 0;
-  background: var(--admin-page-card-bg);
   padding: 0;
+  background: var(--admin-page-card-bg);
 }
 .bi-assistant-workbench__chat :deep(.agent-chat-panel) {
   height: 100%;
 }
+.bi-assistant-workbench__tool-view {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--admin-page-card-bg);
+}
+.bi-assistant-workbench__tool-head {
+  display: flex;
+  flex: none;
+  gap: 6px;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 10px;
+  border-bottom: 1px solid var(--admin-page-divider);
+}
+.bi-assistant-workbench__tool-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--el-text-color-primary);
+}
+.bi-assistant-workbench__tool-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+.bi-assistant-workbench__tool-body > * {
+  height: 100%;
+}
 .bi-assistant-workbench__cards {
   display: flex;
-  min-height: 100%;
   flex-direction: column;
   gap: 10px;
+  min-height: 100%;
 }
 .bi-assistant-workbench__card {
   min-width: 0;
@@ -1308,38 +1448,38 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
 }
 .bi-assistant-workbench__card-actions {
   display: flex;
-  align-items: center;
   gap: 2px;
+  align-items: center;
 }
 .bi-assistant-workbench__card-foot {
-  color: var(--el-text-color-secondary);
   font-size: 11px;
+  color: var(--el-text-color-secondary);
 }
 .bi-assistant-workbench__empty {
   display: flex;
-  min-height: 160px;
   flex-direction: column;
+  gap: 8px;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  color: var(--el-text-color-secondary);
+  min-height: 160px;
   font-size: 12px;
+  color: var(--el-text-color-secondary);
   border: 1px dashed var(--el-border-color);
   border-radius: var(--admin-page-radius);
 }
 .bi-assistant-workbench__vertical-label {
-  writing-mode: vertical-rl;
-  color: var(--el-text-color-secondary);
   font-size: 12px;
+  color: var(--el-text-color-secondary);
   letter-spacing: 2px;
+  writing-mode: vertical-rl;
 }
 .bi-assistant-workbench__picker-head {
   display: flex;
-  align-items: center;
   gap: 12px;
+  align-items: center;
   margin-bottom: 12px;
-  color: var(--el-text-color-secondary);
   font-size: 12px;
+  color: var(--el-text-color-secondary);
 }
 .bi-assistant-workbench__picker-dialog :deep(.el-dialog) {
   overflow: hidden;
@@ -1350,9 +1490,9 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
   margin-right: 0;
 }
 .bi-assistant-workbench__picker-dialog :deep(.el-dialog__title) {
-  color: var(--admin-page-text-primary);
   font-size: 16px;
   font-weight: 600;
+  color: var(--admin-page-text-primary);
 }
 .bi-assistant-workbench__picker-dialog :deep(.el-dialog__body) {
   max-height: 72vh;
@@ -1372,11 +1512,11 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
 }
 .bi-assistant-workbench__picker-subrow {
   display: flex;
-  align-items: center;
   gap: 8px;
+  align-items: center;
   margin-bottom: 8px;
-  color: var(--admin-page-text-placeholder);
   font-size: 12px;
+  color: var(--admin-page-text-placeholder);
 }
 .bi-assistant-workbench__picker-label {
   color: var(--admin-page-text-secondary);
@@ -1388,10 +1528,11 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
 .bi-assistant-workbench__zone-picker button {
   height: 28px;
   padding: 0 14px;
-  color: var(--el-text-color-regular);
   font-size: 12px;
+  font-weight: 400;
+  color: var(--el-text-color-regular);
   white-space: nowrap;
-  background: #fff;
+  background: #ffffff;
   border: 1px solid var(--el-border-color);
 }
 .bi-assistant-workbench__zone-picker button:first-child {
@@ -1402,7 +1543,7 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
   border-radius: 0 4px 4px 0;
 }
 .bi-assistant-workbench__zone-picker button.active {
-  color: #fff;
+  color: #ffffff;
   background: var(--el-color-primary);
   border-color: var(--el-color-primary);
 }
@@ -1412,30 +1553,30 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
 }
 .bi-assistant-workbench__picker-list {
   display: flex;
-  max-height: 52vh;
   flex-direction: column;
   gap: 6px;
+  max-height: 52vh;
   overflow: auto;
 }
 .bi-assistant-workbench__picker-item {
   display: flex;
-  align-items: center;
   gap: 10px;
+  align-items: center;
+  justify-content: flex-start;
   width: 100%;
   height: auto;
-  margin: 0;
   padding: 10px;
+  margin: 0;
   color: var(--el-text-color-primary);
   text-align: left;
+  cursor: pointer;
   background: var(--el-fill-color-lighter);
   border: 1px solid transparent;
   border-radius: var(--admin-page-radius);
-  cursor: pointer;
-  justify-content: flex-start;
 }
 .bi-assistant-workbench__picker-item:hover {
-  border-color: var(--el-color-primary-light-5);
   background: var(--el-color-primary-light-9);
+  border-color: var(--el-color-primary-light-5);
 }
 .bi-assistant-workbench__picker-icon {
   display: inline-flex;
@@ -1449,88 +1590,65 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
 }
 .bi-assistant-workbench__picker-text {
   display: flex;
-  min-width: 0;
   flex: 1;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
 }
 .bi-assistant-workbench__picker-text strong {
   overflow: hidden;
-  font-size: 13px;
   text-overflow: ellipsis;
+  font-size: 13px;
   white-space: nowrap;
 }
 .bi-assistant-workbench__picker-text small {
-  color: var(--el-text-color-secondary);
   font-size: 11px;
+  color: var(--el-text-color-secondary);
 }
-@media (max-width: 1220px) {
-  .bi-assistant-workbench__body {
-    grid-template-columns: minmax(220px, 260px) minmax(420px, 1fr) minmax(220px, 260px);
-  }
+
+/* ---------- 紧凑布局：卡片区默认收起，展开时浮层覆盖聊天区（对齐原型） ---------- */
+@media (width <= 1280px) {
   .bi-assistant-workbench__session-switch {
-    max-width: min(260px, 24vw);
+    max-width: min(260px, 34vw);
+  }
+  /* 两侧始终按收起态 44px 占位，聊天区占满剩余宽度，不被展开的卡片挤压 */
+  .bi-assistant-workbench__body {
+    --zone-left-w: 44px;
+    --zone-right-w: 44px;
+
+    grid-template-columns: var(--zone-left-w) minmax(0, 1fr) var(--zone-right-w);
+  }
+  /* 展开态脱离文档流，浮在聊天区之上 */
+  .bi-assistant-workbench__zone:not(.is-collapsed) {
+    position: absolute;
+    z-index: 10;
+    top: 0;
+    bottom: 0;
+    width: min(360px, 86vw);
+    box-shadow: 0 10px 36px rgb(15 23 42 / 18%);
+  }
+  .bi-assistant-workbench__zone:first-child:not(.is-collapsed) {
+    left: 0;
+    border-right: 1px solid var(--admin-page-divider-strong);
+  }
+  .bi-assistant-workbench__zone:last-child:not(.is-collapsed) {
+    right: 0;
+    border-left: 1px solid var(--admin-page-divider-strong);
+  }
+  .bi-assistant-workbench__zone-scrim {
+    position: absolute;
+    z-index: 9;
+    inset: 0;
+    background: rgb(15 23 42 / 16%);
   }
 }
-@media (max-width: 980px) {
-  .bi-assistant-workbench {
-    height: auto;
-    min-height: calc(100vh - 104px);
-    overflow: visible;
-  }
+
+@media (width <= 620px) {
   .bi-assistant-workbench__topbar {
     flex-wrap: wrap;
   }
   .bi-assistant-workbench__session-switch {
-    max-width: min(220px, 34vw);
-  }
-  .bi-assistant-workbench__body {
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: minmax(620px, 1fr) auto;
-  }
-  .bi-assistant-workbench__chat {
-    grid-column: 1 / -1;
-    grid-row: 1;
-    min-height: 620px;
-  }
-  .bi-assistant-workbench__zone {
-    grid-row: 2;
-    min-height: 360px;
-  }
-}
-@media (max-width: 620px) {
-  .bi-assistant-workbench__body {
-    display: flex;
-    flex-direction: column;
-  }
-  .bi-assistant-workbench__chat {
-    order: 1;
-    min-height: 620px;
-  }
-  .bi-assistant-workbench__zone {
-    order: 2;
-    min-height: 300px;
-    border: 0 !important;
-    border-top: 1px solid var(--admin-page-divider-strong) !important;
-  }
-  .bi-assistant-workbench__zone.is-collapsed {
-    width: auto;
-    min-height: 48px;
-    flex-direction: row;
-  }
-  .bi-assistant-workbench__zone.is-collapsed .bi-assistant-workbench__zone-head {
-    width: 100%;
-  }
-  .bi-assistant-workbench__vertical-label {
-    display: none;
-  }
-  .bi-assistant-workbench__session {
-    flex: 1;
-    width: auto;
-  }
-  .bi-assistant-workbench__search {
-    order: 5;
-    flex-basis: 100%;
+    max-width: min(220px, 52vw);
   }
 }
 </style>

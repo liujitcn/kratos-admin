@@ -46,12 +46,13 @@
             </el-icon>
           </template>
         </el-input>
-        <img
+        <el-image
           v-if="captcha_base64"
           class="captcha-image"
           :style="{ width: captchaImageWidth }"
           :src="captcha_base64"
           :alt="t('core.login.captcha_alt')"
+          fit="contain"
           @load="handleCaptchaImageLoad"
           @click="getCaptcha"
         />
@@ -91,8 +92,8 @@
         placement="top"
         :trigger="['hover', 'focus']"
       >
-        <el-button text
-          class="oauth-provider-button"
+        <el-button
+          class="admin-custom-button oauth-provider-button"
           native-type="button"
           :aria-label="provider.nameKey.includes('.') ? t(provider.nameKey) : provider.nameKey"
           :title="provider.nameKey.includes('.') ? t(provider.nameKey) : provider.nameKey"
@@ -961,7 +962,6 @@ watch(
   flex: 0 0 auto;
   height: 40px;
   cursor: pointer;
-  object-fit: contain;
   border-radius: var(--admin-page-radius);
 }
 .behavior-captcha-body {

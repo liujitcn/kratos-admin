@@ -3,7 +3,7 @@
   <el-container class="layout">
     <div class="aside-split">
       <div class="logo flx-center">
-        <img
+        <el-image
           class="logo-img"
           :src="logoUrl"
           :alt="t('core.layout.logo_alt')"

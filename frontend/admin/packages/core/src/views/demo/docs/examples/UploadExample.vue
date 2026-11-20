@@ -1,6 +1,6 @@
 <template>
   <div v-if="active">
-    <p class="example-tip">选择的图片只在浏览器中预览，刷新页面后清空。</p>
+    <el-text tag="p" class="example-tip">选择的图片只在浏览器中预览，刷新页面后清空。</el-text>
     <template v-if="componentId === 'UploadImg'">
       <UploadImg v-model:image-url="imageUrl" :api="previewImage" width="180px" height="150px">
         <template #tip>支持 JPG、PNG、GIF，单张不超过 5 MB。</template>

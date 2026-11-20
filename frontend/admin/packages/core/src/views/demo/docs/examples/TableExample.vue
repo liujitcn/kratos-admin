@@ -1,6 +1,6 @@
 <template>
   <div class="component-table-example">
-    <p class="example-tip">查询、编辑、状态切换与删除均使用本地数据；右侧列设置按钮会打开真实抽屉。</p>
+    <el-text tag="p" class="example-tip">查询、编辑、状态切换与删除均使用本地数据；右侧列设置按钮会打开真实抽屉。</el-text>
     <ProTable
       :key="treeMode ? 'tree' : 'list'"
       ref="tableRef"

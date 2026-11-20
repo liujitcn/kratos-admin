@@ -5,7 +5,7 @@
         <BiCardChartEditor v-model="config" v-model:chart-type="chartType" :query="demoQuery" :result="demoResult" />
         <div class="chart-example__plot"><BiCardVisualization :card="card" :result="demoResult" /></div>
       </div>
-      <p>切换图型或字段映射可立即预览；图型可用性由本地结果的字段类型决定。</p>
+      <el-text tag="p">切换图型或字段映射可立即预览；图型可用性由本地结果的字段类型决定。</el-text>
     </template>
     <template v-else>
       <div class="chart-example__toolbar">
@@ -35,7 +35,7 @@
       <div v-if="componentId === 'BiCardVisualization'" class="chart-example__metric">
         <BiCardVisualization :card="demoMetricCard" :result="demoMetricResult" />
       </div>
-      <p aria-live="polite">{{ feedback }}</p>
+      <el-text tag="p" aria-live="polite">{{ feedback }}</el-text>
     </template>
   </div>
 </template>

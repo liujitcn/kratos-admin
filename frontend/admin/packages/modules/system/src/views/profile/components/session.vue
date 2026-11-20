@@ -3,8 +3,8 @@
     <template #header>
       <div class="session-header">
         <div>
-          <h3>{{ t("system.profile.session.title") }}</h3>
-          <p>{{ t("system.profile.session.description") }}</p>
+          <el-text tag="h3">{{ t("system.profile.session.title") }}</el-text>
+          <el-text tag="p">{{ t("system.profile.session.description") }}</el-text>
         </div>
         <el-button :loading="loading" @click="loadSession">
           <el-icon><Refresh /></el-icon>

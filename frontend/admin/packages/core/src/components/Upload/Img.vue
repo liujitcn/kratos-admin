@@ -15,7 +15,7 @@
       :accept="fileType.join(',')"
     >
       <template v-if="imageUrl">
-        <img :src="displayImageUrl" class="upload-image" />
+        <el-image class="upload-image" :src="displayImageUrl" fit="contain" />
         <div class="upload-handle" @click.stop>
           <div v-if="!self_disabled" class="handle-icon" @click="editImg">
             <el-icon><Edit /></el-icon>
@@ -255,7 +255,6 @@ const uploadError = () => {
       .upload-image {
         width: 100%;
         height: 100%;
-        object-fit: contain;
       }
       .upload-empty {
         position: relative;

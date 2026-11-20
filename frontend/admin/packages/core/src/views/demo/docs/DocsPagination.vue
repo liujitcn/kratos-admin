@@ -5,7 +5,6 @@
       <el-select
         v-if="sizes.length"
         :model-value="pageSize"
-        size="small"
         aria-label="每页组件数量"
         @change="emit('update:pageSize', $event)"
       >
@@ -17,7 +16,6 @@
       :page-size="pageSize"
       :total="total"
       :pager-count="5"
-      size="small"
       background
       layout="prev, pager, next"
       @current-change="emit('update:page', $event)"
@@ -54,7 +52,7 @@ const emit = defineEmits<{ "update:page": [page: number]; "update:pageSize": [si
     flex-wrap: wrap;
     gap: 8px;
     align-items: center;
-    font-size: 12px;
+    font-size: var(--el-font-size-base);
     color: var(--admin-page-text-secondary);
 
     .el-select {

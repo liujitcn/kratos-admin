@@ -1,8 +1,8 @@
 <template>
   <div v-if="active">
     <el-button type="primary" @click="openImport">打开导入弹窗</el-button>
-    <p class="example-tip">下载本地示例模板后选择 Excel 文件，可体验文件校验和覆盖选项。</p>
-    <p v-if="result" class="example-tip" role="status">{{ result }}</p>
+    <el-text tag="p" class="example-tip">下载本地示例模板后选择 Excel 文件，可体验文件校验和覆盖选项。</el-text>
+    <el-text tag="p" v-if="result" class="example-tip" role="status">{{ result }}</el-text>
     <ImportExcel ref="importRef" />
   </div>
 </template>

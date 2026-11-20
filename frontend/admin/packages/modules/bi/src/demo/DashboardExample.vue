@@ -2,9 +2,9 @@
   <div v-if="active" class="dashboard-example">
     <BiDashboard v-if="componentId === 'BiDashboard'" :schema="demoLayout" :results="demoResults" />
     <template v-else>
-      <p>点击“添加”后可调整尺寸、移除并重新添加。草稿卡片尚未保存，图表显示组件空态。</p>
+      <el-text tag="p">点击“添加”后可调整尺寸、移除并重新添加。草稿卡片尚未保存，图表显示组件空态。</el-text>
       <BiDesigner v-model="layout" :cards="[demoCard]" @create-card="feedback = '创建卡片事件已发出，实际业务由父页面接入。'" />
-      <p aria-live="polite">{{ feedback }} · 当前布局：{{ JSON.stringify(layout.cards) }}</p>
+      <el-text tag="p" aria-live="polite">{{ feedback }} · 当前布局：{{ JSON.stringify(layout.cards) }}</el-text>
     </template>
   </div>
 </template>

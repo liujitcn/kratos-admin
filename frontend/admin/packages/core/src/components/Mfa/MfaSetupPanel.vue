@@ -1,6 +1,6 @@
 <template>
   <div v-if="uri" class="mfa-setup-panel">
-    <img v-if="qrDataUrl" class="mfa-setup-panel__qr" :src="qrDataUrl" :alt="t('core.login.mfa_setup_qr_alt')" />
+    <el-image v-if="qrDataUrl" class="mfa-setup-panel__qr" :src="qrDataUrl" :alt="t('core.login.mfa_setup_qr_alt')" fit="contain" />
     <el-collapse class="mfa-setup-panel__uri">
       <el-collapse-item :title="t('core.login.mfa_show_uri')" name="uri">
         <div class="mfa-setup-panel__value">
@@ -52,7 +52,9 @@ async function copySetupUri() {
   width: 220px;
   height: 220px;
   margin: 12px auto;
-  image-rendering: pixelated;
+  :deep(img) {
+    image-rendering: pixelated;
+  }
 }
 
 .mfa-setup-panel__uri {

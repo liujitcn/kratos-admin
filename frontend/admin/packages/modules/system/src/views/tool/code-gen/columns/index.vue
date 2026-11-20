@@ -5,7 +5,7 @@
       <div v-if="formData.id" class="code-gen-column-pane">
         <div class="code-gen-toolbar code-gen-column-toolbar">
           <div class="code-gen-column-toolbar__meta">
-            <strong>{{ t("system.code.gen.column.title.database_fields") }}</strong>
+            <el-text tag="strong">{{ t("system.code.gen.column.title.database_fields") }}</el-text>
             <!-- 展示当前字段配置对应的业务表。 -->
             <span class="code-gen-column-toolbar__table-name" :title="formData.name">
               {{ t("system.code.gen.column.value.table_name", { name: formData.name }) }}
@@ -44,22 +44,22 @@
                     </template>
                     <div class="code-gen-field-popover">
                       <div class="code-gen-field-popover__header">
-                        <strong>{{ row.name }}</strong>
+                        <el-text tag="strong">{{ row.name }}</el-text>
                         <span>{{ row.comment || row.name }}</span>
                       </div>
                       <div class="code-gen-field-popover__types">
                         <div>
                           <span>{{ t("system.code.gen.column.value.database") }}</span
-                          ><b>{{ row.db_type || "--" }}</b>
+                          ><el-text tag="b">{{ row.db_type || "--" }}</el-text>
                         </div>
                         <div>
-                          <span>Go</span><b>{{ row.go_type || "--" }}</b>
+                          <span>Go</span><el-text tag="b">{{ row.go_type || "--" }}</el-text>
                         </div>
                         <div>
-                          <span>Proto</span><b>{{ row.proto_type || "--" }}</b>
+                          <span>Proto</span><el-text tag="b">{{ row.proto_type || "--" }}</el-text>
                         </div>
                         <div>
-                          <span>TS</span><b>{{ row.ts_type || "--" }}</b>
+                          <span>TS</span><el-text tag="b">{{ row.ts_type || "--" }}</el-text>
                         </div>
                       </div>
                       <div class="code-gen-field-popover__flags">

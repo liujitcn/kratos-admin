@@ -6,9 +6,9 @@
         <span>YAML</span>
       </span>
       <div class="yaml-editor__actions">
-        <el-button text
+        <el-button
           native-type="button"
-          class="yaml-editor__action"
+          class="admin-custom-button yaml-editor__action"
           :class="{ 'is-active': wrapEnabled }"
           :title="t('core.yaml_editor.action.wrap')"
           :aria-label="t('core.yaml_editor.action.wrap')"
@@ -16,9 +16,9 @@
         >
           <el-icon :size="15"><WrapText /></el-icon>
         </el-button>
-        <el-button text
+        <el-button
           native-type="button"
-          class="yaml-editor__action"
+          class="admin-custom-button yaml-editor__action"
           :title="t('core.markdown.action.copy_code')"
           :aria-label="t('core.markdown.action.copy_code')"
           @click="copyCode"

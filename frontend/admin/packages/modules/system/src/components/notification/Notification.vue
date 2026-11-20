@@ -14,14 +14,14 @@
     </template>
     <div class="notification-panel">
       <div class="notification-header">
-        <strong>{{ t("system.notification.title") }}</strong>
+        <el-text tag="strong">{{ t("system.notification.title") }}</el-text>
         <el-button link type="primary" @click="markAllRead">{{ t("system.notification.action.mark_all_read") }}</el-button>
       </div>
       <div class="notification-list">
-        <el-button text
+        <el-button
           v-for="item in notifications"
           :key="item.id"
-          class="notification-item"
+          class="admin-custom-button notification-item"
           :class="{ 'is-unread': !item.read_at }"
           native-type="button"
           @click="openNotification(item)"

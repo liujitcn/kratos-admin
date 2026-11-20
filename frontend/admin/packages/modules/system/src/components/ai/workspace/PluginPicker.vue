@@ -12,7 +12,7 @@
   >
     <el-option v-for="option in options" :key="option.key" :value="option.key" :label="option.label" :disabled="!!option.reason">
       <span>{{ option.label }}</span
-      ><small v-if="option.reason" class="plugin-reason">{{ option.reason }}</small>
+      ><el-text tag="small" v-if="option.reason" class="plugin-reason">{{ option.reason }}</el-text>
     </el-option>
   </el-select>
 </template>

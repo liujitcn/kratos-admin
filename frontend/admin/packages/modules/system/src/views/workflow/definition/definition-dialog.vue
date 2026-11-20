@@ -50,11 +50,11 @@
       </section>
       <section v-show="activeStep === 1" class="definition-step-panel">
         <div class="form-builder">
-          <aside class="form-palette">
+          <el-aside class="form-palette" style="--el-aside-width: auto; overflow: visible">
             <div class="form-builder-heading">
-              <h3>{{ t("system.workflow.definition.form_builder.palette") }}</h3>
+              <el-text tag="h3">{{ t("system.workflow.definition.form_builder.palette") }}</el-text>
             </div>
-            <p class="definition-hint">{{ t("system.workflow.definition.form_builder.palette_hint") }}</p>
+            <el-text tag="p" class="definition-hint">{{ t("system.workflow.definition.form_builder.palette_hint") }}</el-text>
             <div class="form-palette-list">
               <el-button
                 v-for="fieldType in formFieldTypes"
@@ -67,10 +67,10 @@
                 {{ t(fieldType.labelKey) }}
               </el-button>
             </div>
-          </aside>
+          </el-aside>
           <section class="form-editor-pane">
             <div class="form-builder-heading form-builder-heading--between">
-              <h3>{{ t("system.workflow.definition.form_builder.fields") }}</h3>
+              <el-text tag="h3">{{ t("system.workflow.definition.form_builder.fields") }}</el-text>
               <el-tag size="small" effect="plain">{{ formFields.length }}</el-tag>
             </div>
             <el-alert
@@ -88,10 +88,10 @@
             />
             <div v-else class="form-field-list">
               <article v-for="(field, index) in formFields" :key="`${field.key}-${index}`" class="form-field-editor">
-                <header class="form-field-editor-header">
+                <el-header class="form-field-editor-header" style="--el-header-height: auto; --el-header-padding: 0">
                   <div class="form-field-editor-title">
                     <span class="form-field-index">{{ index + 1 }}</span>
-                    <strong>{{ field.label || t("system.workflow.definition.form_builder.untitled") }}</strong>
+                    <el-text tag="strong">{{ field.label || t("system.workflow.definition.form_builder.untitled") }}</el-text>
                     <el-tag size="small" effect="plain">{{ t(`system.workflow.definition.form_type.${field.type}`) }}</el-tag>
                   </div>
                   <div class="form-field-actions">
@@ -126,7 +126,7 @@
                       />
                     </el-tooltip>
                   </div>
-                </header>
+                </el-header>
                 <el-form label-position="top" class="form-field-editor-form">
                   <el-row :gutter="12">
                     <el-col :xs="24" :sm="12">
@@ -175,11 +175,11 @@
               </article>
             </div>
           </section>
-          <aside class="form-preview-pane">
+          <el-aside class="form-preview-pane" style="--el-aside-width: auto; overflow: visible">
             <div class="form-builder-heading">
-              <h3>{{ t("system.workflow.definition.form_builder.preview") }}</h3>
+              <el-text tag="h3">{{ t("system.workflow.definition.form_builder.preview") }}</el-text>
             </div>
-            <p class="definition-hint">{{ t("system.workflow.definition.form_builder.preview_hint") }}</p>
+            <el-text tag="p" class="definition-hint">{{ t("system.workflow.definition.form_builder.preview_hint") }}</el-text>
             <el-form label-position="top" class="form-preview" disabled>
               <template v-if="formFields.length">
                 <el-form-item
@@ -204,7 +204,7 @@
               </template>
               <el-empty v-else :description="t('system.workflow.definition.form_builder.preview_empty')" :image-size="52" />
             </el-form>
-          </aside>
+          </el-aside>
         </div>
         <el-collapse class="form-schema-output">
           <el-collapse-item :title="t('system.workflow.definition.form_builder.generated_json')" name="json">
@@ -240,8 +240,8 @@
               @move="moveNode"
               @connect="connectNodes"
             />
-            <aside class="graph-properties">
-              <h3>
+            <el-aside class="graph-properties" style="--el-aside-width: auto">
+              <el-text tag="h3">
                 {{
                   t(
                     selectedNode
@@ -251,7 +251,7 @@
                         : "system.workflow.definition.section.properties"
                   )
                 }}
-              </h3>
+              </el-text>
               <el-empty
                 v-if="!selectedNode && !selectedEdge"
                 :description="t('system.workflow.definition.placeholder.select_object')"
@@ -325,7 +325,7 @@
                       <el-table-column :label="t('system.workflow.definition.field.approver_target')" min-width="130">
                         <template #default="{ row }">
                           <div>{{ approverLabel(row) }}</div>
-                          <small class="definition-hint">{{ t(`system.workflow.definition.approver_type.${row.type}`) }}</small>
+                          <el-text tag="small" class="definition-hint">{{ t(`system.workflow.definition.approver_type.${row.type}`) }}</el-text>
                         </template>
                       </el-table-column>
                       <el-table-column :label="t('common.field.operation')" width="64" align="center">
@@ -370,7 +370,7 @@
                   t("system.workflow.definition.action.remove_edge")
                 }}</el-button>
               </template>
-            </aside>
+            </el-aside>
           </div>
         </div>
       </section>
@@ -378,8 +378,8 @@
         <div class="workflow-review">
           <div class="workflow-review-header">
             <div>
-              <h3>{{ t("system.workflow.definition.wizard.review") }}</h3>
-              <p class="definition-hint">{{ t("system.workflow.definition.wizard.review_hint") }}</p>
+              <el-text tag="h3">{{ t("system.workflow.definition.wizard.review") }}</el-text>
+              <el-text tag="p" class="definition-hint">{{ t("system.workflow.definition.wizard.review_hint") }}</el-text>
             </div>
             <el-tag v-if="stepStates.review === 'success'" type="success" effect="plain">
               {{ t("system.workflow.definition.wizard.review_passed") }}
@@ -388,8 +388,8 @@
           <div class="workflow-review-list">
             <div v-for="step in wizardSteps" :key="step.key" class="workflow-review-item">
               <div>
-                <strong>{{ t(step.titleKey) }}</strong>
-                <p v-if="stepErrors[step.key]" class="workflow-review-error">{{ t(stepErrors[step.key]) }}</p>
+                <el-text tag="strong">{{ t(step.titleKey) }}</el-text>
+                <el-text tag="p" v-if="stepErrors[step.key]" class="workflow-review-error">{{ t(stepErrors[step.key]) }}</el-text>
               </div>
               <el-tag :type="stepTagType(stepStates[step.key])" effect="plain">
                 {{ t(`system.workflow.definition.wizard.status.${stepStates[step.key]}`) }}

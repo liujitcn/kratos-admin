@@ -10,7 +10,7 @@
     </template>
     <template v-else-if="componentId === 'CronExpression'">
       <CronExpression v-model="model.cron" />
-      <p class="example-tip">当前表达式：{{ model.cron }}</p>
+      <el-text tag="p" class="example-tip">当前表达式：{{ model.cron }}</el-text>
     </template>
     <template v-else>
       <ProForm ref="formRef" :model="model" :fields="fields" :col-span="12" label-width="7em" />
@@ -18,7 +18,7 @@
         <el-button type="primary" @click="validateForm">校验表单</el-button>
         <el-button @click="resetForm">重置</el-button>
       </el-space>
-      <p v-if="result" class="example-tip" role="status">{{ result }}</p>
+      <el-text tag="p" v-if="result" class="example-tip" role="status">{{ result }}</el-text>
       <pre class="example-result">{{ JSON.stringify(model, null, 2) }}</pre>
     </template>
   </div>

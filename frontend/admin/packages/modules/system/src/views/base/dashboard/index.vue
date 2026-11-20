@@ -1,5 +1,5 @@
 <template>
-  <main class="dashboard-page">
+  <el-main class="dashboard-page" style="--el-main-padding: 0; flex: 0 1 auto; overflow: visible">
     <el-skeleton v-if="loading && !overview" :rows="3" animated />
     <template v-else>
       <section class="metric-grid" :aria-label="t('system.dashboard.overview')">
@@ -14,7 +14,7 @@
               ><el-icon><component :is="metric.icon" /></el-icon
             ></span>
           </div>
-          <strong class="metric-value">{{ metric.value }}</strong>
+          <el-text tag="strong" class="metric-value">{{ metric.value }}</el-text>
         </el-card>
       </section>
       <section class="chart-grid">
@@ -22,7 +22,7 @@
           <template #header
             ><div class="chart-heading">
               <span>{{ t("system.dashboard.login_trend") }}</span
-              ><small>{{ t("system.dashboard.last_7_days") }}</small>
+              ><el-text tag="small">{{ t("system.dashboard.last_7_days") }}</el-text>
             </div></template
           >
           <div class="chart-wrap"><ECharts :option="loginTrendOption" height="285" /></div>
@@ -31,7 +31,7 @@
           <template #header
             ><div class="chart-heading">
               <span>{{ t("system.dashboard.login_distribution") }}</span
-              ><small>{{ t("system.dashboard.total", { count: loginDistributionTotal }) }}</small>
+              ><el-text tag="small">{{ t("system.dashboard.total", { count: loginDistributionTotal }) }}</el-text>
             </div></template
           >
           <div class="chart-wrap"><ECharts :option="loginDistributionOption" height="265" /></div>
@@ -40,14 +40,14 @@
           <template #header
             ><div class="chart-heading">
               <span>{{ t("system.dashboard.operation_distribution") }}</span
-              ><small>{{ t("system.dashboard.total", { count: operationDistributionTotal }) }}</small>
+              ><el-text tag="small">{{ t("system.dashboard.total", { count: operationDistributionTotal }) }}</el-text>
             </div></template
           >
           <div class="chart-wrap"><ECharts :option="operationDistributionOption" height="265" /></div>
         </el-card>
       </section>
     </template>
-  </main>
+  </el-main>
 </template>
 
 <script setup lang="ts">

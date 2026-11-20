@@ -3,11 +3,11 @@
     <div class="api-doc-page__layout">
       <el-card class="code-gen-sub-card api-doc-page__navigation" shadow="never">
         <div v-if="documents.length" class="api-doc-page__document-list">
-          <el-button text
+          <el-button
             v-for="document in documents"
             :key="document.key"
             native-type="button"
-            class="api-doc-page__document"
+            class="admin-custom-button api-doc-page__document"
             :class="{ 'is-active': selectedDocumentKey === document.key }"
             @click="handleDocumentChange(document.key)"
           >

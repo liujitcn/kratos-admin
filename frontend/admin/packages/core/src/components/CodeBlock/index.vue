@@ -1,7 +1,7 @@
 <template>
   <div class="core-code-block" :style="{ '--core-code-block-max-height': props.maxHeight }">
-    <el-button text
-      class="core-code-block__copy"
+    <el-button
+      class="admin-custom-button core-code-block__copy"
       native-type="button"
       :title="t('core.markdown.action.copy_code')"
       :aria-label="t('core.markdown.action.copy_code')"

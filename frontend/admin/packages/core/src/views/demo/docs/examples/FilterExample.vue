@@ -11,8 +11,8 @@
         />
         <div class="tree-result">
           <el-switch v-model="multiple" active-text="多选" inactive-text="单选" @change="selected = multiple ? [] : ''" />
-          <p class="example-tip">选择结果：{{ JSON.stringify(selected) }}</p>
-          <p class="example-tip">可以搜索节点名称，并展开或收起树。</p>
+          <el-text tag="p" class="example-tip">选择结果：{{ JSON.stringify(selected) }}</el-text>
+          <el-text tag="p" class="example-tip">可以搜索节点名称，并展开或收起树。</el-text>
         </div>
       </div>
     </template>

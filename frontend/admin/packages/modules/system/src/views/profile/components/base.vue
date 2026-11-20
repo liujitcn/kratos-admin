@@ -3,8 +3,8 @@
     <template #header>
       <div class="panel-header">
         <div>
-          <h3>{{ t("system.profile.account.title") }}</h3>
-          <p>{{ t("system.profile.account.description") }}</p>
+          <el-text tag="h3">{{ t("system.profile.account.title") }}</el-text>
+          <el-text tag="p">{{ t("system.profile.account.description") }}</el-text>
         </div>
         <el-button type="primary" plain @click="openAccountDialog">{{ t("system.profile.account.action.edit") }}</el-button>
       </div>
@@ -28,8 +28,8 @@
           />
         </div>
         <div class="avatar-copy">
-          <strong>{{ t("system.profile.account.field.avatar") }}</strong>
-          <p>{{ t("system.profile.account.message.avatar_hint") }}</p>
+          <el-text tag="strong">{{ t("system.profile.account.field.avatar") }}</el-text>
+          <el-text tag="p">{{ t("system.profile.account.message.avatar_hint") }}</el-text>
         </div>
       </div>
 

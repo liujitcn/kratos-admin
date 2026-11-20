@@ -9,8 +9,8 @@
     popper-class="agent-model-popper"
   >
     <template #reference>
-      <el-button text
-        class="agent-model-selector"
+      <el-button
+        class="admin-custom-button agent-model-selector"
         :class="{ 'is-disabled': disabled || !modelOptions.length }"
         native-type="button"
         :disabled="disabled || !modelOptions.length"
@@ -34,10 +34,10 @@
       <div class="agent-model-panel__list">
         <template v-for="provider in modelOptions" :key="provider.providerId">
           <div class="agent-model-panel__group">{{ provider.label }}</div>
-          <el-button text
+          <el-button
             v-for="model in provider.models"
             :key="model.name"
-            class="agent-model-row"
+            class="admin-custom-button agent-model-row"
             :disabled="disabled"
             :class="{ 'is-selected': isModelSelected(provider.providerId, model.name) }"
             native-type="button"
@@ -51,7 +51,7 @@
           </el-button>
         </template>
       </div>
-      <el-button text v-if="aiProviderRoute" class="agent-model-panel__manage" native-type="button" @click="openModelManage">
+      <el-button v-if="aiProviderRoute" class="admin-custom-button agent-model-panel__manage" native-type="button" @click="openModelManage">
         <el-icon><Setting /></el-icon>
         <span>{{ t("system.ai.model.manage") }}</span>
         <el-icon class="agent-model-panel__manage-arrow"><ArrowRight /></el-icon>

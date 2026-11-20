@@ -1,7 +1,7 @@
 <template>
   <div v-if="active">
     <el-button type="primary" @click="openDialog">{{ componentId === "FormDialog" ? "打开表单弹窗" : "打开通用弹窗" }}</el-button>
-    <p class="example-tip" role="status">{{ result || "打开后可以确认、取消或关闭弹窗。" }}</p>
+    <el-text tag="p" class="example-tip" role="status">{{ result || "打开后可以确认、取消或关闭弹窗。" }}</el-text>
     <FormDialog
       v-if="componentId === 'FormDialog'"
       ref="formRef"
@@ -13,8 +13,8 @@
       @closed="resetForm"
     />
     <ProDialog v-else v-model="visible" title="项目预览" @confirm="confirmDialog">
-      <p class="dialog-copy">{{ model.name }}</p>
-      <p class="dialog-copy">弹窗内容使用默认插槽，底部操作由组件统一管理。</p>
+      <el-text tag="p" class="dialog-copy">{{ model.name }}</el-text>
+      <el-text tag="p" class="dialog-copy">弹窗内容使用默认插槽，底部操作由组件统一管理。</el-text>
     </ProDialog>
   </div>
 </template>

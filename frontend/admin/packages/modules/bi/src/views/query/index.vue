@@ -1,15 +1,15 @@
 <template>
-  <main class="bi-query-page">
-    <header class="bi-query-page__header">
+  <el-main class="bi-query-page" style="--el-main-padding: 0; flex: 0 1 auto; overflow: visible">
+    <el-header class="bi-query-page__header" style="--el-header-height: auto; --el-header-padding: 0">
       <div>
-        <h2>{{ t("bi.query.subtitle") }}</h2>
-        <p>{{ t("bi.query.guide") }}</p>
+        <el-text tag="h2">{{ t("bi.query.subtitle") }}</el-text>
+        <el-text tag="p">{{ t("bi.query.guide") }}</el-text>
       </div>
       <div>
         <el-button v-if="historyCollapsed" @click="historyCollapsed = false">{{ t("bi.query.history") }}</el-button
         ><el-button @click="router.push('/bi/card')">{{ t("bi.card.library") }}</el-button>
       </div>
-    </header>
+    </el-header>
     <div class="bi-query-layout" :class="{ 'is-history-collapsed': historyCollapsed }">
       <SessionPanel
         v-if="!historyCollapsed"
@@ -32,16 +32,16 @@
             :closable="false"
           /><template v-else-if="response"
             ><div class="bi-query-assistant">{{ t("bi.query.assistant") }}</div>
-            <h3>{{ response.title }}</h3>
-            <p>{{ t("bi.query.result_ready") }}</p>
+            <el-text tag="h3">{{ response.title }}</el-text>
+            <el-text tag="p">{{ t("bi.query.result_ready") }}</el-text>
             <div class="bi-query-facts">
-              <p>
+              <el-text tag="p">
                 {{ t("bi.card.source") }}：{{
                   sources.find(item => item.code === response?.query?.source_code)?.name || response.query?.source_code
                 }}
-              </p>
-              <p>{{ t("bi.card.dimensions") }}：{{ response.query?.dimensions.join("、") || t("bi.card.ungrouped") }}</p>
-              <p>{{ t("bi.card.measure") }}：{{ response.query?.measures.map(item => item.code).join("、") }}</p>
+              </el-text>
+              <el-text tag="p">{{ t("bi.card.dimensions") }}：{{ response.query?.dimensions.join("、") || t("bi.card.ungrouped") }}</el-text>
+              <el-text tag="p">{{ t("bi.card.measure") }}：{{ response.query?.measures.map(item => item.code).join("、") }}</el-text>
             </div>
             <el-button link type="primary" @click="showTable = !showTable">{{
               t(showTable ? "bi.query.hide_details" : "bi.card.table_tab")
@@ -82,8 +82,8 @@
                   @change="handleModelChange"
                 />
                 <el-tooltip :content="t(recording ? 'bi.query.stop_voice_input' : 'bi.query.voice_input')" placement="top">
-                  <el-button text
-                    class="bi-query-compose__button"
+                  <el-button
+                    class="admin-custom-button bi-query-compose__button"
                     :class="{ 'is-active': recording }"
                     native-type="button"
                     :disabled="loading"
@@ -97,8 +97,8 @@
                   </el-button>
                 </el-tooltip>
                 <el-tooltip :content="t('bi.query.ask')" placement="top">
-                  <el-button text
-                    class="bi-query-compose__button bi-query-compose__button--send"
+                  <el-button
+                    class="admin-custom-button bi-query-compose__button bi-query-compose__button--send"
                     native-type="button"
                     :disabled="loading || loadingModels || recording || !question.trim()"
                     :aria-label="t('bi.query.ask')"
@@ -114,10 +114,10 @@
           </div>
         </div>
       </section>
-      <aside class="bi-query-preview">
-        <header>
-          <h3>{{ t("bi.card.preview") }}</h3>
-        </header>
+      <el-aside class="bi-query-preview" style="--el-aside-width: auto">
+        <el-header style="--el-header-height: auto; --el-header-padding: 0">
+          <el-text tag="h3">{{ t("bi.card.preview") }}</el-text>
+        </el-header>
         <BiDataCard
           v-if="response?.result && response.query"
           :card="previewCard"
@@ -128,7 +128,7 @@
             ><el-button type="primary" @click="cardDialog = true">{{ t("bi.card.save_result") }}</el-button></template
           ></BiDataCard
         ><el-empty v-else :description="t('bi.card.preview_empty')" />
-      </aside>
+      </el-aside>
     </div>
     <BiCardFormDialog
       v-model="cardDialog"
@@ -139,7 +139,7 @@
       :initial-chart-type="previewCard.chart_type"
       @saved="loadHistory"
     />
-  </main>
+  </el-main>
 </template>
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from "vue";

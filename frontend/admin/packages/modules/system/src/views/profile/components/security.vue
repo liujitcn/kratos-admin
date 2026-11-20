@@ -3,16 +3,16 @@
     <el-card class="security-card" shadow="never">
       <div class="security-intro">
         <div>
-          <h3>{{ t("system.profile.security.title") }}</h3>
-          <p>{{ t("system.profile.security.description") }}</p>
+          <el-text tag="h3">{{ t("system.profile.security.title") }}</el-text>
+          <el-text tag="p">{{ t("system.profile.security.description") }}</el-text>
         </div>
         <el-tag effect="plain" type="success">{{ t("system.profile.security.value.account_normal") }}</el-tag>
       </div>
       <div class="security-list">
         <div class="security-item">
           <div class="security-item__content">
-            <strong>{{ t("system.profile.security.field.login_password") }}</strong>
-            <p>{{ t("system.profile.security.message.password_hint") }}</p>
+            <el-text tag="strong">{{ t("system.profile.security.field.login_password") }}</el-text>
+            <el-text tag="p">{{ t("system.profile.security.message.password_hint") }}</el-text>
           </div>
           <el-button type="primary" plain @click="emit('switchTab', 'password')">
             {{ t("system.profile.security.action.change_password") }}
@@ -20,8 +20,8 @@
         </div>
         <div class="security-item">
           <div class="security-item__content">
-            <strong>{{ t("system.profile.security.field.phone") }}</strong>
-            <p>{{ mobileTip }}</p>
+            <el-text tag="strong">{{ t("system.profile.security.field.phone") }}</el-text>
+            <el-text tag="p">{{ mobileTip }}</el-text>
           </div>
           <el-button plain @click="openPhoneDialog">
             {{ profile.phone ? t("system.profile.security.action.change_phone") : t("system.profile.security.action.bind_now") }}
@@ -29,17 +29,17 @@
         </div>
         <div class="security-item">
           <div class="security-item__content">
-            <strong>{{ t("system.profile.security.field.mfa") }}</strong>
-            <p>
+            <el-text tag="strong">{{ t("system.profile.security.field.mfa") }}</el-text>
+            <el-text tag="p">
               {{
                 mfaEnabled
                   ? t("system.profile.security.message.mfa_enabled_method", { method: mfaMethodLabel })
                   : t("system.profile.security.message.mfa_disabled")
               }}
-            </p>
-            <p v-if="mfaEnabled && mfaMethod === 'webauthn'" class="security-item__hint">
+            </el-text>
+            <el-text tag="p" v-if="mfaEnabled && mfaMethod === 'webauthn'" class="security-item__hint">
               {{ t("system.profile.security.message.mfa_webauthn_manage_hint") }}
-            </p>
+            </el-text>
           </div>
           <div class="security-item__actions">
             <el-button v-if="!mfaEnabled" plain @click="openMfaSetup">{{
@@ -63,14 +63,14 @@
               </span>
             </el-tooltip>
             <div>
-              <strong>{{ oauthName(item) }}</strong>
-              <p>
+              <el-text tag="strong">{{ oauthName(item) }}</el-text>
+              <el-text tag="p">
                 {{
                   item.bound
                     ? t("system.profile.security.message.oauth_bound")
                     : t("system.profile.security.message.oauth_unbound")
                 }}
-              </p>
+              </el-text>
             </div>
           </div>
           <el-button
@@ -153,9 +153,9 @@
             </el-tooltip>
           </div>
         </div>
-        <p v-if="recoveryCodes.length" class="mfa-recovery-hint">
+        <el-text tag="p" v-if="recoveryCodes.length" class="mfa-recovery-hint">
           {{ t("system.profile.security.message.mfa_recovery_codes_warning") }}
-        </p>
+        </el-text>
       </div>
       <template #footer>
         <div class="dialog-footer">

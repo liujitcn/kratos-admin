@@ -17,7 +17,7 @@
       </el-descriptions>
 
       <section v-if="config.trace && (traceLoading || traceItems.length > 0)" class="trace-section">
-        <h3>{{ t("system.base.log.trace.title") }}</h3>
+        <el-text tag="h3">{{ t("system.base.log.trace.title") }}</el-text>
         <el-table v-loading="traceLoading" :data="traceItems" max-height="300" border>
           <el-table-column :label="t('system.base.log.trace.log_type')" width="130">
             <template #default="scope">{{ formatLogType(scope.row.log_type) }}</template>

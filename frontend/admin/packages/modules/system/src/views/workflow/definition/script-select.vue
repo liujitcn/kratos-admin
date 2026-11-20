@@ -24,7 +24,7 @@
       @confirm="testVisible = false"
       @closed="resetTestRun"
     >
-      <p class="script-help">{{ t("system.workflow.script.help") }}</p>
+      <el-text tag="p" class="script-help">{{ t("system.workflow.script.help") }}</el-text>
       <el-input v-model="context" type="textarea" :rows="12" :aria-label="t('system.workflow.script.input')" />
       <el-button :loading="testing" @click="testRun">{{ t("system.workflow.script.test") }}</el-button>
       <el-input :model-value="result" type="textarea" :rows="8" readonly :aria-label="t('system.workflow.script.output')" />

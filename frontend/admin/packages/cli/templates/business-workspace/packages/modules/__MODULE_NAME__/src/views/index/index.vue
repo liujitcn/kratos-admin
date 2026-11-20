@@ -1,6 +1,6 @@
 <template>
   <section class="module-page">
-    <h2>__MODULE_PASCAL__</h2>
+    <el-text tag="h2">__MODULE_PASCAL__</el-text>
   </section>
 </template>
 

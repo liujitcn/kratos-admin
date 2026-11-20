@@ -9,9 +9,9 @@
       @create="createSession"
       @action="handleAction"
     >
-      <template #navigation><p class="session-example__hint">搜索、切换和编辑仅影响本页数据。</p></template>
+      <template #navigation><el-text tag="p" class="session-example__hint">搜索、切换和编辑仅影响本页数据。</el-text></template>
     </AiSessionPanel>
-    <p class="session-example__status" aria-live="polite">{{ feedback }} · 当前会话：{{ current || "未选择" }}</p>
+    <el-text tag="p" class="session-example__status" aria-live="polite">{{ feedback }} · 当前会话：{{ current || "未选择" }}</el-text>
   </div>
 </template>
 

@@ -21,7 +21,7 @@
         <section class="file-preview" aria-live="polite">
           <el-skeleton v-if="previewLoading" :rows="8" animated />
           <template v-else-if="previewUrl && previewKind === 'image'">
-            <img class="file-preview__image" :src="previewUrl" :alt="detail.file_name" />
+            <el-image class="file-preview__image" :src="previewUrl" :alt="detail.file_name" />
           </template>
           <video v-else-if="previewUrl && previewKind === 'video'" class="file-preview__media" controls :src="previewUrl">
             {{ t("system.base.file.message.preview_unsupported") }}
@@ -275,8 +275,14 @@ function formatFileSize(size: number) {
 .file-preview__image {
   display: block;
   max-width: 100%;
-  max-height: 48vh;
-  object-fit: contain;
+  // el-image 容器不定尺寸，由图片自适应缩放
+  :deep(img) {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 48vh;
+    object-fit: contain;
+  }
 }
 
 .file-preview__media {

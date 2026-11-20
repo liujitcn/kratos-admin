@@ -113,9 +113,9 @@
         >
           <div class="config-form-value">
             <template v-if="formDefinition">
-              <p>
+              <el-text tag="p">
                 <el-icon><component :is="formDefinition.icon" /></el-icon> {{ t(formDefinition.descriptionKey) }}
-              </p>
+              </el-text>
               <ProForm
                 :key="formDefinition.key"
                 ref="valueFormRef"

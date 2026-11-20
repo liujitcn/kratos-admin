@@ -243,6 +243,14 @@
         img {
           display: block;
         }
+        // el-image 容器不定尺寸，由图片固有尺寸撑开
+        .el-image {
+          display: block;
+          img {
+            width: auto;
+            height: auto;
+          }
+        }
       }
     }
 
@@ -357,4 +365,36 @@
   .el-dialog {
     margin-top: 4vh;
   }
+}
+
+// 自定义按钮的布局与交互颜色由调用处定义，释放组件默认的尺寸和插槽布局。
+.el-button.admin-custom-button {
+  all: revert;
+
+  .el-button + & {
+    margin-left: 0;
+  }
+
+  > span {
+    display: contents;
+  }
+
+  .el-icon + span {
+    margin-left: 0;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--el-color-primary);
+    outline-offset: 2px;
+  }
+}
+
+// el-text 统一作为原生排版标签（p/h1-h6/strong/em/small 等 tag 用法）的包装组件，
+// 字号与颜色跟随上下文继承，段落默认间距与 flex 对齐还原浏览器默认行为；
+// 需要显式字号/颜色时通过 size/type 传入。
+.el-text {
+  font-size: inherit;
+  color: inherit;
+  margin: revert;
+  align-self: auto;
 }

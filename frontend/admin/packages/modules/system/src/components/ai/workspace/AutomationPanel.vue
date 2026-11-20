@@ -53,7 +53,7 @@
           <ol v-else>
             <li v-for="time in previewTimes" :key="time">{{ time }}</li>
           </ol>
-          <p>{{ t("system.ai.workspace.schedule_hint") }}</p>
+          <el-text tag="p">{{ t("system.ai.workspace.schedule_hint") }}</el-text>
         </div></template
       >
     </FormDialog>
@@ -66,18 +66,18 @@
     </ProDialog>
     <ProDialog v-model="runOpen" :title="t('system.ai.workspace.run_details')" :show-footer="false" width="min(680px, 96vw)">
       <template v-if="runDetail"
-        ><p>{{ runStatus(runDetail.status) }}</p>
+        ><el-text tag="p">{{ runStatus(runDetail.status) }}</el-text>
         <el-alert
           v-if="runDetail.result_unknown"
           :title="t('system.ai.workspace.result_unknown')"
           :closable="false"
           type="warning"
         />
-        <p>{{ runDetail.summary }}</p>
-        <p>{{ runDetail.error_code }}</p>
-        <h4>{{ t("system.ai.workspace.frozen_instruction") }}</h4>
+        <el-text tag="p">{{ runDetail.summary }}</el-text>
+        <el-text tag="p">{{ runDetail.error_code }}</el-text>
+        <el-text tag="h4">{{ t("system.ai.workspace.frozen_instruction") }}</el-text>
         <pre>{{ runDetail.configuration?.prompt }}</pre>
-        <p>{{ runDetail.configuration?.schedule?.timezone }} · {{ runDetail.configuration?.model_name }}</p>
+        <el-text tag="p">{{ runDetail.configuration?.schedule?.timezone }} · {{ runDetail.configuration?.model_name }}</el-text>
         <el-button :disabled="!runDetail.session_id || runDetail.session_deleted" @click="openResult(runDetail)">{{
           t("system.ai.workspace.result")
         }}</el-button></template
