@@ -147,7 +147,7 @@ func newAiApprovalTestData(t *testing.T) *data.Data {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err = db.AutoMigrate(&models.AiSession{}, &models.AiMessage{}, &models.AiToolApproval{}); err != nil {
+	if err = db.AutoMigrate(&models.AiSession{}, &models.AiMessage{}, &models.AiToolApproval{}, &models.AiMessageEvent{}); err != nil {
 		t.Fatal(err)
 	}
 	var store *data.Data

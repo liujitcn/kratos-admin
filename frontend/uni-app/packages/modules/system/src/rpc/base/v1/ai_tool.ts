@@ -95,6 +95,8 @@ export interface AiToolCall {
   input: string;
   /** 工具原始出参JSON */
   output: string;
+  /** 本轮工具调用关联编号 */
+  call_id?: string | undefined;
 }
 
 /** Base AI 助手工具服务 */

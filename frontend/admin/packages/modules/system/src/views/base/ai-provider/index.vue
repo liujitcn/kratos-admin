@@ -145,6 +145,7 @@ interface ModelFormState extends Omit<AiProviderModelForm, "config"> {
   api_type: string;
   temperature: number;
   max_tokens: number;
+  context_window: number;
   dimensions: number;
   duration: number;
   size: string;
@@ -214,7 +215,7 @@ const taskOptions = computed<ProFormOption[]>(() => [
 
 /** 分类个性化配置的表单字段，按分类过滤展示。 */
 const categoryConfigFields: Partial<Record<AiModelCategory, string[]>> = {
-  [AiModelCategory.AI_MODEL_CATEGORY_CHAT]: ["api_type", "temperature", "max_tokens", "timeout_seconds", "max_retries"],
+  [AiModelCategory.AI_MODEL_CATEGORY_CHAT]: ["api_type", "temperature", "context_window", "max_tokens", "timeout_seconds", "max_retries"],
   [AiModelCategory.AI_MODEL_CATEGORY_EMBEDDING]: ["dimensions", "timeout_seconds", "max_retries"],
   [AiModelCategory.AI_MODEL_CATEGORY_RERANK]: ["timeout_seconds", "max_retries"],
   [AiModelCategory.AI_MODEL_CATEGORY_IMAGE]: ["size", "quality", "timeout_seconds", "max_retries"],
@@ -227,6 +228,7 @@ const categoryConfigFields: Partial<Record<AiModelCategory, string[]>> = {
 const configFieldMap: Record<string, ProFormField> = {
   api_type: { prop: "api_type", label: t("system.base.ai.model.field.api_type"), component: "select", colSpan: 12, options: apiTypeOptions.value },
   temperature: { prop: "temperature", label: t("system.base.ai.model.field.temperature"), component: "input-number", colSpan: 12, props: { min: 0, max: 2, precision: 2, step: 0.1, controlsPosition: "right" } },
+  context_window: { prop: "context_window", label: t("system.base.ai.model.field.context_window"), component: "input-number", colSpan: 12, props: { min: 0, max: 10000000, precision: 0, controlsPosition: "right" } },
   max_tokens: { prop: "max_tokens", label: t("system.base.ai.model.field.max_tokens"), component: "input-number", colSpan: 12, props: { min: 0, max: 200000, precision: 0, controlsPosition: "right" } },
   dimensions: { prop: "dimensions", label: t("system.base.ai.model.field.dimensions"), component: "input-number", colSpan: 12, props: { min: 0, max: 8192, precision: 0, controlsPosition: "right", placeholder: t("system.base.ai.model.placeholder.dimensions") } },
   duration: { prop: "duration", label: t("system.base.ai.model.field.duration"), component: "input-number", colSpan: 12, props: { min: 0, precision: 0, controlsPosition: "right" } },
@@ -359,6 +361,7 @@ function defaultModelForm(): ModelFormState {
     status: Status.STATUS_ENABLE,
     api_type: "CHAT_COMPLETIONS",
     temperature: 0.2,
+    context_window: 32768,
     max_tokens: 1024,
     dimensions: 0,
     duration: 0,

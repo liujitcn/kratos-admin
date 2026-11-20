@@ -2,10 +2,15 @@ package core
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"slices"
 	"strings"
 
+	"gorm.io/gorm/clause"
+
 	"github.com/liujitcn/gorm-kit/repository"
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	_const "github.com/liujitcn/kratos-core/const"
@@ -21,6 +26,7 @@ import (
 type APIStoreAdapter struct {
 	apiRepository         *data.BaseAPIRepository
 	translationRepository *data.BaseAPII18NRepository
+	menuRepository        *data.BaseMenuRepository
 	openAPI               *openapi.OpenAPI
 }
 
@@ -33,11 +39,12 @@ func NewAPIStoreAdapter(databases map[string]*gorm.Client, openAPI *openapi.Open
 	return &APIStoreAdapter{
 		apiRepository:         data.NewBaseAPIRepository(provider),
 		translationRepository: data.NewBaseAPII18NRepository(provider),
+		menuRepository:        data.NewBaseMenuRepository(provider),
 		openAPI:               openAPI,
 	}, nil
 }
 
-// ReplaceAll 替换 API 快照并保留已有工具运行时配置。
+// ReplaceAll 替换 API 快照、保留工具配置，并在权限重建前补齐内置 AI 入口的只读事件权限。
 func (s *APIStoreAdapter) ReplaceAll(ctx context.Context, items []*coredata.APIRecord) error {
 	var existing []*models.BaseAPI
 	var err error
@@ -59,12 +66,16 @@ func (s *APIStoreAdapter) ReplaceAll(ctx context.Context, items []*coredata.APIR
 	records := make([]*models.BaseAPI, 0, len(items)+1)
 	const sseOperation = "/base.v1.SseService/SubscribeSse"
 	sseIncluded := false
+	eventIncluded := false
 	for _, item := range items {
 		if item == nil {
 			continue
 		}
 		if item.Operation == sseOperation {
 			sseIncluded = true
+		}
+		if item.Operation == basev1.OperationAiMessageServiceListAiMessageEvent {
+			eventIncluded = true
 		}
 		record := &models.BaseAPI{
 			ID:             item.ID,
@@ -114,7 +125,45 @@ func (s *APIStoreAdapter) ReplaceAll(ctx context.Context, items []*coredata.APIR
 	if err != nil {
 		return err
 	}
-	return s.apiRepository.BatchCreate(ctx, records)
+	err = s.apiRepository.BatchCreate(ctx, records)
+	if err != nil {
+		return err
+	}
+	if eventIncluded {
+		return s.syncAiMessageEventMenus(ctx)
+	}
+	return nil
+}
+
+// syncAiMessageEventMenus 在现有资源同步事务中只补授权入口，不创建菜单或修改角色菜单列表。
+func (s *APIStoreAdapter) syncAiMessageEventMenus(ctx context.Context) error {
+	query := s.menuRepository.Query(ctx).BaseMenu
+	menus, err := query.WithContext(ctx).
+		Where(query.ID.In(90990000, 90991000, 99101000), query.Status.Eq(int32(_const.STATUS_STATUS_ENABLE))).
+		Clauses(clause.Locking{Strength: "UPDATE"}).Find()
+	if err != nil {
+		return err
+	}
+	for _, menu := range menus {
+		var operations []string
+		if err = json.Unmarshal([]byte(menu.API), &operations); err != nil {
+			return fmt.Errorf("解析 AI 菜单 %d 权限: %w", menu.ID, err)
+		}
+		// 发送权限已被撤销的入口不重新授予补读能力；已有自定义 API 保持原样。
+		if !slices.Contains(operations, basev1.OperationAiMessageServiceSendAiMessage) || slices.Contains(operations, basev1.OperationAiMessageServiceListAiMessageEvent) {
+			continue
+		}
+		var payload []byte
+		payload, err = json.Marshal(append(operations, basev1.OperationAiMessageServiceListAiMessageEvent))
+		if err != nil {
+			return fmt.Errorf("编码 AI 菜单 %d 权限: %w", menu.ID, err)
+		}
+		_, err = query.WithContext(ctx).Where(query.ID.Eq(menu.ID)).UpdateSimple(query.API.Value(string(payload)))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // hasTenantResponse 判断接口响应中是否包含租户字段消息。

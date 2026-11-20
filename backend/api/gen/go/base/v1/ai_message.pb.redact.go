@@ -51,6 +51,17 @@ type redactedAiMessageServiceServer struct {
 	bypass redact.Bypass
 }
 
+// ListAiMessageEvent is the redacted wrapper for the actual AiMessageServiceServer.ListAiMessageEvent method
+// Unary RPC
+func (s *redactedAiMessageServiceServer) ListAiMessageEvent(ctx context.Context, in *ListAiMessageEventRequest) (*ListAiMessageEventResponse, error) {
+	res, err := s.srv.ListAiMessageEvent(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/base.v1.AiMessageService/ListAiMessageEvent"), redact.DirectionResponse), nil, res)
+	}
+	return res, err
+}
+
 // DecideAiToolApproval is the redacted wrapper for the actual AiMessageServiceServer.DecideAiToolApproval method
 // Unary RPC
 func (s *redactedAiMessageServiceServer) DecideAiToolApproval(ctx context.Context, in *DecideAiToolApprovalRequest) (*SendAiMessageResponse, error) {
@@ -263,4 +274,60 @@ func (x *AiAction) Redact() {
 	// Safe field: ActionId
 
 	// Safe field: FlowVersion
+}
+
+// Ensure ListAiMessageEventRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*ListAiMessageEventRequest)(nil)
+
+// Redact method implementation for ListAiMessageEventRequest
+func (x *ListAiMessageEventRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: SessionId
+
+	// Safe field: MessageId
+
+	// Safe field: AfterId
+}
+
+// Ensure AiMessageEvent implements the Redactor interface at compile time.
+var _ redact.Redactor = (*AiMessageEvent)(nil)
+
+// Redact method implementation for AiMessageEvent
+func (x *AiMessageEvent) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Id
+
+	// Safe field: RunId
+
+	// Safe field: Event
+
+	// Safe field: Payload
+}
+
+// Ensure ListAiMessageEventResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*ListAiMessageEventResponse)(nil)
+
+// Redact method implementation for ListAiMessageEventResponse
+func (x *ListAiMessageEventResponse) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Events
+
+	// Safe field: NextCursor
+
+	// Safe field: HasMore
+
+	// Safe field: RunId
+
+	// Safe field: Messages
+
+	// Safe field: Session
 }

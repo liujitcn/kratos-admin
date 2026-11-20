@@ -590,6 +590,221 @@ func (x *AiAction) GetFlowVersion() int64 {
 	return 0
 }
 
+// AI 消息执行事件补读请求。
+type ListAiMessageEventRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SessionId     string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"` // 会话ID
+	MessageId     string                 `protobuf:"bytes,2,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"` // 消息ID
+	AfterId       string                 `protobuf:"bytes,3,opt,name=after_id,json=afterId,proto3" json:"after_id,omitempty"`       // 已读取事件游标，留空从头读取
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListAiMessageEventRequest) Reset() {
+	*x = ListAiMessageEventRequest{}
+	mi := &file_base_v1_ai_message_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListAiMessageEventRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListAiMessageEventRequest) ProtoMessage() {}
+
+func (x *ListAiMessageEventRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_base_v1_ai_message_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListAiMessageEventRequest.ProtoReflect.Descriptor instead.
+func (*ListAiMessageEventRequest) Descriptor() ([]byte, []int) {
+	return file_base_v1_ai_message_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ListAiMessageEventRequest) GetSessionId() string {
+	if x != nil {
+		return x.SessionId
+	}
+	return ""
+}
+
+func (x *ListAiMessageEventRequest) GetMessageId() string {
+	if x != nil {
+		return x.MessageId
+	}
+	return ""
+}
+
+func (x *ListAiMessageEventRequest) GetAfterId() string {
+	if x != nil {
+		return x.AfterId
+	}
+	return ""
+}
+
+// AI 消息持久执行事件，不包含内部摘要或检查点。
+type AiMessageEvent struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`                    // 单调递增的事件ID
+	RunId         string                 `protobuf:"bytes,2,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"` // 本次执行编号
+	Event         string                 `protobuf:"bytes,3,opt,name=event,proto3" json:"event,omitempty"`              // 事件类型
+	Payload       string                 `protobuf:"bytes,4,opt,name=payload,proto3" json:"payload,omitempty"`          // 与SSE一致的JSON载荷
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AiMessageEvent) Reset() {
+	*x = AiMessageEvent{}
+	mi := &file_base_v1_ai_message_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AiMessageEvent) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AiMessageEvent) ProtoMessage() {}
+
+func (x *AiMessageEvent) ProtoReflect() protoreflect.Message {
+	mi := &file_base_v1_ai_message_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AiMessageEvent.ProtoReflect.Descriptor instead.
+func (*AiMessageEvent) Descriptor() ([]byte, []int) {
+	return file_base_v1_ai_message_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *AiMessageEvent) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *AiMessageEvent) GetRunId() string {
+	if x != nil {
+		return x.RunId
+	}
+	return ""
+}
+
+func (x *AiMessageEvent) GetEvent() string {
+	if x != nil {
+		return x.Event
+	}
+	return ""
+}
+
+func (x *AiMessageEvent) GetPayload() string {
+	if x != nil {
+		return x.Payload
+	}
+	return ""
+}
+
+// AI 消息事件和权威状态快照。
+type ListAiMessageEventResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Events        []*AiMessageEvent      `protobuf:"bytes,1,rep,name=events,proto3" json:"events,omitempty"`                           // 当前执行的事件列表，最多100条
+	NextCursor    string                 `protobuf:"bytes,2,opt,name=next_cursor,json=nextCursor,proto3" json:"next_cursor,omitempty"` // 下一页事件游标
+	HasMore       bool                   `protobuf:"varint,3,opt,name=has_more,json=hasMore,proto3" json:"has_more,omitempty"`         // 是否仍有未读取事件
+	RunId         string                 `protobuf:"bytes,4,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`                // 当前执行编号
+	Messages      []*AiMessage           `protobuf:"bytes,5,rep,name=messages,proto3" json:"messages,omitempty"`                       // 当前消息权威快照
+	Session       *AiSession             `protobuf:"bytes,6,opt,name=session,proto3" json:"session,omitempty"`                         // 当前会话权威快照
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListAiMessageEventResponse) Reset() {
+	*x = ListAiMessageEventResponse{}
+	mi := &file_base_v1_ai_message_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListAiMessageEventResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListAiMessageEventResponse) ProtoMessage() {}
+
+func (x *ListAiMessageEventResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_base_v1_ai_message_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListAiMessageEventResponse.ProtoReflect.Descriptor instead.
+func (*ListAiMessageEventResponse) Descriptor() ([]byte, []int) {
+	return file_base_v1_ai_message_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *ListAiMessageEventResponse) GetEvents() []*AiMessageEvent {
+	if x != nil {
+		return x.Events
+	}
+	return nil
+}
+
+func (x *ListAiMessageEventResponse) GetNextCursor() string {
+	if x != nil {
+		return x.NextCursor
+	}
+	return ""
+}
+
+func (x *ListAiMessageEventResponse) GetHasMore() bool {
+	if x != nil {
+		return x.HasMore
+	}
+	return false
+}
+
+func (x *ListAiMessageEventResponse) GetRunId() string {
+	if x != nil {
+		return x.RunId
+	}
+	return ""
+}
+
+func (x *ListAiMessageEventResponse) GetMessages() []*AiMessage {
+	if x != nil {
+		return x.Messages
+	}
+	return nil
+}
+
+func (x *ListAiMessageEventResponse) GetSession() *AiSession {
+	if x != nil {
+		return x.Session
+	}
+	return nil
+}
+
 var File_base_v1_ai_message_proto protoreflect.FileDescriptor
 
 const file_base_v1_ai_message_proto_rawDesc = "" +
@@ -658,8 +873,31 @@ const file_base_v1_ai_message_proto_rawDesc = "" +
 	"\fpayload_json\x18\x04 \x01(\tB\x16\xbaG\x13\x92\x02\x10动作负载JSONR\vpayloadJson\x12F\n" +
 	"\x11source_message_id\x18\x05 \x01(\tB\x1a\xbaG\x17\x92\x02\x14动作来源消息IDR\x0fsourceMessageId\x121\n" +
 	"\taction_id\x18\x06 \x01(\tB\x14\xbaG\x11\x92\x02\x0e动作唯一IDR\bactionId\x12;\n" +
-	"\fflow_version\x18\a \x01(\x03B\x18\xbaG\x15\x92\x02\x12流程状态版本R\vflowVersion2\xd6\a\n" +
-	"\x10AiMessageService\x12\xab\x01\n" +
+	"\fflow_version\x18\a \x01(\x03B\x18\xbaG\x15\x92\x02\x12流程状态版本R\vflowVersion\"\xea\x03\n" +
+	"\x19ListAiMessageEventRequest\x12\x95\x01\n" +
+	"\n" +
+	"session_id\x18\x01 \x01(\tBv\xbaG\v\x92\x02\b会话ID\xbaHe\xba\x01b\n" +
+	"!base.ai.event.session_id.positive\x12\x1e会话或消息编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\tsessionId\x12\x95\x01\n" +
+	"\n" +
+	"message_id\x18\x02 \x01(\tBv\xbaG\v\x92\x02\b消息ID\xbaHe\xba\x01b\n" +
+	"!base.ai.event.message_id.positive\x12\x1e会话或消息编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\tmessageId\x12\x9c\x01\n" +
+	"\bafter_id\x18\x03 \x01(\tB\x80\x01\xbaG-\x92\x02*已读取事件游标，留空从头读取\xbaHM\xba\x01G\n" +
+	"\x14base.ai.event.cursor\x12\x15事件游标不合法\x1a\x18this.matches('^[0-9]+$')\xd8\x01\x01R\aafterId\"\xd5\x01\n" +
+	"\x0eAiMessageEvent\x12-\n" +
+	"\x02id\x18\x01 \x01(\tB\x1d\xbaG\x1a\x92\x02\x17单调递增的事件IDR\x02id\x12/\n" +
+	"\x06run_id\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12本次执行编号R\x05runId\x12(\n" +
+	"\x05event\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f事件类型R\x05event\x129\n" +
+	"\apayload\x18\x04 \x01(\tB\x1f\xbaG\x1c\x92\x02\x19与SSE一致的JSON载荷R\apayload\"\xca\x03\n" +
+	"\x1aListAiMessageEventResponse\x12a\n" +
+	"\x06events\x18\x01 \x03(\v2\x17.base.v1.AiMessageEventB0\xbaG-\x92\x02*当前执行的事件列表，最多100条R\x06events\x12<\n" +
+	"\vnext_cursor\x18\x02 \x01(\tB\x1b\xbaG\x18\x92\x02\x15下一页事件游标R\n" +
+	"nextCursor\x12<\n" +
+	"\bhas_more\x18\x03 \x01(\bB!\xbaG\x1e\x92\x02\x1b是否仍有未读取事件R\ahasMore\x12/\n" +
+	"\x06run_id\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12当前执行编号R\x05runId\x12N\n" +
+	"\bmessages\x18\x05 \x03(\v2\x12.base.v1.AiMessageB\x1e\xbaG\x1b\x92\x02\x18当前消息权威快照R\bmessages\x12L\n" +
+	"\asession\x18\x06 \x01(\v2\x12.base.v1.AiSessionB\x1e\xbaG\x1b\x92\x02\x18当前会话权威快照R\asession2\xff\b\n" +
+	"\x10AiMessageService\x12\xa6\x01\n" +
+	"\x12ListAiMessageEvent\x12\".base.v1.ListAiMessageEventRequest\x1a#.base.v1.ListAiMessageEventResponse\"G\x82\xd3\xe4\x93\x02A\x12?/api/v1/base/ai/session/{session_id}/message/{message_id}/event\x12\xab\x01\n" +
 	"\x14DecideAiToolApproval\x12$.base.v1.DecideAiToolApprovalRequest\x1a\x1e.base.v1.SendAiMessageResponse\"M\x82\xd3\xe4\x93\x02G:\x01*\"B/api/v1/base/ai/session/{session_id}/message/{message_id}/approval\x12\x98\x01\n" +
 	"\x0fUpdateAiMessage\x12\x1f.base.v1.UpdateAiMessageRequest\x1a\x1e.base.v1.SendAiMessageResponse\"D\x82\xd3\xe4\x93\x02>:\x01*\x1a9/api/v1/base/ai/session/{session_id}/message/{message_id}\x12\x97\x01\n" +
 	"\x0fDeleteAiMessage\x12\x1f.base.v1.DeleteAiMessageRequest\x1a .base.v1.DeleteAiMessageResponse\"A\x82\xd3\xe4\x93\x02;*9/api/v1/base/ai/session/{session_id}/message/{message_id}\x12\x87\x01\n" +
@@ -680,7 +918,7 @@ func file_base_v1_ai_message_proto_rawDescGZIP() []byte {
 	return file_base_v1_ai_message_proto_rawDescData
 }
 
-var file_base_v1_ai_message_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_base_v1_ai_message_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_base_v1_ai_message_proto_goTypes = []any{
 	(*DecideAiToolApprovalRequest)(nil), // 0: base.v1.DecideAiToolApprovalRequest
 	(*UpdateAiMessageRequest)(nil),      // 1: base.v1.UpdateAiMessageRequest
@@ -691,32 +929,40 @@ var file_base_v1_ai_message_proto_goTypes = []any{
 	(*RetryAiUserMessageRequest)(nil),   // 6: base.v1.RetryAiUserMessageRequest
 	(*RegenerateAiMessageRequest)(nil),  // 7: base.v1.RegenerateAiMessageRequest
 	(*AiAction)(nil),                    // 8: base.v1.AiAction
-	(*AiMessage)(nil),                   // 9: base.v1.AiMessage
-	(*AiSession)(nil),                   // 10: base.v1.AiSession
-	(*AiAttachment)(nil),                // 11: base.v1.AiAttachment
+	(*ListAiMessageEventRequest)(nil),   // 9: base.v1.ListAiMessageEventRequest
+	(*AiMessageEvent)(nil),              // 10: base.v1.AiMessageEvent
+	(*ListAiMessageEventResponse)(nil),  // 11: base.v1.ListAiMessageEventResponse
+	(*AiMessage)(nil),                   // 12: base.v1.AiMessage
+	(*AiSession)(nil),                   // 13: base.v1.AiSession
+	(*AiAttachment)(nil),                // 14: base.v1.AiAttachment
 }
 var file_base_v1_ai_message_proto_depIdxs = []int32{
-	9,  // 0: base.v1.SendAiMessageResponse.messages:type_name -> base.v1.AiMessage
-	10, // 1: base.v1.SendAiMessageResponse.session:type_name -> base.v1.AiSession
-	11, // 2: base.v1.SendAiMessageRequest.attachments:type_name -> base.v1.AiAttachment
+	12, // 0: base.v1.SendAiMessageResponse.messages:type_name -> base.v1.AiMessage
+	13, // 1: base.v1.SendAiMessageResponse.session:type_name -> base.v1.AiSession
+	14, // 2: base.v1.SendAiMessageRequest.attachments:type_name -> base.v1.AiAttachment
 	8,  // 3: base.v1.SendAiMessageRequest.action:type_name -> base.v1.AiAction
-	0,  // 4: base.v1.AiMessageService.DecideAiToolApproval:input_type -> base.v1.DecideAiToolApprovalRequest
-	1,  // 5: base.v1.AiMessageService.UpdateAiMessage:input_type -> base.v1.UpdateAiMessageRequest
-	3,  // 6: base.v1.AiMessageService.DeleteAiMessage:input_type -> base.v1.DeleteAiMessageRequest
-	5,  // 7: base.v1.AiMessageService.SendAiMessage:input_type -> base.v1.SendAiMessageRequest
-	6,  // 8: base.v1.AiMessageService.RetryAiUserMessage:input_type -> base.v1.RetryAiUserMessageRequest
-	7,  // 9: base.v1.AiMessageService.RegenerateAiMessage:input_type -> base.v1.RegenerateAiMessageRequest
-	2,  // 10: base.v1.AiMessageService.DecideAiToolApproval:output_type -> base.v1.SendAiMessageResponse
-	2,  // 11: base.v1.AiMessageService.UpdateAiMessage:output_type -> base.v1.SendAiMessageResponse
-	4,  // 12: base.v1.AiMessageService.DeleteAiMessage:output_type -> base.v1.DeleteAiMessageResponse
-	2,  // 13: base.v1.AiMessageService.SendAiMessage:output_type -> base.v1.SendAiMessageResponse
-	2,  // 14: base.v1.AiMessageService.RetryAiUserMessage:output_type -> base.v1.SendAiMessageResponse
-	2,  // 15: base.v1.AiMessageService.RegenerateAiMessage:output_type -> base.v1.SendAiMessageResponse
-	10, // [10:16] is the sub-list for method output_type
-	4,  // [4:10] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	10, // 4: base.v1.ListAiMessageEventResponse.events:type_name -> base.v1.AiMessageEvent
+	12, // 5: base.v1.ListAiMessageEventResponse.messages:type_name -> base.v1.AiMessage
+	13, // 6: base.v1.ListAiMessageEventResponse.session:type_name -> base.v1.AiSession
+	9,  // 7: base.v1.AiMessageService.ListAiMessageEvent:input_type -> base.v1.ListAiMessageEventRequest
+	0,  // 8: base.v1.AiMessageService.DecideAiToolApproval:input_type -> base.v1.DecideAiToolApprovalRequest
+	1,  // 9: base.v1.AiMessageService.UpdateAiMessage:input_type -> base.v1.UpdateAiMessageRequest
+	3,  // 10: base.v1.AiMessageService.DeleteAiMessage:input_type -> base.v1.DeleteAiMessageRequest
+	5,  // 11: base.v1.AiMessageService.SendAiMessage:input_type -> base.v1.SendAiMessageRequest
+	6,  // 12: base.v1.AiMessageService.RetryAiUserMessage:input_type -> base.v1.RetryAiUserMessageRequest
+	7,  // 13: base.v1.AiMessageService.RegenerateAiMessage:input_type -> base.v1.RegenerateAiMessageRequest
+	11, // 14: base.v1.AiMessageService.ListAiMessageEvent:output_type -> base.v1.ListAiMessageEventResponse
+	2,  // 15: base.v1.AiMessageService.DecideAiToolApproval:output_type -> base.v1.SendAiMessageResponse
+	2,  // 16: base.v1.AiMessageService.UpdateAiMessage:output_type -> base.v1.SendAiMessageResponse
+	4,  // 17: base.v1.AiMessageService.DeleteAiMessage:output_type -> base.v1.DeleteAiMessageResponse
+	2,  // 18: base.v1.AiMessageService.SendAiMessage:output_type -> base.v1.SendAiMessageResponse
+	2,  // 19: base.v1.AiMessageService.RetryAiUserMessage:output_type -> base.v1.SendAiMessageResponse
+	2,  // 20: base.v1.AiMessageService.RegenerateAiMessage:output_type -> base.v1.SendAiMessageResponse
+	14, // [14:21] is the sub-list for method output_type
+	7,  // [7:14] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_base_v1_ai_message_proto_init() }
@@ -731,7 +977,7 @@ func file_base_v1_ai_message_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_base_v1_ai_message_proto_rawDesc), len(file_base_v1_ai_message_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   9,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -23,6 +23,11 @@ func (*AiMessage) TableComment() string {
 }
 
 // TableComment 返回表注释。
+func (*AiMessageEvent) TableComment() string {
+	return "AI消息执行事件"
+}
+
+// TableComment 返回表注释。
 func (*AiModel) TableComment() string {
 	return "AI模型"
 }

@@ -234,6 +234,7 @@
   "system.base.ai.model.field.display_name": "顯示名稱",
   "system.base.ai.model.field.duration": "影片時長（秒）",
   "system.base.ai.model.field.max_retries": "最大重試次數",
+  "system.base.ai.model.field.context_window": "上下文容量 Token 數（0 使用預設值）",
   "system.base.ai.model.field.max_tokens": "最大輸出 Token 數",
   "system.base.ai.model.field.model_name": "模型名稱",
   "system.base.ai.model.field.quality": "圖片品質",

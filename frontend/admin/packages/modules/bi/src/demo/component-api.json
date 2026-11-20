@@ -1,4 +1,76 @@
 {
+  "BiAssistantCardZone.vue": {
+    "props": [
+      {
+        "name": "zone",
+        "description": "",
+        "type": "Zone",
+        "required": true
+      },
+      {
+        "name": "cards",
+        "description": "",
+        "type": "BiCard[]",
+        "required": true
+      },
+      {
+        "name": "refreshKeys",
+        "description": "",
+        "type": "Record<number, number>",
+        "required": true
+      }
+    ],
+    "events": [
+      {
+        "name": "drag-start",
+        "description": "",
+        "type": "(value: { zone: Zone; index: number; }) => void"
+      },
+      {
+        "name": "drag-end",
+        "description": "",
+        "type": "() => void"
+      },
+      {
+        "name": "drop",
+        "description": "",
+        "type": "(zone: Zone, index?: number | undefined) => void"
+      },
+      {
+        "name": "refresh",
+        "description": "",
+        "type": "(card: BiCard) => void"
+      },
+      {
+        "name": "quote",
+        "description": "",
+        "type": "(card: BiCard) => void"
+      },
+      {
+        "name": "remove",
+        "description": "",
+        "type": "(card: BiCard) => void"
+      },
+      {
+        "name": "export",
+        "description": "",
+        "type": "(card: BiCard) => void"
+      },
+      {
+        "name": "preview",
+        "description": "",
+        "type": "(card: BiCard) => void"
+      }
+    ],
+    "slots": [],
+    "methods": []
+  },
+  "BiAssistantWorkbench.vue": {
+    "props": [],
+    "events": [],
+    "slots": [],
+    "methods": []
+  },
   "BiCardChartEditor.vue": {
     "props": [
       {

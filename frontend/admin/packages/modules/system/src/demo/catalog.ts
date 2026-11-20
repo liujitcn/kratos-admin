@@ -70,6 +70,115 @@ const modules = [systemAdminModule];`,
     related: ["AiModelSelector", "AiSessionPanel"]
   },
   {
+    id: "AiFlowBlocks",
+    label: "AI 流程块",
+    file: "ai/AiFlowBlocks.vue",
+    description: "根据模块注册的渲染器展示助手消息中的结构化业务流程块。",
+    usage:
+      "由聊天面板传入 message、activeFlowMessageId 与 renderers；按渲染器声明的类型筛选 blocks，flow-action 交回父页面处理。组件只负责展示和转发动作，不执行工具或提交业务请求。",
+    code: `<script setup lang="ts">
+import AiFlowBlocks from "@liujitcn/kratos-admin-system/components/ai/AiFlowBlocks.vue";
+
+const props = defineProps<InstanceType<typeof AiFlowBlocks>["$props"]>();
+</script>
+
+<template>
+  <AiFlowBlocks v-bind="props" />
+</template>`,
+    related: ["ChatPanel"]
+  },
+  {
+    id: "ChatPanel",
+    label: "AI 聊天面板",
+    file: "ai/ChatPanel.vue",
+    description: "管理端 AI 聊天展示入口，组合消息、模型选择、知识库选择和输入框。",
+    usage:
+      "从公开 components 路径导入，契约与内部聊天面板完全相同。父页面维护会话、消息、草稿和发送状态，并处理 submit、messageAction、messageEdit、approvalDecision 等事件；面板本身不发起模型请求。示例透传父级提供的 props 与事件处理器，不创建真实会话。",
+    code: `<script setup lang="ts">
+import ChatPanel from "@liujitcn/kratos-admin-system/components/ai/ChatPanel.vue";
+
+const props = defineProps<InstanceType<typeof ChatPanel>["$props"]>();
+</script>
+
+<template>
+  <ChatPanel v-bind="props" />
+</template>`,
+    related: ["AiModelSelector", "AiSessionPanel", "AiFlowBlocks"]
+  },
+  {
+    id: "AutomationPanel",
+    label: "AI 自动化工作区",
+    file: "ai/workspace/AutomationPanel.vue",
+    description: "管理本人 AI 自动化任务、执行记录、审批和结果会话。",
+    usage:
+      "父页面提供 active、mobile、当前模型、知识库和插件选择。激活后读取真实任务；运行、停止、审批和计划修改会调用业务接口，移动模式限制计划管理。pending、result、session 事件交由父页面更新徽标、定位结果或切换会话，因此文档不自动挂载。",
+    code: `<script setup lang="ts">
+import AutomationPanel from "@liujitcn/kratos-admin-system/components/ai/workspace/AutomationPanel.vue";
+
+const props = defineProps<InstanceType<typeof AutomationPanel>["$props"]>();
+</script>
+
+<template>
+  <AutomationPanel v-bind="props" />
+</template>`,
+    related: ["ChatPanel", "PluginPicker"]
+  },
+  {
+    id: "FilePanel",
+    label: "AI 文件工作区",
+    file: "ai/workspace/FilePanel.vue",
+    description: "展示当前账号可访问的 AI 文件，提供预览、下载和回收站操作。",
+    usage:
+      "无需 props，挂载后会读取真实文件列表。重命名、移入回收站、恢复和彻底删除都会修改后端数据，服务端继续校验租户及文件访问边界；仅在真实 AI 工作区挂载，文档不重复加载业务文件。",
+    code: `<script setup lang="ts">
+import FilePanel from "@liujitcn/kratos-admin-system/components/ai/workspace/FilePanel.vue";
+</script>
+
+<template>
+  <FilePanel />
+</template>`,
+    related: ["ChatPanel", "ProTable"]
+  },
+  {
+    id: "PluginPanel",
+    label: "AI 插件工作区",
+    file: "ai/workspace/PluginPanel.vue",
+    description: "展示插件目录和连接账号，并提供授权、工具刷新及使用入口。",
+    usage:
+      "父页面传入目录、连接、加载状态和当前管理能力；refresh 重新读取数据，select 将插件选择交回聊天页。canManageTools、canManageCatalog、canCreatePrivate 只控制界面，不能替代服务端鉴权；授权和共享等操作会修改真实连接，文档不自动挂载。",
+    code: `<script setup lang="ts">
+import PluginPanel from "@liujitcn/kratos-admin-system/components/ai/workspace/PluginPanel.vue";
+
+const props = defineProps<InstanceType<typeof PluginPanel>["$props"]>();
+</script>
+
+<template>
+  <PluginPanel v-bind="props" />
+</template>`,
+    related: ["PluginPicker", "ChatPanel"]
+  },
+  {
+    id: "PluginPicker",
+    label: "AI 插件选择器",
+    file: "ai/workspace/PluginPicker.vue",
+    description: "按插件与连接账号选择聊天使用的工具集，显示不可用原因。",
+    usage:
+      "v-model 保存 plugin_id 与可选 connection_id；plugins、connections 由父页面加载。组件不自行授权或执行工具；失效的已有选择会保留并标记为不可用，便于用户手动移除。",
+    code: `<script setup lang="ts">
+import { ref } from "vue";
+import PluginPicker from "@liujitcn/kratos-admin-system/components/ai/workspace/PluginPicker.vue";
+import type { AiPlugin, AiPluginConnection, AiPluginSelection } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_plugin";
+
+const props = defineProps<{ plugins: AiPlugin[]; connections: AiPluginConnection[] }>();
+const selected = ref<AiPluginSelection[]>([]);
+</script>
+
+<template>
+  <PluginPicker v-model="selected" :plugins="props.plugins" :connections="props.connections" />
+</template>`,
+    related: ["PluginPanel", "AutomationPanel"]
+  },
+  {
     id: "DynamicI18nEditor",
     label: "动态多语言编辑",
     file: "i18n/DynamicI18nEditor.vue",

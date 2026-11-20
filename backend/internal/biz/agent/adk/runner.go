@@ -54,6 +54,10 @@ type Config struct {
 
 // Request 表示单轮 ADK 执行输入。
 type Request struct {
+	// ContextWindow 是本轮模型容量，0 沿用保守默认值。
+	ContextWindow int
+	// MaxOutputTokens 是每次模型调用预留的输出上限。
+	MaxOutputTokens int
 	// CheckPointID 是由业务层分配的运行编号。
 	CheckPointID string
 	// Decisions 只允许受信业务入口传入定向审批决定。
@@ -204,6 +208,8 @@ func (r *Runner) newAgent(ctx context.Context, request Request) (*adk.TypedChatM
 	}
 	filter := middleware.NewToolFilterHandler(infos)
 	filter.BeforeModel = agenttool.CheckModelExecution
+	filter.ContextWindow = request.ContextWindow
+	filter.MaxOutputTokens = request.MaxOutputTokens
 	filter.ResolveToolInfos = request.ResolveToolInfos
 	filter.AllowToolSearch = request.DynamicTools && len(request.Tools) > 0
 	handlers = append(handlers, filter, middleware.NewToolMetricsHandler(toolTitleResolver(infos), request.LocalizeMessage))

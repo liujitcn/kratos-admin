@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"slices"
 
+	componentsModel "github.com/cloudwego/eino/components/model"
+
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/adk"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/callback"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
@@ -50,9 +52,9 @@ func (r *Runtime) Resume(ctx context.Context, checkpointID string, state RunStat
 	recorder := &callback.Recorder{}
 	runner := adk.NewRunner(adk.Config{Model: client.AgenticModel, Name: "admin_ai", ServerTools: state.ServerTools, CheckPointStore: r.checkPointStore})
 	var result *adk.Result
-	result, err = runner.Run(ctx, adk.Request{CheckPointID: checkpointID, Decisions: decisions, Tools: r.runnerTools(ctx, input, selected), ToolInfos: selected, DynamicTools: true, ResolveToolInfos: func(callCtx context.Context) []*tool.Info { return r.enabledToolInfos(callCtx, input, selected) }, Recorder: recorder, LocalizeMessage: r.localizeMessage})
+	result, err = runner.Run(ctx, adk.Request{ModelOptions: []model.Option{componentsModel.WithMaxTokens(client.MaxOutputTokens)}, ContextWindow: client.ContextWindow, MaxOutputTokens: client.MaxOutputTokens, CheckPointID: checkpointID, Decisions: decisions, Tools: r.runnerTools(ctx, input, selected), ToolInfos: selected, DynamicTools: true, ResolveToolInfos: func(callCtx context.Context) []*tool.Info { return r.enabledToolInfos(callCtx, input, selected) }, Recorder: recorder, LocalizeMessage: r.localizeMessage})
 	if err != nil {
-		return nil, err
+		return &Response{Token: tokenFromCallback(recorder.TotalToken()), Tools: toolsFromRecorder(recorder)}, err
 	}
 	return r.responseFromRun(ctx, input, client, selected, !state.ServerTools, result, recorder), nil
 }

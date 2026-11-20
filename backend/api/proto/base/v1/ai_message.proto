@@ -9,6 +9,11 @@ import "google/api/annotations.proto";
 
 // Base AI 助手消息服务
 service AiMessageService {
+  // 只读补读当前执行事件与消息快照，绝不恢复或重放工具。
+  rpc ListAiMessageEvent(ListAiMessageEventRequest) returns (ListAiMessageEventResponse) {
+    option (google.api.http) = {get: "/api/v1/base/ai/session/{session_id}/message/{message_id}/event"};
+  }
+
   // 确认或拒绝当前用户的待执行工具调用。
   rpc DecideAiToolApproval(DecideAiToolApprovalRequest) returns (SendAiMessageResponse) {
     option (google.api.http) = {
@@ -136,4 +141,29 @@ message AiAction {
   string action_id = 6 [(gnostic.openapi.v3.property) = {description: "动作唯一ID"}]; // 动作唯一ID
 
   int64 flow_version = 7 [(gnostic.openapi.v3.property) = {description: "流程状态版本"}]; // 流程状态版本
+}
+
+// AI 消息执行事件补读请求。
+message ListAiMessageEventRequest {
+  string session_id = 1 [(gnostic.openapi.v3.property) = {description: "会话ID"}, (buf.validate.field).cel = {id: "base.ai.event.session_id.positive" message: "会话或消息编号不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 会话ID
+  string message_id = 2 [(gnostic.openapi.v3.property) = {description: "消息ID"}, (buf.validate.field).cel = {id: "base.ai.event.message_id.positive" message: "会话或消息编号不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 消息ID
+  string after_id = 3 [(gnostic.openapi.v3.property) = {description: "已读取事件游标，留空从头读取"}, (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE, (buf.validate.field).cel = {id: "base.ai.event.cursor" message: "事件游标不合法" expression: "this.matches('^[0-9]+$')"}]; // 已读取事件游标，留空从头读取
+}
+
+// AI 消息持久执行事件，不包含内部摘要或检查点。
+message AiMessageEvent {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "单调递增的事件ID"}]; // 单调递增的事件ID
+  string run_id = 2 [(gnostic.openapi.v3.property) = {description: "本次执行编号"}]; // 本次执行编号
+  string event = 3 [(gnostic.openapi.v3.property) = {description: "事件类型"}]; // 事件类型
+  string payload = 4 [(gnostic.openapi.v3.property) = {description: "与SSE一致的JSON载荷"}]; // 与SSE一致的JSON载荷
+}
+
+// AI 消息事件和权威状态快照。
+message ListAiMessageEventResponse {
+  repeated AiMessageEvent events = 1 [(gnostic.openapi.v3.property) = {description: "当前执行的事件列表，最多100条"}]; // 当前执行的事件列表，最多100条
+  string next_cursor = 2 [(gnostic.openapi.v3.property) = {description: "下一页事件游标"}]; // 下一页事件游标
+  bool has_more = 3 [(gnostic.openapi.v3.property) = {description: "是否仍有未读取事件"}]; // 是否仍有未读取事件
+  string run_id = 4 [(gnostic.openapi.v3.property) = {description: "当前执行编号"}]; // 当前执行编号
+  repeated AiMessage messages = 5 [(gnostic.openapi.v3.property) = {description: "当前消息权威快照"}]; // 当前消息权威快照
+  AiSession session = 6 [(gnostic.openapi.v3.property) = {description: "当前会话权威快照"}]; // 当前会话权威快照
 }

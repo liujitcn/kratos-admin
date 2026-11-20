@@ -103,8 +103,48 @@ export interface AiAction {
   flow_version: number;
 }
 
+/** AI 消息执行事件补读请求。 */
+export interface ListAiMessageEventRequest {
+  /** 会话ID */
+  session_id: string;
+  /** 消息ID */
+  message_id: string;
+  /** 已读取事件游标，留空从头读取 */
+  after_id: string;
+}
+
+/** AI 消息持久执行事件，不包含内部摘要或检查点。 */
+export interface AiMessageEvent {
+  /** 单调递增的事件ID */
+  id: string;
+  /** 本次执行编号 */
+  run_id: string;
+  /** 事件类型 */
+  event: string;
+  /** 与SSE一致的JSON载荷 */
+  payload: string;
+}
+
+/** AI 消息事件和权威状态快照。 */
+export interface ListAiMessageEventResponse {
+  /** 当前执行的事件列表，最多100条 */
+  events: AiMessageEvent[];
+  /** 下一页事件游标 */
+  next_cursor: string;
+  /** 是否仍有未读取事件 */
+  has_more: boolean;
+  /** 当前执行编号 */
+  run_id: string;
+  /** 当前消息权威快照 */
+  messages: AiMessage[];
+  /** 当前会话权威快照 */
+  session: AiSession | undefined;
+}
+
 /** Base AI 助手消息服务 */
 export interface AiMessageService {
+  /** 只读补读当前执行事件与消息快照，绝不恢复或重放工具。 */
+  ListAiMessageEvent(request: ListAiMessageEventRequest): Promise<ListAiMessageEventResponse>;
   /** 确认或拒绝当前用户的待执行工具调用。 */
   DecideAiToolApproval(request: DecideAiToolApprovalRequest): Promise<SendAiMessageResponse>;
   /** 更新 AI 助手消息并重新生成输出 */

@@ -71,7 +71,7 @@ test("AI聊天模型选择器位于输入框操作区，空态和会话态共用
   assert.match(selector, /<el-popover[\s\S]*?ref="modelPopoverRef"[\s\S]*?popper-class="agent-model-popper"/);
   assert.match(
     selector,
-    /class="agent-model-selector"[\s\S]*?selectedModelDisplayName \|\| t\("system\.ai\.model\.model_placeholder"\)/
+    /class="[^"]*\bagent-model-selector\b[^"]*"[\s\S]*?selectedModelDisplayName \|\| t\("system\.ai\.model\.model_placeholder"\)/
   );
   assert.match(sender, /:clearable="true"/);
   assert.match(selector, /displayName: model\.display_name \|\| fallbackModelDisplayName\(model\.model_name\)/);

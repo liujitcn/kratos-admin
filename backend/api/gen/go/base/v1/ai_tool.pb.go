@@ -455,12 +455,13 @@ func (x *AiShortcutAction) GetPayloadJson() string {
 // AI 助手工具调用记录
 type AiToolCall struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`     // 工具类型：function/server
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`     // 工具名称
-	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`   // 工具展示名称
-	Status        string                 `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"` // 工具调用状态
-	Input         string                 `protobuf:"bytes,5,opt,name=input,proto3" json:"input,omitempty"`   // 工具原始入参JSON
-	Output        string                 `protobuf:"bytes,6,opt,name=output,proto3" json:"output,omitempty"` // 工具原始出参JSON
+	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`                         // 工具类型：function/server
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                         // 工具名称
+	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`                       // 工具展示名称
+	Status        string                 `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"`                     // 工具调用状态
+	Input         string                 `protobuf:"bytes,5,opt,name=input,proto3" json:"input,omitempty"`                       // 工具原始入参JSON
+	Output        string                 `protobuf:"bytes,6,opt,name=output,proto3" json:"output,omitempty"`                     // 工具原始出参JSON
+	CallId        *string                `protobuf:"bytes,7,opt,name=call_id,json=callId,proto3,oneof" json:"call_id,omitempty"` // 本轮工具调用关联编号
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -537,6 +538,13 @@ func (x *AiToolCall) GetOutput() string {
 	return ""
 }
 
+func (x *AiToolCall) GetCallId() string {
+	if x != nil && x.CallId != nil {
+		return *x.CallId
+	}
+	return ""
+}
+
 var File_base_v1_ai_tool_proto protoreflect.FileDescriptor
 
 const file_base_v1_ai_tool_proto_rawDesc = "" +
@@ -568,7 +576,7 @@ const file_base_v1_ai_tool_proto_rawDesc = "" +
 	"\x04flow\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f流程标识R\x04flow\x12&\n" +
 	"\x04step\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f流程步骤R\x04step\x12&\n" +
 	"\x04type\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f动作类型R\x04type\x129\n" +
-	"\fpayload_json\x18\x04 \x01(\tB\x16\xbaG\x13\x92\x02\x10动作负载JSONR\vpayloadJson\"\xba\x02\n" +
+	"\fpayload_json\x18\x04 \x01(\tB\x16\xbaG\x13\x92\x02\x10动作负载JSONR\vpayloadJson\"\x8a\x03\n" +
 	"\n" +
 	"AiToolCall\x128\n" +
 	"\x04type\x18\x01 \x01(\tB$\xbaG!\x92\x02\x1e工具类型：function/serverR\x04type\x12&\n" +
@@ -576,7 +584,10 @@ const file_base_v1_ai_tool_proto_rawDesc = "" +
 	"\x05title\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12工具展示名称R\x05title\x120\n" +
 	"\x06status\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12工具调用状态R\x06status\x122\n" +
 	"\x05input\x18\x05 \x01(\tB\x1c\xbaG\x19\x92\x02\x16工具原始入参JSONR\x05input\x124\n" +
-	"\x06output\x18\x06 \x01(\tB\x1c\xbaG\x19\x92\x02\x16工具原始出参JSONR\x06output*J\n" +
+	"\x06output\x18\x06 \x01(\tB\x1c\xbaG\x19\x92\x02\x16工具原始出参JSONR\x06output\x12B\n" +
+	"\acall_id\x18\a \x01(\tB$\xbaG!\x92\x02\x1e本轮工具调用关联编号H\x00R\x06callId\x88\x01\x01B\n" +
+	"\n" +
+	"\b_call_id*J\n" +
 	"\bTerminal\x12\x18\n" +
 	"\x14TERMINAL_UNSPECIFIED\x10\x00\x12\x10\n" +
 	"\fTERMINAL_APP\x10\x01\x12\x12\n" +
@@ -630,6 +641,7 @@ func file_base_v1_ai_tool_proto_init() {
 	if File_base_v1_ai_tool_proto != nil {
 		return
 	}
+	file_base_v1_ai_tool_proto_msgTypes[6].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

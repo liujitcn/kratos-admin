@@ -146,6 +146,361 @@
     "slots": [],
     "methods": []
   },
+  "ai/AiFlowBlocks.vue": {
+    "props": [
+      {
+        "name": "message",
+        "description": "当前助手消息及其结构化流程块。",
+        "type": "ChatMessageItem",
+        "required": true
+      },
+      {
+        "name": "activeFlowMessageId",
+        "description": "当前会话中最新可交互流程消息的编号。",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "renderers",
+        "description": "由模块组合根提供的流程块渲染器。",
+        "type": "AdminAiFlowBlockRenderer[]",
+        "required": true
+      }
+    ],
+    "events": [
+      {
+        "name": "flow-action",
+        "description": "将业务组件触发的流程动作交回聊天页面。",
+        "type": "(action: AiAction, label?: string | undefined) => void"
+      }
+    ],
+    "slots": [],
+    "methods": []
+  },
+  "ai/ChatPanel.vue": {
+    "props": [
+      {
+        "name": "activeSession",
+        "description": "当前活动会话，用于输入框按会话重建。",
+        "type": "AiSession",
+        "required": false
+      },
+      {
+        "name": "messages",
+        "description": "当前会话消息列表。",
+        "type": "ChatMessageItem[]",
+        "required": true
+      },
+      {
+        "name": "sending",
+        "description": "消息发送加载状态。",
+        "type": "boolean",
+        "required": true
+      },
+      {
+        "name": "loadingShortcuts",
+        "description": "空态快捷入口加载状态。",
+        "type": "boolean",
+        "required": false
+      },
+      {
+        "name": "shortcuts",
+        "description": "当前终端可用快捷入口。",
+        "type": "AiShortcut[]",
+        "required": false
+      },
+      {
+        "name": "modelProviders",
+        "description": "当前启用的供应商和模型。",
+        "type": "AiProviderModelOption[]",
+        "required": true
+      },
+      {
+        "name": "providerId",
+        "description": "当前选择的供应商编号。",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "modelName",
+        "description": "当前选择的模型名称。",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "knowledgeOptions",
+        "description": "当前可供选择的知识库。",
+        "type": "AiKnowledgeOption[]",
+        "required": true
+      },
+      {
+        "name": "knowledgeIds",
+        "description": "当前选择的知识库编号列表。",
+        "type": "number[]",
+        "required": true
+      },
+      {
+        "name": "draft",
+        "description": "草稿由页面按会话保存。",
+        "type": "SubmitPayload",
+        "required": false
+      }
+    ],
+    "events": [
+      {
+        "name": "submit",
+        "description": "提交输入框内容。",
+        "type": "(payload: SubmitPayload) => void"
+      },
+      {
+        "name": "draftChange",
+        "description": "",
+        "type": "(value: SubmitPayload) => void"
+      },
+      {
+        "name": "continueResult",
+        "description": "",
+        "type": "() => void"
+      },
+      {
+        "name": "modelChange",
+        "description": "更新当前选择的供应商和模型。",
+        "type": "(providerId: number, modelName: string) => void"
+      },
+      {
+        "name": "knowledgeChange",
+        "description": "更新当前选择的知识库编号列表。",
+        "type": "(knowledgeIds: number[]) => void"
+      },
+      {
+        "name": "messageAction",
+        "description": "触发消息级操作。",
+        "type": "(payload: { action: ChatMessageAction; item: ChatMessageItem; }) => void"
+      },
+      {
+        "name": "messageEdit",
+        "description": "提交当前用户消息的文本编辑。",
+        "type": "(payload: ChatMessageEditPayload) => void"
+      },
+      {
+        "name": "approvalDecision",
+        "description": "确认或拒绝冻结的工具调用。",
+        "type": "(item: ChatMessageItem, approved: boolean) => void"
+      }
+    ],
+    "slots": [
+      {
+        "name": "flow-blocks",
+        "description": "",
+        "type": "(scope: { message: unknown; \"active-flow-message-id\": unknown }) => unknown"
+      }
+    ],
+    "methods": []
+  },
+  "ai/workspace/AutomationPanel.vue": {
+    "props": [
+      {
+        "name": "mobile",
+        "description": "",
+        "type": "boolean",
+        "required": true
+      },
+      {
+        "name": "active",
+        "description": "",
+        "type": "boolean",
+        "required": true
+      },
+      {
+        "name": "modelProviders",
+        "description": "",
+        "type": "AiProviderModelOption[]",
+        "required": true
+      },
+      {
+        "name": "knowledgeOptions",
+        "description": "",
+        "type": "AiKnowledgeOption[]",
+        "required": true
+      },
+      {
+        "name": "plugins",
+        "description": "",
+        "type": "AiPlugin[]",
+        "required": true
+      },
+      {
+        "name": "connections",
+        "description": "",
+        "type": "AiPluginConnection[]",
+        "required": true
+      },
+      {
+        "name": "providerId",
+        "description": "",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "modelName",
+        "description": "",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "knowledgeIds",
+        "description": "",
+        "type": "number[]",
+        "required": true
+      },
+      {
+        "name": "selectedPlugins",
+        "description": "",
+        "type": "AiPluginSelection[]",
+        "required": true
+      }
+    ],
+    "events": [
+      {
+        "name": "pending",
+        "description": "",
+        "type": "(value: number) => void"
+      },
+      {
+        "name": "result",
+        "description": "",
+        "type": "(id: string) => void"
+      },
+      {
+        "name": "session",
+        "description": "",
+        "type": "(value: AiSession) => void"
+      }
+    ],
+    "slots": [],
+    "methods": [
+      {
+        "name": "refresh",
+        "description": "",
+        "type": "() => Promise<void>"
+      }
+    ]
+  },
+  "ai/workspace/FilePanel.vue": {
+    "props": [],
+    "events": [],
+    "slots": [],
+    "methods": [
+      {
+        "name": "reload",
+        "description": "刷新当前分类与各分类总数，供宿主在生成文件落库后触发。",
+        "type": "() => void"
+      }
+    ]
+  },
+  "ai/workspace/PluginPanel.vue": {
+    "props": [
+      {
+        "name": "plugins",
+        "description": "",
+        "type": "AiPlugin[]",
+        "required": true
+      },
+      {
+        "name": "connections",
+        "description": "",
+        "type": "AiPluginConnection[]",
+        "required": true
+      },
+      {
+        "name": "mobile",
+        "description": "",
+        "type": "boolean",
+        "required": true
+      },
+      {
+        "name": "loading",
+        "description": "",
+        "type": "boolean",
+        "required": true
+      },
+      {
+        "name": "error",
+        "description": "",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "canManageTools",
+        "description": "",
+        "type": "boolean",
+        "required": true
+      },
+      {
+        "name": "canManageCatalog",
+        "description": "",
+        "type": "boolean",
+        "required": true
+      },
+      {
+        "name": "canCreatePrivate",
+        "description": "",
+        "type": "boolean",
+        "required": true
+      }
+    ],
+    "events": [
+      {
+        "name": "refresh",
+        "description": "",
+        "type": "() => void"
+      },
+      {
+        "name": "select",
+        "description": "",
+        "type": "(value: AiPluginSelection) => void"
+      }
+    ],
+    "slots": [],
+    "methods": []
+  },
+  "ai/workspace/PluginPicker.vue": {
+    "props": [
+      {
+        "name": "modelValue",
+        "description": "",
+        "type": "AiPluginSelection[]",
+        "required": true
+      },
+      {
+        "name": "plugins",
+        "description": "",
+        "type": "AiPlugin[]",
+        "required": true
+      },
+      {
+        "name": "connections",
+        "description": "",
+        "type": "AiPluginConnection[]",
+        "required": true
+      },
+      {
+        "name": "disabled",
+        "description": "",
+        "type": "boolean",
+        "required": false
+      }
+    ],
+    "events": [
+      {
+        "name": "update:modelValue",
+        "description": "",
+        "type": "(value: AiPluginSelection[]) => void"
+      }
+    ],
+    "slots": [],
+    "methods": []
+  },
   "api/ApiTransfer.vue": {
     "props": [
       {

@@ -36,6 +36,9 @@ type AiStreamActivity struct {
 
 // AiStreamPayload 表示聊天专用 SSE 事件负载。
 type AiStreamPayload struct {
+	// RunID 关联本轮执行；EventID 仅为持久事件分配，增量文本不参与补读。
+	RunID     string `json:"run_id,omitempty"`
+	EventID   string `json:"event_id,omitempty"`
 	SessionID string `json:"session_id"`
 	MessageID string `json:"message_id"`
 	Delta     string `json:"delta,omitempty"`

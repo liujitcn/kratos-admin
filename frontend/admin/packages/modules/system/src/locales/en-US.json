@@ -234,6 +234,7 @@
   "system.base.ai.model.field.display_name": "Display name",
   "system.base.ai.model.field.duration": "Video duration (s)",
   "system.base.ai.model.field.max_retries": "Max retries",
+  "system.base.ai.model.field.context_window": "Context window tokens (0 uses default)",
   "system.base.ai.model.field.max_tokens": "Max output tokens",
   "system.base.ai.model.field.model_name": "Model name",
   "system.base.ai.model.field.quality": "Image quality",

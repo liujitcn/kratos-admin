@@ -3,7 +3,9 @@ package middleware
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"net"
 	"time"
 
 	"github.com/cloudwego/eino/adk"
@@ -13,6 +15,7 @@ import (
 	"github.com/go-kratos/kratos/v3/log"
 
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/callback"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/message"
 )
 
 // ToolTitleResolver 根据工具名返回展示标题。
@@ -20,6 +23,9 @@ type ToolTitleResolver func(name string) string
 
 // ToolFilterHandler 在模型调用前按本轮候选裁剪工具定义。
 type ToolFilterHandler struct {
+	// ContextWindow 和 MaxOutputTokens 限制包括工具结果在内的每次模型请求。
+	ContextWindow   int
+	MaxOutputTokens int
 	*adk.TypedBaseChatModelAgentMiddleware[*schema.AgenticMessage]
 	// BeforeModel 在模型调用前核实后台执行状态。
 	BeforeModel func(context.Context) error
@@ -57,7 +63,7 @@ func NewToolMetricsHandler(titleResolver ToolTitleResolver, localizeMessage func
 	}
 }
 
-// BeforeModelRewriteState 先核实后台执行状态，再限制当前轮允许暴露的工具。
+// BeforeModelRewriteState 核实执行状态和当前工具权限，并在每次模型调用前检查上下文预算。
 func (h *ToolFilterHandler) BeforeModelRewriteState(
 	ctx context.Context,
 	state *adk.TypedChatModelAgentState[*schema.AgenticMessage],
@@ -86,9 +92,21 @@ func (h *ToolFilterHandler) BeforeModelRewriteState(
 	}
 	state.ToolInfos = h.filter(state.ToolInfos)
 	state.DeferredToolInfos = h.filter(state.DeferredToolInfos)
-	// TypedModelContext 中也有一份工具定义，必须同步裁剪，否则模型仍可能看到被禁用工具。
+	// 旧模型上下文可能仍持有完整工具目录，必须与本轮实际发送的定义同步。
 	if mc != nil {
-		mc.Tools = h.filter(mc.Tools)
+		mc.Tools = state.ToolInfos
+	}
+	window := h.ContextWindow
+	if window == 0 {
+		window = 32768
+	}
+	output := h.MaxOutputTokens
+	if output == 0 {
+		output = min(4096, window/4)
+	}
+	infos := append(append([]*schema.ToolInfo(nil), state.ToolInfos...), state.DeferredToolInfos...)
+	if message.EstimateTokens(state.Messages, infos) > window-output-1024 {
+		return ctx, state, fmt.Errorf("模型输入（含工具结果）超过上下文预算，已停止后续执行；请缩短输入或选择更大模型")
 	}
 	return ctx, state, nil
 }
@@ -149,7 +167,7 @@ func (h *ToolFilterHandler) filter(infos []*schema.ToolInfo) []*schema.ToolInfo 
 	return result
 }
 
-// WrapInvokableToolCall 包装普通函数工具调用。
+// WrapInvokableToolCall 关联调用编号并记录工具结果，超时或网络结果未知时终止循环。
 func (h *ToolMetricsHandler) WrapInvokableToolCall(
 	ctx context.Context,
 	endpoint adk.InvokableToolCallEndpoint,
@@ -166,11 +184,17 @@ func (h *ToolMetricsHandler) WrapInvokableToolCall(
 			ToolName:  name,
 			ToolTitle: title,
 		})
-		output, err := endpoint(ctx, argumentsInJSON, opts...)
+		err := context.Cause(ctx)
+		if err != nil {
+			return "", err
+		}
+		var output string
+		output, err = endpoint(ctx, argumentsInJSON, opts...)
 		if _, interrupted := compose.IsInterruptRerunError(err); interrupted {
 			return output, err
 		}
 		call := callback.ToolCall{
+			ID:       toolActivityID(tCtx, name),
 			Type:     "function",
 			Name:     name,
 			Title:    title,
@@ -179,7 +203,7 @@ func (h *ToolMetricsHandler) WrapInvokableToolCall(
 			Output:   output,
 			Duration: time.Since(startedAt),
 		}
-		// 工具调用失败时，把错误转成稳定 JSON 返回给模型，而不是让 ADK 中断整轮对话。
+		// 普通业务错误允许模型修正；取消、超时和网络结果未知必须终止，不能自动重放。
 		if err != nil {
 			call.Status = "error"
 			log.Error(fmt.Sprintf("Agent tool execution failed name=%s err=%v", name, err))
@@ -194,6 +218,12 @@ func (h *ToolMetricsHandler) WrapInvokableToolCall(
 				ToolTitle: title,
 			})
 			recordToolCall(ctx, call)
+			if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+				return call.Output, fmt.Errorf("外部操作结果未知，已停止后续调用；请先核实结果，不能自动重试: %w", err)
+			}
+			if _, ok := errors.AsType[net.Error](err); ok {
+				return call.Output, fmt.Errorf("外部网络请求结果未知，不能自动重试: %w", err)
+			}
 			return call.Output, nil
 		}
 		// 空输出会让模型难以判断工具是否成功，统一使用空 JSON 对象表示成功但无数据。

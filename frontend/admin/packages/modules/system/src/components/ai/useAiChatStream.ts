@@ -13,7 +13,7 @@ import {
   replacePendingMessages,
   upsertStreamingActivity
 } from "../../views/ai/chat/message";
-import { readAiEventStream } from "../../views/ai/chat/stream";
+import { readAiEventStream, readAiMessageEvents } from "../../views/ai/chat/stream";
 import type { AiStreamEvent, AiStreamPayload, ChatMessageItem, SubmitPayload } from "../../views/ai/chat/types";
 
 /** AI 聊天流式请求使用的模型和知识库选择。 */
@@ -38,9 +38,11 @@ export interface AiChatStreamOptions {
   onError?: (error: Error) => void;
 }
 
+/** 当前执行或只读补读任务，取消后拒绝晚到结果。 */
 type AiStreamTask = {
   controller: AbortController;
   finished: boolean;
+  messageID?: string;
 };
 
 /** useAiChatStream 管理 direct stream、活动时间线和多会话取消。 */
@@ -78,9 +80,46 @@ export function useAiChatStream(options: AiChatStreamOptions) {
       if (!task.finished && !controller.signal.aborted) throw new Error(t("system.ai.chat.message.incomplete_stream"));
     } catch (cause) {
       if (controller.signal.aborted) return;
+      let failure = cause;
+      if (task.messageID) {
+        try {
+          await readAiMessageEvents(
+            cursor =>
+              defAiMessageService.ListAiMessageEvent({ session_id: sessionID, message_id: task.messageID!, after_id: cursor }),
+            event => handleAiStreamEvent(event, task),
+            () => controller.signal.aborted || runningStreamTaskMap.get(sessionID) !== task
+          );
+          return;
+        } catch (recoveryError) {
+          if (controller.signal.aborted) return;
+          failure = recoveryError;
+        }
+      }
       options.messages.value[sessionID] = markThinkingMessageFailed(options.messages.value[sessionID] ?? [], { sessionID });
-      const error = cause instanceof Error ? cause : new Error(t("system.ai.chat.message.request_failed"));
+      const error = failure instanceof Error ? failure : new Error(t("system.ai.chat.message.request_failed"));
       options.onError?.(error);
+    } finally {
+      if (runningStreamTaskMap.get(sessionID) === task) {
+        runningStreamTaskMap.delete(sessionID);
+        options.setSessionSending(sessionID, false);
+      }
+    }
+  }
+
+  /** 刷新页面后只读恢复正在执行的消息；不重发原始请求。 */
+  async function recover(sessionID: string, messageID: string) {
+    if (runningStreamTaskMap.has(sessionID)) return;
+    const task: AiStreamTask = { controller: new AbortController(), finished: false, messageID };
+    runningStreamTaskMap.set(sessionID, task);
+    options.setSessionSending(sessionID, true);
+    try {
+      await readAiMessageEvents(
+        cursor => defAiMessageService.ListAiMessageEvent({ session_id: sessionID, message_id: messageID, after_id: cursor }),
+        event => handleAiStreamEvent(event, task),
+        () => task.controller.signal.aborted || runningStreamTaskMap.get(sessionID) !== task
+      );
+    } catch (cause) {
+      if (!task.controller.signal.aborted) options.onError?.(cause instanceof Error ? cause : new Error(String(cause)));
     } finally {
       if (runningStreamTaskMap.get(sessionID) === task) {
         runningStreamTaskMap.delete(sessionID);
@@ -111,6 +150,8 @@ export function useAiChatStream(options: AiChatStreamOptions) {
 
   /** 处理 AI 助手流式事件。 */
   function handleAiStreamEvent(event: AiStreamEvent, task: AiStreamTask) {
+    if (task.controller.signal.aborted || runningStreamTaskMap.get(event.payload.session_id) !== task) return;
+    task.messageID = event.payload.message_id;
     if (event.event === "delta") {
       if (hasStreamingDelta(event.payload)) queueAiDelta(event.payload);
       return;
@@ -199,5 +240,5 @@ export function useAiChatStream(options: AiChatStreamOptions) {
 
   onBeforeUnmount(cancelAll);
 
-  return { run, cancelSession, cancelAll };
+  return { run, recover, cancelSession, cancelAll };
 }

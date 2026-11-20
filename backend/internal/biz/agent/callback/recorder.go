@@ -32,6 +32,8 @@ type TokenUsage struct {
 
 // ToolCall 表示一次函数工具调用记录。
 type ToolCall struct {
+	// ID 关联同一运行的活动事件与最终工具记录。
+	ID string
 	// Type 工具类型，例如 function。
 	Type string
 	// Name 工具名称。

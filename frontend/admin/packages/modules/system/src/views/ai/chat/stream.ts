@@ -1,3 +1,4 @@
+import type { ListAiMessageEventResponse } from "../../../rpc/base/v1/ai_message";
 import type { AiStreamEvent, AiStreamEventName, AiStreamPayload } from "./types";
 
 const STREAM_EVENT_NAMES = new Set<AiStreamEventName>(["delta", "activity", "finish", "approval_required", "error"]);
@@ -31,6 +32,7 @@ export function normalizeAiStreamItem(item?: SseOutput): AiStreamEvent | null {
 
   const payload = parseStreamPayload(item.data);
   if (!payload?.session_id || !payload.message_id) return null;
+  if (item.id && !payload.event_id) payload.event_id = String(item.id);
 
   return {
     event: String(item.event).trim() as AiStreamEventName,
@@ -44,6 +46,7 @@ export async function readAiEventStream(
   handler: AiStreamEventHandler,
   signal?: AbortSignal
 ) {
+  handler = createAiEventConsumer(handler);
   const reader = readableStream.getReader();
   const decoder = new TextDecoder();
   let buffer = "";
@@ -111,5 +114,66 @@ export async function readAiEventStream(
   } finally {
     signal?.removeEventListener("abort", abortReader);
     reader.releaseLock();
+  }
+}
+
+/** 按十进制事件ID去重乱序通知，避免超过JS安全整数后错误合并；文本分片不参与补读。 */
+export function createAiEventConsumer(handler: AiStreamEventHandler): AiStreamEventHandler {
+  const cursors = new Map<string, { id: string; run: string }>();
+  return event => {
+    const payload = event.payload;
+    const key = `${payload.session_id}:${payload.message_id}`;
+    const previous = cursors.get(key);
+    const id = payload.event_id;
+    if (id) {
+      if (!/^[1-9][0-9]*$/.test(id)) return;
+      if (previous && (id.length < previous.id.length || (id.length === previous.id.length && id <= previous.id))) return;
+      cursors.set(key, { id, run: payload.run_id || "" });
+    } else if (previous?.run && payload.run_id && previous.run !== payload.run_id) return;
+    handler(event);
+  };
+}
+
+/** 仅用只读查询补齐关键活动并等待权威终态，不发送提示词、不决定审批、不重放工具。 */
+export async function readAiMessageEvents(
+  read: (cursor: string) => Promise<ListAiMessageEventResponse>,
+  handler: AiStreamEventHandler,
+  cancelled: () => boolean
+): Promise<void> {
+  let cursor = "";
+  const startedAt = Date.now();
+  const consume = createAiEventConsumer(handler);
+  while (!cancelled()) {
+    if (Date.now() - startedAt > 10 * 60 * 1000)
+      throw new Error("Execution status is still unknown; refresh the conversation before trying any operation again.");
+    const page = await read(cursor);
+    if (cancelled()) return;
+    for (const item of page.events ?? []) {
+      if (item.run_id !== page.run_id) continue;
+      const event = normalizeAiStreamItem({ event: item.event, id: item.id, data: item.payload });
+      if (event) {
+        event.payload.run_id = item.run_id;
+        event.payload.event_id = item.id;
+        consume(event);
+      }
+    }
+    cursor = page.next_cursor || cursor;
+    if (page.has_more) continue;
+    const current = page.messages[0];
+    if (!current) throw new Error("AI message snapshot is missing");
+    if (current.status !== 1) {
+      handler({
+        event: current.status === 4 ? "approval_required" : current.status === 3 ? "error" : "finish",
+        payload: {
+          session_id: page.session?.id || "",
+          message_id: current.id,
+          run_id: page.run_id,
+          messages: page.messages,
+          session: page.session
+        }
+      });
+      return;
+    }
+    await new Promise<void>(resolve => setTimeout(resolve, 1000));
   }
 }

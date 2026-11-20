@@ -6347,7 +6347,6 @@ paths:
         post:
             tags:
                 - BaseUserService
-            description: 创建用户
             operationId: BaseUserService_CreateBaseUser
             requestBody:
                 content:
@@ -9778,6 +9777,34 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.SendAiMessageResponse'
+    /api/v1/base/ai/session/{session_id}/message/{message_id}/event:
+        get:
+            tags:
+                - AiMessageService
+            description: 只读补读当前执行事件与消息快照，绝不恢复或重放工具。
+            operationId: AiMessageService_ListAiMessageEvent
+            parameters:
+                - name: session_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: message_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: after_id
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.ListAiMessageEventResponse'
     /api/v1/base/ai/session/{session_id}/message/{message_id}/regeneration:
         post:
             tags:
@@ -11105,6 +11132,22 @@ components:
                     description: 总耗时毫秒
                     format: int32
             description: AI 助手消息
+        base.v1.AiMessageEvent:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 单调递增的事件ID
+                run_id:
+                    type: string
+                    description: 本次执行编号
+                event:
+                    type: string
+                    description: 事件类型
+                payload:
+                    type: string
+                    description: 与SSE一致的JSON载荷
+            description: AI 消息持久执行事件，不包含内部摘要或检查点。
         base.v1.AiOutputContent:
             type: object
             properties:
@@ -11508,6 +11551,9 @@ components:
                 output:
                     type: string
                     description: 工具原始出参JSON
+                call_id:
+                    type: string
+                    description: 本轮工具调用关联编号
             description: AI 助手工具调用记录
         base.v1.ArchiveNotificationRequest:
             type: object
@@ -12137,6 +12183,31 @@ components:
                         $ref: '#/components/schemas/base.v1.AiKnowledgeOption'
                     description: 知识库选项列表
             description: AI知识库选项查询响应。
+        base.v1.ListAiMessageEventResponse:
+            type: object
+            properties:
+                events:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiMessageEvent'
+                    description: 当前执行的事件列表，最多100条
+                next_cursor:
+                    type: string
+                    description: 下一页事件游标
+                has_more:
+                    type: boolean
+                    description: 是否仍有未读取事件
+                run_id:
+                    type: string
+                    description: 当前执行编号
+                messages:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.AiMessage'
+                    description: 当前消息权威快照
+                session:
+                    $ref: '#/components/schemas/base.v1.AiSession'
+            description: AI 消息事件和权威状态快照。
         base.v1.ListAiMessageResponse:
             type: object
             properties:

@@ -131,6 +131,8 @@ export type AiStreamEventName = "delta" | "activity" | "finish" | "approval_requ
 
 /** AI 助手 direct stream 事件负载。 */
 export type AiStreamPayload = {
+  run_id?: string;
+  event_id?: string;
   /** 会话 ID。 */
   session_id: string;
   /** 后端单轮消息 ID，用于关联当前轮次。 */

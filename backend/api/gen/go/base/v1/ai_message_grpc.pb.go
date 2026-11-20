@@ -20,6 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	AiMessageService_ListAiMessageEvent_FullMethodName   = "/base.v1.AiMessageService/ListAiMessageEvent"
 	AiMessageService_DecideAiToolApproval_FullMethodName = "/base.v1.AiMessageService/DecideAiToolApproval"
 	AiMessageService_UpdateAiMessage_FullMethodName      = "/base.v1.AiMessageService/UpdateAiMessage"
 	AiMessageService_DeleteAiMessage_FullMethodName      = "/base.v1.AiMessageService/DeleteAiMessage"
@@ -34,6 +35,8 @@ const (
 //
 // Base AI 助手消息服务
 type AiMessageServiceClient interface {
+	// 只读补读当前执行事件与消息快照，绝不恢复或重放工具。
+	ListAiMessageEvent(ctx context.Context, in *ListAiMessageEventRequest, opts ...grpc.CallOption) (*ListAiMessageEventResponse, error)
 	// 确认或拒绝当前用户的待执行工具调用。
 	DecideAiToolApproval(ctx context.Context, in *DecideAiToolApprovalRequest, opts ...grpc.CallOption) (*SendAiMessageResponse, error)
 	// 更新 AI 助手消息并重新生成输出
@@ -54,6 +57,16 @@ type aiMessageServiceClient struct {
 
 func NewAiMessageServiceClient(cc grpc.ClientConnInterface) AiMessageServiceClient {
 	return &aiMessageServiceClient{cc}
+}
+
+func (c *aiMessageServiceClient) ListAiMessageEvent(ctx context.Context, in *ListAiMessageEventRequest, opts ...grpc.CallOption) (*ListAiMessageEventResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListAiMessageEventResponse)
+	err := c.cc.Invoke(ctx, AiMessageService_ListAiMessageEvent_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *aiMessageServiceClient) DecideAiToolApproval(ctx context.Context, in *DecideAiToolApprovalRequest, opts ...grpc.CallOption) (*SendAiMessageResponse, error) {
@@ -122,6 +135,8 @@ func (c *aiMessageServiceClient) RegenerateAiMessage(ctx context.Context, in *Re
 //
 // Base AI 助手消息服务
 type AiMessageServiceServer interface {
+	// 只读补读当前执行事件与消息快照，绝不恢复或重放工具。
+	ListAiMessageEvent(context.Context, *ListAiMessageEventRequest) (*ListAiMessageEventResponse, error)
 	// 确认或拒绝当前用户的待执行工具调用。
 	DecideAiToolApproval(context.Context, *DecideAiToolApprovalRequest) (*SendAiMessageResponse, error)
 	// 更新 AI 助手消息并重新生成输出
@@ -144,6 +159,9 @@ type AiMessageServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedAiMessageServiceServer struct{}
 
+func (UnimplementedAiMessageServiceServer) ListAiMessageEvent(context.Context, *ListAiMessageEventRequest) (*ListAiMessageEventResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListAiMessageEvent not implemented")
+}
 func (UnimplementedAiMessageServiceServer) DecideAiToolApproval(context.Context, *DecideAiToolApprovalRequest) (*SendAiMessageResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DecideAiToolApproval not implemented")
 }
@@ -181,6 +199,24 @@ func RegisterAiMessageServiceServer(s grpc.ServiceRegistrar, srv AiMessageServic
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&AiMessageService_ServiceDesc, srv)
+}
+
+func _AiMessageService_ListAiMessageEvent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListAiMessageEventRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiMessageServiceServer).ListAiMessageEvent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiMessageService_ListAiMessageEvent_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiMessageServiceServer).ListAiMessageEvent(ctx, req.(*ListAiMessageEventRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _AiMessageService_DecideAiToolApproval_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -298,6 +334,10 @@ var AiMessageService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "base.v1.AiMessageService",
 	HandlerType: (*AiMessageServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ListAiMessageEvent",
+			Handler:    _AiMessageService_ListAiMessageEvent_Handler,
+		},
 		{
 			MethodName: "DecideAiToolApproval",
 			Handler:    _AiMessageService_DecideAiToolApproval_Handler,

@@ -68,6 +68,11 @@ func NewAssistantClient(modelCfg *modelconfig.ModelConfig) *AssistantClient {
 // NewAssistantClientWithName 创建带展示名称的 AI 助手模型客户端。
 func NewAssistantClientWithName(modelCfg *modelconfig.ModelConfig, name string) *AssistantClient {
 	client := &AssistantClient{apiType: resolveAssistantAPIType(modelCfg)}
+	client.ContextWindow = 32768
+	client.MaxOutputTokens = 4096
+	if modelCfg != nil && modelCfg.MaxTokens > 0 {
+		client.MaxOutputTokens = int(modelCfg.MaxTokens)
+	}
 	// AI 未配置完整时保持空客户端，避免服务启动阶段因为可选能力缺失而失败。
 	if !aiModelConfigured(modelCfg) {
 		return client
@@ -111,9 +116,13 @@ func NewAssistantClientWithName(modelCfg *modelconfig.ModelConfig, name string) 
 // AssistantClient 表示 AI 助手专用模型客户端，按配置选择 Chat Completions 或 Responses 协议。
 type AssistantClient struct {
 	model.AgenticModel
-	name       string
-	apiType    modelconfig.APIType
-	fileClient *openai.Client
+	// ContextWindow 是模型上下文总容量；没有声明时按32768保守处理。
+	ContextWindow int
+	// MaxOutputTokens 是预算中预留的模型输出上限。
+	MaxOutputTokens int
+	name            string
+	apiType         modelconfig.APIType
+	fileClient      *openai.Client
 	// DisableStreaming 表示该供应商是否禁用流式输出；聚合网关存在流式协议兼容
 	// 问题（双发、混组）时置 true，改为非流式调用并整段透传。默认零值即启用流式。
 	DisableStreaming bool

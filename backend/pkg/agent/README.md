@@ -85,3 +85,11 @@ Runtime 也会通过 `agent.ContextWithAssistantClient` 传递本轮已解析的
 `CheckPointStore` 本身不提供业务幂等；不得自动重放执行中的运行。附件随 checkpoint 保存，此模式使用内联图片；PDF 在 Responses 协议下内联传入，Chat Completions 协议使用业务层提取的 `Attachment.Content` 文本。模型供应商须支持对应输入格式。未经沙箱隔离的 shell、Python 等执行类工具禁止注册到业务 Agent。
 
 持久化模式在调用模型前限制 JSON 编码后的输入为 28 MiB（包括系统提示、历史、正文和附件编码）。当前数据库适配器使用现有 zstd 依赖压缩重复上下文，未压缩快照上限 192 MiB，压缩后上限 48 MiB；要求 LONGBLOB 与至少 64 MiB 的 MySQL `max_allowed_packet`。管理端附件合计上限为 20 MiB，文本和历史仍占用输入额度。
+
+## 上下文预算与摘要
+
+`AssistantClient.ContextWindow` 默认32768，`MaxOutputTokens` 默认4096；数据库模型可通过 `context_window` / `max_tokens` 配置。每次模型调用前检查提示词、正文、工具定义和结果的估算预算，并显式限制输出；估算不是供应商精确分词，图片按每张8192 Token预留，超大输入明确失败而不静默截断当前问题。
+
+动态发现首轮只计入实际暴露的 `tool_search` 定义与目录提示，不把完整授权工具定义误计入输入；后续加载的工具定义和结果仍在每次模型调用前检查预算。摘要来源指纹始终绑定完整有效授权定义，与预算范围分开。
+
+超过12轮或预算不足时，较早历史通过同一模型分批摘要，保留最近两轮完整原文。摘要消耗计入本轮，失败不静默丢弃历史。`RuntimeInput.ContextSummary` 只是候选缓存，必须重新验证原文前缀、模型与当前工具范围；宿主通过 `SaveContextSummary` 保存内部缓存，不能覆盖原消息或审批快照，也不能把摘要当作新的授权。

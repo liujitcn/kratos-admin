@@ -67,7 +67,8 @@ func (c *AiModelCase) RefreshModels(ctx context.Context) error {
 		return err
 	}
 	providerQuery := c.aiProviderRepo.Query(ctx).AiProvider
-	providers, err := c.aiProviderRepo.List(ctx,
+	var providers []*models.AiProvider
+	providers, err = c.aiProviderRepo.List(ctx,
 		repository.Where(providerQuery.Status.Eq(int32(commonv1.Status_STATUS_ENABLE))),
 		repository.Order(providerQuery.Sort.Asc()),
 		repository.Order(providerQuery.ID.Asc()),
@@ -92,7 +93,12 @@ func (c *AiModelCase) RefreshModels(ctx context.Context) error {
 			log.Error("构造AI模型配置失败，本次刷新跳过该模型", "model_id", item.ID, "model_name", item.ModelName, "error", err)
 			continue
 		}
-		values = append(values, model.ProviderModel{ProviderID: provider.ID, ProviderName: provider.Name, DisplayName: item.DisplayName, Config: modelConfig})
+		var chatConfig *dto.AiModelChatConfig
+		chatConfig, err = parseAiModelChatConfig(item.Config)
+		if err != nil {
+			return err
+		}
+		values = append(values, model.ProviderModel{ProviderID: provider.ID, ProviderName: provider.Name, DisplayName: item.DisplayName, Config: modelConfig, ContextWindow: int(chatConfig.ContextWindow)})
 	}
 	c.modelRegistry.Replace(values)
 	return nil
@@ -328,6 +334,13 @@ func parseAiModelChatConfig(raw string) (*dto.AiModelChatConfig, error) {
 	}
 	if value.APIType != "CHAT_COMPLETIONS" && value.APIType != "RESPONSES" {
 		return nil, errors.New("api_type 必须是 CHAT_COMPLETIONS 或 RESPONSES")
+	}
+	window := value.ContextWindow
+	if window == 0 {
+		window = 32768
+	}
+	if window < 4096 || window > 10000000 || value.MaxTokens >= window-1024 {
+		return nil, errors.New("context_window 必须为4096到10000000，且至少为输入预留1024 Token")
 	}
 	if value.Temperature < 0 || value.Temperature > 2 || value.MaxTokens < 0 || value.MaxTokens > 200000 || value.TimeoutSeconds < 0 || value.TimeoutSeconds > 600 || value.MaxRetries < 0 || value.MaxRetries > 10 {
 		return nil, errors.New("聊天模型请求参数超出范围")

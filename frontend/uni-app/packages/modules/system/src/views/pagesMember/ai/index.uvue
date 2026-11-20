@@ -39,6 +39,7 @@ import {
   mergeAiToolActivity,
   parseAiEventStreamText,
   readAiEventStream,
+  readAiMessageEvents,
 } from './stream'
 import { resolveModelDisplayName } from './modelDisplay'
 import { loadStoredModelSelection, saveModelSelection } from './modelSelection'
@@ -69,11 +70,13 @@ type AttachmentUpload = {
   size: number
 }
 
+/** 当前执行或只读补读任务，取消后拒绝晚到结果。 */
 type StreamTask = {
   abort: () => void
   aborted: boolean
   finished: boolean
   success?: boolean
+  messageID?: string
 }
 
 const AI_TERMINAL = Terminal.TERMINAL_APP
@@ -238,6 +241,7 @@ onLoad((options) => {
 
 onShow(() => {
   pageVisible.value = true
+  if (activeSessionID.value && !runningStreamTaskMap.has(activeSessionID.value)) void loadMessages(activeSessionID.value)
   void refreshPendingCount()
   if (resultRefreshTimer) clearInterval(resultRefreshTimer)
   // 每 5 秒轮询一次：仅限聊天页空闲且存在只读结果或待审批消息时刷新，避免无关请求。
@@ -281,6 +285,7 @@ onBeforeUnmount(() => {
   cancelAllStreamTasks()
   clearPendingDelta()
   activeSessionID.value = ''
+  loadingSessionID.value = ''
 })
 
 /** 切换会话抽屉显示状态。 */
@@ -645,6 +650,20 @@ async function runAiTask(
     if (task?.aborted) {
       return false
     }
+    if (task?.messageID) {
+      try {
+        const recovering = task
+        await readAiMessageEvents(
+          (cursor) => defAiMessageService.ListAiMessageEvent({ session_id: sessionID, message_id: recovering.messageID!, after_id: cursor }),
+          (event) => handleAiStreamEvent(event, recovering),
+          () => recovering.aborted || runningStreamTaskMap.get(sessionID) !== recovering,
+        )
+        return Boolean(recovering.success)
+      } catch (recoveryError) {
+        if (task.aborted) return false
+        error = recoveryError
+      }
+    }
     messages.value[sessionID] = markThinkingMessageFailed(messages.value[sessionID] ?? [])
     scrollChatToBottom()
     showError(error, t('system.ai.request_failed'))
@@ -671,6 +690,8 @@ function handleAiActivity(payload: AiStreamPayload) {
 
 /** 流式事件分发：活动和审批事件与文本事件保持同一轮消息生命周期。 */
 function handleAiStreamEvent(event: AiStreamEvent, task?: StreamTask) {
+  if (task?.aborted || (task && runningStreamTaskMap.get(event.payload.session_id) !== task)) return
+  if (task) task.messageID = event.payload.message_id
   if (event.event === 'delta') {
     handleAiDelta(event.payload)
     return
@@ -924,6 +945,28 @@ async function createRemoteSession() {
   return session.id
 }
 
+/** 刷新后只补读已有执行，切换会话、隐藏或卸载时丢弃晚到结果。 */
+async function recoverSessionEvents(sessionID: string, messageID: string) {
+  if (runningStreamTaskMap.has(sessionID)) return
+  const task: StreamTask = { aborted: false, finished: false, messageID, abort() { task.aborted = true } }
+  runningStreamTaskMap.set(sessionID, task)
+  setSessionSending(sessionID, true)
+  try {
+    await readAiMessageEvents(
+      (cursor) => defAiMessageService.ListAiMessageEvent({ session_id: sessionID, message_id: messageID, after_id: cursor }),
+      (event) => handleAiStreamEvent(event, task),
+      () => task.aborted || !pageVisible.value || activeSessionID.value !== sessionID || runningStreamTaskMap.get(sessionID) !== task,
+    )
+  } catch (error) {
+    if (!task.aborted) showError(error, t('system.ai.load_messages_failed'))
+  } finally {
+    if (runningStreamTaskMap.get(sessionID) === task) {
+      runningStreamTaskMap.delete(sessionID)
+      setSessionSending(sessionID, false)
+    }
+  }
+}
+
 /** 加载指定会话的历史消息，并丢弃切换会话后返回的过期响应。 */
 async function loadMessages(sessionID: string) {
   if (!sessionID) {
@@ -938,6 +981,8 @@ async function loadMessages(sessionID: string) {
       return
     }
     const loaded = normalizeMessageList(response.messages)
+    const active = response.messages.find((message) => message.status === AiMessageStatus.AI_MESSAGE_STATUS_GENERATING)
+    if (active) void recoverSessionEvents(sessionID, active.id)
     messages.value[sessionID] = mergeWithLocalOnlyStreaming(messages.value[sessionID] ?? [], loaded)
     if (activeSessionID.value === sessionID) {
       scrollChatToBottom()

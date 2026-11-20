@@ -180,4 +180,6 @@ func (x *AiToolCall) Redact() {
 	// Safe field: Input
 
 	// Safe field: Output
+
+	// Safe field: CallId
 }

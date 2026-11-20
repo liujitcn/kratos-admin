@@ -146,6 +146,8 @@ type TokenUsage struct {
 
 // ToolUsage 表示 AI 助手单轮回复涉及的工具。
 type ToolUsage struct {
+	// CallID 关联同一运行中的工具活动。
+	CallID string `json:"call_id,omitempty"`
 	// Type 工具类型，例如 function 或 server。
 	Type string `json:"type"`
 	// Name 工具名称，用于排障和唯一识别。
@@ -181,6 +183,10 @@ type ToolConfig struct {
 // 业务层在进入 Runtime 前完成鉴权、会话归属、附件读取、历史消息查询等工作；
 // Runtime 只负责将这些输入组装成 Eino 消息和当前轮用户消息。
 type RuntimeInput struct {
+	// ContextSummary 是业务层读取的候选内部摘要，必须由运行时验证来源。
+	ContextSummary *ContextSummary
+	// SaveContextSummary 在摘要成功后保存缓存，不得改变原消息。
+	SaveContextSummary func(context.Context, ContextSummary) error
 	// CheckPointID 由业务层分配，不接受模型或客户端指定。
 	CheckPointID string
 	// Terminal 终端标识，例如 admin 或 app，会注入到系统提示词。
@@ -195,7 +201,7 @@ type RuntimeInput struct {
 	ProviderID int64
 	// ModelName 当前选择的模型名称。
 	ModelName string
-	// Summary 当前会话摘要，会注入到系统提示词作为压缩后的长期上下文。
+	// Summary 是会话列表展示摘要，不是长期模型记忆。
 	Summary string
 	// KnowledgeContext 知识库检索注入的上下文，非空时追加到系统提示词。
 	KnowledgeContext string

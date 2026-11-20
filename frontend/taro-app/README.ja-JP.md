@@ -104,3 +104,7 @@ pnpm build:mp-weixin
 ```
 
 `check:exports` は公開 target、バージョン一致、パッケージ間 import 境界を検証します。`test` はモジュール優先度、ナビゲーション、runner トランザクション、CLI、AI SSE を検証し、`build:packages` は `dist/npm` に 4 つの tarball を生成します。
+
+### AI 実行状況の復元
+
+再読み込みや切断後は、既存メッセージの実行IDと文字列カーソルで活動・最終状態を読み取り専用で取得します。プロンプト再送、承認やツールの再実行は行いません。バックエンドには `ai_message_event` と `ListAiMessageEvent` 権限が必要です。メッセージID受信前の切断は会話を再読み込みして確認してください。キャンセル・タイムアウトでも外部操作を取り消せる保証はありません。

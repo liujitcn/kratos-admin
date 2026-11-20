@@ -12,6 +12,7 @@ var ProviderSet = wire.NewSet(
 	NewAiAutomationRunRepository,
 	NewAiFileRepository,
 	NewAiMessageRepository,
+	NewAiMessageEventRepository,
 	NewAiModelRepository,
 	NewAiPluginRepository,
 	NewAiPluginConnectionRepository,

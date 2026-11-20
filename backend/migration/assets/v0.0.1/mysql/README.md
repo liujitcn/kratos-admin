@@ -35,3 +35,6 @@ Models 自动创建 AI 插件、自动化和 AI 文件表；`default_data.up.sql
 BI 卡片 SQL 改造由生成 Model 维护 `bi_card.execution_json/version/validation_query_record_id` 和 `bi_query.kind/card_id/execution_json/context_json/applied_card_id/applied_card_version`，查询索引为 `idx_bi_query_card_id_created_at`。`bi_source.schema_json` 使用 MEDIUMTEXT 保存固定聚合公式、单位及修订；模型结构另有 `model_revision`。首次启用生成模型时须在开发环境备份并补齐已有 JSON 行，不清除卡片或问数记录；旧执行定义和布局不自动转换。
 
 卡片原入口增加 `GetBiCard`、`PreviewBiCardSql` 权限，数据源新增/编辑按钮增加 `PreviewBiSourceModel`；物理模型、公式和 SQL 由 Biz 再验模型管理权。`base_api` 仍由 Proto/OpenAPI 在启动时同步，HTTP 路径分别为 `GET /api/v1/admin/bi/card/{id}`、`POST /api/v1/admin/bi/card/sql-preview` 和 `POST /api/v1/admin/bi/source/{id}/model/preview`。已运行 v0.0.1 的环境需另行补齐菜单授权，不会自动重放本脚本。
+
+
+AI 执行事件表 `ai_message_event` 由生成的 Models 自动迁移，不添加建表增量脚本。事件按租户、用户、会话、消息隔离，`id` 为补读游标，`run_id` 关联单次执行；内部 `context_summary` / `run_start` 不对外暴露。删除消息或会话清理对应事件，分支不复制旧事件或摘要。`default_data.up.sql` 为管理对话、BI工作台与移动入口授权 `/base.v1.AiMessageService/ListAiMessageEvent`，HTTP 为 `GET /api/v1/base/ai/session/{session_id}/message/{message_id}/event`。初始化脚本本身不会重放；启动时在既有 OpenAPI 资源同步事务中，为启用且保留 SendAiMessage 权限的内置菜单 90990000、90991000、99101000 幂等追加事件读取权限，再由既有流程重建权限快照。保留原 API、自定义授权与角色菜单，不创建已删除入口，不补权已禁用或撤销发送权限的入口；自定义入口仍由管理员显式配置。无需重建或清空业务库。

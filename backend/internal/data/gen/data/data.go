@@ -18,6 +18,7 @@ func Models() []any {
 		new(models.AiAutomationRun),
 		new(models.AiFile),
 		new(models.AiMessage),
+		new(models.AiMessageEvent),
 		new(models.AiModel),
 		new(models.AiPlugin),
 		new(models.AiPluginConnection),

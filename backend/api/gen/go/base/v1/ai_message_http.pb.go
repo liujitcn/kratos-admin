@@ -20,6 +20,7 @@ const _ = http.SupportPackageIsVersion3
 
 const OperationAiMessageServiceDecideAiToolApproval = "/base.v1.AiMessageService/DecideAiToolApproval"
 const OperationAiMessageServiceDeleteAiMessage = "/base.v1.AiMessageService/DeleteAiMessage"
+const OperationAiMessageServiceListAiMessageEvent = "/base.v1.AiMessageService/ListAiMessageEvent"
 const OperationAiMessageServiceRegenerateAiMessage = "/base.v1.AiMessageService/RegenerateAiMessage"
 const OperationAiMessageServiceRetryAiUserMessage = "/base.v1.AiMessageService/RetryAiUserMessage"
 const OperationAiMessageServiceSendAiMessage = "/base.v1.AiMessageService/SendAiMessage"
@@ -30,6 +31,8 @@ type AiMessageServiceHTTPServer interface {
 	DecideAiToolApproval(context.Context, *DecideAiToolApprovalRequest) (*SendAiMessageResponse, error)
 	// DeleteAiMessage 删除 AI 助手消息
 	DeleteAiMessage(context.Context, *DeleteAiMessageRequest) (*DeleteAiMessageResponse, error)
+	// ListAiMessageEvent 只读补读当前执行事件与消息快照，绝不恢复或重放工具。
+	ListAiMessageEvent(context.Context, *ListAiMessageEventRequest) (*ListAiMessageEventResponse, error)
 	// RegenerateAiMessage 重新生成 AI 助手输出
 	RegenerateAiMessage(context.Context, *RegenerateAiMessageRequest) (*SendAiMessageResponse, error)
 	// RetryAiUserMessage 重试失败的 AI 助手消息
@@ -42,12 +45,35 @@ type AiMessageServiceHTTPServer interface {
 
 func RegisterAiMessageServiceHTTPServer(s *http.Server, srv AiMessageServiceHTTPServer) {
 	r := s.Route("/")
+	r.Handle("GET", "/api/v1/base/ai/session/{session_id}/message/{message_id}/event", _AiMessageService_ListAiMessageEvent0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/base/ai/session/{session_id}/message/{message_id}/approval", _AiMessageService_DecideAiToolApproval0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/base/ai/session/{session_id}/message/{message_id}", _AiMessageService_UpdateAiMessage0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/base/ai/session/{session_id}/message/{message_id}", _AiMessageService_DeleteAiMessage0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/base/ai/session/{session_id}/message", _AiMessageService_SendAiMessage0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/base/ai/session/{session_id}/message/{message_id}/retry", _AiMessageService_RetryAiUserMessage0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/base/ai/session/{session_id}/message/{message_id}/regeneration", _AiMessageService_RegenerateAiMessage0_HTTP_Handler(srv))
+}
+
+func _AiMessageService_ListAiMessageEvent0_HTTP_Handler(srv AiMessageServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ListAiMessageEventRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAiMessageServiceListAiMessageEvent)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ListAiMessageEvent(ctx, req.(*ListAiMessageEventRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ListAiMessageEventResponse)
+		return ctx.Result(200, reply)
+	}
 }
 
 func _AiMessageService_DecideAiToolApproval0_HTTP_Handler(srv AiMessageServiceHTTPServer) func(ctx http.Context) error {
@@ -187,6 +213,8 @@ type AiMessageServiceHTTPClient interface {
 	DecideAiToolApproval(ctx context.Context, req *DecideAiToolApprovalRequest, opts ...http.CallOption) (rsp *SendAiMessageResponse, err error)
 	// DeleteAiMessage 删除 AI 助手消息
 	DeleteAiMessage(ctx context.Context, req *DeleteAiMessageRequest, opts ...http.CallOption) (rsp *DeleteAiMessageResponse, err error)
+	// ListAiMessageEvent 只读补读当前执行事件与消息快照，绝不恢复或重放工具。
+	ListAiMessageEvent(ctx context.Context, req *ListAiMessageEventRequest, opts ...http.CallOption) (rsp *ListAiMessageEventResponse, err error)
 	// RegenerateAiMessage 重新生成 AI 助手输出
 	RegenerateAiMessage(ctx context.Context, req *RegenerateAiMessageRequest, opts ...http.CallOption) (rsp *SendAiMessageResponse, err error)
 	// RetryAiUserMessage 重试失败的 AI 助手消息
@@ -234,6 +262,23 @@ func (c *AiMessageServiceHTTPClientImpl) DeleteAiMessage(ctx context.Context, in
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// ListAiMessageEvent 只读补读当前执行事件与消息快照，绝不恢复或重放工具。
+func (c *AiMessageServiceHTTPClientImpl) ListAiMessageEvent(ctx context.Context, in *ListAiMessageEventRequest, opts ...http.CallOption) (*ListAiMessageEventResponse, error) {
+	var out ListAiMessageEventResponse
+	pattern := "/api/v1/base/ai/session/{session_id}/message/{message_id}/event"
+	path := http.BuildPath(pattern, in, http.WithQueryParams())
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.Operation(OperationAiMessageServiceListAiMessageEvent),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

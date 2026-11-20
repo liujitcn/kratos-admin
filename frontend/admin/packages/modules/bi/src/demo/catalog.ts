@@ -5,6 +5,40 @@ const chartExample = () => import("./ChartExample.vue");
 const dashboardExample = () => import("./DashboardExample.vue");
 const docs: Omit<AdminComponentDoc, "owner" | "group" | "api">[] = [
   {
+    id: "BiAssistantCardZone",
+    label: "BI 助手卡片分区",
+    file: "BiAssistantCardZone.vue",
+    description: "展示助手工作台左右两侧的卡片，转发拖放、刷新和卡片操作。",
+    usage:
+      "zone 为 left 或 right，cards 为该区域的已保存卡片，refreshKeys 按卡片编号维护刷新版本。内部 BiDataCard 会读取真实卡片结果；拖放、引用、移除、导出和预览均由父级处理，不在文档页加载业务数据。",
+    code: `<script setup lang="ts">
+import BiAssistantCardZone from "../components/BiAssistantCardZone.vue";
+
+const props = defineProps<InstanceType<typeof BiAssistantCardZone>["$props"]>();
+</script>
+
+<template>
+  <BiAssistantCardZone v-bind="props" />
+</template>`,
+    related: ["BiAssistantWorkbench", "BiDataCard"]
+  },
+  {
+    id: "BiAssistantWorkbench",
+    label: "BI 助手工作台",
+    file: "BiAssistantWorkbench.vue",
+    description: "组合 AI 对话、左右卡片区和插件、自动化、文件工作区。",
+    usage:
+      "该业务容器由 BI 模块注册为 AI 工作台，没有 props。挂载后读取当前账号可见的会话和卡片，聊天、审批、卡片保存及自动化操作调用真实服务；需同时注册 System 与 BI 模块并具备对应菜单权限，文档不重复挂载。",
+    code: `<script setup lang="ts">
+import BiAssistantWorkbench from "../components/BiAssistantWorkbench.vue";
+</script>
+
+<template>
+  <BiAssistantWorkbench />
+</template>`,
+    related: ["BiAssistantCardZone", "ChatPanel", "AutomationPanel", "FilePanel", "PluginPanel"]
+  },
+  {
     id: "BiChart",
     label: "BI 图表",
     file: "BiChart.vue",

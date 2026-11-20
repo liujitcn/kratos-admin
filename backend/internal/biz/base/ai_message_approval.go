@@ -8,6 +8,7 @@ import (
 	"time"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/callback"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/automation"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -132,6 +133,11 @@ func (c *AiMessageCase) DecideAiToolApproval(ctx context.Context, req *basev1.De
 		ctx, stopApproval = c.automationCase.bindAutomationApproval(ctx, automationRun)
 		defer stopApproval()
 	}
+	ctx, _, err = c.startAiMessageEvents(ctx, session, message, nil)
+	if err != nil {
+		return nil, err
+	}
+	callback.EmitActivity(ctx, callback.Activity{ID: "reasoning:0", Phase: "reasoning", Status: "running"})
 	startAt := time.Now()
 	var reply *ai.Response
 	status := int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_SUCCESS)
@@ -220,7 +226,7 @@ func (c *AiMessageCase) runAiRuntime(ctx context.Context, session *models.AiSess
 		return reply, errors.Join(err, c.saveAiRuntime(ctx, run, nil, aiRunFailed))
 	}
 	if err = c.saveAiRuntime(ctx, run, reply, aiRunCompleted); err != nil {
-		return nil, err
+		return reply, err
 	}
 	return reply, nil
 }

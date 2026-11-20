@@ -51,7 +51,18 @@ export function extractComponentApis(files) {
   for (let index = 0; index < files.length; index++) {
     const filename = files[index];
     try {
-      result.set(filename, extractApi(program.getSourceFile(virtualFiles[index]), components.get(filename), checker));
+      let component = components.get(filename);
+      let source = program.getSourceFile(virtualFiles[index]);
+      const visited = new Set([filename]);
+      while (component.forwardTo) {
+        const target = component.forwardTo;
+        if (visited.has(target)) throw new Error(`组件转发存在循环：${target}`);
+        visited.add(target);
+        component = components.get(target);
+        if (!component) throw new Error(`无法解析转发组件：${target}`);
+        source = program.getSourceFile(`${target}.${component.lang === "tsx" ? "tsx" : "ts"}`);
+      }
+      result.set(filename, extractApi(source, component, checker));
     } catch (error) {
       throw new Error(`${filename}: ${error.message}`, { cause: error });
     }
@@ -59,15 +70,35 @@ export function extractComponentApis(files) {
   return result;
 }
 
-/** 读取 Vue 脚本及模板，并让泛型约束参与类型推导。 */
+/** 读取 Vue 脚本、纯转发目标及模板，并让泛型约束参与类型推导。 */
 function readComponent(filename) {
   const { descriptor, errors } = parse(readFileSync(filename, "utf8"), { filename });
   if (errors.length) throw new Error(`${filename}: ${errors.map(error => error.message ?? error).join("\n")}`);
-  if (descriptor.script && !descriptor.scriptSetup)
-    throw new Error(`${filename}: 组件 API 提取仅支持 script setup，请补充 Options API 解析后再生成`);
   if (descriptor.script?.src || descriptor.scriptSetup?.src) throw new Error(`${filename}: 暂不支持外部 script src`);
   let script = [descriptor.script?.content, descriptor.scriptSetup?.content].filter(Boolean).join("\n");
   const ast = ts.createSourceFile(`${filename}.tsx`, script, ts.ScriptTarget.Latest, true);
+  if (descriptor.script && !descriptor.scriptSetup) {
+    const [imported, exported] = ast.statements;
+    if (
+      !descriptor.template &&
+      !descriptor.styles.length &&
+      ast.statements.length === 2 &&
+      ts.isImportDeclaration(imported) &&
+      imported.importClause?.name &&
+      !imported.importClause.isTypeOnly &&
+      !imported.importClause.namedBindings &&
+      ts.isStringLiteral(imported.moduleSpecifier) &&
+      imported.moduleSpecifier.text.startsWith(".") &&
+      imported.moduleSpecifier.text.endsWith(".vue") &&
+      ts.isExportAssignment(exported) &&
+      !exported.isExportEquals &&
+      ts.isIdentifier(exported.expression) &&
+      exported.expression.text === imported.importClause.name.text
+    ) {
+      return { script, lang: descriptor.script.lang, forwardTo: resolve(dirname(filename), imported.moduleSpecifier.text) };
+    }
+    throw new Error(`${filename}: 组件 API 提取仅支持 script setup 或纯组件转发，请补充 Options API 解析后再生成`);
+  }
   const macros = new Set();
   let exposed = "{}";
   const visit = node => {

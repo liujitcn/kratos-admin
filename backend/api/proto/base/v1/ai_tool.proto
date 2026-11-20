@@ -92,4 +92,6 @@ message AiToolCall {
   string input = 5 [(gnostic.openapi.v3.property) = {description: "工具原始入参JSON"}]; // 工具原始入参JSON
 
   string output = 6 [(gnostic.openapi.v3.property) = {description: "工具原始出参JSON"}]; // 工具原始出参JSON
+
+  optional string call_id = 7 [(gnostic.openapi.v3.property) = {description: "本轮工具调用关联编号"}]; // 本轮工具调用关联编号
 }

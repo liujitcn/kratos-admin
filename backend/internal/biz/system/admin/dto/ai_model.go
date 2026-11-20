@@ -8,6 +8,8 @@ type AiModelChatConfig struct {
 	Temperature float32 `json:"temperature"`
 	// MaxTokens 是单次请求最大输出Token数。
 	MaxTokens int32 `json:"max_tokens"`
+	// ContextWindow 是模型上下文总容量，0 使用保守默认值。
+	ContextWindow int32 `json:"context_window"`
 	// TimeoutSeconds 是模型请求超时秒数。
 	TimeoutSeconds int32 `json:"timeout_seconds"`
 	// MaxRetries 是请求最大重试次数。

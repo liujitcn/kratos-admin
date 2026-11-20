@@ -17,6 +17,8 @@ type ProviderModel struct {
 	DisplayName string
 	// Config 是当前模型的运行参数。
 	Config *model.ModelConfig
+	// ContextWindow 是模型声明的上下文容量。
+	ContextWindow int
 }
 
 // ModelOption 表示可以提供给聊天前端的供应商和模型名称。
@@ -63,6 +65,12 @@ func (r *Registry) Replace(values []ProviderModel) {
 		}
 		name := value.ProviderName + " / " + value.Config.ModelName
 		client := NewAssistantClientWithName(value.Config, name)
+		if value.ContextWindow > 0 {
+			client.ContextWindow = value.ContextWindow
+			if value.Config.MaxTokens == 0 {
+				client.MaxOutputTokens = min(4096, value.ContextWindow/4)
+			}
+		}
 		if !client.Enabled() {
 			continue
 		}

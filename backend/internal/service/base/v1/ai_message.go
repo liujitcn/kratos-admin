@@ -25,6 +25,15 @@ func NewAiMessageService(aiMessageCase *biz.AiMessageCase) *AiMessageService {
 	}
 }
 
+// ListAiMessageEvent 读取当前用户消息的持久事件和快照，不执行模型或工具。
+func (s *AiMessageService) ListAiMessageEvent(ctx context.Context, req *basev1.ListAiMessageEventRequest) (*basev1.ListAiMessageEventResponse, error) {
+	res, err := s.aiMessageCase.ListAiMessageEvent(ctx, req)
+	if err != nil {
+		return nil, errorsx.WrapInternal(err, "读取AI消息事件失败")
+	}
+	return res, nil
+}
+
 // DecideAiToolApproval 确认或拒绝当前用户的待执行工具。
 func (s *AiMessageService) DecideAiToolApproval(ctx context.Context, req *basev1.DecideAiToolApprovalRequest) (*basev1.SendAiMessageResponse, error) {
 	res, err := s.aiMessageCase.DecideAiToolApproval(ctx, req)

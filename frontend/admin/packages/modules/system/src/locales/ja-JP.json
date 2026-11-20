@@ -234,6 +234,7 @@
   "system.base.ai.model.field.display_name": "表示名",
   "system.base.ai.model.field.duration": "動画の長さ（秒）",
   "system.base.ai.model.field.max_retries": "最大リトライ回数",
+  "system.base.ai.model.field.context_window": "コンテキスト容量（0 は既定値）",
   "system.base.ai.model.field.max_tokens": "最大出力トークン数",
   "system.base.ai.model.field.model_name": "モデル名",
   "system.base.ai.model.field.quality": "画像品質",

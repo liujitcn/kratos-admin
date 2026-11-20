@@ -20,6 +20,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		AiAutomationRun:         newAiAutomationRun(db, opts...),
 		AiFile:                  newAiFile(db, opts...),
 		AiMessage:               newAiMessage(db, opts...),
+		AiMessageEvent:          newAiMessageEvent(db, opts...),
 		AiModel:                 newAiModel(db, opts...),
 		AiPlugin:                newAiPlugin(db, opts...),
 		AiPluginConnection:      newAiPluginConnection(db, opts...),
@@ -113,6 +114,7 @@ type Query struct {
 	AiAutomationRun         aiAutomationRun
 	AiFile                  aiFile
 	AiMessage               aiMessage
+	AiMessageEvent          aiMessageEvent
 	AiModel                 aiModel
 	AiPlugin                aiPlugin
 	AiPluginConnection      aiPluginConnection
@@ -208,6 +210,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		AiAutomationRun:         q.AiAutomationRun.clone(db),
 		AiFile:                  q.AiFile.clone(db),
 		AiMessage:               q.AiMessage.clone(db),
+		AiMessageEvent:          q.AiMessageEvent.clone(db),
 		AiModel:                 q.AiModel.clone(db),
 		AiPlugin:                q.AiPlugin.clone(db),
 		AiPluginConnection:      q.AiPluginConnection.clone(db),
@@ -310,6 +313,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		AiAutomationRun:         q.AiAutomationRun.replaceDB(db),
 		AiFile:                  q.AiFile.replaceDB(db),
 		AiMessage:               q.AiMessage.replaceDB(db),
+		AiMessageEvent:          q.AiMessageEvent.replaceDB(db),
 		AiModel:                 q.AiModel.replaceDB(db),
 		AiPlugin:                q.AiPlugin.replaceDB(db),
 		AiPluginConnection:      q.AiPluginConnection.replaceDB(db),
@@ -402,6 +406,7 @@ type queryCtx struct {
 	AiAutomationRun         *aiAutomationRunDo
 	AiFile                  *aiFileDo
 	AiMessage               *aiMessageDo
+	AiMessageEvent          *aiMessageEventDo
 	AiModel                 *aiModelDo
 	AiPlugin                *aiPluginDo
 	AiPluginConnection      *aiPluginConnectionDo
@@ -494,6 +499,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		AiAutomationRun:         q.AiAutomationRun.WithContext(ctx),
 		AiFile:                  q.AiFile.WithContext(ctx),
 		AiMessage:               q.AiMessage.WithContext(ctx),
+		AiMessageEvent:          q.AiMessageEvent.WithContext(ctx),
 		AiModel:                 q.AiModel.WithContext(ctx),
 		AiPlugin:                q.AiPlugin.WithContext(ctx),
 		AiPluginConnection:      q.AiPluginConnection.WithContext(ctx),

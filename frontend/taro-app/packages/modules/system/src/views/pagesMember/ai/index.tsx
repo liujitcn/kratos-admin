@@ -1,5 +1,5 @@
 import { Button, ScrollView, Text, View } from '@tarojs/components'
-import Taro, { useLoad } from '@tarojs/taro'
+import Taro, { useLoad, useDidShow, useDidHide } from '@tarojs/taro'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   getCurrentLocale,
@@ -45,6 +45,7 @@ import {
   mergeAiToolActivity,
   parseAiEventStreamText,
   readAiEventStream,
+  readAiMessageEvents,
 } from './stream'
 import './index.scss'
 
@@ -69,7 +70,8 @@ type ChatMessageItem = AiMessage & {
 }
 
 type AttachmentUpload = { path: string; name: string; size: number }
-type StreamTask = { abort: () => void; aborted: boolean; finished: boolean; success?: boolean }
+/** 当前执行或只读补读任务，取消后拒绝晚到结果。 */
+type StreamTask = { abort: () => void; aborted: boolean; finished: boolean; success?: boolean; messageID?: string }
 type MessageMap = Record<string, ChatMessageItem[]>
 
 const AI_TERMINAL = Terminal.TERMINAL_APP
@@ -126,6 +128,7 @@ export default function AiPage() {
   inputTextRef.current = inputText
   attachmentsRef.current = selectedAttachments
   const draftsRef = useRef<Record<string, { text: string; attachments: AiAttachment[] }>>({})
+  const pageVisibleRef = useRef(true)
   const activeSessionIDRef = useRef('')
   const sessionsRef = useRef<AiSession[]>([])
   const messagesRef = useRef<MessageMap>({})
@@ -350,6 +353,8 @@ export default function AiPage() {
   }
 
   const handleAiStreamEvent = (event: AiStreamEvent, task?: StreamTask) => {
+    if (task?.aborted || (task && runningStreamTaskMap.current.get(event.payload.session_id) !== task)) return
+    if (task) task.messageID = event.payload.message_id
     if (event.event === 'delta') {
       if (event.payload.delta) queueAiDelta(event.payload)
       return
@@ -395,6 +400,28 @@ export default function AiPage() {
     return sessionID
   }
 
+  /** 刷新后只补读已有执行，切换会话或卸载时丢弃晚到结果。 */
+  const recoverSessionEvents = async (sessionID: string, messageID: string) => {
+    if (runningStreamTaskMap.current.has(sessionID)) return
+    const task: StreamTask = { aborted: false, finished: false, messageID, abort() { task.aborted = true } }
+    runningStreamTaskMap.current.set(sessionID, task)
+    setSessionSending(sessionID, true)
+    try {
+      await readAiMessageEvents(
+        (cursor) => defAiMessageService.ListAiMessageEvent({ session_id: sessionID, message_id: messageID, after_id: cursor }),
+        (event) => handleAiStreamEvent(event, task),
+        () => task.aborted || !pageVisibleRef.current || activeSessionIDRef.current !== sessionID || runningStreamTaskMap.current.get(sessionID) !== task,
+      )
+    } catch (error) {
+      if (!task.aborted) showError(error, t('system.ai.load_messages_failed'))
+    } finally {
+      if (runningStreamTaskMap.current.get(sessionID) === task) {
+        runningStreamTaskMap.current.delete(sessionID)
+        setSessionSending(sessionID, false)
+      }
+    }
+  }
+
   const loadMessages = async (sessionID: string) => {
     if (!sessionID) return
     setLoadingSessionID(sessionID)
@@ -402,6 +429,8 @@ export default function AiPage() {
       const response = await defAiSessionService.ListAiMessage({ session_id: sessionID })
       if (loadingSessionIDRef.current !== sessionID) return
       const loaded = normalizeMessageList(response.messages)
+      const active = response.messages.find((message) => message.status === AiMessageStatus.AI_MESSAGE_STATUS_GENERATING)
+      if (active) void recoverSessionEvents(sessionID, active.id)
       updateSessionMessages(sessionID, (current) => mergeWithLocalOnlyStreaming(current, loaded))
       if (activeSessionIDRef.current === sessionID) scrollChatToBottom()
     } catch (error) {
@@ -577,6 +606,20 @@ export default function AiPage() {
       return Boolean(task?.success)
     } catch (error) {
       if (task?.aborted) return false
+      if (task?.messageID) {
+        try {
+          const recovering = task
+          await readAiMessageEvents(
+            (cursor) => defAiMessageService.ListAiMessageEvent({ session_id: sessionID, message_id: recovering.messageID!, after_id: cursor }),
+            (event) => handleAiStreamEvent(event, recovering),
+            () => recovering.aborted || runningStreamTaskMap.current.get(sessionID) !== recovering,
+          )
+          return Boolean(recovering.success)
+        } catch (recoveryError) {
+          if (task.aborted) return false
+          error = recoveryError
+        }
+      }
       updateSessionMessages(sessionID, markThinkingMessageFailed)
       scrollChatToBottom()
       showError(error, t('system.ai.request_failed'))
@@ -630,6 +673,13 @@ export default function AiPage() {
     }
   }
 
+  useDidShow(() => {
+    pageVisibleRef.current = true
+    const id = activeSessionIDRef.current
+    if (id && !runningStreamTaskMap.current.has(id)) void loadMessages(id)
+  })
+  useDidHide(() => { pageVisibleRef.current = false })
+
   useEffect(() => {
     setStarterShortcuts(createDefaultShortcuts())
     setStarterPromptGroupIndex(0)
@@ -648,6 +698,7 @@ export default function AiPage() {
       if (pendingDeltaTimer.current) clearTimeout(pendingDeltaTimer.current)
       if (scrollTimer.current) clearTimeout(scrollTimer.current)
       activeSessionIDRef.current = ''
+      loadingSessionIDRef.current = ''
     }
   }, [])
 

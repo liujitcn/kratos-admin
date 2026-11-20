@@ -259,9 +259,10 @@ export interface BaseUserService {
   ListBaseUser(request: ListBaseUserRequest): Promise<ListBaseUserResponse>;
   /** 查询用户分页列表 */
   PageBaseUser(request: PageBaseUserRequest): Promise<PageBaseUserResponse>;
+  /** 汇总用户注册数据 */
+  SummaryBaseUser(request: SummaryBaseUserRequest): Promise<SummaryBaseUserResponse>;
   /** 查询用户 */
   GetBaseUser(request: GetBaseUserRequest): Promise<BaseUserForm>;
-  /** 创建用户 */
   CreateBaseUser(request: CreateBaseUserRequest): Promise<Empty>;
   /** 更新用户 */
   UpdateBaseUser(request: UpdateBaseUserRequest): Promise<Empty>;
@@ -273,6 +274,4 @@ export interface BaseUserService {
   ResetBaseUserPassword(request: ResetBaseUserPasswordRequest): Promise<Empty>;
   /** 设置基础用户应用端角色 */
   SetBaseUserAppRole(request: SetBaseUserAppRoleRequest): Promise<Empty>;
-  /** 汇总用户注册数据 */
-  SummaryBaseUser(request: SummaryBaseUserRequest): Promise<SummaryBaseUserResponse>;
 }

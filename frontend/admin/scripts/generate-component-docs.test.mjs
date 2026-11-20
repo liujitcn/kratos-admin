@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -112,6 +112,58 @@ defineModel<number>("page", { default: 1 });
       ["default", "footer"]
     );
     assert.equal(runtime.slots[0].type, "(scope: { row: unknown }) => unknown");
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("纯转发入口沿组件链提取原组件契约，不丢失相对导入、默认值或公开 API", async () => {
+  const root = await mkdtemp(join(tmpdir(), "component-api-forward-"));
+  try {
+    await mkdir(join(root, "inner"));
+    const child = join(root, "inner/Child.vue");
+    const entry = join(root, "Entry.vue");
+    await writeFile(join(root, "inner/props.ts"), "export interface Props { title: string; count?: number }");
+    await writeFile(
+      child,
+      `<script setup lang="ts">
+import type { Props } from "./props";
+withDefaults(defineProps<Props>(), { count: 2 });
+defineEmits<{ save: [id: string] }>();
+function reset(): boolean { return true; }
+defineExpose({ reset });
+</script><template><slot name="footer" /></template>`
+    );
+    await writeFile(
+      join(root, "Forward.vue"),
+      '<script lang="ts">import Child from "./inner/Child.vue"; export default Child;</script>'
+    );
+    await writeFile(entry, '<script lang="ts">import Forward from "./Forward.vue"; export default Forward;</script>');
+    const api = extractComponentApis([entry]).get(entry);
+    assert.deepEqual(api.props, [
+      { name: "title", description: "", type: "string", required: true },
+      { name: "count", description: "", type: "number", required: false, default: "2" }
+    ]);
+    assert.deepEqual(
+      api.events.map(({ name, type }) => ({ name, type })),
+      [{ name: "save", type: "(id: string) => void" }]
+    );
+    assert.deepEqual(
+      api.slots.map(({ name }) => name),
+      ["footer"]
+    );
+    assert.deepEqual(
+      api.methods.map(({ name, type }) => ({ name, type })),
+      [{ name: "reset", type: "() => boolean" }]
+    );
+    await writeFile(entry, '<script lang="ts">import Missing from "./Missing.vue"; export default Missing;</script>');
+    assert.throws(() => extractComponentApis([entry]), /Entry\.vue.*Missing\.vue/s);
+    await writeFile(entry, '<script lang="ts">import Forward from "./Forward.vue"; export default Forward;</script>');
+    await writeFile(
+      join(root, "Forward.vue"),
+      '<script lang="ts">import Entry from "./Entry.vue"; export default Entry;</script>'
+    );
+    assert.throws(() => extractComponentApis([entry]), /Entry\.vue.*循环/s);
   } finally {
     await rm(root, { recursive: true, force: true });
   }

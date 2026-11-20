@@ -109,9 +109,9 @@ frontend/admin
 
 `pnpm lint:stylelint` 显式使用根配置并排除未渲染的 CLI 模板和构建产物；现有源码样式错误需按独立清理任务处理。
 
-Demo 演示下新增“组件文档”，菜单组件为 `kratos-admin/demo/docs/index`，统一说明已启用模块的自定义组件（Core 46、System 14、BI 11）。进入页面直接展示首个组件，不再提供总览卡片和模块筛选；左侧目录支持搜索并独立滚动，正文在固定高度区域内滚动，右侧目录跟随正文高亮，点击锚点仅滚动正文。示例底部提供“复制代码”和“查看源代码”图标按钮，悬停显示操作提示，源码支持展开与收起。API 每页 6 行。详情支持本地演示、展开源码、API 和关联组件逐级返回，返回保留原搜索与 API 页码。依赖真实业务上下文的组件提供接入代码与使用说明。
+Demo 演示下新增“组件文档”，菜单组件为 `kratos-admin/demo/docs/index`，统一说明已启用模块的自定义组件（Core 46、System 20、BI 13）。进入页面直接展示首个组件，不再提供总览卡片和模块筛选；左侧目录支持搜索并独立滚动，正文在固定高度区域内滚动，右侧目录跟随正文高亮，点击锚点仅滚动正文。示例底部提供“复制代码”和“查看源代码”图标按钮，悬停显示操作提示，源码支持展开与收起。API 每页 6 行。详情支持本地演示、展开源码、API 和关联组件逐级返回，返回保留原搜索与 API 页码。依赖真实业务上下文的组件提供接入代码与使用说明。
 
-各模块通过 `AdminModule.extensions[ADMIN_COMPONENT_DOCS]` 注册清单；Core 示例集中在 `src/views/demo/docs/examples/`，System / BI 示例保留在各自模块的 `src/demo/`，预览组件按需加载。调整组件公开参数后执行 `pnpm generate:component-docs`，通过源码生成各清单同目录的 `component-api.json`；`pnpm test:component-docs` 检查提取行为、组件覆盖和生成结果，已纳入 `pnpm test`。
+各模块通过 `AdminModule.extensions[ADMIN_COMPONENT_DOCS]` 注册清单；Core 示例集中在 `src/views/demo/docs/examples/`，System / BI 示例保留在各自模块的 `src/demo/`，预览组件按需加载。调整组件公开参数后执行 `pnpm generate:component-docs`，通过源码生成各清单同目录的 `component-api.json`；纯组件转发入口沿用原组件的 API，普通 Options API 仍须显式实现解析，不能生成空契约；`pnpm test:component-docs` 检查提取行为、组件覆盖和生成结果，已纳入 `pnpm test`。
 
 ```bash
 cd frontend/admin
@@ -322,3 +322,7 @@ API 和组件自动导入声明统一通过 `pnpm generate:auto-import-types` �
 智能问数输入框复用 System 的 `AiModelSelector`，展示已启用供应商及模型，默认恢复 AI 助手共用的本地选择，缓存失效时使用首个可用模型。提交时携带供应商 ID 和模型名，后端按该选择生成查询计划；从 AI 对话调用问数工具时沿用本轮对话的模型。
 
 AI 对话支持写操作人工确认卡片，详情见 System 模块 README。
+
+### AI 执行进度恢复
+
+AI 对话刷新或断流后可按服务端消息ID只读补读当前运行的活动与终态；事件按运行编号、无损游标去重，不重新发送提示词或执行工具。后端需注册 `ai_message_event` 模型并授予当前入口 `ListAiMessageEvent` 权限。早期断流尚无消息ID时请刷新会话核实；取消/超时不保证撤回已发出的外部操作，业务结果未知时不要盲目重试。

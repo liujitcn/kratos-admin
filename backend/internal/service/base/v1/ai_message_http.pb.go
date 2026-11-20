@@ -26,6 +26,8 @@ const OperationAiMessageServiceUpdateAiMessage = "/base.v1.AiMessageService/Upda
 
 // AiMessageServiceHTTPServer 定义 AI 助手消息发送 HTTP 服务。
 type AiMessageServiceHTTPServer interface {
+	// ListAiMessageEvent 只读补读执行事件。
+	ListAiMessageEvent(context.Context, *basev1.ListAiMessageEventRequest) (*basev1.ListAiMessageEventResponse, error)
 	// DecideAiToolApproval 确认或拒绝当前用户的待执行工具调用。
 	DecideAiToolApproval(context.Context, *basev1.DecideAiToolApprovalRequest) (*basev1.SendAiMessageResponse, error)
 	// DeleteAiMessage 删除 AI 助手消息。
@@ -43,12 +45,37 @@ type AiMessageServiceHTTPServer interface {
 // RegisterAiMessageServiceHTTPServer 注册 AI 助手消息发送 HTTP 接口。
 func RegisterAiMessageServiceHTTPServer(s *kratosHTTP.Server, srv AiMessageServiceHTTPServer) {
 	r := s.Route("/")
+	r.GET("/api/v1/base/ai/session/{session_id}/message/{message_id}/event", _AiMessageService_ListAiMessageEvent_HTTP_Handler(srv))
 	r.POST("/api/v1/base/ai/session/{session_id}/message/{message_id}/approval", _AiMessageService_DecideAiToolApproval0_HTTP_Handler(srv))
 	r.POST("/api/v1/base/ai/session/{session_id}/message", _AiMessageService_SendAiMessage0_HTTP_Handler(srv))
 	r.DELETE("/api/v1/base/ai/session/{session_id}/message/{message_id}", _AiMessageService_DeleteAiMessage0_HTTP_Handler(srv))
 	r.PUT("/api/v1/base/ai/session/{session_id}/message/{message_id}", _AiMessageService_UpdateAiMessage0_HTTP_Handler(srv))
 	r.POST("/api/v1/base/ai/session/{session_id}/message/{message_id}/retry", _AiMessageService_RetryAiUserMessage0_HTTP_Handler(srv))
 	r.POST("/api/v1/base/ai/session/{session_id}/message/{message_id}/regeneration", _AiMessageService_RegenerateAiMessage0_HTTP_Handler(srv))
+}
+
+// _AiMessageService_ListAiMessageEvent_HTTP_Handler 复用鉴权中间件提供只读JSON补读。
+func _AiMessageService_ListAiMessageEvent_HTTP_Handler(srv AiMessageServiceHTTPServer) func(kratosHTTP.Context) error {
+	return func(ctx kratosHTTP.Context) error {
+		var in basev1.ListAiMessageEventRequest
+		err := ctx.BindQuery(&in)
+		if err != nil {
+			return err
+		}
+		if err = ctx.BindVars(&in); err != nil {
+			return err
+		}
+		kratosHTTP.SetOperation(ctx, basev1.OperationAiMessageServiceListAiMessageEvent)
+		h := ctx.Middleware(func(ctx context.Context, req any) (any, error) {
+			return srv.ListAiMessageEvent(ctx, req.(*basev1.ListAiMessageEventRequest))
+		})
+		var out any
+		out, err = h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		return ctx.Result(http.StatusOK, out.(*basev1.ListAiMessageEventResponse))
+	}
 }
 
 // _AiMessageService_DecideAiToolApproval0_HTTP_Handler 保留工具确认的普通 JSON 请求和权限操作标识。
@@ -91,6 +118,11 @@ func (e *aiStreamEmitter) EmitAiStream(event dto.AiStreamEvent, payload dto.AiSt
 	}
 	e.mutex.Lock()
 	defer e.mutex.Unlock()
+	if payload.EventID != "" {
+		if _, err = fmt.Fprintf(e.writer, "id: %s\n", payload.EventID); err != nil {
+			return err
+		}
+	}
 	if _, err = fmt.Fprintf(e.writer, "event: %s\n", event); err != nil {
 		return err
 	}

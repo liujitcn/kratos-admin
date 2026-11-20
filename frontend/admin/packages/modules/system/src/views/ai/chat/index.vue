@@ -636,6 +636,8 @@ async function loadMessages(sessionID: string, options?: { force?: boolean }) {
     const response = await defAiMessageService.ListAiMessage({ session_id: sessionID });
     if (loadMessagesSeq.get(sessionID) !== requestId) return;
     messages.value[sessionID] = normalizeMessageList(response?.messages);
+    const active = response?.messages?.find(message => message.status === AiMessageStatus.AI_MESSAGE_STATUS_GENERATING);
+    if (active) void aiStream.recover(sessionID, active.id);
   } catch {
     if (loadMessagesSeq.get(sessionID) === requestId) {
       messages.value[sessionID] = [];
@@ -871,6 +873,7 @@ onMounted(async () => {
 });
 
 onBeforeUnmount(() => {
+  loadMessagesSeq.clear();
   stopSpeaking();
 });
 </script>

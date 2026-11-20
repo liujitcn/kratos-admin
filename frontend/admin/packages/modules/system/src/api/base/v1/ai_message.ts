@@ -3,6 +3,8 @@ import { getLocaleRequestHeaders, resolveRequestErrorMessage, t } from "@liujitc
 import type { ListAiMessageRequest, ListAiMessageResponse } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import type {
   AiMessageService,
+  ListAiMessageEventRequest,
+  ListAiMessageEventResponse,
   DecideAiToolApprovalRequest,
   DeleteAiMessageRequest,
   DeleteAiMessageResponse,
@@ -72,6 +74,15 @@ export async function SendAiMessageStream(request: SendAiMessageRequest, options
 
 /** AI 助手消息服务。 */
 export class AiMessageServiceImpl implements AiMessageService {
+  /** 只读补读消息执行事件与权威快照。 */
+  ListAiMessageEvent(request: ListAiMessageEventRequest): Promise<ListAiMessageEventResponse> {
+    return service<ListAiMessageEventRequest, ListAiMessageEventResponse>({
+      url: `${AI_SESSION_URL}/${request.session_id}/message/${request.message_id}/event`,
+      method: "get",
+      params: request
+    });
+  }
+
   /** 确认或拒绝服务端冻结的工具调用。 */
   DecideAiToolApproval(request: DecideAiToolApprovalRequest): Promise<SendAiMessageResponse> {
     return service<DecideAiToolApprovalRequest, SendAiMessageResponse>({

@@ -9,7 +9,7 @@ import {
   pluginSelectionKey,
   selectionFromKey,
   readAiPluginOAuthCallback
-} from "../src/views/ai/chat/workspace/state.js";
+} from "../src/components/ai/workspace/state.js";
 
 test("助手导航包含文件入口并拒绝未知视图", () => {
   assert.equal(isAssistantView("files"), true);
@@ -30,7 +30,7 @@ test("已连接的 MCP 插件不能重复连接", () => {
 });
 
 test("工具页在插件列表就绪后自动选择并加载首个插件", async () => {
-  const source = await readFile(join(process.cwd(), "src/views/ai/chat/workspace/PluginPanel.vue"), "utf8");
+  const source = await readFile(join(process.cwd(), "src/components/ai/workspace/PluginPanel.vue"), "utf8");
   assert.match(source, /watch\(\s*\[tab, managedPlugins\]/);
   assert.match(source, /const selectedPluginID = [\s\S]*plugins\[0\]\.id/);
   assert.match(source, /toolPluginID\.value = selectedPluginID/);
@@ -38,7 +38,7 @@ test("工具页在插件列表就绪后自动选择并加载首个插件", async
 });
 
 test("连接和工具操作列的按钮带图标并保留点击处理", async () => {
-  const source = await readFile(join(process.cwd(), "src/views/ai/chat/workspace/PluginPanel.vue"), "utf8");
+  const source = await readFile(join(process.cwd(), "src/components/ai/workspace/PluginPanel.vue"), "utf8");
 
   const iconImport = source.match(/import \{[^}]+\} from "@element-plus\/icons-vue"/)?.[0] ?? "";
   for (const icon of ["ChatDotRound", "Refresh", "Key", "Share", "SwitchButton", "View"]) assert.match(iconImport, new RegExp(icon));

@@ -308,6 +308,11 @@ func (c *AiSessionCase) DeleteAiSession(ctx context.Context, req *basev1.DeleteA
 		if err = c.lockAiSession(txCtx, session); err != nil {
 			return err
 		}
+		events := c.aiMessageRepo.Query(txCtx).AiMessageEvent
+		_, err = events.WithContext(txCtx).Where(events.TenantID.Eq(session.TenantID), events.UserID.Eq(session.UserID), events.SessionID.Eq(session.ID)).Delete()
+		if err != nil {
+			return err
+		}
 		if session.AutomationRunID > 0 {
 			query := c.automationRunRepo.Query(txCtx).AiAutomationRun
 			var count int64

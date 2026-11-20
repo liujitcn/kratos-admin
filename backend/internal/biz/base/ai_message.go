@@ -41,7 +41,6 @@ import (
 )
 
 const (
-	aiHistorySize            = 12
 	aiMessagePersistTimeout  = 30 * time.Second
 	aiGeneratedFileDirectory = "ai/generated"
 	aiGeneratedFileMaxSize   = 20 << 20
@@ -164,6 +163,11 @@ func (c *AiMessageCase) DeleteAiMessage(ctx context.Context, req *basev1.DeleteA
 		if result.RowsAffected != 1 {
 			return errorsx.Conflict("正在执行的消息不能删除")
 		}
+		events := c.aiMessageRepo.Query(txCtx).AiMessageEvent
+		_, txErr = events.WithContext(txCtx).Where(events.TenantID.Eq(session.TenantID), events.SessionID.Eq(session.ID), events.MessageID.Eq(message.ID), events.UserID.Eq(session.UserID)).Delete()
+		if txErr != nil {
+			return txErr
+		}
 		approval := c.aiApprovalRepo.Query(txCtx).AiToolApproval
 		_, txErr = approval.WithContext(txCtx).Where(approval.MessageID.Eq(message.ID), approval.Status.Eq(aiRunPending)).UpdateSimple(approval.Status.Value(aiRunRejected), approval.CheckpointData.Value([]byte{}), approval.UpdatedAt.Value(time.Now()))
 		return txErr
@@ -177,6 +181,11 @@ func (c *AiMessageCase) SendAiMessage(ctx context.Context, req *basev1.SendAiMes
 		return nil, err
 	}
 
+	ctx, _, err = c.startAiMessageEvents(ctx, session, message, nil)
+	if err != nil {
+		return nil, err
+	}
+	callback.EmitActivity(ctx, callback.Activity{ID: "reasoning:0", Phase: "reasoning", Status: "running"})
 	startAt := time.Now()
 	input := ai.ParseInputContent(message.InputContent)
 	var reply *ai.Response
@@ -217,23 +226,10 @@ func (c *AiMessageCase) StreamAiMessage(ctx context.Context, req *basev1.SendAiM
 	}
 
 	messageID := strconv.FormatInt(message.ID, 10)
-	ctx = callback.WithActivityEmitter(ctx, func(activity callback.Activity) {
-		activityErr := emitter.EmitAiStream(dto.AiStreamEventActivity, dto.AiStreamPayload{
-			SessionID: req.GetSessionId(),
-			MessageID: messageID,
-			Activity: &dto.AiStreamActivity{
-				ID:        activity.ID,
-				Phase:     activity.Phase,
-				Status:    activity.Status,
-				Summary:   activity.Summary,
-				ToolName:  activity.ToolName,
-				ToolTitle: activity.ToolTitle,
-			},
-		})
-		if activityErr != nil {
-			log.Error(fmt.Sprintf("StreamAiMessage EmitActivity %v", activityErr))
-		}
-	})
+	ctx, emitter, err = c.startAiMessageEvents(ctx, session, message, emitter)
+	if err != nil {
+		return err
+	}
 	callback.EmitActivity(ctx, callback.Activity{ID: "reasoning:0", Phase: "reasoning", Status: "running"})
 	startAt := time.Now()
 	input := ai.ParseInputContent(message.InputContent)
@@ -283,6 +279,9 @@ func (c *AiMessageCase) StreamAiMessage(ctx context.Context, req *basev1.SendAiM
 	}
 
 	event := dto.AiStreamEventFinish
+	if status == int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_FAILED) {
+		event = dto.AiStreamEventError
+	}
 	if message.Status == int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_WAITING_APPROVAL) {
 		event = dto.AiStreamEventApprovalRequired
 	}
@@ -364,7 +363,7 @@ func (c *AiMessageCase) prepareNewAiMessage(ctx context.Context, req *basev1.Sen
 		return nil, nil, "", nil, nil, nil, "", err
 	}
 	var history []ai.Message
-	history, err = c.buildHistory(ctx, session.TenantID, session.ID, aiHistorySize)
+	history, err = c.buildHistory(ctx, session.TenantID, session.ID)
 	if err != nil {
 		return nil, nil, "", nil, nil, nil, "", err
 	}
@@ -442,14 +441,13 @@ func (c *AiMessageCase) ensureAiSessionIdle(ctx context.Context, tenantID int64,
 }
 
 // buildHistory 构造问答历史上下文。
-func (c *AiMessageCase) buildHistory(ctx context.Context, tenantID int64, sessionID int64, historySize int) ([]ai.Message, error) {
+func (c *AiMessageCase) buildHistory(ctx context.Context, tenantID int64, sessionID int64) ([]ai.Message, error) {
 	query := c.aiMessageRepo.Query(ctx).AiMessage
 	opts := make([]repository.QueryOption, 0, 5)
 	opts = append(opts, repository.Where(query.TenantID.Eq(tenantID)))
 	opts = append(opts, repository.Where(query.SessionID.Eq(sessionID)))
 	opts = append(opts, repository.Where(query.Status.Eq(int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_SUCCESS))))
 	opts = append(opts, repository.Order(query.CreatedAt.Desc(), query.ID.Desc()))
-	opts = append(opts, repository.Limit(historySize))
 	list, err := c.aiMessageRepo.List(ctx, opts...)
 	if err != nil {
 		return nil, err
@@ -486,7 +484,7 @@ func (c *AiMessageCase) regenerateAiMessageWithContent(ctx context.Context, sess
 		return nil, err
 	}
 	var history []ai.Message
-	history, err = c.buildHistoryBeforeMessage(ctx, session.TenantID, session.ID, message, aiHistorySize)
+	history, err = c.buildHistoryBeforeMessage(ctx, session.TenantID, session.ID, message)
 	if err != nil {
 		return nil, err
 	}
@@ -496,6 +494,11 @@ func (c *AiMessageCase) regenerateAiMessageWithContent(ctx context.Context, sess
 	if err = c.markAiMessageGenerating(ctx, session, message, input, now); err != nil {
 		return nil, err
 	}
+	ctx, _, err = c.startAiMessageEvents(ctx, session, message, nil)
+	if err != nil {
+		return nil, err
+	}
+	callback.EmitActivity(ctx, callback.Activity{ID: "reasoning:0", Phase: "reasoning", Status: "running"})
 	startAt := time.Now()
 	var reply *ai.Response
 	reply, err = c.generateAiReply(ctx, session, message.ID, userName, content, input.ProviderID, input.ProviderName, input.ModelName, nil, attachments, aiAttachments, history, input.KnowledgeBaseIDs, nil)
@@ -568,15 +571,14 @@ func (c *AiMessageCase) buildAiAttachments(attachments []*basev1.AiAttachment) (
 }
 
 // buildHistoryBeforeMessage 构造指定消息之前的上下文。
-func (c *AiMessageCase) buildHistoryBeforeMessage(ctx context.Context, tenantID int64, sessionID int64, message *models.AiMessage, historySize int) ([]ai.Message, error) {
+func (c *AiMessageCase) buildHistoryBeforeMessage(ctx context.Context, tenantID int64, sessionID int64, message *models.AiMessage) ([]ai.Message, error) {
 	query := c.aiMessageRepo.Query(ctx).AiMessage
 	opts := make([]repository.QueryOption, 0, 7)
 	opts = append(opts, repository.Where(query.TenantID.Eq(tenantID)))
 	opts = append(opts, repository.Where(query.SessionID.Eq(sessionID)))
 	opts = append(opts, repository.Where(query.Status.Eq(int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_SUCCESS))))
-	opts = append(opts, repository.Where(query.CreatedAt.Lt(message.CreatedAt)))
+	opts = append(opts, repository.Where(query.ID.Lt(message.ID)))
 	opts = append(opts, repository.Order(query.CreatedAt.Desc(), query.ID.Desc()))
-	opts = append(opts, repository.Limit(historySize))
 	list, err := c.aiMessageRepo.List(ctx, opts...)
 	if err != nil {
 		return nil, err
@@ -629,6 +631,17 @@ func (c *AiMessageCase) generateAiReply(
 			History:      history,
 			Attachments:  aiAttachments,
 		}
+		input.ContextSummary, err = c.loadAiContextSummary(ctx, session)
+		if err != nil {
+			return nil, err
+		}
+		if execution, ok := ctx.Value(aiExecutionContextKey{}).(*dto.AiExecution); ok {
+			input.SaveContextSummary = func(summaryCtx context.Context, summary agent.ContextSummary) error {
+				execution.Mutex.Lock()
+				defer execution.Mutex.Unlock()
+				return c.recordAiMessageEvent(summaryCtx, execution, "context_summary", summary)
+			}
+		}
 		if len(knowledgeBaseIDs) > 0 && c.aiKnowledgeEngine != nil {
 			retrieveCtx, cancel := context.WithTimeout(ctx, 20*time.Second)
 			if session.AutomationRunID > 0 {
@@ -647,14 +660,14 @@ func (c *AiMessageCase) generateAiReply(
 			if err == nil {
 				return response, nil
 			}
-			return c.buildAiFallbackResponse(ctx, content, attachments, err, providerName, modelName), err
+			return c.buildAiFailedReply(ctx, response, err, providerName, modelName), err
 		}
 		response, err = c.runAiRuntime(ctx, session, messageID, input, nil)
 		if err == nil {
 			return response, nil
 		}
 		log.Error(fmt.Sprintf("AI reply generation failed: %v", err))
-		return c.buildAiFallbackResponse(ctx, content, attachments, err, providerName, modelName), err
+		return c.buildAiFailedReply(ctx, response, err, providerName, modelName), err
 	}
 	err = errorsx.Internal("AI助手运行时未初始化")
 	return c.buildAiFallbackResponse(ctx, content, attachments, err, providerName, modelName), err
@@ -666,8 +679,18 @@ func (c *AiMessageCase) buildAiFailedReply(ctx context.Context, reply *ai.Respon
 	if failedReply == nil {
 		failedReply = c.buildAiFallbackResponse(ctx, "", nil, cause, providerName, modelName)
 	}
+	if failedReply.Content == "" {
+		fallback := c.buildAiFallbackResponse(ctx, "", nil, cause, providerName, modelName)
+		failedReply.Content = fallback.Content
+		if failedReply.Model == "" {
+			failedReply.Model = fallback.Model
+		}
+	}
 	// 优先保留上游已记录的真实错误摘要，仅在完全缺失时兜底通用文案。
 	reason := failedReply.FallbackReason
+	if reason == "" && cause != nil {
+		reason = truncateAiErrorDetail(cause.Error())
+	}
 	if reason == "" {
 		reason = i18n.EncodeMessage("system.ai.chat.error.details_unavailable", nil)
 	}
@@ -733,6 +756,11 @@ func (c *AiMessageCase) finishAiMessage(
 	var cancel context.CancelFunc
 	ctx, cancel = context.WithTimeout(context.WithoutCancel(ctx), aiMessagePersistTimeout)
 	defer cancel()
+	if execution, ok := ctx.Value(aiExecutionContextKey{}).(*dto.AiExecution); ok {
+		execution.Mutex.Lock()
+		defer execution.Mutex.Unlock()
+		defer execution.Cancel(nil)
+	}
 	now = now.Truncate(time.Millisecond)
 	if reply != nil && reply.Approval != nil {
 		status = int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_WAITING_APPROVAL)
@@ -785,7 +813,10 @@ func (c *AiMessageCase) finishAiMessage(
 		if result.RowsAffected != 1 {
 			return errorsx.Conflict("消息状态已变化，请刷新后重试")
 		}
-		return c.aiSessionCase.RefreshSessionUpdatedAt(txCtx, session, now)
+		if updateErr = c.aiSessionCase.RefreshSessionUpdatedAt(txCtx, session, now); updateErr != nil {
+			return updateErr
+		}
+		return c.finishAiMessageEvent(txCtx, session, message.ID, status)
 	})
 	if err != nil {
 		return err
@@ -1327,6 +1358,7 @@ func toAiToolCalls(values []ai.ToolUsage) []*basev1.AiToolCall {
 	tools := make([]*basev1.AiToolCall, 0, len(values))
 	for _, item := range values {
 		tools = append(tools, &basev1.AiToolCall{
+			CallId: new(item.CallID),
 			Type:   item.Type,
 			Name:   item.Name,
 			Title:  item.Title,

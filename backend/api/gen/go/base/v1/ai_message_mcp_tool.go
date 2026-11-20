@@ -15,12 +15,37 @@ import (
 
 // RegisterAiMessageServiceMCPTools 注册Base AI 助手消息服务的 MCP Tool。
 func RegisterAiMessageServiceMCPTools(mcpServer *server.MCPServer, aiMessageServiceServer AiMessageServiceServer) {
+	RegisterAiMessageServiceListAiMessageEventMCPTool(mcpServer, aiMessageServiceServer)
 	RegisterAiMessageServiceDecideAiToolApprovalMCPTool(mcpServer, aiMessageServiceServer)
 	RegisterAiMessageServiceUpdateAiMessageMCPTool(mcpServer, aiMessageServiceServer)
 	RegisterAiMessageServiceDeleteAiMessageMCPTool(mcpServer, aiMessageServiceServer)
 	RegisterAiMessageServiceSendAiMessageMCPTool(mcpServer, aiMessageServiceServer)
 	RegisterAiMessageServiceRetryAiUserMessageMCPTool(mcpServer, aiMessageServiceServer)
 	RegisterAiMessageServiceRegenerateAiMessageMCPTool(mcpServer, aiMessageServiceServer)
+}
+
+// RegisterAiMessageServiceListAiMessageEventMCPTool 注册只读补读当前执行事件与消息快照，绝不恢复或重放工具的 MCP Tool。
+func RegisterAiMessageServiceListAiMessageEventMCPTool(mcpServer *server.MCPServer, aiMessageServiceServer AiMessageServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("base_v1_ai_message_service_list_ai_message_event",
+			mcp.WithDescription("只读补读当前执行事件与消息快照，绝不恢复或重放工具。"),
+			mcp.WithInputSchema[*ListAiMessageEventRequest](),
+			mcp.WithOutputSchema[*ListAiMessageEventResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &ListAiMessageEventRequest{}
+			err := request.BindArguments(req)
+			if err != nil {
+				return nil, err
+			}
+			var reply *ListAiMessageEventResponse
+			reply, err = aiMessageServiceServer.ListAiMessageEvent(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
+		},
+	)
 }
 
 // RegisterAiMessageServiceDecideAiToolApprovalMCPTool 注册确认或拒绝当前用户的待执行工具调用的 MCP Tool。

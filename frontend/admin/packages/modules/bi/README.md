@@ -2,7 +2,7 @@
 
 kratos-admin 管理端 BI 分析模块，提供数据源建模、智能问数、查询记录、数据卡片、仪表盘设计与个人工作台。
 
-`src/demo/` 向 Core 组件文档贡献本模块 11 个组件的说明、源码用法和 API，可独立运行的图表与布局使用本地数据。参数变化后在 workspace 根执行 `pnpm generate:component-docs`。
+`src/demo/` 向 Core 组件文档贡献本模块 13 个组件的说明、源码用法和 API，可独立运行的图表与布局使用本地数据。参数变化后在 workspace 根执行 `pnpm generate:component-docs`。
 
 ## 安装与接入
 

@@ -17,6 +17,12 @@ import (
 func NewAiMessageServiceAgentTools(aiMessageServiceServer AiMessageServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
+	var listAiMessageEventTool tool.InvokableTool
+	listAiMessageEventTool, err = NewAiMessageServiceListAiMessageEventAgentTool(aiMessageServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, listAiMessageEventTool)
 	var decideAiToolApprovalTool tool.InvokableTool
 	decideAiToolApprovalTool, err = NewAiMessageServiceDecideAiToolApprovalAgentTool(aiMessageServiceServer)
 	if err != nil {
@@ -54,6 +60,20 @@ func NewAiMessageServiceAgentTools(aiMessageServiceServer AiMessageServiceServer
 	}
 	ts = append(ts, regenerateAiMessageTool)
 	return ts, nil
+}
+
+// NewAiMessageServiceListAiMessageEventAgentTool 创建只读补读当前执行事件与消息快照，绝不恢复或重放工具的 Agent Tool。
+func NewAiMessageServiceListAiMessageEventAgentTool(aiMessageServiceServer AiMessageServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListAiMessageEventRequest, *ListAiMessageEventResponse](
+		"base_v1_ai_message_service_list_ai_message_event",
+		"只读补读当前执行事件与消息快照，绝不恢复或重放工具。",
+		func(ctx context.Context, req *ListAiMessageEventRequest) (*ListAiMessageEventResponse, error) {
+			if req == nil {
+				req = &ListAiMessageEventRequest{}
+			}
+			return aiMessageServiceServer.ListAiMessageEvent(ctx, req)
+		},
+	)
 }
 
 // NewAiMessageServiceDecideAiToolApprovalAgentTool 创建确认或拒绝当前用户的待执行工具调用的 Agent Tool。

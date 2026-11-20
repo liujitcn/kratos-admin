@@ -74,6 +74,7 @@ function mountComponent(path: string, props: Record<string, any>, mocks: Record<
   const component = loadScript(`${script.content}\nmodule.exports = component;`, filename, {
     "element-plus": { ElTable: {} },
     "@element-plus/icons-vue": {},
+    "@/assets/images/notData.png": "notData.png",
     "@/utils": { generateUUID: () => "test-table", handleProp: (prop: string) => prop },
     "@/utils/proTable": { resolveTableColumnAlign: () => "left" },
     ...mocks
