@@ -30,7 +30,11 @@ export class AiKnowledgeDocServiceImpl implements AiKnowledgeDocService {
 
   /** 上传文档文件。 */
   UploadAiKnowledgeDocFile(request: UploadAiKnowledgeDocFileRequest): Promise<Empty> {
-    return service({ url: `${AI_KNOWLEDGE_URL}/${request.id}/doc/file`, method: "post", data: request });
+    return service({
+      url: `${AI_KNOWLEDGE_URL}/${request.id}/doc/file`,
+      method: "post",
+      data: { ...request, content_base64: request.content_base64 as unknown as string }
+    });
   }
 
   /** 删除知识库文档。 */
