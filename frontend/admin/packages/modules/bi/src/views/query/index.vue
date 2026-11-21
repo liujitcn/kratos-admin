@@ -33,7 +33,7 @@
             :closable="false"
           /><template v-else-if="response"
             ><div class="bi-query-assistant">{{ t("bi.query.assistant") }}</div>
-            <el-text tag="h3">{{ response.title }}</el-text>
+            <el-text tag="h3">{{ previewCard.name }}</el-text>
             <el-text tag="p">{{ t("bi.query.result_ready") }}</el-text>
             <div class="bi-query-facts">
               <el-text tag="p">
@@ -41,8 +41,11 @@
                   sources.find(item => item.code === response?.query?.source_code)?.name || response.query?.source_code
                 }}
               </el-text>
-              <el-text tag="p">{{ t("bi.card.dimensions") }}：{{ response.query?.dimensions.join("、") || t("bi.card.ungrouped") }}</el-text>
-              <el-text tag="p">{{ t("bi.card.measure") }}：{{ response.query?.measures.map(item => item.code).join("、") }}</el-text>
+              <template v-if="querySummary">
+                <el-text tag="p">{{ t("bi.card.dimensions") }}：{{ querySummary.dimensions }}</el-text>
+                <el-text tag="p">{{ t("bi.card.measure") }}：{{ querySummary.measures }}</el-text>
+                <el-text tag="p">{{ t("bi.refine.period") }}：{{ querySummary.period }}</el-text>
+              </template>
             </div>
             <el-button link type="primary" @click="showTable = !showTable">{{
               t(showTable ? "bi.query.hide_details" : "bi.card.table_tab")
@@ -119,14 +122,23 @@
         <el-header style="--el-header-height: auto; --el-header-padding: 0">
           <el-text tag="h3">{{ t("bi.card.preview") }}</el-text>
         </el-header>
+        <BiQueryRefinement
+          v-if="response?.query && response.result?.query_record_id && activeSource"
+          :source="activeSource"
+          :query="response.query"
+          :record-id="response.result.query_record_id"
+          :disabled="loading || cardDialog"
+          @busy="refining = $event"
+          @applied="applyRefinement"
+        />
         <BiDataCard
           v-if="response?.result && response.query"
           :card="previewCard"
           :preview-result="response.result"
           :source-name="sources.find(item => item.code === previewCard.source_code)?.name || previewCard.source_code"
           ><template #footer
-            ><el-button link type="primary" @click="cardDialog = true">{{ t("bi.card.edit") }}</el-button
-            ><el-button type="primary" @click="cardDialog = true">{{ t("bi.card.save_result") }}</el-button></template
+            ><el-button link type="primary" :disabled="refining" @click="cardDialog = true">{{ t("bi.card.edit") }}</el-button
+            ><el-button type="primary" :disabled="refining" @click="cardDialog = true">{{ t("bi.card.save_result") }}</el-button></template
           ></BiDataCard
         ><el-empty v-else :description="t('bi.card.preview_empty')" />
       </el-aside>
@@ -136,7 +148,7 @@
       :sources="sources"
       :initial-query="response?.query"
       :initial-result="response?.result"
-      :initial-title="response?.title"
+      :initial-title="previewCard.name"
       :initial-chart-type="previewCard.chart_type"
       @saved="loadHistory"
     />
@@ -157,7 +169,9 @@ import type { AiProviderModelOption } from "@liujitcn/kratos-admin-system/rpc/ba
 import SessionPanel from "@liujitcn/kratos-admin-system/components/AiSessionPanel/index.vue";
 import BiDataCard from "../../components/BiDataCard.vue";
 import BiCardFormDialog from "../../components/BiCardFormDialog.vue";
+import BiQueryRefinement from "../../components/BiQueryRefinement.vue";
 import { normalizeBiQueryResult, normalizeBiQuerySpec } from "../../bi-response";
+import { describeBiQuery } from "../../query-summary";
 import { defBiQueryService } from "../../api/bi/admin/v1/bi_query";
 import { defBiQueryRecordService } from "../../api/bi/admin/v1/bi_query_record";
 import type { BiQueryRecord } from "../../rpc/bi/admin/v1/bi_query_record";
@@ -186,13 +200,20 @@ let request = 0,
   historyRequest = 0,
   voiceBaseText = "";
 let searchTimer: ReturnType<typeof setTimeout> | undefined;
-const sessions = computed(() =>
-  records.value.map(item => ({
-    id: String(item.id),
-    title: item.question,
-    summary: `${sources.value.find(source => source.code === item.source_code)?.name || item.source_code || ""} · ${item.created_at || ""}`
-  }))
-);
+const sessions = computed(() => records.value.map(item => {
+  const source = sources.value.find(source => source.code === item.source_code);
+  let summary = source?.name || item.source_code;
+  if (!item.error_msg && item.query_json) {
+    try {
+      const spec = normalizeBiQuerySpec(JSON.parse(item.query_json) as BiQuerySpec);
+      const { dimensions, period } = describeBiQuery(spec, t, source);
+      summary = [dimensions, period, summary].filter(Boolean).join(" · ");
+    } catch {
+      // 旧记录无法解析时仍保留原问题和来源。
+    }
+  }
+  return { id: String(item.id), title: item.question, summary: [summary, item.created_at].filter(Boolean).join(" · ") };
+}));
 const {
   loading: recording,
   start: startRecord,
@@ -215,12 +236,27 @@ const {
   }
 });
 
+const activeSource = computed(() => sources.value.find(source => source.code === response.value?.query?.source_code));
+const querySummary = computed(() => {
+  const value = response.value;
+  return value?.query && describeBiQuery(value.query, t, activeSource.value, value.result?.columns);
+});
+const refining = ref(false);
+
+/** 使用调整后的记录更新明细、图表和建卡来源。 */
+function applyRefinement(next: AskBiQueryResponse) {
+  if (!next.query || !next.result?.query_record_id) return;
+  response.value = { ...next, title: describeBiQuery(next.query, t, activeSource.value, next.result.columns).title };
+  activeRecord.value = String(next.result.query_record_id);
+  void loadHistory();
+}
+
 const previewCard = computed<BiCard>(() => ({
   id: 0,
   tenant_id: 0,
   project_id: 0,
   owner_id: 0,
-  name: response.value?.title || "BI",
+  name: (response.value?.query?.grouping_options?.length ? querySummary.value?.title : response.value?.title) || t("bi.query.result"),
   source_code: response.value?.query?.source_code || "",
   query: response.value?.query,
   chart_type: response.value?.query?.dimensions.length ? response.value.chart_type || "bar" : response.value?.chart_type || "metric",
@@ -252,6 +288,7 @@ function handleInputEnter(event: KeyboardEvent) {
 }
 /** 发起真实语义问数并关联服务端生成的结果记录。 */
 async function ask() {
+  if (refining.value) return;
   if (!question.value.trim() || loading.value || loadingModels.value || recording.value) return;
   const current = ++request;
   submittedQuestion.value = question.value;
@@ -307,10 +344,11 @@ async function selectRecord(id: number) {
       return;
     }
     const spec = normalizeBiQuerySpec(JSON.parse(item.query_json) as BiQuerySpec);
+    const source = sources.value.find(item => item.code === spec.source_code);
     response.value = {
       query: spec,
       result: normalizeBiQueryResult(item.result),
-      title: item.question || t("bi.query.result"),
+      title: describeBiQuery(spec, t, source, item.result.columns).title,
       chart_type: item.chart_type || (spec.dimensions.length ? "bar" : "metric")
     };
   } catch (cause) {
@@ -321,6 +359,7 @@ async function selectRecord(id: number) {
 }
 /** 新问题只清空当前输入与预览，不删除已有记录。 */
 function newQuestion() {
+  refining.value = false;
   request++;
   stopRecord();
   loading.value = false;

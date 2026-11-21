@@ -28,7 +28,10 @@ type CardExecution struct {
 	Metrics        []MetricRevision     `json:"metrics"`
 	Columns        []bi.ResultColumn    `json:"columns"`
 	QueryHash      string               `json:"query_hash"`
-	Hash           string               `json:"hash"`
+	ReportTimezone string               `json:"report_timezone,omitempty"`
+	// TimeRangeInstant 表示该时间轴按实际时刻绑定区间。
+	TimeRangeInstant bool   `json:"time_range_instant,omitempty"`
+	Hash             string `json:"hash"`
 }
 
 // ExecutionParameter 记录参数的受控来源及顺序，执行时才解析实际值。
@@ -39,6 +42,7 @@ type ExecutionParameter struct {
 	FilterIndex int    `json:"filter_index,omitempty"`
 	ValueIndex  int    `json:"value_index,omitempty"`
 	Contains    bool   `json:"contains,omitempty"`
+	RootID      int64  `json:"root_id,omitempty"`
 }
 
 // MetricRevision 固定公共指标的稳定编码与最近定义版本。

@@ -21,7 +21,11 @@ export function buildCardChart(
   const dimension =
     config.encoding.dimension ||
     (card.chart_type === "scatter" ? numericFields[0]?.code : undefined) ||
+    (["bar", "line", "area"].includes(card.chart_type) ? card.query?.grouping_options?.find(item => item.time_grain)?.field : undefined) ||
     (card.query ? card.query.dimensions[0] : result.columns.find(column => column.code !== measure)?.code);
+  const explicitSeries = config.encoding.series;
+  const series = card.chart_type === "scatter" ? undefined :
+    explicitSeries && explicitSeries !== dimension ? explicitSeries : card.query?.dimensions.find(code => code !== dimension);
   const rows = result.rows.map(row =>
     Object.fromEntries(result.columns.map((column, index) => [column.code, row.values[index] ?? ""]))
   );
@@ -47,13 +51,13 @@ export function buildCardChart(
         dimension,
         measure,
         measures: ["bar", "line", "area"].includes(card.chart_type) && measures.length > 1 ? measures : undefined,
-        series: card.chart_type === "scatter" ? undefined : card.query?.dimensions[1],
-        ...config.encoding
+        ...config.encoding,
+        series
       },
       aggregation: "none",
       style: {
         showLabel: false,
-        showLegend: measures.length > 1 || card.chart_type === "pie" || card.chart_type === "donut",
+        showLegend: Boolean(series) || measures.length > 1 || card.chart_type === "pie" || card.chart_type === "donut",
         ...config.style
       }
     },

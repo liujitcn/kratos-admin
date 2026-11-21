@@ -81,6 +81,7 @@ import { Download, ZoomIn } from "@element-plus/icons-vue";
 import { t } from "@liujitcn/kratos-admin-core";
 import BiCardVisualization from "./BiCardVisualization.vue";
 import { cardRefreshDelay } from "../card-schema";
+import { describeBiTimeRange } from "../query-summary";
 import { defBiCardService } from "../api/bi/admin/v1/bi_card";
 import type { BiCard } from "../rpc/bi/admin/v1/bi_card";
 import type { BiQueryResult } from "../rpc/bi/admin/v1/bi_query";
@@ -118,7 +119,7 @@ const emit = defineEmits<{ "update:rangeDays": [value: number]; preview: [] }>()
 const effectiveRangeDays = computed(() => (props.showPeriodFilter ? props.rangeDays : 0));
 const periodLabel = computed(() => {
   const range = props.card.query?.time_range;
-  return !effectiveRangeDays.value && range ? `${range.start.slice(0, 10)} — ${range.end.slice(0, 10)}` : "";
+  return !effectiveRangeDays.value && range ? describeBiTimeRange(range, t) : "";
 });
 const result = ref<BiQueryResult>();
 const loading = ref(false);

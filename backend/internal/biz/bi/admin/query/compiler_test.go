@@ -49,7 +49,7 @@ func TestSourceLimitDoesNotRewriteQuery(t *testing.T) {
 		{name: "未声明源上限", requested: 1000, wantQuery: 1000, wantExecution: 1000},
 	} {
 		t.Run(test.name, func(t *testing.T) {
-			descriptor := model.Descriptor("orders", "", "", 1, test.maxRows)
+			descriptor := model.Descriptor("orders", "", "", 1, test.maxRows, "mysql")
 			spec, err := ValidateSpec(descriptor, bi.QuerySpec{SourceCode: "orders", Measures: []bi.MeasureSpec{{Code: "count"}}, Limit: test.requested})
 			if err != nil {
 				t.Fatal(err)
@@ -86,5 +86,57 @@ func TestCompileRejectsLostTimeAxis(t *testing.T) {
 	model.Dimensions = []dto.ConfiguredSourceDimension{{Code: "day", Table: "orders", Column: "amount", Type: bi.FieldTypeNumber, Filterable: true}}
 	if _, err = Compile("mysql", 100, model, spec); err == nil {
 		t.Fatal("日期类型改为数字后仍可编译")
+	}
+}
+
+// TestCompileBusinessGrouping 验证日期分桶、部门层级、租户绑定和查询摘要使用相同语义。
+func TestCompileBusinessGrouping(t *testing.T) {
+	model := dto.ConfiguredSourceSchema{
+		BaseTable: "users", ReportTimezone: "Asia/Shanghai",
+		Tables: []dto.ConfiguredSourceTable{
+			{Key: "users", Name: "users", TenantColumn: "tenant_id", Fields: map[string]bi.FieldType{"created": bi.FieldTypeDate}},
+			{Key: "dept", Name: "dept", TenantColumn: "tenant_id"},
+		},
+		Relations: []dto.ConfiguredSourceRelation{{LeftTable: "users", LeftColumn: "dept_id", RightTable: "dept", RightColumn: "id", JoinType: "left"}},
+		Dimensions: []dto.ConfiguredSourceDimension{
+			{Code: "created", Table: "users", Column: "created", Type: bi.FieldTypeDate, Filterable: true, DatabaseType: "date"},
+			{Code: "department", Table: "dept", Column: "name", Type: bi.FieldTypeString, Hierarchy: &dto.ConfiguredSourceHierarchy{ParentColumn: "parent_id", RootID: "0"}},
+		},
+		Measures: []dto.ConfiguredSourceMeasure{{Code: "count", Type: bi.FieldTypeNumber, Expression: "COUNT(*)", Revision: 1}},
+	}
+	spec := bi.QuerySpec{
+		SourceCode: "users", Dimensions: []string{"created", "department"}, Measures: []bi.MeasureSpec{{Code: "count"}},
+		GroupingOptions: []bi.GroupingOption{{Field: "department", HierarchyLevel: 2}, {Field: "created", TimeGrain: "month"}},
+		TimeRange:       &bi.TimeRangeSpec{Field: "created", Start: "2026-01-01", End: "2026-04-01", EndExclusive: true},
+		Orders:          []bi.OrderSpec{{Field: "created", Direction: "asc"}},
+	}
+	for _, tc := range []struct{ driver, bucket, boundary string }{
+		{"mysql", "CAST(DATE_FORMAT(`t0`.`created`, '%Y-%m-01') AS DATE)", "`t0`.`created` < CAST("},
+		{"postgres", `CAST(DATE_TRUNC('month', "t0"."created") AS DATE)`, `"t0"."created" < CAST(`},
+	} {
+		t.Run(tc.driver, func(t *testing.T) {
+			execution, err := Compile(tc.driver, 1000, model, spec)
+			if err != nil {
+				t.Fatal(err)
+			}
+			for _, expected := range []string{"WITH RECURSIVE", "LEFT JOIN", tc.bucket, tc.boundary, "bw0.first_id, bw0.second_id", "ORDER BY " + tc.bucket} {
+				if !strings.Contains(execution.SQL, expected) {
+					t.Errorf("缺少 %s: %s", expected, execution.SQL)
+				}
+			}
+			if execution.QueryHash != SpecHash(spec) || execution.ReportTimezone != "Asia/Shanghai" {
+				t.Fatalf("执行定义未保存查询身份和时区: %+v", execution)
+			}
+		})
+	}
+	ordered := spec
+	ordered.GroupingOptions = []bi.GroupingOption{spec.GroupingOptions[1], spec.GroupingOptions[0]}
+	if SpecHash(ordered) != SpecHash(spec) {
+		t.Fatal("分组选项顺序改变了查询身份")
+	}
+	ordered.GroupingOptions = append(ordered.GroupingOptions, ordered.GroupingOptions[0])
+	_, err := Compile("mysql", 1000, model, ordered)
+	if err == nil {
+		t.Fatal("同一维度的重复分组配置没有被拒绝")
 	}
 }

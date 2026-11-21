@@ -8236,5 +8236,65 @@
   },
   "bi.source.error.measure_formula_invalid": {
     "other": "公共指標公式無效: {{.Code}}"
+  },
+  "legacy.error.fa89a58d3cd15715": {
+    "other": "問題要求按月彙總，請選擇支援月度分組的日期維度"
+  },
+  "legacy.error.3009c145a621695f": {
+    "other": "問題要求按指定部門層級彙總，請檢查資料來源的部門層級設定"
+  },
+  "legacy.error.a5ef09c7b66bccc5": {
+    "other": "問題要求分組統計，但查詢計畫未選擇分組維度，請檢查資料來源模型是否包含所需維度"
+  },
+  "legacy.error.7f4b12277d2dd48d": {
+    "other": "BI 報表時區無效"
+  },
+  "legacy.error.4adc70812afce8e7": {
+    "other": "BI 時間範圍結束必須晚於開始"
+  },
+  "legacy.error.b7102f2d31164cf7": {
+    "other": "BI 時間範圍請使用日期或日期時間"
+  },
+  "legacy.error.0c0882be495d4b17": {
+    "other": "兩個分組維度需要分別對應到類別和數列"
+  },
+  "legacy.error.c00c1004e7a26cb2": {
+    "other": "目前的圖表無法同時顯示兩個分組維度"
+  },
+  "legacy.error.d4d23e18ff7251c8": {
+    "other": "請選擇有效的 IANA 報表時區"
+  },
+  "legacy.error.1bf8e446f95d37ec": {
+    "other": "層級維度需要左連接事實表、字串名稱和同類型的整數父子編號"
+  },
+  "legacy.error.4a9ac258a8756861": {
+    "other": "BI 層級根編號必須為非負整數"
+  },
+  "legacy.error.60215c156f4cfe89": {
+    "other": "目前的 BI 資料來源不支援層級維度"
+  },
+  "legacy.error.eff82b9b3780ff4b": {
+    "other": "目前的 BI 資料來源不支援排除時間範圍的結束值"
+  },
+  "legacy.error.7431c84e0b79cf41": {
+    "other": "BI 層級維度必須透過左連接直接關聯事實表"
+  },
+  "legacy.error.55a42d97f8b7de08": {
+    "other": "每個 BI 分組選項必須對應不同的已選維度"
+  },
+  "legacy.error.7b92befadedbaa20": {
+    "other": "內建工具執行器類型無效"
+  },
+  "legacy.error.a3e335bba7d61789": {
+    "other": "調整 BI 查詢失敗"
+  },
+  "bi_grouping_option.mode.exclusive": {
+    "other": "請選擇日期粒度或層級其中一項"
+  },
+  "refine_bi_query.query_record_id.positive": {
+    "other": "請選擇原始問數記錄"
+  },
+  "legacy.error.bf4cac520fb8e668": {
+    "other": "BI 資料庫不支援此報表時區"
   }
 }

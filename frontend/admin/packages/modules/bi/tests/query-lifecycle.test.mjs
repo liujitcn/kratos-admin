@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { runInNewContext } from "node:vm";
 import ts from "typescript";
 import * as vue from "vue";
+import * as querySummary from "../src/query-summary.ts";
 
 const require = createRequire(import.meta.url);
 const { parse, compileScript } = require("vue/compiler-sfc");
@@ -25,6 +26,7 @@ for (const action of ["ask", "selectRecord"]) {
       "@liujitcn/kratos-admin-system/components/AiModelSelector/modelSelection": {},
       "@liujitcn/kratos-admin-system/api/base/v1/ai_provider": {},
       "../../bi-response": {},
+      "../../query-summary": querySummary,
       "../../api/bi/admin/v1/bi_query": { defBiQueryService: { AskBiQuery: request } },
       "../../api/bi/admin/v1/bi_query_record": { defBiQueryRecordService: { GetBiQuery: request, PageBiQuery: async () => ({ queries: [] }) } }
     };

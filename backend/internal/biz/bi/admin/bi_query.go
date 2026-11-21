@@ -29,7 +29,6 @@ import (
 	"github.com/liujitcn/kratos-core/errorsx"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/database/gorm"
-	"google.golang.org/protobuf/proto"
 	gormio "gorm.io/gorm"
 )
 
@@ -42,7 +41,6 @@ const (
 	biHardMaxLimit   int32 = 1000
 	biQueryTimeout         = 15 * time.Second
 	biMaxResultBytes       = 48 * 1024
-	biTimeLayout           = "2006-01-02 15:04:05"
 	// biDuplicateQueryWindow 是判定重复问数的回看窗口：模型在审批恢复后常会重复发起同参查询。
 	biDuplicateQueryWindow = time.Minute
 )
@@ -140,13 +138,16 @@ func (c *BiQueryCase) AskBiQuery(ctx context.Context, req *adminv1.AskBiQueryReq
 	response, err = client.Generate(ctx, []*message.AgenticMessage{
 		message.SystemText(`你是 BI 语义查询引擎。只能根据给定数据源目录输出单个 JSON 对象，不得输出 SQL、表名、Markdown 或解释。
 目录缺少问题所需的指标或维度时，只输出 {"error":"明确说明缺少的指标或维度，并提示配置对应的数据源模型"}，不得输出空查询、猜测编码或用含义不同的指标替代。只能回答部分问题时也应说明限制，不得把部分结果当作完整答案。
-JSON 格式为 {"query":{"source_code":"数据源编码","dimensions":[],"measures":[{"code":"指标编码"}],"filters":[],"time_range":null,"orders":[],"limit":100},"chart_type":"bar","title":"统计标题"}。
+JSON 格式为 {"query":{"source_code":"数据源编码","dimensions":[],"measures":[{"code":"指标编码"}],"filters":[],"time_range":null,"orders":[],"limit":100,"grouping_options":[]},"chart_type":"bar","title":"统计标题"}。
 chart_type 只支持 bar、line、area、pie、donut、scatter、radar、gauge、funnel、treemap、sunburst、sankey、heatmap、metric、metric_grid。无分组的总数使用 metric；metric_grid 是不分组的多指标卡，每个单元可用一个当前数值列和一个比较数值列；桑基、热力和旭日需要两个分类维度；散点需要两个数值字段。
 所有编码必须使用目录中的 code；limit 必须为整数。每次最多 2 个分组维度、5 个指标、10 个过滤条件、2 个排序条件。
 过滤格式为 {"field":"维度编码","operator":"eq","values":["0"]}，操作符只支持 eq、in、between、contains；values 必须为字符串数组，数字条件也写成字符串。
 排序格式为 {"field":"已选字段编码","direction":"desc"}，direction 只支持 asc、desc。
+按日、周、月、季度、年统计，必须将目录中支持该粒度的日期维度放入 dimensions，并在 grouping_options 中加 {"field":"同一维度编码","time_grain":"month"}（其他粒度选 day、week、quarter、year）。请求按一级或二级部门时选择支持 hierarchyLevels 的部门维度，加 {"field":"同一维度编码","hierarchy_level":2}，按用户所问选择 1 或 2。两类分组可以组合。不得用原始时间或直属部门冒充。时间趋势默认按日期升序；组合统计默认按最大允许结果数请求，避免提前截断。
+有日期粒度的配置数据源按整日或自然周期筛选时，time_range 使用左闭右开区间，明确写 "end_exclusive":true；例如第一季度从 2026-01-01 到 2026-04-01。近30天这类滚动范围可使用 now-30d 至 now。使用当前时间和数据源报表时区解释相对日期。
+要求今年截至当前这样的滚动统计时，使用 "start":"start_of_year","end":"now","end_exclusive":true，卡片刷新时会按报表时区重新计算。用户指定具体年份或固定日期时使用实际日期。
 指标只能选择目录中的固定编码，不得输出 aggregation 或 SQL；统计总数时 dimensions 为空，选择目录中表示数量的固定指标。无过滤或排序需求时使用空数组；无时间范围需求时 time_range 为 null，否则使用 {"field":"时间维度编码","start":"开始时间","end":"结束时间"}。`),
-		message.UserText("可用数据源目录:" + string(dictionary) + "\n用户问题:" + question),
+		message.UserText("可用数据源目录:" + string(dictionary) + "\n当前时间:" + time.Now().Format(time.RFC3339) + "\n用户问题:" + question),
 	})
 	if err != nil {
 		return nil, errorsx.Internal("BI 问数生成失败").WithCause(err)
@@ -175,15 +176,19 @@ chart_type 只支持 bar、line、area、pie、donut、scatter、radar、gauge�
 	recordContext.ChartType = output.ChartType
 	var validated bi.QuerySpec
 	validated, _, err = c.validate(ctx, scope, fromProtoQuerySpec(&adminv1.BiQuerySpec{
-		SourceCode: output.Query.SourceCode,
-		Dimensions: output.Query.Dimensions,
-		Measures:   toProtoMeasures(output.Query.Measures),
-		Filters:    toProtoFilters(output.Query.Filters),
-		TimeRange:  toProtoAskTimeRange(output.Query.TimeRange),
-		Orders:     toProtoOrders(output.Query.Orders),
-		Limit:      output.Query.Limit,
+		SourceCode:      output.Query.SourceCode,
+		Dimensions:      output.Query.Dimensions,
+		GroupingOptions: toProtoGroupingOptions(output.Query.GroupingOptions),
+		Measures:        toProtoMeasures(output.Query.Measures),
+		Filters:         toProtoFilters(output.Query.Filters),
+		TimeRange:       toProtoAskTimeRange(output.Query.TimeRange),
+		Orders:          toProtoOrders(output.Query.Orders),
+		Limit:           output.Query.Limit,
 	}))
 	if err != nil {
+		return nil, err
+	}
+	if err = requireRequestedGrouping(question, validated); err != nil {
 		return nil, err
 	}
 	var reusable *models.BiQuery
@@ -312,19 +317,24 @@ func (c *BiQueryCase) execute(ctx context.Context, scope bi.Scope, spec bi.Query
 
 // cardSourceRecord 仅接受所属账号成功执行的智能问数记录，并核对完整查询定义。
 func (c *BiQueryCase) cardSourceRecord(ctx context.Context, scope bi.Scope, id int64, spec bi.QuerySpec) (*models.BiQuery, error) {
-	query := c.biQueryRepo.Query(ctx).BiQuery
-	record, err := c.biQueryRepo.Find(ctx, repository.Where(query.ID.Eq(id), query.TenantID.Eq(scope.TenantID), query.UserID.Eq(scope.UserID), query.ProjectID.Eq(scope.ProjectID), query.Status.Eq(int32(adminv1.BiQueryStatus_BI_QUERY_STATUS_SUCCESS)), query.Question.Neq(""), query.Kind.Eq(dto.QueryKindAsk)))
+	record, err := c.findOwnedAskRecord(ctx, scope, id)
 	if err != nil {
-		return nil, errorsx.InvalidArgument("请选择当前账号和项目下成功的智能问数记录")
+		return nil, err
 	}
-	var recorded bi.QuerySpec
-	if err = json.Unmarshal([]byte(record.QueryJSON), &recorded); err != nil {
-		return nil, errorsx.Internal("读取来源查询失败").WithCause(err)
-	}
-	if !proto.Equal(toProtoQuerySpec(spec), toProtoQuerySpec(recorded)) {
+	if !biQuerySpecMatches(record.QueryJSON, spec) {
 		return nil, errorsx.InvalidArgument("查询条件已变化，请重新问数后保存卡片")
 	}
 	return record, nil
+}
+
+// findOwnedAskRecord 只读取本人当前租户和项目下成功的问数及其派生记录。
+func (c *BiQueryCase) findOwnedAskRecord(ctx context.Context, scope bi.Scope, id int64) (*models.BiQuery, error) {
+	query := c.biQueryRepo.Query(ctx).BiQuery
+	record, err := c.biQueryRepo.Find(ctx, repository.Where(query.ID.Eq(id), query.TenantID.Eq(scope.TenantID), query.UserID.Eq(scope.UserID), query.ProjectID.Eq(scope.ProjectID), query.Status.Eq(int32(adminv1.BiQueryStatus_BI_QUERY_STATUS_SUCCESS)), query.Question.Neq(""), query.Kind.Eq(dto.QueryKindAsk)))
+	if errors.Is(err, gormio.ErrRecordNotFound) {
+		return nil, errorsx.InvalidArgument("请选择当前账号和项目下成功的智能问数记录")
+	}
+	return record, err
 }
 
 // recordQuery 保存完整类型化结果，成功记录返回可供卡片引用的编号。
@@ -373,9 +383,9 @@ func (c *BiQueryCase) recordQuery(ctx context.Context, scope bi.Scope, spec bi.Q
 				return 0
 			}
 			record.ContextJSON = string(encoded)
-		} else if recordContext.ChartType != "" {
+		} else if recordContext.ChartType != "" || recordContext.ParentRecordID != 0 {
 			var encoded []byte
-			encoded, err = json.Marshal(dto.BiQueryRecordMetadata{ChartType: recordContext.ChartType})
+			encoded, err = json.Marshal(dto.BiQueryRecordMetadata{ChartType: recordContext.ChartType, ParentRecordID: recordContext.ParentRecordID})
 			if err != nil {
 				log.Error("保存问数图表类型失败", "error", err)
 				return 0
@@ -477,13 +487,13 @@ func (c *BiQueryCase) validate(ctx context.Context, scope bi.Scope, spec bi.Quer
 func toSourceDescriptor(value bi.SourceDescriptor) *adminv1.BiSourceDescriptor {
 	dimensions := make([]*adminv1.BiFieldDescriptor, 0, len(value.Dimensions))
 	for _, item := range value.Dimensions {
-		dimensions = append(dimensions, &adminv1.BiFieldDescriptor{Code: item.Code, Name: item.Name, Type: string(item.Type), Filterable: item.Filterable})
+		dimensions = append(dimensions, &adminv1.BiFieldDescriptor{Code: item.Code, Name: item.Name, Type: string(item.Type), Filterable: item.Filterable, TimeGrains: item.TimeGrains, HierarchyLevels: item.HierarchyLevels})
 	}
 	measures := make([]*adminv1.BiMeasureDescriptor, 0, len(value.Measures))
 	for _, item := range value.Measures {
 		measures = append(measures, &adminv1.BiMeasureDescriptor{Code: item.Code, Name: item.Name, Type: string(item.Type), Unit: item.Unit, Revision: item.Revision})
 	}
-	return &adminv1.BiSourceDescriptor{Code: value.Code, Name: value.Name, Description: value.Description, Version: value.Version, Dimensions: dimensions, Measures: measures, MaxRows: value.MaxRows}
+	return &adminv1.BiSourceDescriptor{Code: value.Code, Name: value.Name, Description: value.Description, Version: value.Version, Dimensions: dimensions, Measures: measures, MaxRows: value.MaxRows, ReportTimezone: value.ReportTimezone}
 }
 
 // fromProtoQuerySpec 将接口请求中的查询规格转换为领域查询对象，供执行器校验和下推执行。
@@ -502,14 +512,14 @@ func fromProtoQuerySpec(value *adminv1.BiQuerySpec) bi.QuerySpec {
 	}
 	var timeRange *bi.TimeRangeSpec
 	if item := value.GetTimeRange(); item != nil {
-		timeRange = &bi.TimeRangeSpec{Field: item.GetField(), Start: item.GetStart(), End: item.GetEnd()}
+		timeRange = &bi.TimeRangeSpec{Field: item.GetField(), Start: item.GetStart(), End: item.GetEnd(), EndExclusive: item.GetEndExclusive()}
 	}
-	return bi.QuerySpec{SourceCode: value.GetSourceCode(), Dimensions: value.GetDimensions(), Measures: measures, Filters: filters, TimeRange: timeRange, Orders: orders, Limit: value.GetLimit()}
+	return bi.QuerySpec{SourceCode: value.GetSourceCode(), Dimensions: value.GetDimensions(), Measures: measures, Filters: filters, TimeRange: timeRange, Orders: orders, Limit: value.GetLimit(), GroupingOptions: fromProtoGroupingOptions(value.GetGroupingOptions())}
 }
 
 // toProtoQuerySpec 将领域查询对象转换回接口结构，用于查询记录详情回显原始查询条件。
 func toProtoQuerySpec(value bi.QuerySpec) *adminv1.BiQuerySpec {
-	return &adminv1.BiQuerySpec{SourceCode: value.SourceCode, Dimensions: value.Dimensions, Measures: toProtoMeasuresFromSpec(value.Measures), Filters: toProtoFiltersFromSpec(value.Filters), TimeRange: toProtoTimeRange(value.TimeRange), Orders: toProtoOrdersFromSpec(value.Orders), Limit: value.Limit}
+	return &adminv1.BiQuerySpec{SourceCode: value.SourceCode, Dimensions: value.Dimensions, Measures: toProtoMeasuresFromSpec(value.Measures), Filters: toProtoFiltersFromSpec(value.Filters), TimeRange: toProtoTimeRange(value.TimeRange), Orders: toProtoOrdersFromSpec(value.Orders), Limit: value.Limit, GroupingOptions: toProtoGroupingOptions(value.GroupingOptions)}
 }
 
 // toProtoMeasures 将 AI 问数解析出的度量列表转换为接口查询规格。
@@ -535,7 +545,7 @@ func toProtoAskTimeRange(value *dto.AskTimeRange) *adminv1.BiTimeRangeSpec {
 	if value == nil {
 		return nil
 	}
-	return &adminv1.BiTimeRangeSpec{Field: value.Field, Start: value.Start, End: value.End}
+	return &adminv1.BiTimeRangeSpec{Field: value.Field, Start: value.Start, End: value.End, EndExclusive: value.EndExclusive}
 }
 
 // toProtoOrders 将 AI 问数解析出的排序要求转换为接口查询规格。
@@ -570,7 +580,7 @@ func toProtoTimeRange(value *bi.TimeRangeSpec) *adminv1.BiTimeRangeSpec {
 	if value == nil {
 		return nil
 	}
-	return &adminv1.BiTimeRangeSpec{Field: value.Field, Start: value.Start, End: value.End}
+	return &adminv1.BiTimeRangeSpec{Field: value.Field, Start: value.Start, End: value.End, EndExclusive: value.EndExclusive}
 }
 
 // toProtoOrdersFromSpec 将领域排序规格转换为接口结构，用于查询记录回显。
@@ -696,9 +706,6 @@ func compareResultValues(left, right string) int {
 	return strings.Compare(left, right)
 }
 
-// resolveRelativeTime 将问数时间范围中的 now 相对表达式折叠为数据库可比较的绝对时间，
-// 支持 now、now-Nd/Nh/Nw/Nm；非相对表达式原样返回，形如 now-abc 的非法表达式显式报错，
-// 避免相对时间原样进入 SQL 比较后静默匹配不到任何数据。
 // biQuerySpecJSON 序列化查询计划，作为记录留痕与哈希计算的统一输入。
 func biQuerySpecJSON(spec bi.QuerySpec) string {
 	payload, err := json.Marshal(spec)
@@ -719,36 +726,37 @@ func biQueryHash(spec bi.QuerySpec) string {
 	return fmt.Sprintf("%x", digest[:])
 }
 
-// resolveRelativeTime 将问数时间范围中的 now 相对表达式折叠为数据库可比较的绝对时间，
-// 支持 now、now-Nd/Nh/Nw/Nm；非相对表达式原样返回，形如 now-abc 的非法表达式显式报错，
-// 避免相对时间原样进入 SQL 比较后静默匹配不到任何数据。
-func resolveRelativeTime(value string, now time.Time) (string, error) {
+// resolveRelativeTime 解析年初和 now 相对表达式，保留时刻对应的时区偏移。
+func resolveRelativeTime(value string, now time.Time) (time.Time, bool, error) {
 	text := strings.TrimSpace(value)
+	if strings.EqualFold(text, "start_of_year") {
+		return time.Date(now.Year(), time.January, 1, 0, 0, 0, 0, now.Location()), true, nil
+	}
 	if !strings.HasPrefix(strings.ToLower(text), "now") {
-		return text, nil
+		return time.Time{}, false, nil
 	}
 	offset := strings.ToLower(strings.TrimSpace(text[3:]))
 	if offset == "" {
-		return now.Format(biTimeLayout), nil
+		return now, true, nil
 	}
 	if len(offset) < 3 || offset[0] != '-' {
-		return "", errorsx.WithMessageKey(errorsx.InvalidArgument("BI 时间范围表达式无效: "+value), "bi.query.error.time_range_invalid", map[string]string{"Value": value})
+		return time.Time{}, false, errorsx.WithMessageKey(errorsx.InvalidArgument("BI 时间范围表达式无效: "+value), "bi.query.error.time_range_invalid", map[string]string{"Value": value})
 	}
 	amount, err := strconv.Atoi(offset[1 : len(offset)-1])
 	if err != nil {
-		return "", errorsx.WithMessageKey(errorsx.InvalidArgument("BI 时间范围表达式无效: "+value), "bi.query.error.time_range_invalid", map[string]string{"Value": value})
+		return time.Time{}, false, errorsx.WithMessageKey(errorsx.InvalidArgument("BI 时间范围表达式无效: "+value), "bi.query.error.time_range_invalid", map[string]string{"Value": value})
 	}
 	switch offset[len(offset)-1] {
 	case 'd':
-		return now.AddDate(0, 0, -amount).Format(biTimeLayout), nil
+		return now.AddDate(0, 0, -amount), true, nil
 	case 'w':
-		return now.AddDate(0, 0, -7*amount).Format(biTimeLayout), nil
+		return now.AddDate(0, 0, -7*amount), true, nil
 	case 'm':
-		return now.AddDate(0, -amount, 0).Format(biTimeLayout), nil
+		return now.AddDate(0, -amount, 0), true, nil
 	case 'h':
-		return now.Add(-time.Duration(amount) * time.Hour).Format(biTimeLayout), nil
+		return now.Add(-time.Duration(amount) * time.Hour), true, nil
 	default:
-		return "", errorsx.WithMessageKey(errorsx.InvalidArgument("BI 时间范围表达式无效: "+value), "bi.query.error.time_range_invalid", map[string]string{"Value": value})
+		return time.Time{}, false, errorsx.WithMessageKey(errorsx.InvalidArgument("BI 时间范围表达式无效: "+value), "bi.query.error.time_range_invalid", map[string]string{"Value": value})
 	}
 }
 

@@ -16,6 +16,8 @@ type ConfiguredSourceSchema struct {
 	Dimensions []ConfiguredSourceDimension `json:"dimensions"`
 	// Measures 是可供聚合的指标。
 	Measures []ConfiguredSourceMeasure `json:"measures"`
+	// ReportTimezone 用于解析源数据的业务日历。
+	ReportTimezone string `json:"reportTimezone,omitempty"`
 }
 
 // ConfiguredSourceTable 表示模型画布中的一张表。
@@ -64,6 +66,16 @@ type ConfiguredSourceDimension struct {
 	Table string `json:"table"`
 	// Column 是数据库物理列名。
 	Column string `json:"column"`
+	// DatabaseType 记录发现时的日期列类型，用于区分本地日历值和实际时刻。
+	DatabaseType string `json:"databaseType,omitempty"`
+	// Hierarchy 配置相邻父子节点，以维度表关系的唯一列为节点编号。
+	Hierarchy *ConfiguredSourceHierarchy `json:"hierarchy,omitempty"`
+}
+
+// ConfiguredSourceHierarchy 标识层级的父列和根编号，空编号表示 NULL 根。
+type ConfiguredSourceHierarchy struct {
+	ParentColumn string `json:"parentColumn"`
+	RootID       string `json:"rootId"`
 }
 
 // ConfiguredSourceMeasure 表示一个指标字段映射。
@@ -83,14 +95,23 @@ type ConfiguredSourceMeasure struct {
 }
 
 // Descriptor 将配置语义转换为统一 BI 数据源描述。
-func (s ConfiguredSourceSchema) Descriptor(code, name, description string, version, maxRows int32) bi.SourceDescriptor {
+func (s ConfiguredSourceSchema) Descriptor(code, name, description string, version, maxRows int32, driver string) bi.SourceDescriptor {
 	dimensions := make([]bi.FieldDescriptor, 0, len(s.Dimensions))
 	for _, item := range s.Dimensions {
-		dimensions = append(dimensions, bi.FieldDescriptor{Code: item.Code, Name: item.Name, Type: item.Type, Filterable: item.Filterable})
+		field := bi.FieldDescriptor{Code: item.Code, Name: item.Name, Type: item.Type, Filterable: item.Filterable}
+		if driver == "mysql" || driver == "postgres" || driver == "tidb" {
+			if item.Type == bi.FieldTypeDate && item.DatabaseType != "" {
+				field.TimeGrains = []string{"day", "week", "month", "quarter", "year"}
+			}
+			if item.Hierarchy != nil {
+				field.HierarchyLevels = []int32{1, 2}
+			}
+		}
+		dimensions = append(dimensions, field)
 	}
 	measures := make([]bi.MeasureDescriptor, 0, len(s.Measures))
 	for _, item := range s.Measures {
 		measures = append(measures, bi.MeasureDescriptor{Code: item.Code, Name: item.Name, Type: item.Type, Unit: item.Unit, Revision: item.Revision})
 	}
-	return bi.SourceDescriptor{Code: code, Name: name, Description: description, Version: version, Dimensions: dimensions, Measures: measures, MaxRows: maxRows}
+	return bi.SourceDescriptor{Code: code, Name: name, Description: description, Version: version, Dimensions: dimensions, Measures: measures, MaxRows: maxRows, ReportTimezone: s.ReportTimezone}
 }

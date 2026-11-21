@@ -63,6 +63,17 @@ func (c *BiSourceCase) prepareModel(ctx context.Context, req *adminv1.SaveBiSour
 	if err != nil {
 		return nil, dto.ConfiguredSourceSchema{}, err
 	}
+	if database.driver != "mysql" && database.driver != "postgres" && database.driver != "tidb" && slices.ContainsFunc(candidate.Dimensions, func(d dto.ConfiguredSourceDimension) bool { return d.Hierarchy != nil }) {
+		return nil, dto.ConfiguredSourceSchema{}, errorsx.InvalidArgument("当前 BI 数据源不支持层级维度")
+	}
+	if candidate.ReportTimezone != "" {
+		var restore func()
+		_, restore, err = database.reportConnection(ctx, candidate.ReportTimezone)
+		if err != nil {
+			return nil, dto.ConfiguredSourceSchema{}, errorsx.InvalidArgument("BI 数据库不支持此报表时区").WithCause(err)
+		}
+		restore()
+	}
 	var old dto.ConfiguredSourceSchema
 	if err = json.Unmarshal([]byte(item.SchemaJSON), &old); err != nil {
 		return nil, dto.ConfiguredSourceSchema{}, errorsx.Internal("读取数据源模型失败").WithCause(err)

@@ -6941,6 +6941,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/bi.admin.v1.BiQueryResult'
+    /api/v1/admin/bi/query/refine:
+        post:
+            tags:
+                - BiQueryService
+            description: Adjust grouping and the time range for one of your successful BI queries.
+            operationId: BiQueryService_RefineBiQuery
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.RefineBiQueryRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.AskBiQueryResponse'
     /api/v1/admin/bi/source:
         get:
             tags:
@@ -13510,6 +13529,17 @@ components:
                 filterable:
                     type: boolean
                     description: Whether filtering is allowed
+                time_grains:
+                    type: array
+                    items:
+                        type: string
+                    description: Supported date granularities
+                hierarchy_levels:
+                    type: array
+                    items:
+                        type: integer
+                        format: int32
+                    description: Supported hierarchy levels
             description: BI field description.
         bi.admin.v1.BiFilterSpec:
             type: object
@@ -13526,6 +13556,20 @@ components:
                         type: string
                     description: Filter values
             description: BI filter condition.
+        bi.admin.v1.BiGroupingOption:
+            type: object
+            properties:
+                field:
+                    type: string
+                    description: Grouping dimension code
+                time_grain:
+                    type: string
+                    description: "Date granularity: day, week, month, quarter or year"
+                hierarchy_level:
+                    type: integer
+                    description: "Grouping hierarchy level: 1 or 2"
+                    format: int32
+            description: How to transform a single BI grouping dimension.
         bi.admin.v1.BiMeasureDescriptor:
             type: object
             properties:
@@ -13716,7 +13760,7 @@ components:
                     type: array
                     items:
                         type: string
-                    description: Grouping dimension codes
+                    description: Grouping dimension code
                 measures:
                     type: array
                     items:
@@ -13738,6 +13782,11 @@ components:
                     items:
                         $ref: '#/components/schemas/bi.admin.v1.BiOrderSpec'
                     description: result sort rule
+                grouping_options:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiGroupingOption'
+                    description: Date granularity or hierarchy level for the selected dimensions
             description: BI semantic query plan.
         bi.admin.v1.BiResultColumn:
             type: object
@@ -13893,6 +13942,9 @@ components:
                     type: integer
                     description: maximum result line count
                     format: int32
+                report_timezone:
+                    type: string
+                    description: Report time zone
             description: BI data source description.
         bi.admin.v1.BiSourceDimension:
             type: object
@@ -13915,6 +13967,8 @@ components:
                 filterable:
                     type: boolean
                     description: Whether filtering is allowed
+                hierarchy:
+                    $ref: '#/components/schemas/bi.admin.v1.BiSourceHierarchy'
             description: Data source semantic dimension.
         bi.admin.v1.BiSourceForm:
             type: object
@@ -13967,6 +14021,16 @@ components:
                     description: "status: 1enabled, 2disabled"
                     format: int32
             description: BI data source configuration form.
+        bi.admin.v1.BiSourceHierarchy:
+            type: object
+            properties:
+                parent_column:
+                    type: string
+                    description: Parent node ID column
+                root_id:
+                    type: string
+                    description: Parent ID of top-level nodes. Leave blank if the parent ID is null
+            description: Data source parent-child hierarchy. Node IDs use the unique target column of the dimension table relationship.
         bi.admin.v1.BiSourceMeasure:
             type: object
             properties:
@@ -14015,6 +14079,9 @@ components:
                     items:
                         $ref: '#/components/schemas/bi.admin.v1.BiSourceMeasure'
                     description: Semantic measures
+                report_timezone:
+                    type: string
+                    description: Report time zone specified by its IANA name
             description: Tables, relationships and business semantics available in the source.
         bi.admin.v1.BiSourceModelTable:
             type: object
@@ -14120,6 +14187,9 @@ components:
                 end:
                     type: string
                     description: Range end
+                end_exclusive:
+                    type: boolean
+                    description: Whether to exclude the end of the time range
             description: BI time scope.
         bi.admin.v1.BiWorkbench:
             type: object
@@ -14321,6 +14391,25 @@ components:
                     type: string
                     description: draft version
             description: Publish BI dashboard request.
+        bi.admin.v1.RefineBiQueryRequest:
+            type: object
+            properties:
+                query_record_id:
+                    type: string
+                    description: Original BI query record ID
+                dimensions:
+                    type: array
+                    items:
+                        type: string
+                    description: Updated grouping dimensions
+                grouping_options:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiGroupingOption'
+                    description: Updated date granularity or hierarchy level
+                time_range:
+                    $ref: '#/components/schemas/bi.admin.v1.BiTimeRangeSpec'
+            description: Refine the BI query while retaining its data source, metrics and business filters.
         bi.admin.v1.SaveBiCardRequest:
             type: object
             properties:

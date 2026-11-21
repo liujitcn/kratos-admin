@@ -505,6 +505,8 @@ func (x *BiSourceModel) Redact() {
 	// Safe field: Dimensions
 
 	// Safe field: Measures
+
+	// Safe field: ReportTimezone
 }
 
 // Ensure BiSourceModelTable implements the Redactor interface at compile time.
@@ -565,6 +567,22 @@ func (x *BiSourceDimension) Redact() {
 	// Safe field: Column
 
 	// Safe field: Filterable
+
+	// Safe field: Hierarchy
+}
+
+// Ensure BiSourceHierarchy implements the Redactor interface at compile time.
+var _ redact.Redactor = (*BiSourceHierarchy)(nil)
+
+// Redact method implementation for BiSourceHierarchy
+func (x *BiSourceHierarchy) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: ParentColumn
+
+	// Safe field: RootId
 }
 
 // Ensure BiSourceMeasure implements the Redactor interface at compile time.

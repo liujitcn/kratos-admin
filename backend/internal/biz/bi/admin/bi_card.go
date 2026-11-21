@@ -700,9 +700,34 @@ func validateCardChart(chartType, raw string, spec bi.QuerySpec, result bi.Query
 	}
 	if config.Encoding.Dimension == "" && len(spec.Dimensions) > 0 {
 		config.Encoding.Dimension = spec.Dimensions[0]
+		if slices.Contains([]string{"bar", "line", "area"}, chartType) {
+			for _, option := range spec.GroupingOptions {
+				if option.TimeGrain != "" {
+					config.Encoding.Dimension = option.Field
+					break
+				}
+			}
+		}
 	}
 	if config.Encoding.Series == "" && len(spec.Dimensions) > 1 && chartType != "scatter" {
-		config.Encoding.Series = spec.Dimensions[1]
+		for _, dimension := range spec.Dimensions {
+			if dimension != config.Encoding.Dimension {
+				config.Encoding.Series = dimension
+				break
+			}
+		}
+	}
+	if len(spec.Dimensions) == 2 {
+		switch chartType {
+		case "bar", "line", "area", "radar", "sankey", "heatmap", "sunburst":
+			if config.Encoding.Dimension == config.Encoding.Series {
+				return "", errorsx.InvalidArgument("两个分组维度需要分别映射到类别和系列")
+			}
+		default:
+			if len(spec.GroupingOptions) != 0 {
+				return "", errorsx.InvalidArgument("当前图表无法同时显示两个分组维度")
+			}
+		}
 	}
 	fields := make(map[string]bi.FieldType, len(result.Columns))
 	columns := make(map[string]bi.ResultColumn, len(result.Columns))

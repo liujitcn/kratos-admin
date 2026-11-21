@@ -23,6 +23,7 @@ const (
 	BiQueryService_ListBiSources_FullMethodName  = "/bi.admin.v1.BiQueryService/ListBiSources"
 	BiQueryService_PreviewBiQuery_FullMethodName = "/bi.admin.v1.BiQueryService/PreviewBiQuery"
 	BiQueryService_AskBiQuery_FullMethodName     = "/bi.admin.v1.BiQueryService/AskBiQuery"
+	BiQueryService_RefineBiQuery_FullMethodName  = "/bi.admin.v1.BiQueryService/RefineBiQuery"
 )
 
 // BiQueryServiceClient is the client API for BiQueryService service.
@@ -37,6 +38,8 @@ type BiQueryServiceClient interface {
 	PreviewBiQuery(ctx context.Context, in *PreviewBiQueryRequest, opts ...grpc.CallOption) (*BiQueryResult, error)
 	// 自然语言生成语义查询并返回预览结果。
 	AskBiQuery(ctx context.Context, in *AskBiQueryRequest, opts ...grpc.CallOption) (*AskBiQueryResponse, error)
+	// 基于本人成功的问数记录调整分组和时间范围。
+	RefineBiQuery(ctx context.Context, in *RefineBiQueryRequest, opts ...grpc.CallOption) (*AskBiQueryResponse, error)
 }
 
 type biQueryServiceClient struct {
@@ -77,6 +80,16 @@ func (c *biQueryServiceClient) AskBiQuery(ctx context.Context, in *AskBiQueryReq
 	return out, nil
 }
 
+func (c *biQueryServiceClient) RefineBiQuery(ctx context.Context, in *RefineBiQueryRequest, opts ...grpc.CallOption) (*AskBiQueryResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AskBiQueryResponse)
+	err := c.cc.Invoke(ctx, BiQueryService_RefineBiQuery_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BiQueryServiceServer is the server API for BiQueryService service.
 // All implementations must embed UnimplementedBiQueryServiceServer
 // for forward compatibility.
@@ -89,6 +102,8 @@ type BiQueryServiceServer interface {
 	PreviewBiQuery(context.Context, *PreviewBiQueryRequest) (*BiQueryResult, error)
 	// 自然语言生成语义查询并返回预览结果。
 	AskBiQuery(context.Context, *AskBiQueryRequest) (*AskBiQueryResponse, error)
+	// 基于本人成功的问数记录调整分组和时间范围。
+	RefineBiQuery(context.Context, *RefineBiQueryRequest) (*AskBiQueryResponse, error)
 	mustEmbedUnimplementedBiQueryServiceServer()
 }
 
@@ -107,6 +122,9 @@ func (UnimplementedBiQueryServiceServer) PreviewBiQuery(context.Context, *Previe
 }
 func (UnimplementedBiQueryServiceServer) AskBiQuery(context.Context, *AskBiQueryRequest) (*AskBiQueryResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method AskBiQuery not implemented")
+}
+func (UnimplementedBiQueryServiceServer) RefineBiQuery(context.Context, *RefineBiQueryRequest) (*AskBiQueryResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RefineBiQuery not implemented")
 }
 func (UnimplementedBiQueryServiceServer) mustEmbedUnimplementedBiQueryServiceServer() {}
 func (UnimplementedBiQueryServiceServer) testEmbeddedByValue()                        {}
@@ -183,6 +201,24 @@ func _BiQueryService_AskBiQuery_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BiQueryService_RefineBiQuery_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RefineBiQueryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BiQueryServiceServer).RefineBiQuery(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BiQueryService_RefineBiQuery_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BiQueryServiceServer).RefineBiQuery(ctx, req.(*RefineBiQueryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BiQueryService_ServiceDesc is the grpc.ServiceDesc for BiQueryService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -201,6 +237,10 @@ var BiQueryService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AskBiQuery",
 			Handler:    _BiQueryService_AskBiQuery_Handler,
+		},
+		{
+			MethodName: "RefineBiQuery",
+			Handler:    _BiQueryService_RefineBiQuery_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

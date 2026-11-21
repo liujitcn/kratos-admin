@@ -199,6 +199,8 @@ export interface BiSourceModel {
   dimensions: BiSourceDimension[];
   /** 语义指标 */
   measures: BiSourceMeasure[];
+  /** 报表时区 */
+  report_timezone: string;
 }
 
 /** 语义模型中的表节点。 */
@@ -241,6 +243,16 @@ export interface BiSourceDimension {
   column: string;
   /** 是否允许过滤 */
   filterable: boolean;
+  /** 可选的父子层级配置 */
+  hierarchy: BiSourceHierarchy | undefined;
+}
+
+/** 数据源父子层级，节点编号取维度表关系的唯一目标字段。 */
+export interface BiSourceHierarchy {
+  /** 父节点编号字段 */
+  parent_column: string;
+  /** 顶层节点的父编号，留空表示父编号为空 */
+  root_id: string;
 }
 
 /** 数据源语义指标。 */

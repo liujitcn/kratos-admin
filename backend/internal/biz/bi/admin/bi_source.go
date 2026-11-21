@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"slices"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -56,8 +57,8 @@ func NewBiSourceCase(baseCase *biz.BaseCase, tx data.Transaction, sourceRepo *da
 // List 返回当前访问范围内的静态和可配置数据源目录。
 func (c *BiSourceCase) List(ctx context.Context, scope bi.Scope) ([]bi.SourceDescriptor, error) {
 	result, err := c.registry.List(ctx, scope)
-	if err != nil {
-		return nil, err
+	if err != nil || scope.ProjectID != 0 {
+		return result, err
 	}
 	query := c.sourceRepo.Query(ctx).BiSource
 	var items []*models.BiSource
@@ -75,7 +76,12 @@ func (c *BiSourceCase) List(ctx context.Context, scope bi.Scope) ([]bi.SourceDes
 		if err != nil {
 			return nil, fmt.Errorf("解析 BI 数据源 %s 语义配置失败: %w", item.Code, err)
 		}
-		result = append(result, schema.Descriptor(item.Code, item.Name, item.Description, item.Version, item.MaxRows))
+		var driver string
+		driver, err = c.driverForSource(item)
+		if err != nil {
+			continue
+		}
+		result = append(result, schema.Descriptor(item.Code, item.Name, item.Description, item.Version, item.MaxRows, driver))
 	}
 	sort.Slice(result, func(i, j int) bool { return result[i].Code < result[j].Code })
 	return result, nil
@@ -593,7 +599,12 @@ func configuredSourceModel(input *adminv1.BiSourceModel, discovered []*adminv1.B
 	for _, table := range discovered {
 		discoveredByKey[table.GetKey()] = table
 	}
-	model := dto.ConfiguredSourceSchema{BaseTable: input.GetBaseTable()}
+	model := dto.ConfiguredSourceSchema{BaseTable: input.GetBaseTable(), ReportTimezone: input.GetReportTimezone()}
+	if model.ReportTimezone != "" {
+		if _, err := time.LoadLocation(model.ReportTimezone); err != nil || model.ReportTimezone == "Local" {
+			return dto.ConfiguredSourceSchema{}, errorsx.InvalidArgument("请选择有效的 IANA 报表时区")
+		}
+	}
 	selected := make(map[string]*adminv1.BiSourceSchemaTable, len(input.GetTables()))
 	columns := make(map[string]map[string]*adminv1.BiSourceSchemaColumn, len(input.GetTables()))
 	for _, table := range input.GetTables() {
@@ -670,14 +681,47 @@ func configuredSourceModel(input *adminv1.BiSourceModel, discovered []*adminv1.B
 	for _, dimension := range input.GetDimensions() {
 		field := columns[dimension.GetTable()][dimension.GetColumn()]
 		fieldType := bi.FieldType(strings.ToLower(dimension.GetType()))
-		if selected[dimension.GetTable()] == nil || field == nil || validateSourceField(dimension.GetCode(), dimension.GetName(), dimension.GetColumn(), fieldType) != nil || sourceFieldType(field.GetDataType()) != fieldType {
+		databaseType := strings.ToLower(field.GetDataType())
+		// 重新保存旧模型时，将曾归为日期的纯时刻字段修正为文本维度。
+		if fieldType == bi.FieldTypeDate && isSourceClockType(databaseType) {
+			fieldType = bi.FieldTypeString
+		}
+		if selected[dimension.GetTable()] == nil || field == nil || validateSourceField(dimension.GetCode(), dimension.GetName(), dimension.GetColumn(), fieldType) != nil || sourceFieldType(databaseType) != fieldType {
 			return dto.ConfiguredSourceSchema{}, errorsx.InvalidArgument("语义维度必须映射到已选表中的同类型字段")
 		}
 		if _, exists := fieldCodes[dimension.GetCode()]; exists {
 			return dto.ConfiguredSourceSchema{}, errorsx.InvalidArgument("语义字段编码不能重复")
 		}
 		fieldCodes[dimension.GetCode()] = struct{}{}
-		model.Dimensions = append(model.Dimensions, dto.ConfiguredSourceDimension{Code: dimension.GetCode(), Name: dimension.GetName(), Type: fieldType, Filterable: dimension.GetFilterable(), Table: dimension.GetTable(), Column: dimension.GetColumn()})
+		mapped := dto.ConfiguredSourceDimension{Code: dimension.GetCode(), Name: dimension.GetName(), Type: fieldType, Filterable: dimension.GetFilterable(), Table: dimension.GetTable(), Column: dimension.GetColumn()}
+		if fieldType == bi.FieldTypeDate {
+			mapped.DatabaseType = databaseType
+		}
+		if hierarchy := dimension.GetHierarchy(); hierarchy != nil {
+			var relation dto.ConfiguredSourceRelation
+			for _, item := range model.Relations {
+				if item.RightTable == mapped.Table {
+					relation = item
+					break
+				}
+			}
+			parent := columns[mapped.Table][hierarchy.GetParentColumn()]
+			id := columns[mapped.Table][relation.RightColumn]
+			if fieldType != bi.FieldTypeString || relation.LeftTable != model.BaseTable || relation.JoinType != "left" || parent == nil || id == nil ||
+				parent.GetName() == id.GetName() || !strings.Contains(strings.ToLower(id.GetDataType()), "int") || !strings.EqualFold(parent.GetDataType(), id.GetDataType()) {
+				return dto.ConfiguredSourceSchema{}, errorsx.InvalidArgument("层级维度需要左连接事实表、字符串名称和相同类型的整数父子编号")
+			}
+			root := hierarchy.GetRootId()
+			if root != "" {
+				id, err := strconv.ParseInt(root, 10, 64)
+				if err != nil || id < 0 {
+					return dto.ConfiguredSourceSchema{}, errorsx.InvalidArgument("BI 层级根编号必须为非负整数")
+				}
+				root = strconv.FormatInt(id, 10)
+			}
+			mapped.Hierarchy = &dto.ConfiguredSourceHierarchy{ParentColumn: parent.GetName(), RootID: root}
+		}
+		model.Dimensions = append(model.Dimensions, mapped)
 	}
 	if len(input.GetMeasures()) == 0 {
 		return dto.ConfiguredSourceSchema{}, errorsx.InvalidArgument("至少配置一个语义指标")
@@ -759,6 +803,8 @@ func sourceFieldType(value string) bi.FieldType {
 	switch {
 	case strings.Contains(value, "int"), strings.Contains(value, "decimal"), strings.Contains(value, "numeric"), strings.Contains(value, "real"), strings.Contains(value, "double"), strings.Contains(value, "float"):
 		return bi.FieldTypeNumber
+	case isSourceClockType(value):
+		return bi.FieldTypeString
 	case strings.Contains(value, "date"), strings.Contains(value, "time"):
 		return bi.FieldTypeDate
 	default:
@@ -766,8 +812,16 @@ func sourceFieldType(value string) bi.FieldType {
 	}
 }
 
+// isSourceClockType 识别发现与结果元数据中的纯时刻类型。
+func isSourceClockType(value string) bool {
+	return value == "time" || value == "timetz" || strings.HasPrefix(value, "time ")
+}
+
 // compatibleSourceTypes 判断关联字段是否属于相同的数据库类型类别。
 func compatibleSourceTypes(left, right string) bool {
+	if isSourceClockType(strings.ToLower(left)) != isSourceClockType(strings.ToLower(right)) {
+		return false
+	}
 	return sourceFieldType(left) == sourceFieldType(right)
 }
 

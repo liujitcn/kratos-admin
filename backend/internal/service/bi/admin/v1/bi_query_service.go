@@ -50,3 +50,13 @@ func (s *BiQueryService) AskBiQuery(ctx context.Context, req *adminv1.AskBiQuery
 	}
 	return result, nil
 }
+
+// RefineBiQuery 调整已执行的问数结果并返回新的来源记录。
+func (s *BiQueryService) RefineBiQuery(ctx context.Context, req *adminv1.RefineBiQueryRequest) (*adminv1.AskBiQueryResponse, error) {
+	result, err := s.biQueryCase.RefineBiQuery(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("RefineBiQuery %v", err))
+		return nil, errorsx.WrapInternal(err, "调整 BI 查询失败")
+	}
+	return result, nil
+}

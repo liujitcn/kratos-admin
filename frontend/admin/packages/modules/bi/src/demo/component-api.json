@@ -433,6 +433,48 @@
     ],
     "methods": []
   },
+  "BiQueryRefinement.vue": {
+    "props": [
+      {
+        "name": "source",
+        "description": "",
+        "type": "BiSourceDescriptor",
+        "required": true
+      },
+      {
+        "name": "query",
+        "description": "",
+        "type": "BiQuerySpec",
+        "required": true
+      },
+      {
+        "name": "recordId",
+        "description": "",
+        "type": "number",
+        "required": true
+      },
+      {
+        "name": "disabled",
+        "description": "",
+        "type": "boolean",
+        "required": false
+      }
+    ],
+    "events": [
+      {
+        "name": "applied",
+        "description": "",
+        "type": "(result: AskBiQueryResponse) => void"
+      },
+      {
+        "name": "busy",
+        "description": "",
+        "type": "(busy: boolean) => void"
+      }
+    ],
+    "slots": [],
+    "methods": []
+  },
   "BiSourceModelDialog.vue": {
     "props": [
       {

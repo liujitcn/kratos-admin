@@ -14,7 +14,8 @@ export const demoQuery: BiQuerySpec = {
   filters: [],
   limit: 100,
   time_range: undefined,
-  orders: []
+  orders: [],
+  grouping_options: []
 };
 
 /** 查询结果的值与 columns 顺序一一对应，数值遵循 RPC 的字符串格式。 */

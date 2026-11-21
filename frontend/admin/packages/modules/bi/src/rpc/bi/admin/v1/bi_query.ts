@@ -32,6 +32,8 @@ export interface BiSourceDescriptor {
   measures: BiMeasureDescriptor[];
   /** 最大结果行数 */
   max_rows: number;
+  /** 报表时区 */
+  report_timezone: string;
 }
 
 /** BI 字段描述。 */
@@ -44,6 +46,10 @@ export interface BiFieldDescriptor {
   type: string;
   /** 是否允许过滤 */
   filterable: boolean;
+  /** 支持的日期粒度 */
+  time_grains: string[];
+  /** 支持的层级 */
+  hierarchy_levels: number[];
 }
 
 /** BI 指标描述。 */
@@ -84,6 +90,30 @@ export interface BiQuerySpec {
     | undefined;
   /** 结果排序规则 */
   orders: BiOrderSpec[];
+  /** 已选维度的日期粒度或层级 */
+  grouping_options: BiGroupingOption[];
+}
+
+/** BI 单个分组维度的转换方式。 */
+export interface BiGroupingOption {
+  /** 分组维度编码 */
+  field: string;
+  /** 日期粒度 */
+  time_grain: string;
+  /** 分组层级 */
+  hierarchy_level: number;
+}
+
+/** 调整本人问数结果，保留原数据源、指标和业务过滤。 */
+export interface RefineBiQueryRequest {
+  /** 原问数记录编号 */
+  query_record_id: number;
+  /** 调整后的分组维度 */
+  dimensions: string[];
+  /** 调整后的日期粒度或层级 */
+  grouping_options: BiGroupingOption[];
+  /** 调整后的时间范围 */
+  time_range: BiTimeRangeSpec | undefined;
 }
 
 /** BI 时间范围。 */
@@ -94,6 +124,8 @@ export interface BiTimeRangeSpec {
   start: string;
   /** 范围终点 */
   end: string;
+  /** 是否排除终点 */
+  end_exclusive: boolean;
 }
 
 /** BI 结果排序规则。 */
@@ -192,4 +224,6 @@ export interface BiQueryService {
   PreviewBiQuery(request: PreviewBiQueryRequest): Promise<BiQueryResult>;
   /** 自然语言生成语义查询并返回预览结果。 */
   AskBiQuery(request: AskBiQueryRequest): Promise<AskBiQueryResponse>;
+  /** 基于本人成功的问数记录调整分组和时间范围。 */
+  RefineBiQuery(request: RefineBiQueryRequest): Promise<AskBiQueryResponse>;
 }

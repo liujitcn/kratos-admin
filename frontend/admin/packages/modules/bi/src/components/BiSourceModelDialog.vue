@@ -168,7 +168,11 @@
               </header>
               <p v-if="!model.dimensions.length" class="source-model__list-empty">{{ t('bi.source.model.dimensions_empty') }}</p>
               <div v-else class="source-model__field-rows">
-                <div v-for="(row, index) in model.dimensions" :key="row.code" class="source-model__field-row">
+                <el-form-item :label="t('bi.refine.timezone')">
+                  <el-input v-model="model.report_timezone" clearable maxlength="64" placeholder="Asia/Shanghai" :aria-label="t('bi.refine.timezone')" />
+                </el-form-item>
+                <div v-for="(row, index) in model.dimensions" :key="row.code" class="source-model__dimension">
+                <div class="source-model__field-row">
                   <span class="source-model__column-type" :data-type="row.type">{{ typeLabel(row.type) }}</span>
                   <el-input v-model="row.name" size="small" :placeholder="t('bi.source.model.field.display_name')" class="source-model__name-input" />
                   <span class="source-model__field-ref" :title="fieldRef(row.table, row.column)">{{ fieldRef(row.table, row.column) }}</span>
@@ -180,6 +184,17 @@
                     </el-tooltip>
                   </div>
                   <el-button text type="danger" size="small" :icon="Delete" :aria-label="t('bi.source.model.action.remove_field')" @click="model.dimensions.splice(index, 1)" />
+                </div>
+                  <el-form v-if="row.hierarchy || hierarchyParentFields(row).length" inline label-position="top" size="small" class="source-model__hierarchy">
+                    <el-form-item :label="t('bi.refine.parent_column')">
+                      <el-select :model-value="row.hierarchy?.parent_column" clearable :placeholder="t('bi.refine.no_hierarchy')" :aria-label="t('bi.refine.parent_column')" @change="setHierarchyParent(row, String($event ?? ''))">
+                        <el-option v-for="column in hierarchyParentFields(row)" :key="column.name" :label="schemaLabel(column)" :value="column.name" />
+                      </el-select>
+                    </el-form-item>
+                    <el-form-item v-if="row.hierarchy" :label="t('bi.refine.root_id')">
+                      <el-input v-model="row.hierarchy.root_id" maxlength="20" placeholder="NULL" :aria-label="t('bi.refine.root_id')" />
+                    </el-form-item>
+                  </el-form>
                 </div>
               </div>
             </div>
@@ -308,12 +323,14 @@ import "@vue-flow/minimap/dist/style.css";
 interface StoredSourceModel {
   /** 事实表标识。 */
   baseTable?: string;
+  /** 报表时区。 */
+  reportTimezone?: string;
   /** 已选数据表。 */
   tables?: Array<BiSourceModelTable & {tenantColumn?: string}>;
   /** 表关系。 */
   relations?: Array<BiSourceRelation & {leftTable?: string; leftColumn?: string; rightTable?: string; rightColumn?: string; joinType?: string}>;
   /** 语义维度。 */
-  dimensions?: Array<BiSourceDimension & {filterable?: boolean}>;
+  dimensions?: Array<Omit<BiSourceDimension, "hierarchy"> & { hierarchy?: { parentColumn: string; rootId: string } }>;
   /** 语义指标。 */
   measures?: BiSourceMeasure[];
 }
@@ -476,6 +493,7 @@ function readStoredModel(value: string): BiSourceModel {
     const stored = JSON.parse(value) as StoredSourceModel;
     return {
       base_table: stored.baseTable ?? "",
+      report_timezone: stored.reportTimezone ?? "",
       tables: (stored.tables ?? []).map(table => ({key: table.key, tenant_column: table.tenantColumn ?? table.tenant_column ?? "", x: table.x ?? 0, y: table.y ?? 0})),
       relations: (stored.relations ?? []).map(relation => ({
         left_table: relation.leftTable ?? relation.left_table ?? "",
@@ -484,7 +502,10 @@ function readStoredModel(value: string): BiSourceModel {
         right_column: relation.rightColumn ?? relation.right_column ?? "",
         join_type: relation.joinType ?? relation.join_type ?? "left"
       })),
-      dimensions: (stored.dimensions ?? []).map(dimension => ({...dimension, filterable: dimension.filterable ?? false})),
+      dimensions: (stored.dimensions ?? []).map(({ hierarchy, ...dimension }) => ({
+        ...dimension, filterable: dimension.filterable ?? false,
+        hierarchy: hierarchy ? { parent_column: hierarchy.parentColumn, root_id: hierarchy.rootId ?? "" } : undefined
+      })),
       measures: (stored.measures ?? []).map(measure => ({...measure, unit: measure.unit ?? "", revision: measure.revision ?? 0}))
     };
   } catch {
@@ -492,9 +513,26 @@ function readStoredModel(value: string): BiSourceModel {
   }
 }
 
+/** 候选父编号与左连接目标使用同一种整数类型。 */
+function hierarchyParentFields(dimension: BiSourceDimension): BiSourceSchemaColumn[] {
+  if (dimension.type !== "string" || props.source?.driver === "doris") return [];
+  const relation = model.value.relations.find(item =>
+    item.right_table === dimension.table && item.left_table === model.value.base_table && item.join_type === "left"
+  );
+  const table = tableFor(dimension.table);
+  const id = table?.columns.find(column => column.name === relation?.right_column);
+  if (!id || !id.data_type.toLowerCase().includes("int")) return [];
+  return (table?.columns ?? []).filter(column => column.name !== id.name && column.data_type === id.data_type);
+}
+
+/** 清除父列关闭层级。常见的 parent_id 使用 0 作为顶层父编号。 */
+function setHierarchyParent(dimension: BiSourceDimension, parent: string) {
+  dimension.hierarchy = parent ? { parent_column: parent, root_id: dimension.hierarchy?.root_id ?? (parent === "parent_id" ? "0" : "") } : undefined;
+}
+
 /** 创建空语义模型。 */
 function emptyModel(): BiSourceModel {
-  return {base_table: "", tables: [], relations: [], dimensions: [], measures: []};
+  return {base_table: "", tables: [], relations: [], dimensions: [], measures: [], report_timezone: ""};
 }
 
 /** 判断表是否已加入模型。 */
@@ -611,6 +649,7 @@ function uniqueColumns(key: string): BiSourceSchemaColumn[] {
 function fieldType(table: string, column: string): string {
   const value = tableFor(table)?.columns.find(item => item.name === column)?.data_type.toLowerCase() ?? "";
   if (/int|decimal|numeric|real|double|float/.test(value)) return "number";
+  if (/^time(?:tz)?(?: |$)/.test(value)) return "string";
   if (/date|time/.test(value)) return "date";
   return "string";
 }
@@ -667,7 +706,7 @@ function fieldRef(tableKey: string, column: string): string {
 function addDimensionFrom(table: BiSourceSchemaTable, column: BiSourceSchemaColumn) {
   if (isDimensionAdded(table.key, column.name)) return;
   const code = semanticCode(table.name, column.name, model.value.dimensions.length);
-  model.value.dimensions.push({code, name: column.comment || column.name, type: fieldType(table.key, column.name), table: table.key, column: column.name, filterable: true});
+  model.value.dimensions.push({code, name: column.comment || column.name, type: fieldType(table.key, column.name), table: table.key, column: column.name, filterable: true, hierarchy: undefined});
 }
 
 /** 从字段浏览器把事实表数值字段添加为指标。 */
@@ -851,7 +890,8 @@ async function previewModel() {
       filters: [],
       limit: 10,
       time_range: undefined,
-      orders: []
+      orders: [],
+      grouping_options: []
     }});
     if (request !== modelRequest || !isCurrentSession(currentSession, sourceID)) return;
     previewResult.value = result;
@@ -1227,6 +1267,8 @@ function isCurrentSession(currentSession: number, sourceID: number): boolean {
   font-weight: 600;
 }
 
+.source-model__hierarchy { padding: 0 8px; }
+.source-model__hierarchy :deep(.el-select) { min-width: 150px; }
 .source-model__field-rows {
   border: 1px solid var(--el-border-color-lighter);
   border-radius: 0 0 var(--admin-page-radius, 6px) var(--admin-page-radius, 6px);

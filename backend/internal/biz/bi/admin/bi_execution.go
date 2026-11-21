@@ -3,6 +3,7 @@ package admin
 import (
 	"context"
 	"encoding/json"
+	"strings"
 	"time"
 
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/bi/admin/dto"
@@ -139,7 +140,7 @@ func (c *BiSourceCase) executeDefinition(ctx context.Context, scope bi.Scope, sp
 		executionSpec.Limit = execution.Limit
 		if executionSpec.TimeRange != nil {
 			var start, end string
-			start, end, err = executionTimeRange(executionSpec, 0, now)
+			start, end, err = executionTimeRange(executionSpec, 0, now, false)
 			if err != nil {
 				return bi.QueryResult{}, err
 			}
@@ -201,7 +202,17 @@ func decodeExecution(value string) (*dto.CardExecution, error) {
 
 // bindExecutionParameters 只从受信身份、保存的过滤配置和当前时间取得参数。
 func bindExecutionParameters(execution *dto.CardExecution, spec bi.QuerySpec, scope bi.Scope, days int32, now time.Time) ([]any, error) {
-	start, end, err := executionTimeRange(spec, days, now)
+	var err error
+	if execution.ReportTimezone != "" {
+		var location *time.Location
+		location, err = time.LoadLocation(execution.ReportTimezone)
+		if err != nil {
+			return nil, errorsx.Conflict("BI 报表时区无效").WithCause(err)
+		}
+		now = now.In(location)
+	}
+	var start, end string
+	start, end, err = executionTimeRange(spec, days, now, execution.TimeRangeInstant)
 	if err != nil {
 		return nil, err
 	}
@@ -216,6 +227,8 @@ func bindExecutionParameters(execution *dto.CardExecution, spec bi.QuerySpec, sc
 				return nil, errorsx.Internal("执行身份参数无效")
 			}
 			args = append(args, scope.TenantID)
+		case "hierarchy_root":
+			args = append(args, parameter.RootID)
 		case "filter":
 			if parameter.FilterIndex < 0 || parameter.FilterIndex >= len(spec.Filters) || parameter.ValueIndex < 0 || parameter.ValueIndex >= len(spec.Filters[parameter.FilterIndex].Values) {
 				return nil, errorsx.Internal("执行过滤参数无效")
@@ -234,10 +247,14 @@ func bindExecutionParameters(execution *dto.CardExecution, spec bi.QuerySpec, sc
 		case "time_start", "time_end":
 			var value any
 			if start != "" && end != "" {
-				value = start
+				bound := start
 				if parameter.Kind == "time_end" {
-					value = end
+					bound = end
 				}
+				if execution.TimeRangeInstant && execution.Driver == "postgres" {
+					bound += "+00:00"
+				}
+				value = bound
 			}
 			args = append(args, value)
 		case "time_override":
@@ -253,23 +270,80 @@ func bindExecutionParameters(execution *dto.CardExecution, spec bi.QuerySpec, sc
 	return args, nil
 }
 
-// executionTimeRange 在执行时计算卡片原始时间配置或受控周期覆盖。
-func executionTimeRange(spec bi.QuerySpec, days int32, now time.Time) (string, string, error) {
+// executionTimeRange 使用报表日历计算边界，实际时刻在绑定前才转换为 UTC。
+func executionTimeRange(spec bi.QuerySpec, days int32, now time.Time, instant bool) (string, string, error) {
+	const preciseLayout = time.DateTime + ".999999"
+	format := func(value time.Time) string {
+		if instant {
+			value = value.UTC()
+		}
+		return value.Format(preciseLayout)
+	}
 	if days != 0 {
 		if days != 7 && days != 30 {
 			return "", "", errorsx.InvalidArgument("仅支持卡片配置、近7日或近30日")
 		}
 		today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
-		return today.AddDate(0, 0, 1-int(days)).Format(biTimeLayout), today.AddDate(0, 0, 1).Add(-time.Millisecond).Format("2006-01-02 15:04:05.999"), nil
+		end := today.AddDate(0, 0, 1)
+		if spec.TimeRange == nil || !spec.TimeRange.EndExclusive {
+			end = end.Add(-time.Microsecond)
+		}
+		return format(today.AddDate(0, 0, 1-int(days))), format(end), nil
 	}
 	if spec.TimeRange == nil {
 		return "", "", nil
 	}
-	start, err := resolveRelativeTime(spec.TimeRange.Start, now)
+	resolve := func(value string) (string, error) {
+		value = strings.TrimSpace(value)
+		point, relative, err := resolveRelativeTime(value, now)
+		if err != nil {
+			return "", err
+		}
+		if !instant && !spec.TimeRange.EndExclusive {
+			if relative {
+				return point.Format(time.DateTime), nil
+			}
+			return value, nil
+		}
+		if !relative {
+			point, err = parseBICalendarTime(value, now.Location(), instant)
+			if err != nil {
+				return "", err
+			}
+		}
+		return format(point), nil
+	}
+	start, err := resolve(spec.TimeRange.Start)
 	if err != nil {
 		return "", "", err
 	}
 	var end string
-	end, err = resolveRelativeTime(spec.TimeRange.End, now)
-	return start, end, err
+	end, err = resolve(spec.TimeRange.End)
+	if err != nil {
+		return "", "", err
+	}
+	// 归一化后的边界按 UTC 或无时区日历排序，保留数据库支持的微秒精度。
+	if spec.TimeRange.EndExclusive && end <= start {
+		return "", "", errorsx.InvalidArgument("BI 时间范围结束必须晚于开始")
+	}
+	return start, end, nil
+}
+
+// parseBICalendarTime 校验日历边界，实际时刻允许显式偏移以区分回拨时的同名时刻。
+func parseBICalendarTime(value string, location *time.Location, instant bool) (time.Time, error) {
+	if instant {
+		for _, layout := range []string{time.RFC3339Nano, time.DateTime + "Z07:00"} {
+			if parsed, err := time.Parse(layout, value); err == nil {
+				return parsed, nil
+			}
+		}
+	} else {
+		location = time.UTC
+	}
+	for _, layout := range []string{time.DateOnly, time.DateTime, "2006-01-02T15:04:05"} {
+		if parsed, err := time.ParseInLocation(layout, value, location); err == nil {
+			return parsed, nil
+		}
+	}
+	return time.Time{}, errorsx.InvalidArgument("BI 时间范围请使用日期或日期时间")
 }

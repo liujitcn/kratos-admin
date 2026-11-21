@@ -3446,6 +3446,52 @@ JA_EXACT.update({
     "分组内字段策略": "グループ内のフィールドポリシー",
 })
 
+EN_EXACT.update({
+    "基于本人成功的问数记录调整分组和时间范围。": "Adjust grouping and the time range for one of your successful BI queries.",
+    "支持的日期粒度": "Supported date granularities",
+    "支持的层级": "Supported hierarchy levels",
+    "BI 单个分组维度的转换方式。": "How to transform a single BI grouping dimension.",
+    "分组维度编码": "Grouping dimension code",
+    "日期粒度：day、week、month、quarter、year": "Date granularity: day, week, month, quarter or year",
+    "分组层级：1或2": "Grouping hierarchy level: 1 or 2",
+    "已选维度的日期粒度或层级": "Date granularity or hierarchy level for the selected dimensions",
+    "调整本人问数结果，保留原数据源、指标和业务过滤。": "Refine the BI query while retaining its data source, metrics and business filters.",
+    "原问数记录编号": "Original BI query record ID",
+    "调整后的分组维度": "Updated grouping dimensions",
+    "调整后的日期粒度或层级": "Updated date granularity or hierarchy level",
+    "调整后的时间范围，缺省表示清除": "Updated time range. Omit to clear it",
+    "是否排除终点": "Whether to exclude the end of the time range",
+    "报表时区": "Report time zone",
+    "报表时区，使用 IANA 时区名称": "Report time zone specified by its IANA name",
+    "可选的父子层级配置": "Optional parent-child hierarchy configuration",
+    "数据源父子层级，节点编号取维度表关系的唯一目标字段。": "Data source parent-child hierarchy. Node IDs use the unique target column of the dimension table relationship.",
+    "父节点编号字段": "Parent node ID column",
+    "顶层节点的父编号，留空表示父编号为空": "Parent ID of top-level nodes. Leave blank if the parent ID is null",
+})
+JA_EXACT.update({
+    "基于本人成功的问数记录调整分组和时间范围。": "自分の BI クエリの成功記録をもとに、グループ化と期間を調整します。",
+    "支持的日期粒度": "対応する日付の粒度",
+    "支持的层级": "対応する階層レベル",
+    "BI 单个分组维度的转换方式。": "BI のグループ化ディメンション 1 つに適用する変換方法。",
+    "分组维度编码": "グループ化ディメンションのコード",
+    "日期粒度：day、week、month、quarter、year": "日付の粒度: day、week、month、quarter、year",
+    "分组层级：1或2": "グループ化の階層レベル: 1 または 2",
+    "已选维度的日期粒度或层级": "選択したディメンションの日付の粒度または階層レベル",
+    "调整本人问数结果，保留原数据源、指标和业务过滤。": "元のデータソース、指標、業務フィルターを保持したまま、自分の BI クエリ結果を調整します。",
+    "原问数记录编号": "元の BI クエリ記録 ID",
+    "调整后的分组维度": "調整後のグループ化ディメンション",
+    "调整后的日期粒度或层级": "調整後の日付の粒度または階層レベル",
+    "调整后的时间范围，缺省表示清除": "調整後の期間。省略すると期間の指定を解除します",
+    "是否排除终点": "期間の終了値を除外するか",
+    "报表时区": "レポートのタイムゾーン",
+    "报表时区，使用 IANA 时区名称": "IANA 名で指定するレポートのタイムゾーン",
+    "可选的父子层级配置": "オプションの親子階層設定",
+    "数据源父子层级，节点编号取维度表关系的唯一目标字段。": "データソースの親子階層。ノード ID にはディメンションテーブルとのリレーションで一意となる結合先列を使用します。",
+    "父节点编号字段": "親ノード ID の列",
+    "顶层节点的父编号，留空表示父编号为空": "最上位ノードの親 ID。親 ID が NULL の場合は空欄にします",
+})
+
+
 def contains_simplified(value: str) -> bool:
     """判断译文是否仍包含明显的简体中文残留。"""
     return any(marker in value for marker in SIMPLIFIED_MARKERS)

@@ -15,7 +15,7 @@
     <el-text tag="p" class="bi-card-chart-editor__hint">{{ t("bi.card.chart_hint") }}</el-text>
     <el-form label-position="top">
       <el-form-item v-if="!['metric', 'metric_grid', 'gauge'].includes(chartType)" :label="t('bi.card.dimension_field')">
-        <el-select :model-value="modelValue.encoding.dimension || dimensionFields[0]?.code" @change="patchEncoding({ dimension: $event })"
+        <el-select :model-value="selectedDimension" @change="patchEncoding({ dimension: $event })"
           ><el-option v-for="field in dimensionFields" :key="field.code" :value="field.code" :label="field.name"
         /></el-select>
       </el-form-item>
@@ -49,9 +49,9 @@
           />
         </div>
       </div>
-      <el-form-item v-if="['sankey', 'heatmap', 'sunburst'].includes(chartType)" :label="t('bi.card.series_field')"
-        ><el-select :model-value="modelValue.encoding.series || categories[1]?.code" @change="patchEncoding({ series: $event })"
-          ><el-option v-for="field in categories" :key="field.code" :value="field.code" :label="field.name" /></el-select
+      <el-form-item v-if="['bar', 'line', 'area', 'radar', 'sankey', 'heatmap', 'sunburst'].includes(chartType) && categories.length > 1" :label="t('bi.card.series_field')"
+        ><el-select :model-value="selectedSeries" @change="patchEncoding({ series: $event })"
+          ><el-option v-for="field in seriesFields" :key="field.code" :value="field.code" :label="field.name" /></el-select
       ></el-form-item>
       <el-form-item v-if="['bar', 'line', 'area'].includes(chartType)" :label="t('bi.card.measure')"
         ><el-checkbox-group
@@ -102,13 +102,27 @@ const categories = computed(() =>
   )
 );
 const dimensionFields = computed(() => (props.chartType === "scatter" ? numbers.value : categories.value));
+const selectedDimension = computed(() => props.modelValue.encoding.dimension || defaultDimension(props.chartType));
+const seriesFields = computed(() => categories.value.filter(field => field.code !== selectedDimension.value));
+const selectedSeries = computed(() => seriesFields.value.find(field => field.code === props.modelValue.encoding.series)?.code ?? seriesFields.value[0]?.code);
 const metricGridItems = computed<MetricGridItem[]>(() =>
   props.modelValue.metricGrid?.items?.length
     ? props.modelValue.metricGrid.items.slice(0, 4)
     : numbers.value.slice(0, 4).map(field => ({ value: field.code }))
 );
+/** 时间序列默认使用查询选定的日期粒度对应的字段作主轴。 */
+function defaultDimension(type: string) {
+  if (type === "scatter") return numbers.value[0]?.code;
+  if (["bar", "line", "area"].includes(type)) {
+    const time = props.query.grouping_options?.find(item => item.time_grain)?.field;
+    if (time) return time;
+  }
+  return categories.value[0]?.code;
+}
 /** 根据真实结果结构启用图型，避免产生不能渲染的卡片。 */
 function reason(type: string): string {
+  if (categories.value.length === 2 && props.query.grouping_options?.length && !["bar", "line", "area", "radar", "sankey", "heatmap", "sunburst"].includes(type))
+    return t("bi.refine.need_series");
   if (["metric", "metric_grid", "gauge"].includes(type)) return props.query.dimensions.length ? t("bi.card.need_ungrouped") : "";
   if (type === "scatter") return numbers.value.length < 2 ? t("bi.card.need_two_numbers") : "";
   if (["sankey", "heatmap", "sunburst"].includes(type))
@@ -119,11 +133,12 @@ function reason(type: string): string {
 function changeType(type: string) {
   emit("update:chartType", type);
   const metricGrid = type === "metric_grid" ? { items: numbers.value.slice(0, 4).map(field => ({ value: field.code })) } : undefined;
+  const dimension = defaultDimension(type);
   emit("update:modelValue", {
     encoding: {
-      dimension: type === "scatter" ? numbers.value[0]?.code : categories.value[0]?.code,
+      dimension,
       measure: type === "scatter" ? numbers.value[1]?.code : numbers.value[0]?.code,
-      series: type === "scatter" ? undefined : categories.value[1]?.code,
+      series: type === "scatter" ? undefined : categories.value.find(field => field.code !== dimension)?.code,
       measures:
         ["bar", "line", "area"].includes(type) && categories.value.length < 2 ? numbers.value.map(field => field.code) : undefined
     },
@@ -133,7 +148,10 @@ function changeType(type: string) {
 }
 /** 同步字段映射，不重新执行已完成的查询。 */
 function patchEncoding(value: Partial<BiChartEncoding>) {
-  emit("update:modelValue", { ...props.modelValue, encoding: { ...props.modelValue.encoding, ...value } });
+  const encoding = { ...props.modelValue.encoding, ...value };
+  if (encoding.dimension && encoding.dimension === encoding.series)
+    encoding.series = categories.value.find(field => field.code !== encoding.dimension)?.code;
+  emit("update:modelValue", { ...props.modelValue, encoding });
 }
 /** 同步指标网格的当前列、比较列和比较文案。 */
 function patchMetricGridItem(index: number, value: Partial<NonNullable<CardChartConfig["metricGrid"]>["items"][number]>) {

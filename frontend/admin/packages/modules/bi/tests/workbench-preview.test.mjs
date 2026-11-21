@@ -10,6 +10,7 @@ import * as vue from "vue";
 import { buildCardChart, parseCardChart } from "../src/card-schema.ts";
 import * as biResponse from "../src/bi-response.ts";
 import * as metricEdit from "../src/metric-edit.ts";
+import * as querySummary from "../src/query-summary.ts";
 
 const require = createRequire(import.meta.url);
 const { parse, compileScript } = require("vue/compiler-sfc");
@@ -30,6 +31,7 @@ function setupComponent(name, props, mocks, emit = () => undefined) {
       ElMessage: {info:()=>undefined,warning:()=>undefined,error:message=>mocks.errors?.push(message),success:()=>undefined},
       require: name => {
         if (name.endsWith(".vue") || name.endsWith(".css")) return {};
+        if (name === "../query-summary") return querySummary;
         assert.ok(Object.hasOwn(mocks, name), `未配置测试依赖: ${name}`);
         return mocks[name];
       }
@@ -73,9 +75,50 @@ test("工具响应省略空维度时，建卡弹窗按指标卡打开并保留�
     ...query,
     dimensions: [],
     filters: [],
-    orders: []
+    orders: [],
+    grouping_options: []
   });
   assert.equal(query.dimensions, undefined);
+});
+
+test("建卡弹窗按调整后的分组和时间保存新记录，并更新自动标题", async () => {
+  const props = vue.reactive({
+    modelValue: false,
+    sources: [{ code: "test", version: 1, dimensions: [{ code: "created_at", name: "创建时间" }, { code: "dept", name: "部门" }], measures: [{ code: "count", name: "新增用户数" }] }],
+    initialQuery: { source_code: "test", dimensions: [], measures: [{ code: "count" }], limit: 100 },
+    initialResult: { query_record_id: 7 },
+    initialTitle: "用户总数"
+  });
+  let saved;
+  const state = setupComponent("BiCardFormDialog", props, {
+    vue,
+    "@liujitcn/kratos-admin-core": { t: key => ({ "bi.refine.grain.month": "按月", "bi.refine.level.2": "二级部门" })[key] ?? key },
+    "../api/bi/admin/v1/bi_card": { defBiCardService: {
+      PreviewBiCardSql: async () => ({ source_version: 1, metric_definitions: [] }),
+      SaveBiCard: async request => { saved = request; return { id: 23 }; }
+    } },
+    "../card-schema": { parseCardChart },
+    "../bi-response": biResponse,
+    "../metric-edit": metricEdit
+  });
+  props.modelValue = true;
+  await nextTask();
+  const query = {
+    ...props.initialQuery,
+    dimensions: ["created_at", "dept"], orders: [], filters: [],
+    grouping_options: [{ field: "created_at", time_grain: "month" }, { field: "dept", hierarchy_level: 2 }],
+    time_range: { field: "created_at", start: "2026-01-01", end: "2026-02-01", end_exclusive: true }
+  };
+  state.applyRefinement({ query, result: { query_record_id: 8, columns: [] }, chart_type: "line" });
+  state.dialogRef.value = { validate: async () => true };
+  await state.submit();
+  assert.equal(saved.card.query_record_id, 8);
+  assert.deepEqual(JSON.parse(JSON.stringify(saved.card.query)), query);
+  assert.match(saved.card.name, /按月/);
+  assert.match(saved.card.name, /二级部门/);
+  state.form.name = "我的月报";
+  state.applyRefinement({ query, result: { query_record_id: 9, columns: [] }, chart_type: "line" });
+  assert.equal(state.form.name, "我的月报");
 });
 
 test("助手建卡读取来源记录，并补齐工具结果中省略的集合", async () => {

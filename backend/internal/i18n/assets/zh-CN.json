@@ -8236,5 +8236,65 @@
   },
   "bi.source.error.measure_formula_invalid": {
     "other": "公共指标公式无效: {{.Code}}"
+  },
+  "legacy.error.fa89a58d3cd15715": {
+    "other": "问题要求按月汇总，请选择支持月度分组的日期维度"
+  },
+  "legacy.error.3009c145a621695f": {
+    "other": "问题要求按指定部门层级汇总，请检查数据源的部门层级配置"
+  },
+  "legacy.error.a5ef09c7b66bccc5": {
+    "other": "问题要求分组统计，但查询计划未选择分组维度，请检查数据源模型是否包含所需维度"
+  },
+  "legacy.error.7f4b12277d2dd48d": {
+    "other": "BI 报表时区无效"
+  },
+  "legacy.error.4adc70812afce8e7": {
+    "other": "BI 时间范围结束必须晚于开始"
+  },
+  "legacy.error.b7102f2d31164cf7": {
+    "other": "BI 时间范围请使用日期或日期时间"
+  },
+  "legacy.error.0c0882be495d4b17": {
+    "other": "两个分组维度需要分别映射到类别和系列"
+  },
+  "legacy.error.c00c1004e7a26cb2": {
+    "other": "当前图表无法同时显示两个分组维度"
+  },
+  "legacy.error.d4d23e18ff7251c8": {
+    "other": "请选择有效的 IANA 报表时区"
+  },
+  "legacy.error.1bf8e446f95d37ec": {
+    "other": "层级维度需要左连接事实表、字符串名称和相同类型的整数父子编号"
+  },
+  "legacy.error.4a9ac258a8756861": {
+    "other": "BI 层级根编号必须为非负整数"
+  },
+  "legacy.error.60215c156f4cfe89": {
+    "other": "当前 BI 数据源不支持层级维度"
+  },
+  "legacy.error.eff82b9b3780ff4b": {
+    "other": "当前 BI 数据源不支持排除时间终点"
+  },
+  "legacy.error.7431c84e0b79cf41": {
+    "other": "BI 层级维度必须通过左连接直接关联事实表"
+  },
+  "legacy.error.55a42d97f8b7de08": {
+    "other": "BI 分组选项必须对应唯一的已选维度"
+  },
+  "legacy.error.7b92befadedbaa20": {
+    "other": "内置工具执行器类型无效"
+  },
+  "legacy.error.a3e335bba7d61789": {
+    "other": "调整 BI 查询失败"
+  },
+  "bi_grouping_option.mode.exclusive": {
+    "other": "请选择日期粒度或层级中的一项"
+  },
+  "refine_bi_query.query_record_id.positive": {
+    "other": "请选择原问数记录"
+  },
+  "legacy.error.bf4cac520fb8e668": {
+    "other": "BI 数据库不支持此报表时区"
   }
 }

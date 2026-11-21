@@ -84,6 +84,17 @@ func (s *redactedBiQueryServiceServer) AskBiQuery(ctx context.Context, in *AskBi
 	return res, err
 }
 
+// RefineBiQuery is the redacted wrapper for the actual BiQueryServiceServer.RefineBiQuery method
+// Unary RPC
+func (s *redactedBiQueryServiceServer) RefineBiQuery(ctx context.Context, in *RefineBiQueryRequest) (*AskBiQueryResponse, error) {
+	res, err := s.srv.RefineBiQuery(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/bi.admin.v1.BiQueryService/RefineBiQuery"), redact.DirectionResponse), nil, res)
+	}
+	return res, err
+}
+
 // Ensure ListBiSourcesRequest implements the Redactor interface at compile time.
 var _ redact.Redactor = (*ListBiSourcesRequest)(nil)
 
@@ -128,6 +139,8 @@ func (x *BiSourceDescriptor) Redact() {
 	// Safe field: Measures
 
 	// Safe field: MaxRows
+
+	// Safe field: ReportTimezone
 }
 
 // Ensure BiFieldDescriptor implements the Redactor interface at compile time.
@@ -146,6 +159,10 @@ func (x *BiFieldDescriptor) Redact() {
 	// Safe field: Type
 
 	// Safe field: Filterable
+
+	// Safe field: TimeGrains
+
+	// Safe field: HierarchyLevels
 }
 
 // Ensure BiMeasureDescriptor implements the Redactor interface at compile time.
@@ -202,6 +219,42 @@ func (x *BiQuerySpec) Redact() {
 	// Safe field: TimeRange
 
 	// Safe field: Orders
+
+	// Safe field: GroupingOptions
+}
+
+// Ensure BiGroupingOption implements the Redactor interface at compile time.
+var _ redact.Redactor = (*BiGroupingOption)(nil)
+
+// Redact method implementation for BiGroupingOption
+func (x *BiGroupingOption) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Field
+
+	// Safe field: TimeGrain
+
+	// Safe field: HierarchyLevel
+}
+
+// Ensure RefineBiQueryRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*RefineBiQueryRequest)(nil)
+
+// Redact method implementation for RefineBiQueryRequest
+func (x *RefineBiQueryRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: QueryRecordId
+
+	// Safe field: Dimensions
+
+	// Safe field: GroupingOptions
+
+	// Safe field: TimeRange
 }
 
 // Ensure BiTimeRangeSpec implements the Redactor interface at compile time.
@@ -218,6 +271,8 @@ func (x *BiTimeRangeSpec) Redact() {
 	// Safe field: Start
 
 	// Safe field: End
+
+	// Safe field: EndExclusive
 }
 
 // Ensure BiOrderSpec implements the Redactor interface at compile time.

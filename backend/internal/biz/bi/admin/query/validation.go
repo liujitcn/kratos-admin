@@ -1,7 +1,9 @@
 package query
 
 import (
+	"cmp"
 	"fmt"
+	"slices"
 
 	"github.com/liujitcn/kratos-admin/backend/pkg/bi"
 	"github.com/liujitcn/kratos-core/errorsx"
@@ -59,6 +61,18 @@ func ValidateSpec(descriptor bi.SourceDescriptor, spec bi.QuerySpec) (bi.QuerySp
 			return bi.QuerySpec{}, errorsx.InvalidArgument("BI 查询字段不能重复")
 		}
 		selected[code] = struct{}{}
+	}
+	spec.GroupingOptions = slices.Clone(spec.GroupingOptions)
+	slices.SortFunc(spec.GroupingOptions, func(a, b bi.GroupingOption) int { return cmp.Compare(a.Field, b.Field) })
+	for index, option := range spec.GroupingOptions {
+		field := dimensions[option.Field]
+		if _, ok := selected[option.Field]; !ok || (index > 0 && spec.GroupingOptions[index-1].Field == option.Field) {
+			return bi.QuerySpec{}, errorsx.InvalidArgument("BI 分组选项必须对应唯一的已选维度")
+		}
+		if !(option.HierarchyLevel == 0 && slices.Contains(field.TimeGrains, option.TimeGrain)) &&
+			!(option.TimeGrain == "" && slices.Contains(field.HierarchyLevels, option.HierarchyLevel)) {
+			return bi.QuerySpec{}, errorsx.InvalidArgument("BI 维度不支持所选日期粒度或层级: " + option.Field)
+		}
 	}
 	for _, item := range spec.Measures {
 		if _, exists := selected[item.Code]; exists {

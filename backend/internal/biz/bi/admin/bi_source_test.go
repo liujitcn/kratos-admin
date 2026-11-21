@@ -6,6 +6,8 @@ import (
 	"time"
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/bi/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/bi/admin/query"
+	"github.com/liujitcn/kratos-admin/backend/pkg/bi"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -94,6 +96,46 @@ func TestFindSourceTableDataTargetRejectsUnknownIdentifiers(t *testing.T) {
 	_, err = findSourceTableDataTarget([]*adminv1.BiSourceSchemaTable{table}, table.Key, "missing")
 	if err == nil {
 		t.Fatal("未知租户字段被接受")
+	}
+}
+
+// TestConfiguredSourceCalendarGrouping 验证目录和编译只向实际含日期的字段开放日历粒度。
+func TestConfiguredSourceCalendarGrouping(t *testing.T) {
+	const table = "public.orders"
+	model, err := configuredSourceModel(&adminv1.BiSourceModel{
+		BaseTable: table,
+		Tables:    []*adminv1.BiSourceModelTable{{Key: table}},
+		Dimensions: []*adminv1.BiSourceDimension{
+			{Code: "created", Name: "创建日期", Type: "date", Table: table, Column: "created", Filterable: true},
+			{Code: "opens", Name: "营业时刻", Type: "date", Table: table, Column: "opens", Filterable: true},
+			{Code: "closes", Name: "打烊时刻", Type: "string", Table: table, Column: "closes", Filterable: true},
+		},
+		Measures: []*adminv1.BiSourceMeasure{{Code: "orders", Name: "订单数", Type: "number", Expression: "COUNT(*)"}},
+	}, []*adminv1.BiSourceSchemaTable{{Key: table, Name: "orders", Columns: []*adminv1.BiSourceSchemaColumn{
+		{Name: "created", DataType: "timestamp without time zone"},
+		{Name: "opens", DataType: "time without time zone"},
+		{Name: "closes", DataType: "time with time zone"},
+	}}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	model.Measures[0].Revision = 1
+	if compatibleSourceTypes("time without time zone", "text") {
+		t.Fatal("纯时刻可作为文本显示，但不能和文本列建立关联")
+	}
+	descriptor := model.Descriptor("orders", "", "", 1, 100, "postgres")
+	if got := query.TimeField(descriptor, bi.QuerySpec{Dimensions: []string{"opens", "closes", "created"}}); got != "created" {
+		t.Fatalf("自动时间轴应选择实际日期列，得到 %q", got)
+	}
+	for _, field := range descriptor.Dimensions {
+		want := field.Code == "created"
+		if got := len(field.TimeGrains) > 0; got != want {
+			t.Errorf("%s 日历分组能力为 %v，预期 %v", field.Code, got, want)
+		}
+		spec := bi.QuerySpec{SourceCode: "orders", Dimensions: []string{field.Code}, Measures: []bi.MeasureSpec{{Code: "orders"}}, GroupingOptions: []bi.GroupingOption{{Field: field.Code, TimeGrain: "month"}}}
+		if _, err = query.Compile("postgres", 100, model, spec); (err == nil) != want {
+			t.Errorf("%s 月度分组编译结果为 %v，预期成功 %v", field.Code, err, want)
+		}
 	}
 }
 

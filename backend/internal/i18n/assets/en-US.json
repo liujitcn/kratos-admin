@@ -8236,5 +8236,65 @@
   },
   "bi.source.error.measure_formula_invalid": {
     "other": "Invalid public measure formula: {{.Code}}"
+  },
+  "legacy.error.fa89a58d3cd15715": {
+    "other": "The question asks for monthly totals. Choose a date dimension that supports grouping by month."
+  },
+  "legacy.error.3009c145a621695f": {
+    "other": "The question asks for totals at a specific department level. Check the department hierarchy configuration for the data source."
+  },
+  "legacy.error.a5ef09c7b66bccc5": {
+    "other": "The question asks for grouped statistics, but the query plan has no grouping dimension. Check whether the data source model includes the required dimension."
+  },
+  "legacy.error.7f4b12277d2dd48d": {
+    "other": "The BI report time zone is invalid."
+  },
+  "legacy.error.4adc70812afce8e7": {
+    "other": "The BI time range must end after it starts."
+  },
+  "legacy.error.b7102f2d31164cf7": {
+    "other": "Use dates or date-time values for the BI time range."
+  },
+  "legacy.error.0c0882be495d4b17": {
+    "other": "Map one grouping dimension to the category and the other to the series."
+  },
+  "legacy.error.c00c1004e7a26cb2": {
+    "other": "This chart cannot display two grouping dimensions at once."
+  },
+  "legacy.error.d4d23e18ff7251c8": {
+    "other": "Select a valid IANA time zone for the report."
+  },
+  "legacy.error.1bf8e446f95d37ec": {
+    "other": "A hierarchy dimension requires a left join to the fact table, a string name, and integer parent and child IDs of the same type."
+  },
+  "legacy.error.4a9ac258a8756861": {
+    "other": "The BI hierarchy root ID must be a non-negative integer."
+  },
+  "legacy.error.60215c156f4cfe89": {
+    "other": "This BI data source does not support hierarchy dimensions."
+  },
+  "legacy.error.eff82b9b3780ff4b": {
+    "other": "This BI data source does not support an exclusive end for the time range."
+  },
+  "legacy.error.7431c84e0b79cf41": {
+    "other": "BI hierarchy dimensions must be joined directly to the fact table using a left join."
+  },
+  "legacy.error.55a42d97f8b7de08": {
+    "other": "Each BI grouping option must refer to a distinct selected dimension."
+  },
+  "legacy.error.7b92befadedbaa20": {
+    "other": "The built-in tool executor type is invalid."
+  },
+  "legacy.error.a3e335bba7d61789": {
+    "other": "Failed to refine the BI query."
+  },
+  "bi_grouping_option.mode.exclusive": {
+    "other": "Choose either a date granularity or a hierarchy level."
+  },
+  "refine_bi_query.query_record_id.positive": {
+    "other": "Select the original BI query record."
+  },
+  "legacy.error.bf4cac520fb8e668": {
+    "other": "The BI database does not support this report time zone."
   }
 }

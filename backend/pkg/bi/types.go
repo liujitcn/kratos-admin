@@ -42,6 +42,10 @@ type FieldDescriptor struct {
 	Type FieldType `json:"type"`
 	// Filterable 表示字段是否允许过滤。
 	Filterable bool `json:"filterable"`
+	// TimeGrains 列出该日期维度可用的分组粒度。
+	TimeGrains []string `json:"timeGrains,omitempty"`
+	// HierarchyLevels 列出该维度可用的组织层级。
+	HierarchyLevels []int32 `json:"hierarchyLevels,omitempty"`
 }
 
 // MeasureDescriptor 描述可供 BI 使用的指标。
@@ -74,6 +78,8 @@ type SourceDescriptor struct {
 	Measures []MeasureDescriptor `json:"measures"`
 	// MaxRows 是该数据源允许返回的最大行数。
 	MaxRows int32 `json:"maxRows"`
+	// ReportTimezone 是日历分组和时间范围使用的报表时区。
+	ReportTimezone string `json:"reportTimezone,omitempty"`
 }
 
 // MeasureSpec 表示一次查询引用的固定公共指标。
@@ -100,6 +106,8 @@ type TimeRangeSpec struct {
 	Start string `json:"start"`
 	// End 是范围终点。
 	End string `json:"end"`
+	// EndExclusive 为真时使用左闭右开区间。
+	EndExclusive bool `json:"end_exclusive,omitempty"`
 }
 
 // OrderSpec 表示一次查询的结果排序规则。
@@ -108,6 +116,13 @@ type OrderSpec struct {
 	Field string `json:"field"`
 	// Direction 是排序方向，取 asc 或 desc。
 	Direction string `json:"direction"`
+}
+
+// GroupingOption 定义一个已选维度使用的日期粒度或组织层级。
+type GroupingOption struct {
+	Field          string `json:"field"`
+	TimeGrain      string `json:"time_grain,omitempty"`
+	HierarchyLevel int32  `json:"hierarchy_level,omitempty"`
 }
 
 // QuerySpec 表示可执行的语义查询计划。
@@ -126,6 +141,8 @@ type QuerySpec struct {
 	Orders []OrderSpec `json:"orders"`
 	// Limit 是结果行数上限。
 	Limit int32 `json:"limit"`
+	// GroupingOptions 描述已选维度的日期粒度或层级。
+	GroupingOptions []GroupingOption `json:"grouping_options,omitempty"`
 }
 
 // ResultColumn 描述查询结果列。

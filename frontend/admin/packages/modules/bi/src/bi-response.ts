@@ -9,7 +9,8 @@ export function normalizeBiQuerySpec(query: BiQuerySpec): BiQuerySpec {
     dimensions: query.dimensions ?? [],
     measures: query.measures ?? [],
     filters: (query.filters ?? []).map(filter => ({ ...filter, values: filter.values ?? [] })),
-    orders: query.orders ?? []
+    orders: query.orders ?? [],
+    grouping_options: query.grouping_options ?? []
   };
 }
 

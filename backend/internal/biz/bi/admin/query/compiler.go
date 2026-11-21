@@ -1,9 +1,11 @@
 package query
 
 import (
+	"cmp"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -14,18 +16,33 @@ import (
 
 // Compile 冻结参数化 SQL、受控参数来源和公共指标修订。
 func Compile(driver string, maxRows int32, model dto.ConfiguredSourceSchema, spec bi.QuerySpec) (*dto.CardExecution, error) {
-	_, err := ValidateSpec(model.Descriptor(spec.SourceCode, "", "", 0, maxRows), spec)
+	descriptor := model.Descriptor(spec.SourceCode, "", "", 0, maxRows, driver)
+	validated, err := ValidateSpec(descriptor, spec)
 	if err != nil {
 		return nil, err
+	}
+	timeField := TimeField(descriptor, validated)
+	var instantType string
+	switch driver {
+	case "postgres":
+		instantType = "timestamp with time zone"
+	case "mysql", "tidb":
+		instantType = "timestamp"
+	}
+	instant := timeField != "" && instantType != "" && slices.ContainsFunc(model.Dimensions, func(dimension dto.ConfiguredSourceDimension) bool {
+		return dimension.Code == timeField && dimension.DatabaseType == instantType
+	})
+	if model.ReportTimezone == "" && (instant || validated.TimeRange != nil && validated.TimeRange.EndExclusive || slices.ContainsFunc(validated.GroupingOptions, func(option bi.GroupingOption) bool { return option.TimeGrain != "" })) {
+		model.ReportTimezone = "UTC"
 	}
 	var sql string
 	var parameters []dto.ExecutionParameter
 	var columns []bi.ResultColumn
-	sql, parameters, columns, err = compileSQL(driver, maxRows, model, spec)
+	sql, parameters, columns, err = compileSQL(driver, maxRows, model, validated, timeField, instant)
 	if err != nil {
 		return nil, err
 	}
-	execution := &dto.CardExecution{Version: 1, Limit: configuredSourceLimit(maxRows, spec.Limit), Kind: "configured_sql", Driver: driver, ModelRevision: model.ModelRevision, SQL: sql, Parameters: parameters, Columns: columns, QueryHash: SpecHash(spec)}
+	execution := &dto.CardExecution{Version: 1, Limit: configuredSourceLimit(maxRows, spec.Limit), Kind: "configured_sql", Driver: driver, ModelRevision: model.ModelRevision, ReportTimezone: model.ReportTimezone, TimeRangeInstant: instant, SQL: sql, Parameters: parameters, Columns: columns, QueryHash: SpecHash(spec)}
 	for _, column := range columns {
 		if column.Role == "measure" {
 			execution.Metrics = append(execution.Metrics, dto.MetricRevision{Code: column.Code, Revision: column.Revision})
@@ -39,6 +56,9 @@ func Compile(driver string, maxRows int32, model dto.ConfiguredSourceSchema, spe
 
 // AdapterExecution 冻结代码注册源的描述版本和有效上限，查询规格保持不变。
 func AdapterExecution(descriptor bi.SourceDescriptor, spec bi.QuerySpec) (*dto.CardExecution, error) {
+	if spec.TimeRange != nil && spec.TimeRange.EndExclusive {
+		return nil, errorsx.InvalidArgument("当前 BI 数据源不支持排除时间终点")
+	}
 	validated, err := ValidateSpec(descriptor, spec)
 	if err != nil {
 		return nil, err
@@ -82,6 +102,8 @@ func Seal(execution *dto.CardExecution) error {
 
 // SpecHash 对完整语义配置生成稳定摘要，空集合统一序列化。
 func SpecHash(spec bi.QuerySpec) string {
+	spec.GroupingOptions = slices.Clone(spec.GroupingOptions)
+	slices.SortFunc(spec.GroupingOptions, func(a, b bi.GroupingOption) int { return cmp.Compare(a.Field, b.Field) })
 	if spec.Dimensions == nil {
 		spec.Dimensions = []string{}
 	}
@@ -132,7 +154,18 @@ func TimeField(descriptor bi.SourceDescriptor, spec bi.QuerySpec) string {
 }
 
 // compileSQL 根据受控模型生成 SQL 与参数来源，不解析执行身份。
-func compileSQL(driver string, maxRows int32, schema dto.ConfiguredSourceSchema, spec bi.QuerySpec) (string, []dto.ExecutionParameter, []bi.ResultColumn, error) {
+func compileSQL(driver string, maxRows int32, schema dto.ConfiguredSourceSchema, spec bi.QuerySpec, timeField string, instant bool) (string, []dto.ExecutionParameter, []bi.ResultColumn, error) {
+	convertTimezone := instant && (driver == "mysql" || driver == "tidb") && schema.ReportTimezone != "UTC"
+	if convertTimezone && strings.ContainsAny(schema.ReportTimezone, "'\\\x00") {
+		return "", nil, nil, errorsx.InvalidArgument("请选择有效的 IANA 报表时区")
+	}
+	// MySQL/TiDB 在 UTC 会话中筛选实际时刻，展示和分桶仍使用业务日历。
+	reportColumn := func(column string, dimension dto.ConfiguredSourceDimension) string {
+		if convertTimezone && dimension.DatabaseType == "timestamp" {
+			return "CONVERT_TZ(" + column + ", '+00:00', '" + schema.ReportTimezone + "')"
+		}
+		return column
+	}
 	tables := make(map[string]dto.ConfiguredSourceTable, len(schema.Tables))
 	for _, table := range schema.Tables {
 		tables[table.Key] = table
@@ -144,6 +177,10 @@ func compileSQL(driver string, maxRows int32, schema dto.ConfiguredSourceSchema,
 	tableAliases := map[string]string{schema.BaseTable: "t0"}
 	joinParts := make([]string, 0, len(schema.Relations))
 	args := make([]dto.ExecutionParameter, 0, len(schema.Relations)+len(spec.Filters)*2+3)
+	ctes, grouping, err := compileGrouping(driver, schema, tables, spec, &args)
+	if err != nil {
+		return "", nil, nil, err
+	}
 	remaining := append([]dto.ConfiguredSourceRelation(nil), schema.Relations...)
 	for len(remaining) > 0 {
 		unresolved := make([]dto.ConfiguredSourceRelation, 0, len(remaining))
@@ -175,6 +212,11 @@ func compileSQL(driver string, maxRows int32, schema dto.ConfiguredSourceSchema,
 		}
 		remaining = unresolved
 	}
+	for _, code := range spec.Dimensions {
+		if item := grouping[code]; item.join != nil {
+			joinParts = append(joinParts, item.join(quoteSourceIdentifier(driver, tableAliases[item.table])))
+		}
+	}
 	if len(tableAliases) != len(tables) {
 		return "", nil, nil, errorsx.InvalidArgument("BI 数据源表关系未覆盖所有选中表")
 	}
@@ -188,6 +230,7 @@ func compileSQL(driver string, maxRows int32, schema dto.ConfiguredSourceSchema,
 	}
 	selectParts := make([]string, 0, len(spec.Dimensions)+len(spec.Measures))
 	groupParts := make([]string, 0, len(spec.Dimensions))
+	selectedDimensions := make(map[string]string, len(spec.Dimensions))
 	resultColumns := make([]bi.ResultColumn, 0, len(spec.Dimensions)+len(spec.Measures))
 	for _, code := range spec.Dimensions {
 		dimension, ok := dimensions[code]
@@ -195,9 +238,21 @@ func compileSQL(driver string, maxRows int32, schema dto.ConfiguredSourceSchema,
 		if !ok || alias == "" {
 			return "", nil, nil, errorsx.WithMessageKey(errorsx.InvalidArgument("BI 维度不存在: "+code), "bi.query.error.dimension_missing", map[string]string{"Code": code})
 		}
-		column := quoteSourceIdentifier(driver, alias) + "." + quoteSourceIdentifier(driver, dimension.Column)
-		selectParts = append(selectParts, column+" AS "+quoteSourceIdentifier(driver, dimension.Code))
-		groupParts = append(groupParts, column)
+		column := reportColumn(quoteSourceIdentifier(driver, alias)+"."+quoteSourceIdentifier(driver, dimension.Column), dimension)
+		option := grouping[code]
+		if option.grain != "" {
+			column = dateBucket(driver, column, option.grain)
+		}
+		outputName := quoteSourceIdentifier(driver, dimension.Code)
+		if option.expression != "" {
+			selectParts = append(selectParts, "MAX("+option.expression+") AS "+outputName)
+			groupParts = append(groupParts, option.keys)
+			selectedDimensions[code] = outputName
+		} else {
+			selectParts = append(selectParts, column+" AS "+outputName)
+			groupParts = append(groupParts, column)
+			selectedDimensions[code] = column
+		}
 		resultColumns = append(resultColumns, bi.ResultColumn{Code: dimension.Code, Name: dimension.Name, Type: dimension.Type, Role: "dimension"})
 	}
 	baseFields := baseTable.Fields
@@ -206,7 +261,8 @@ func compileSQL(driver string, maxRows int32, schema dto.ConfiguredSourceSchema,
 		if !exists || measure.Type != bi.FieldTypeNumber || measure.Revision <= 0 {
 			return "", nil, nil, errorsx.WithMessageKey(errorsx.InvalidArgument("BI 公共指标不可用: "+measureSpec.Code), "bi.query.error.measure_unavailable", map[string]string{"Code": measureSpec.Code})
 		}
-		expression, err := Parse(measure.Expression, baseFields)
+		var expression *Expression
+		expression, err = Parse(measure.Expression, baseFields)
 		if err != nil {
 			return "", nil, nil, errorsx.WithMessageKey(errorsx.InvalidArgument("BI 公共指标公式无效: "+measureSpec.Code), "bi.query.error.measure_formula_invalid", map[string]string{"Code": measureSpec.Code}).WithCause(err)
 		}
@@ -223,7 +279,6 @@ func compileSQL(driver string, maxRows int32, schema dto.ConfiguredSourceSchema,
 		whereParts = append(whereParts, quoteSourceIdentifier(driver, "t0")+"."+quoteSourceIdentifier(driver, baseTable.TenantColumn)+" = "+Placeholder(driver, len(args)+1))
 		args = append(args, dto.ExecutionParameter{Position: len(args) + 1, Kind: "scope", Field: "tenant_id"})
 	}
-	timeField := TimeField(schema.Descriptor("", "", "", 0, maxRows), spec)
 	if timeField != "" {
 		dimension := dimensions[timeField]
 		alias := tableAliases[dimension.Table]
@@ -232,10 +287,22 @@ func compileSQL(driver string, maxRows int32, schema dto.ConfiguredSourceSchema,
 		}
 		column := quoteSourceIdentifier(driver, alias) + "." + quoteSourceIdentifier(driver, dimension.Column)
 		castType := "DATETIME"
+		if spec.TimeRange != nil && spec.TimeRange.EndExclusive || driver == "mysql" || driver == "tidb" {
+			castType = "DATETIME(6)"
+		}
 		if strings.EqualFold(driver, "postgres") {
 			castType = "TIMESTAMP"
+			if instant {
+				castType = "TIMESTAMPTZ"
+			}
 		}
-		whereParts = append(whereParts, "("+Placeholder(driver, len(args)+1)+" = 0 OR "+column+" BETWEEN CAST("+Placeholder(driver, len(args)+2)+" AS "+castType+") AND CAST("+Placeholder(driver, len(args)+3)+" AS "+castType+"))")
+		start := "CAST(" + Placeholder(driver, len(args)+2) + " AS " + castType + ")"
+		end := "CAST(" + Placeholder(driver, len(args)+3) + " AS " + castType + ")"
+		predicate := column + " BETWEEN " + start + " AND " + end
+		if spec.TimeRange != nil && spec.TimeRange.EndExclusive {
+			predicate = "(" + column + " >= " + start + " AND " + column + " < " + end + ")"
+		}
+		whereParts = append(whereParts, "("+Placeholder(driver, len(args)+1)+" = 0 OR "+predicate+")")
 		for _, kind := range []string{"time_enabled", "time_start", "time_end"} {
 			args = append(args, dto.ExecutionParameter{Position: len(args) + 1, Kind: kind, Field: timeField})
 		}
@@ -249,7 +316,7 @@ func compileSQL(driver string, maxRows int32, schema dto.ConfiguredSourceSchema,
 		if alias == "" {
 			return "", nil, nil, errorsx.InvalidArgument("BI 过滤字段所属表无效")
 		}
-		column := quoteSourceIdentifier(driver, alias) + "." + quoteSourceIdentifier(driver, dimension.Column)
+		column := reportColumn(quoteSourceIdentifier(driver, alias)+"."+quoteSourceIdentifier(driver, dimension.Column), dimension)
 		previousWhere := len(whereParts)
 		overridePlaceholder := ""
 		if filter.Field == timeField {
@@ -285,6 +352,9 @@ func compileSQL(driver string, maxRows int32, schema dto.ConfiguredSourceSchema,
 	}
 	limit := configuredSourceLimit(maxRows, spec.Limit)
 	queryText := "SELECT " + strings.Join(selectParts, ", ") + " FROM " + quoteSourceTable(driver, baseTable.SchemaName, baseTable.Name) + " AS " + quoteSourceIdentifier(driver, "t0")
+	if len(ctes) != 0 {
+		queryText = "WITH RECURSIVE " + strings.Join(ctes, ", ") + " " + queryText
+	}
 	if len(joinParts) > 0 {
 		queryText += " " + strings.Join(joinParts, " ")
 	}
@@ -295,13 +365,6 @@ func compileSQL(driver string, maxRows int32, schema dto.ConfiguredSourceSchema,
 		queryText += " GROUP BY " + strings.Join(groupParts, ", ")
 	}
 	if len(spec.Orders) > 0 {
-		selectedDimensions := make(map[string]string, len(spec.Dimensions))
-		for _, code := range spec.Dimensions {
-			dimension, ok := dimensions[code]
-			if ok && tableAliases[dimension.Table] != "" {
-				selectedDimensions[code] = quoteSourceIdentifier(driver, tableAliases[dimension.Table]) + "." + quoteSourceIdentifier(driver, dimension.Column)
-			}
-		}
 		selectedMeasures := make(map[string]struct{}, len(spec.Measures))
 		for _, measure := range spec.Measures {
 			selectedMeasures[measure.Code] = struct{}{}

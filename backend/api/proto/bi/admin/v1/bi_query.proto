@@ -30,6 +30,13 @@ service BiQueryService {
       body: "*"
     };
   }
+  // 基于本人成功的问数记录调整分组和时间范围。
+  rpc RefineBiQuery(RefineBiQueryRequest) returns (AskBiQueryResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/bi/query/refine"
+      body: "*"
+    };
+  }
 }
 
 // BI 数据源目录查询条件。
@@ -72,6 +79,7 @@ message BiSourceDescriptor {
     json_name = "maxRows",
     (gnostic.openapi.v3.property) = {description: "最大结果行数"}
   ]; // 最大结果行数
+  string report_timezone = 8 [json_name = "reportTimezone", (gnostic.openapi.v3.property) = {description: "报表时区"}]; // 报表时区
 }
 
 // BI 字段描述。
@@ -91,6 +99,8 @@ message BiFieldDescriptor {
   bool filterable = 4 [
     (gnostic.openapi.v3.property) = {description: "是否允许过滤"}
   ]; // 是否允许过滤
+  repeated string time_grains = 5 [json_name = "timeGrains", (gnostic.openapi.v3.property) = {description: "支持的日期粒度"}]; // 支持的日期粒度
+  repeated int32 hierarchy_levels = 6 [json_name = "hierarchyLevels", (gnostic.openapi.v3.property) = {description: "支持的层级"}]; // 支持的层级
 }
 
 // BI 指标描述。
@@ -153,6 +163,54 @@ message BiQuerySpec {
   repeated BiOrderSpec orders = 7 [
     (gnostic.openapi.v3.property) = {description: "结果排序规则"}
   ]; // 结果排序规则
+
+  repeated BiGroupingOption grouping_options = 8 [
+    json_name = "groupingOptions",
+    (gnostic.openapi.v3.property) = {description: "已选维度的日期粒度或层级"},
+    (buf.validate.field).repeated.max_items = 2
+  ]; // 已选维度的日期粒度或层级
+}
+
+// BI 单个分组维度的转换方式。
+message BiGroupingOption {
+  option (buf.validate.message).cel = {
+    id: "bi_grouping_option.mode.exclusive"
+    message: "请选择日期粒度或层级中的一项"
+    expression: "(this.time_grain != '') != (this.hierarchy_level != 0)"
+  };
+  string field = 1 [
+    (gnostic.openapi.v3.property) = {description: "分组维度编码"},
+    (buf.validate.field).string = {min_len: 1, max_len: 128}
+  ]; // 分组维度编码
+  string time_grain = 2 [
+    json_name = "timeGrain",
+    (gnostic.openapi.v3.property) = {description: "日期粒度：day、week、month、quarter、year"},
+    (buf.validate.field).string = {in: ["", "day", "week", "month", "quarter", "year"]}
+  ]; // 日期粒度
+  int32 hierarchy_level = 3 [
+    json_name = "hierarchyLevel",
+    (gnostic.openapi.v3.property) = {description: "分组层级：1或2"},
+    (buf.validate.field).int32 = {gte: 0, lte: 2}
+  ]; // 分组层级
+}
+
+// 调整本人问数结果，保留原数据源、指标和业务过滤。
+message RefineBiQueryRequest {
+  int64 query_record_id = 1 [
+    json_name = "queryRecordId",
+    (gnostic.openapi.v3.property) = {description: "原问数记录编号"},
+    (buf.validate.field).cel = {id: "refine_bi_query.query_record_id.positive", message: "请选择原问数记录", expression: "this > 0"}
+  ]; // 原问数记录编号
+  repeated string dimensions = 2 [
+    (gnostic.openapi.v3.property) = {description: "调整后的分组维度"},
+    (buf.validate.field).repeated.max_items = 2
+  ]; // 调整后的分组维度
+  repeated BiGroupingOption grouping_options = 3 [
+    json_name = "groupingOptions",
+    (gnostic.openapi.v3.property) = {description: "调整后的日期粒度或层级"},
+    (buf.validate.field).repeated.max_items = 2
+  ]; // 调整后的日期粒度或层级
+  BiTimeRangeSpec time_range = 4 [json_name = "timeRange", (gnostic.openapi.v3.property) = {description: "调整后的时间范围，缺省表示清除"}]; // 调整后的时间范围
 }
 
 // BI 时间范围。
@@ -171,6 +229,7 @@ message BiTimeRangeSpec {
     (gnostic.openapi.v3.property) = {description: "范围终点"},
     (buf.validate.field).string = {min_len: 1, max_len: 64}
   ]; // 范围终点
+  bool end_exclusive = 4 [json_name = "endExclusive", (gnostic.openapi.v3.property) = {description: "是否排除终点"}]; // 是否排除终点
 }
 
 // BI 结果排序规则。

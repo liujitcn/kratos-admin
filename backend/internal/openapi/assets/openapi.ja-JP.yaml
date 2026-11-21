@@ -6941,6 +6941,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/bi.admin.v1.BiQueryResult'
+    /api/v1/admin/bi/query/refine:
+        post:
+            tags:
+                - BiQueryService
+            description: 自分の BI クエリの成功記録をもとに、グループ化と期間を調整します。
+            operationId: BiQueryService_RefineBiQuery
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.RefineBiQueryRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.AskBiQueryResponse'
     /api/v1/admin/bi/source:
         get:
             tags:
@@ -10998,7 +11017,7 @@ components:
             properties:
                 name:
                     type: string
-                    description: 名称
+                    description: 名前
                 prompt:
                     type: string
                     description: 明確なタスクの指示
@@ -11279,7 +11298,7 @@ components:
                     description: 固定コード
                 name:
                     type: string
-                    description: 名称
+                    description: 名前
                 description:
                     type: string
                     description: 説明
@@ -11288,7 +11307,7 @@ components:
                     description: ソース：API、LOCAL、MCP
                 visibility:
                     type: string
-                    description: 范围：system、tenant、private
+                    description: "スコープ: システム、テナント、プライベート"
                 tenant_id:
                     type: string
                     description: 所属テナントID
@@ -11372,7 +11391,7 @@ components:
                     description: 固定コード
                 name:
                     type: string
-                    description: 名称
+                    description: 名前
                 description:
                     type: string
                     description: 説明
@@ -11428,7 +11447,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: 工具ID
+                    description: ツールID
                 plugin_id:
                     type: string
                     description: プラグインID
@@ -11825,7 +11844,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: 编号
+                    description: 番号
             description: 結果から会話を続けるリクエスト。
         base.v1.CountAiAutomationResponse:
             type: object
@@ -13083,7 +13102,7 @@ components:
                     description: プラグインID
                 tool_id:
                     type: string
-                    description: 工具ID
+                    description: ツールID
                 contract_hash:
                     type: string
                     description: 審査対象の仕様ハッシュ
@@ -13136,7 +13155,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: 编号
+                    description: 番号
             description: 停止今回のリクエスト。
         base.v1.TrashAiFileRequest:
             type: object
@@ -13510,6 +13529,17 @@ components:
                 filterable:
                     type: boolean
                     description: 〜かどうか允许过滤
+                time_grains:
+                    type: array
+                    items:
+                        type: string
+                    description: 対応する日付の粒度
+                hierarchy_levels:
+                    type: array
+                    items:
+                        type: integer
+                        format: int32
+                    description: 対応する階層レベル
             description: BI フィールド説明。
         bi.admin.v1.BiFilterSpec:
             type: object
@@ -13519,13 +13549,27 @@ components:
                     description: フィールドコード
                 operator:
                     type: string
-                    description: 操作符：eq、in、between、contains
+                    description: "演算子: eq、in、 between、contains"
                 values:
                     type: array
                     items:
                         type: string
                     description: 过滤値
             description: BIフィルター条件。
+        bi.admin.v1.BiGroupingOption:
+            type: object
+            properties:
+                field:
+                    type: string
+                    description: グループ化ディメンションのコード
+                time_grain:
+                    type: string
+                    description: "日付の粒度: day、week、month、quarter、year"
+                hierarchy_level:
+                    type: integer
+                    description: "グループ化の階層レベル: 1 または 2"
+                    format: int32
+            description: BI のグループ化ディメンション 1 つに適用する変換方法。
         bi.admin.v1.BiMeasureDescriptor:
             type: object
             properties:
@@ -13716,7 +13760,7 @@ components:
                     type: array
                     items:
                         type: string
-                    description: 分组ディメンションコード
+                    description: グループ化ディメンションのコード
                 measures:
                     type: array
                     items:
@@ -13738,6 +13782,11 @@ components:
                     items:
                         $ref: '#/components/schemas/bi.admin.v1.BiOrderSpec'
                     description: 結果並び順ルール
+                grouping_options:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiGroupingOption'
+                    description: 選択したディメンションの日付の粒度または階層レベル
             description: BI 语义検索计划。
         bi.admin.v1.BiResultColumn:
             type: object
@@ -13893,6 +13942,9 @@ components:
                     type: integer
                     description: 最大結果行数
                     format: int32
+                report_timezone:
+                    type: string
+                    description: レポートのタイムゾーン
             description: BI データソース説明。
         bi.admin.v1.BiSourceDimension:
             type: object
@@ -13915,6 +13967,8 @@ components:
                 filterable:
                     type: boolean
                     description: 〜かどうか允许过滤
+                hierarchy:
+                    $ref: '#/components/schemas/bi.admin.v1.BiSourceHierarchy'
             description: データソース语义ディメンション。
         bi.admin.v1.BiSourceForm:
             type: object
@@ -13967,6 +14021,16 @@ components:
                     description: ステータス：1有効，2無効
                     format: int32
             description: BI データソース設定フォーム。
+        bi.admin.v1.BiSourceHierarchy:
+            type: object
+            properties:
+                parent_column:
+                    type: string
+                    description: 親ノード ID の列
+                root_id:
+                    type: string
+                    description: 最上位ノードの親 ID。親 ID が NULL の場合は空欄にします
+            description: データソースの親子階層。ノード ID にはディメンションテーブルとのリレーションで一意となる結合先列を使用します。
         bi.admin.v1.BiSourceMeasure:
             type: object
             properties:
@@ -14015,6 +14079,9 @@ components:
                     items:
                         $ref: '#/components/schemas/bi.admin.v1.BiSourceMeasure'
                     description: 语义メトリクス
+                report_timezone:
+                    type: string
+                    description: IANA 名で指定するレポートのタイムゾーン
             description: データソース可能な用の表、关联关系和业务语义。
         bi.admin.v1.BiSourceModelTable:
             type: object
@@ -14120,6 +14187,9 @@ components:
                 end:
                     type: string
                     description: 範囲の終了
+                end_exclusive:
+                    type: boolean
+                    description: 期間の終了値を除外するか
             description: BI 時刻范围。
         bi.admin.v1.BiWorkbench:
             type: object
@@ -14321,6 +14391,25 @@ components:
                     type: string
                     description: 下書きバージョン
             description: 公開 BI 仪表盘リクエスト。
+        bi.admin.v1.RefineBiQueryRequest:
+            type: object
+            properties:
+                query_record_id:
+                    type: string
+                    description: 元の BI クエリ記録 ID
+                dimensions:
+                    type: array
+                    items:
+                        type: string
+                    description: 調整後のグループ化ディメンション
+                grouping_options:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiGroupingOption'
+                    description: 調整後の日付の粒度または階層レベル
+                time_range:
+                    $ref: '#/components/schemas/bi.admin.v1.BiTimeRangeSpec'
+            description: 元のデータソース、指標、業務フィルターを保持したまま、自分の BI クエリ結果を調整します。
         bi.admin.v1.SaveBiCardRequest:
             type: object
             properties:
@@ -14588,7 +14677,7 @@ components:
                     description: 失敗原因
                 extractor_connection_id:
                     type: string
-                    description: Xberg MCP抽取连接ID
+                    description: Xberg MCP が接続 ID を抽出します
                 created_at:
                     type: string
                     description: 作成時刻

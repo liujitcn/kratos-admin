@@ -220,6 +220,20 @@ query/result 来自成功的智能问数，result.query_record_id 为实际查�
     related: ["BiCardChartEditor", "BiDataCard", "FormDialog"]
   },
   {
+    id: "BiQueryRefinement",
+    label: "调整问数结果",
+    file: "BiQueryRefinement.vue",
+    description: "基于已有问数结果调整日期范围、日期粒度和部门层级。",
+    usage: "传入语义数据源、当前查询以及成功问数的记录编号。应用后会执行查询并通过 applied 返回新结果，调用方使用新记录保存卡片。组件依赖真实查询记录，文档页只展示接入示例。",
+    code: `<BiQueryRefinement
+  :source="activeSource"
+  :query="response.query"
+  :record-id="response.result.query_record_id"
+  @applied="setQueryResult"
+/>`,
+    related: ["BiSourceModelDialog", "BiCardFormDialog"]
+  },
+  {
     id: "BiSourceModelDialog",
     label: "数据源模型弹窗",
     file: "BiSourceModelDialog.vue",

@@ -28,6 +28,21 @@
         </div>
       </div>
     </template>
+    <template #refinement>
+      <div v-if="querySummary" class="bi-card-query-summary">
+        <el-text>{{ t("bi.card.dimensions") }}：{{ querySummary.dimensions }}</el-text>
+        <el-text>{{ t("bi.refine.period") }}：{{ querySummary.period }}</el-text>
+      </div>
+      <BiQueryRefinement
+        v-if="!card && source && baseQuery && sourceRecordID"
+        :source="source"
+        :query="baseQuery"
+        :record-id="sourceRecordID"
+        :disabled="saving || previewing || loadingDetails || Boolean(pendingSave)"
+        @busy="refining = $event"
+        @applied="applyRefinement"
+      />
+    </template>
     <template #formulas>
       <div v-loading="loadingDetails" class="bi-card-formulas">
         <el-alert :title="t(canEditMetrics ? 'bi.sql.shared_notice' : 'bi.sql.readonly_notice')" type="info" show-icon :closable="false" />
@@ -57,8 +72,8 @@
     </template>
     <template #footer>
       <el-button :disabled="saving || Boolean(pendingSave)" @click="emit('update:modelValue', false)">{{ t("common.action.cancel") }}</el-button>
-      <el-button :loading="previewing" :disabled="saving || loadingDetails || Boolean(pendingSave)" @click="preview">{{ t("bi.card.preview") }}</el-button>
-      <el-button type="primary" :loading="saving" :disabled="loadingDetails" @click="submit">{{ t("bi.card.save") }}</el-button>
+      <el-button :loading="previewing" :disabled="saving || refining || loadingDetails || Boolean(pendingSave)" @click="preview">{{ t("bi.card.preview") }}</el-button>
+      <el-button type="primary" :loading="saving" :disabled="loadingDetails || refining" @click="submit">{{ t("bi.card.save") }}</el-button>
     </template>
   </FormDialog>
 </template>
@@ -69,14 +84,16 @@ import CodeEditor from "@liujitcn/kratos-admin-core/components/CodeEditor/index.
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
 import type { ProFormField } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import type { BiCard, SaveBiCardRequest } from "../rpc/bi/admin/v1/bi_card";
-import type { BiMeasureSpec, BiQueryResult, BiQuerySpec, BiSourceDescriptor } from "../rpc/bi/admin/v1/bi_query";
+import type { AskBiQueryResponse, BiMeasureSpec, BiQueryResult, BiQuerySpec, BiSourceDescriptor } from "../rpc/bi/admin/v1/bi_query";
 import { defBiCardService } from "../api/bi/admin/v1/bi_card";
 import type { BiModelImpact, BiSourceMeasure } from "../rpc/bi/admin/v1/bi_source";
 import { metricChanges, mergeMetricDrafts, appliedCardID } from "../metric-edit";
 import BiDataCard from "./BiDataCard.vue";
 import BiCardChartEditor from "./BiCardChartEditor.vue";
+import BiQueryRefinement from "./BiQueryRefinement.vue";
 import { parseCardChart } from "../card-schema";
 import { normalizeBiQuerySpec } from "../bi-response";
+import { describeBiQuery } from "../query-summary";
 import type { CardChartConfig } from "../card-schema";
 
 /** 卡片编辑状态，查询条件沿用原语义计划。 */
@@ -109,6 +126,7 @@ const chartConfig = ref<CardChartConfig>({ encoding: {}, style: { showLegend: tr
 const saving = ref(false);
 const pendingSave = ref<SaveBiCardRequest>();
 const previewing = ref(false);
+const refining = ref(false);
 const loadingDetails = ref(false);
 const canEditMetrics = ref(false);
 const originalMetrics = ref<BiSourceMeasure[]>([]);
@@ -121,6 +139,7 @@ const sourceVersion = ref(0);
 const changes = computed(() => metricChanges(originalMetrics.value, editedMetrics.value));
 let previewRequest = 0;
 let session = 0;
+let suggestedName = "";
 const source = computed(() => props.sources.find(item => item.code === form.source_code));
 const query = computed<BiQuerySpec>(() => ({
   source_code: form.source_code,
@@ -129,8 +148,10 @@ const query = computed<BiQuerySpec>(() => ({
   filters: baseQuery.value?.filters ?? [],
   limit: baseQuery.value?.limit || 100,
   time_range: baseQuery.value?.time_range,
-  orders: baseQuery.value?.orders ?? []
+  orders: baseQuery.value?.orders ?? [],
+  grouping_options: baseQuery.value?.grouping_options ?? []
 }));
+const querySummary = computed(() => baseQuery.value && describeBiQuery(baseQuery.value, t, source.value, previewResult.value?.columns ?? props.card?.columns));
 const previewCard = computed<BiCard>(() => ({
   id: 0,
   tenant_id: 0,
@@ -172,6 +193,7 @@ const fields = computed<ProFormField[]>(() => [
     }
   },
   { prop: "measures", label: t("bi.card.measure"), component: "slot", slotName: "measures", colSpan: 12 },
+  { prop: "refinement", label: "", component: "slot", slotName: "refinement", colSpan: 24 },
   { prop: "formulas", label: t("bi.sql.formulas"), component: "slot", slotName: "formulas", colSpan: 24 },
   { prop: "chart", label: t("bi.card.chart_type"), component: "slot", slotName: "chart", colSpan: 12 },
   { prop: "preview", label: t("bi.card.preview"), component: "slot", slotName: "preview", colSpan: 12 },
@@ -212,12 +234,17 @@ watch(
     if (!visible) return;
     saving.value = false;
     previewing.value = false;
+    refining.value = false;
     loadingDetails.value = false;
     const original = props.card?.query ?? props.initialQuery;
     const current = original ? normalizeBiQuerySpec(original) : undefined;
     baseQuery.value = current ? (JSON.parse(JSON.stringify(current)) as BiQuerySpec) : undefined;
+    const initialSource = props.sources.find(item => item.code === current?.source_code);
+    suggestedName = (current?.grouping_options.length
+      ? describeBiQuery(current, t, initialSource, props.initialResult?.columns).title
+      : props.initialTitle ?? "").slice(0, 128);
     Object.assign(form, defaultForm(), {
-      name: props.card?.name ?? props.initialTitle ?? "",
+      name: props.card?.name ?? suggestedName,
       source_code: current?.source_code || props.sources[0]?.code || "",
       dimensions: [...(current?.dimensions ?? [])],
       measures: (current?.measures ?? []).map(item => ({ ...item })),
@@ -284,9 +311,25 @@ async function loadDetails(preserve: boolean) {
   }
 }
 
+/** 更新卡片来源并清除与旧查询绑定的预览。 */
+function applyRefinement(next: AskBiQueryResponse) {
+  if (!next.query || !next.result?.query_record_id || !props.modelValue) return;
+  const useSuggestedName = !form.name.trim() || form.name === suggestedName;
+  baseQuery.value = next.query;
+  form.dimensions = [...next.query.dimensions];
+  form.chart_type = next.chart_type;
+  suggestedName = describeBiQuery(next.query, t, source.value, next.result.columns).title.slice(0, 128);
+  if (useSuggestedName) form.name = suggestedName;
+  previewRecordID.value = 0;
+  sql.value = "";
+  impact.value = undefined;
+  sourceRecordID.value = next.result.query_record_id;
+  previewResult.value = next.result;
+}
+
 /** 真实预览精确公共公式候选，并忽略编辑前的迟到响应。 */
 async function preview() {
-  if (previewing.value || loadingDetails.value || pendingSave.value) return;
+  if (previewing.value || refining.value || loadingDetails.value || pendingSave.value) return;
   if (!sourceRecordID.value) {
     ElMessage.warning(t("bi.card.ask_required"));
     return;
@@ -323,7 +366,7 @@ async function preview() {
 
 /** 保存精确候选，结果未知时重试冻结请求，避免新预览绕过一次消费。 */
 async function submit() {
-  if ((!pendingSave.value && !(await dialogRef.value?.validate())) || saving.value || previewing.value || loadingDetails.value) return;
+  if ((!pendingSave.value && !(await dialogRef.value?.validate())) || saving.value || previewing.value || refining.value || loadingDetails.value) return;
   if (!pendingSave.value && !sourceRecordID.value) {
     ElMessage.warning(t("bi.card.ask_required"));
     return;
@@ -397,6 +440,7 @@ function reset() {
 </script>
 
 <style scoped>
+.bi-card-query-summary { display: flex; flex-wrap: wrap; gap: 4px 16px; }
 .bi-card-formulas { display: flex; width: 100%; min-width: 0; flex-direction: column; gap: 12px; }
 .bi-card-formulas__metric, .bi-card-formulas__diff { display: flex; min-width: 0; flex-direction: column; gap: 6px; }
 .bi-card-formulas__diff code { overflow-wrap: anywhere; color: var(--el-text-color-regular); }

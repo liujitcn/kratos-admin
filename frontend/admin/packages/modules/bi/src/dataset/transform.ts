@@ -67,10 +67,10 @@ function shouldAggregate(chart: BiChartSchema): boolean {
   return !!(chart.encoding?.measure || chart.encoding?.measures?.length || agg === "count");
 }
 
-/** 分组键字段：维度 + （pivot 图的列维度也要保留，供 S2 交叉表用） */
+/** 分组键字段：维度 + 系列维度，防止同轴不同部门合并 */
 function groupFieldsOf(chart: BiChartSchema): string[] {
   const fields = [chart.encoding?.dimension ?? ""];
-  if (chart.type === "pivot" && chart.encoding?.series) fields.push(chart.encoding.series);
+  if (chart.encoding?.series && chart.encoding.series !== fields[0]) fields.push(chart.encoding.series);
   return fields.filter(Boolean);
 }
 
@@ -84,7 +84,7 @@ export function aggregateRows(
   const measure = chart.encoding?.measure;
   const measures = chart.encoding?.measures ?? (measure ? [measure] : []);
 
-  const keyOf = (row: BiRow) => groupFields.map((f) => String(row[f] ?? "")).join("\u0001");
+  const keyOf = (row: BiRow) => JSON.stringify(groupFields.map((field) => String(row[field] ?? "")));
   const groups = new Map<string, BiRow[]>();
   for (const row of rows) {
     const key = keyOf(row);

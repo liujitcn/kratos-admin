@@ -3,6 +3,7 @@ package admin
 import (
 	"context"
 	"database/sql"
+	"database/sql/driver"
 	"fmt"
 	"math/big"
 	"net"
@@ -102,6 +103,41 @@ func (d *configuredDatabase) Close() {
 	if d != nil && d.close != nil {
 		d.close()
 	}
+}
+
+// reportConnection 为报表借用单条连接，确保时间分组和筛选使用同一时区，归还前恢复宿主设置。
+func (d *configuredDatabase) reportConnection(ctx context.Context, zone string) (*sql.Conn, func(), error) {
+	read, set := "SELECT @@session.time_zone", "SET SESSION time_zone = ?"
+	if d.driver == "postgres" {
+		read, set = "SHOW TimeZone", "SELECT set_config('TimeZone', $1, false)"
+	} else if zone == "UTC" {
+		zone = "+00:00"
+	}
+	conn, err := d.db.Conn(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+	var previous string
+	if err = conn.QueryRowContext(ctx, read).Scan(&previous); err != nil { //nolint:forbidigo // 读取当前会话设置以便归还连接时恢复。
+		_ = conn.Close()
+		return nil, nil, err
+	}
+	if previous == zone {
+		return conn, func() { _ = conn.Close() }, nil
+	}
+	restore := func() {
+		restoreCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), time.Second)
+		defer cancel()
+		if _, restoreErr := conn.ExecContext(restoreCtx, set, previous); restoreErr != nil { //nolint:forbidigo // 恢复固定会话设置，无法恢复时丢弃物理连接。
+			_ = conn.Raw(func(any) error { return driver.ErrBadConn }) //nolint:forbidigo // database/sql 的 Raw 通过 ErrBadConn 丢弃连接，不执行 SQL。
+		}
+		_ = conn.Close()
+	}
+	if _, err = conn.ExecContext(ctx, set, zone); err != nil { //nolint:forbidigo // 只设置当前连接、时区值通过参数绑定。
+		restore()
+		return nil, nil, err
+	}
+	return conn, restore, nil
 }
 
 // discoverSourceTables 读取已连接数据库中可用于建模的表、字段及其注释。
@@ -242,8 +278,23 @@ func sourceTableKey(schemaName, tableName string) string {
 func executeConfiguredDefinition(ctx context.Context, database *configuredDatabase, execution *dto.CardExecution, args []any, limit int32) (bi.QueryResult, error) {
 	queryText, columns := execution.SQL, execution.Columns
 	var err error
+	queryRows := database.db.QueryContext
+	zone := execution.ReportTimezone
+	if execution.TimeRangeInstant && (database.driver == "mysql" || database.driver == "tidb") {
+		zone = "UTC"
+	}
+	if zone != "" {
+		var conn *sql.Conn
+		var restore func()
+		conn, restore, err = database.reportConnection(ctx, zone)
+		if err != nil {
+			return bi.QueryResult{}, errorsx.InvalidArgument("BI 数据库不支持此报表时区").WithCause(err)
+		}
+		defer restore()
+		queryRows = conn.QueryContext
+	}
 	var rows *sql.Rows
-	rows, err = database.db.QueryContext(ctx, queryText, args...) //nolint:forbidigo // 查询由白名单字段、固定聚合和参数占位符构造。
+	rows, err = queryRows(ctx, queryText, args...) // 查询由白名单字段、固定聚合和参数占位符构造。
 	if err != nil {
 		return bi.QueryResult{}, errorsx.Internal("执行配置数据源查询失败").WithCause(err)
 	}
@@ -269,7 +320,8 @@ func executeConfiguredDefinition(ctx context.Context, database *configuredDataba
 	}
 	for index, column := range columns {
 		actual := types[index].DatabaseTypeName()
-		if actual != "" && sourceFieldType(actual) != column.Type {
+		// 已保存执行定义可能仍把纯时刻的原始结果标为日期。
+		if actual != "" && sourceFieldType(actual) != column.Type && !(column.Type == bi.FieldTypeDate && isSourceClockType(strings.ToLower(actual))) {
 			return bi.QueryResult{}, errorsx.InvalidArgument("查询结果类型与公共模型不一致")
 		}
 	}
@@ -289,6 +341,10 @@ func executeConfiguredDefinition(ctx context.Context, database *configuredDataba
 				if _, ok := new(big.Rat).SetString(formatConfiguredValue(value)); !ok {
 					return bi.QueryResult{}, errorsx.InvalidArgument("查询结果不是有效数值")
 				}
+			}
+			if date, ok := value.(time.Time); ok && types[index].DatabaseTypeName() == "DATE" {
+				row = append(row, date.Format(time.DateOnly))
+				continue
 			}
 			row = append(row, formatConfiguredValue(value))
 		}

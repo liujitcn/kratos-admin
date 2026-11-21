@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
+
+	"github.com/liujitcn/kratos-admin/backend/pkg/bi"
 )
 
 // BiQueryRecordContext 保存一次查询的提问和仪表盘执行上下文。
@@ -23,6 +25,8 @@ type BiQueryRecordContext struct {
 	Question string
 	// ChartType 保存问数模型建议的图表类型。
 	ChartType string
+	// ParentRecordID 标识该结果从哪个成功记录调整得来。
+	ParentRecordID int64
 	// DashboardID 标识执行所属仪表盘。
 	DashboardID int64
 	// DashboardVersion 标识执行的仪表盘版本。
@@ -37,6 +41,8 @@ type BiQueryRecordContext struct {
 type BiQueryRecordMetadata struct {
 	// ChartType 是问数模型建议的图表类型。
 	ChartType string `json:"chart_type,omitempty"`
+	// ParentRecordID 标识派生问数的直接来源。
+	ParentRecordID int64 `json:"parent_record_id,omitempty"`
 }
 
 // BiAskFilterValues 表示模型返回的过滤值，统一为查询协议使用的字符串。
@@ -69,13 +75,14 @@ func (v *BiAskFilterValues) UnmarshalJSON(data []byte) error {
 // AskOutput 模型生成的受控查询计划和图表建议。
 type AskOutput struct {
 	Query struct {
-		SourceCode string        `json:"source_code"`
-		Dimensions []string      `json:"dimensions"`
-		Measures   []AskMeasure  `json:"measures"`
-		Filters    []AskFilter   `json:"filters"`
-		TimeRange  *AskTimeRange `json:"time_range"`
-		Orders     []AskOrder    `json:"orders"`
-		Limit      int32         `json:"limit"`
+		SourceCode      string              `json:"source_code"`
+		Dimensions      []string            `json:"dimensions"`
+		GroupingOptions []bi.GroupingOption `json:"grouping_options"`
+		Measures        []AskMeasure        `json:"measures"`
+		Filters         []AskFilter         `json:"filters"`
+		TimeRange       *AskTimeRange       `json:"time_range"`
+		Orders          []AskOrder          `json:"orders"`
+		Limit           int32               `json:"limit"`
 	} `json:"query"`
 	ChartType string `json:"chart_type"`
 	Title     string `json:"title"`
@@ -96,9 +103,10 @@ type AskFilter struct {
 
 // AskTimeRange 模型生成的时间范围。
 type AskTimeRange struct {
-	Field string `json:"field"`
-	Start string `json:"start"`
-	End   string `json:"end"`
+	Field        string `json:"field"`
+	Start        string `json:"start"`
+	End          string `json:"end"`
+	EndExclusive bool   `json:"end_exclusive,omitempty"`
 }
 
 // AskOrder 模型选择的结果排序规则。

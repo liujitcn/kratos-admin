@@ -18,6 +18,7 @@ func RegisterBiQueryServiceMCPTools(mcpServer *server.MCPServer, biQueryServiceS
 	RegisterBiQueryServiceListBiSourcesMCPTool(mcpServer, biQueryServiceServer)
 	RegisterBiQueryServicePreviewBiQueryMCPTool(mcpServer, biQueryServiceServer)
 	RegisterBiQueryServiceAskBiQueryMCPTool(mcpServer, biQueryServiceServer)
+	RegisterBiQueryServiceRefineBiQueryMCPTool(mcpServer, biQueryServiceServer)
 }
 
 // RegisterBiQueryServiceListBiSourcesMCPTool 注册查询当前用户可用的数据源目录的 MCP Tool。
@@ -84,6 +85,30 @@ func RegisterBiQueryServiceAskBiQueryMCPTool(mcpServer *server.MCPServer, biQuer
 			}
 			var reply *AskBiQueryResponse
 			reply, err = biQueryServiceServer.AskBiQuery(ctx, req)
+			if err != nil {
+				return mcp.NewToolResultError(err.Error()), nil
+			}
+			return mcp.NewToolResultJSON(reply)
+		},
+	)
+}
+
+// RegisterBiQueryServiceRefineBiQueryMCPTool 注册基于本人成功的问数记录调整分组和时间范围的 MCP Tool。
+func RegisterBiQueryServiceRefineBiQueryMCPTool(mcpServer *server.MCPServer, biQueryServiceServer BiQueryServiceServer) {
+	mcpServer.AddTool(
+		mcp.NewTool("bi_admin_v1_bi_query_service_refine_bi_query",
+			mcp.WithDescription("基于本人成功的问数记录调整分组和时间范围。"),
+			mcp.WithInputSchema[*RefineBiQueryRequest](),
+			mcp.WithOutputSchema[*AskBiQueryResponse](),
+		),
+		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+			req := &RefineBiQueryRequest{}
+			err := request.BindArguments(req)
+			if err != nil {
+				return nil, err
+			}
+			var reply *AskBiQueryResponse
+			reply, err = biQueryServiceServer.RefineBiQuery(ctx, req)
 			if err != nil {
 				return mcp.NewToolResultError(err.Error()), nil
 			}

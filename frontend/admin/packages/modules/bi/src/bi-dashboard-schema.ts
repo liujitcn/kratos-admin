@@ -45,7 +45,7 @@ export function dashboardSnapshotCard(item: DashboardCardLayout): BiCard {
     query_record_id: 0,
     name: item.name || "",
     source_code: "",
-    query: { source_code: "", dimensions: columns.filter(column => column.role === "dimension").map(column => column.code), measures: columns.filter(column => column.role === "measure").map(column => ({ code: column.code })), filters: [], orders: [], time_range: undefined, limit: 1000 },
+    query: { source_code: "", dimensions: columns.filter(column => column.role === "dimension").map(column => column.code), measures: columns.filter(column => column.role === "measure").map(column => ({ code: column.code })), filters: [], orders: [], grouping_options: [], time_range: undefined, limit: 1000 },
     chart_type: item.chart_type || "bar",
     chart_json: item.chart_json || "",
     refresh_seconds: 0,

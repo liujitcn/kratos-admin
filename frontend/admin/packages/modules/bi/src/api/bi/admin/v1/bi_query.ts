@@ -7,7 +7,8 @@ import type {
   BiQueryResult,
   ListBiSourcesRequest,
   ListBiSourcesResponse,
-  PreviewBiQueryRequest
+  PreviewBiQueryRequest,
+  RefineBiQueryRequest
 } from "../../../../rpc/bi/admin/v1/bi_query";
 
 const BI_QUERY_URL = "/v1/admin/bi";
@@ -44,12 +45,26 @@ export class BiQueryServiceImpl implements BiQueryService {
       url: `${BI_QUERY_URL}/query/ask`,
       method: "post",
       data: request
-    }).then(response => ({
-      ...response,
-      query: response.query ? normalizeBiQuerySpec(response.query) : undefined,
-      result: response.result ? normalizeBiQueryResult(response.result) : undefined
-    }));
+    }).then(normalizeAskResponse);
   }
+
+  /** 调整已有问数的分组与时间范围。 */
+  RefineBiQuery(request: RefineBiQueryRequest): Promise<AskBiQueryResponse> {
+    return service<RefineBiQueryRequest, AskBiQueryResponse>({
+      url: `${BI_QUERY_URL}/query/refine`,
+      method: "post",
+      data: request
+    }).then(normalizeAskResponse);
+  }
+}
+
+/** 补齐问数结果中省略的集合。 */
+function normalizeAskResponse(response: AskBiQueryResponse): AskBiQueryResponse {
+  return {
+    ...response,
+    query: response.query ? normalizeBiQuerySpec(response.query) : undefined,
+    result: response.result ? normalizeBiQueryResult(response.result) : undefined
+  };
 }
 
 export const defBiQueryService = new BiQueryServiceImpl();

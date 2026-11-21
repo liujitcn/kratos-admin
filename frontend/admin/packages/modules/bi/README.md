@@ -25,6 +25,8 @@ pnpm add @liujitcn/kratos-admin-core @liujitcn/kratos-admin-system @liujitcn/kra
 
 通过 System 的 `AdminAiExtension.biCardDialog` 提供助手问数建卡弹窗，按需加载现有卡片表单。数据源与来源记录由 BI 请求封装读取，卡片表单统一补齐 HTTP 省略的查询集合；普通预览与仪表盘执行记录不作为智能问数的复用来源。
 
+数据源模型可设置报表时区和部门的父子关系。智能问数结果和 AI 助手建卡弹窗共用分组调整组件。切换日期粒度、部门层级或时间范围后，使用服务端返回的新记录保存卡片。详见 [BI 与智能问数设计](../../../../../docs/BI与智能问数设计.md)。
+
 ## 目录与公开入口
 
 - `src/api/bi/admin/v1`：BI 请求封装，对应 `./api/*`。

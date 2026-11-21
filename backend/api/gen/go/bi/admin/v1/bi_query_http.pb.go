@@ -21,6 +21,7 @@ const _ = http.SupportPackageIsVersion3
 const OperationBiQueryServiceAskBiQuery = "/bi.admin.v1.BiQueryService/AskBiQuery"
 const OperationBiQueryServiceListBiSources = "/bi.admin.v1.BiQueryService/ListBiSources"
 const OperationBiQueryServicePreviewBiQuery = "/bi.admin.v1.BiQueryService/PreviewBiQuery"
+const OperationBiQueryServiceRefineBiQuery = "/bi.admin.v1.BiQueryService/RefineBiQuery"
 
 type BiQueryServiceHTTPServer interface {
 	// AskBiQuery 自然语言生成语义查询并返回预览结果。
@@ -29,6 +30,8 @@ type BiQueryServiceHTTPServer interface {
 	ListBiSources(context.Context, *ListBiSourcesRequest) (*ListBiSourcesResponse, error)
 	// PreviewBiQuery 预览一个已经由前端配置的语义查询。
 	PreviewBiQuery(context.Context, *PreviewBiQueryRequest) (*BiQueryResult, error)
+	// RefineBiQuery 基于本人成功的问数记录调整分组和时间范围。
+	RefineBiQuery(context.Context, *RefineBiQueryRequest) (*AskBiQueryResponse, error)
 }
 
 func RegisterBiQueryServiceHTTPServer(s *http.Server, srv BiQueryServiceHTTPServer) {
@@ -36,6 +39,7 @@ func RegisterBiQueryServiceHTTPServer(s *http.Server, srv BiQueryServiceHTTPServ
 	r.Handle("GET", "/api/v1/admin/bi/sources", _BiQueryService_ListBiSources0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/bi/query/preview", _BiQueryService_PreviewBiQuery0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/bi/query/ask", _BiQueryService_AskBiQuery0_HTTP_Handler(srv))
+	r.Handle("POST", "/api/v1/admin/bi/query/refine", _BiQueryService_RefineBiQuery0_HTTP_Handler(srv))
 }
 
 func _BiQueryService_ListBiSources0_HTTP_Handler(srv BiQueryServiceHTTPServer) func(ctx http.Context) error {
@@ -95,6 +99,25 @@ func _BiQueryService_AskBiQuery0_HTTP_Handler(srv BiQueryServiceHTTPServer) func
 	}
 }
 
+func _BiQueryService_RefineBiQuery0_HTTP_Handler(srv BiQueryServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in RefineBiQueryRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBiQueryServiceRefineBiQuery)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.RefineBiQuery(ctx, req.(*RefineBiQueryRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AskBiQueryResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 type BiQueryServiceHTTPClient interface {
 	// AskBiQuery 自然语言生成语义查询并返回预览结果。
 	AskBiQuery(ctx context.Context, req *AskBiQueryRequest, opts ...http.CallOption) (rsp *AskBiQueryResponse, err error)
@@ -102,6 +125,8 @@ type BiQueryServiceHTTPClient interface {
 	ListBiSources(ctx context.Context, req *ListBiSourcesRequest, opts ...http.CallOption) (rsp *ListBiSourcesResponse, err error)
 	// PreviewBiQuery 预览一个已经由前端配置的语义查询。
 	PreviewBiQuery(ctx context.Context, req *PreviewBiQueryRequest, opts ...http.CallOption) (rsp *BiQueryResult, err error)
+	// RefineBiQuery 基于本人成功的问数记录调整分组和时间范围。
+	RefineBiQuery(ctx context.Context, req *RefineBiQueryRequest, opts ...http.CallOption) (rsp *AskBiQueryResponse, err error)
 }
 
 type BiQueryServiceHTTPClientImpl struct {
@@ -156,6 +181,24 @@ func (c *BiQueryServiceHTTPClientImpl) PreviewBiQuery(ctx context.Context, in *P
 		http.Accept("application/protojson"),
 		http.ContentType("application/protojson"),
 		http.Operation(OperationBiQueryServicePreviewBiQuery),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// RefineBiQuery 基于本人成功的问数记录调整分组和时间范围。
+func (c *BiQueryServiceHTTPClientImpl) RefineBiQuery(ctx context.Context, in *RefineBiQueryRequest, opts ...http.CallOption) (*AskBiQueryResponse, error) {
+	var out AskBiQueryResponse
+	pattern := "/api/v1/admin/bi/query/refine"
+	path := http.BuildPath(pattern, in)
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.ContentType("application/protojson"),
+		http.Operation(OperationBiQueryServiceRefineBiQuery),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)

@@ -35,6 +35,12 @@ func NewBiQueryServiceAgentTools(biQueryServiceServer BiQueryServiceServer) ([]t
 		return nil, err
 	}
 	ts = append(ts, askBiQueryTool)
+	var refineBiQueryTool tool.InvokableTool
+	refineBiQueryTool, err = NewBiQueryServiceRefineBiQueryAgentTool(biQueryServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, refineBiQueryTool)
 	return ts, nil
 }
 
@@ -76,6 +82,20 @@ func NewBiQueryServiceAskBiQueryAgentTool(biQueryServiceServer BiQueryServiceSer
 				req = &AskBiQueryRequest{}
 			}
 			return biQueryServiceServer.AskBiQuery(ctx, req)
+		},
+	)
+}
+
+// NewBiQueryServiceRefineBiQueryAgentTool 创建基于本人成功的问数记录调整分组和时间范围的 Agent Tool。
+func NewBiQueryServiceRefineBiQueryAgentTool(biQueryServiceServer BiQueryServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*RefineBiQueryRequest, *AskBiQueryResponse](
+		"bi_admin_v1_bi_query_service_refine_bi_query",
+		"基于本人成功的问数记录调整分组和时间范围。",
+		func(ctx context.Context, req *RefineBiQueryRequest) (*AskBiQueryResponse, error) {
+			if req == nil {
+				req = &RefineBiQueryRequest{}
+			}
+			return biQueryServiceServer.RefineBiQuery(ctx, req)
 		},
 	)
 }

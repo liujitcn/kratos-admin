@@ -1173,14 +1173,15 @@ func (x *SaveBiSourceModelRequest) GetExpectedSourceVersion() int32 {
 
 // 数据源可用的表、关联关系和业务语义。
 type BiSourceModel struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	BaseTable     string                 `protobuf:"bytes,1,opt,name=base_table,json=baseTable,proto3" json:"base_table,omitempty"` // 事实表标识
-	Tables        []*BiSourceModelTable  `protobuf:"bytes,2,rep,name=tables,proto3" json:"tables,omitempty"`                        // 选中的表结构
-	Relations     []*BiSourceRelation    `protobuf:"bytes,3,rep,name=relations,proto3" json:"relations,omitempty"`                  // 表关联关系
-	Dimensions    []*BiSourceDimension   `protobuf:"bytes,4,rep,name=dimensions,proto3" json:"dimensions,omitempty"`                // 语义维度
-	Measures      []*BiSourceMeasure     `protobuf:"bytes,5,rep,name=measures,proto3" json:"measures,omitempty"`                    // 语义指标
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	BaseTable      string                 `protobuf:"bytes,1,opt,name=base_table,json=baseTable,proto3" json:"base_table,omitempty"`                // 事实表标识
+	Tables         []*BiSourceModelTable  `protobuf:"bytes,2,rep,name=tables,proto3" json:"tables,omitempty"`                                       // 选中的表结构
+	Relations      []*BiSourceRelation    `protobuf:"bytes,3,rep,name=relations,proto3" json:"relations,omitempty"`                                 // 表关联关系
+	Dimensions     []*BiSourceDimension   `protobuf:"bytes,4,rep,name=dimensions,proto3" json:"dimensions,omitempty"`                               // 语义维度
+	Measures       []*BiSourceMeasure     `protobuf:"bytes,5,rep,name=measures,proto3" json:"measures,omitempty"`                                   // 语义指标
+	ReportTimezone string                 `protobuf:"bytes,6,opt,name=report_timezone,json=reportTimezone,proto3" json:"report_timezone,omitempty"` // 报表时区
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *BiSourceModel) Reset() {
@@ -1246,6 +1247,13 @@ func (x *BiSourceModel) GetMeasures() []*BiSourceMeasure {
 		return x.Measures
 	}
 	return nil
+}
+
+func (x *BiSourceModel) GetReportTimezone() string {
+	if x != nil {
+		return x.ReportTimezone
+	}
+	return ""
 }
 
 // 语义模型中的表节点。
@@ -1403,6 +1411,7 @@ type BiSourceDimension struct {
 	Table         string                 `protobuf:"bytes,4,opt,name=table,proto3" json:"table,omitempty"`            // 所属表标识
 	Column        string                 `protobuf:"bytes,5,opt,name=column,proto3" json:"column,omitempty"`          // 数据库字段
 	Filterable    bool                   `protobuf:"varint,6,opt,name=filterable,proto3" json:"filterable,omitempty"` // 是否允许过滤
+	Hierarchy     *BiSourceHierarchy     `protobuf:"bytes,7,opt,name=hierarchy,proto3" json:"hierarchy,omitempty"`    // 可选的父子层级配置
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1479,6 +1488,66 @@ func (x *BiSourceDimension) GetFilterable() bool {
 	return false
 }
 
+func (x *BiSourceDimension) GetHierarchy() *BiSourceHierarchy {
+	if x != nil {
+		return x.Hierarchy
+	}
+	return nil
+}
+
+// 数据源父子层级，节点编号取维度表关系的唯一目标字段。
+type BiSourceHierarchy struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ParentColumn  string                 `protobuf:"bytes,1,opt,name=parent_column,json=parentColumn,proto3" json:"parent_column,omitempty"` // 父节点编号字段
+	RootId        string                 `protobuf:"bytes,2,opt,name=root_id,json=rootId,proto3" json:"root_id,omitempty"`                   // 顶层节点的父编号，留空表示父编号为空
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BiSourceHierarchy) Reset() {
+	*x = BiSourceHierarchy{}
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BiSourceHierarchy) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BiSourceHierarchy) ProtoMessage() {}
+
+func (x *BiSourceHierarchy) ProtoReflect() protoreflect.Message {
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BiSourceHierarchy.ProtoReflect.Descriptor instead.
+func (*BiSourceHierarchy) Descriptor() ([]byte, []int) {
+	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *BiSourceHierarchy) GetParentColumn() string {
+	if x != nil {
+		return x.ParentColumn
+	}
+	return ""
+}
+
+func (x *BiSourceHierarchy) GetRootId() string {
+	if x != nil {
+		return x.RootId
+	}
+	return ""
+}
+
 // 数据源语义指标。
 type BiSourceMeasure struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1494,7 +1563,7 @@ type BiSourceMeasure struct {
 
 func (x *BiSourceMeasure) Reset() {
 	*x = BiSourceMeasure{}
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[25]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1506,7 +1575,7 @@ func (x *BiSourceMeasure) String() string {
 func (*BiSourceMeasure) ProtoMessage() {}
 
 func (x *BiSourceMeasure) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[25]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1519,7 +1588,7 @@ func (x *BiSourceMeasure) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BiSourceMeasure.ProtoReflect.Descriptor instead.
 func (*BiSourceMeasure) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{25}
+	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *BiSourceMeasure) GetCode() string {
@@ -1588,7 +1657,7 @@ type BiSourceForm struct {
 
 func (x *BiSourceForm) Reset() {
 	*x = BiSourceForm{}
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[26]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1600,7 +1669,7 @@ func (x *BiSourceForm) String() string {
 func (*BiSourceForm) ProtoMessage() {}
 
 func (x *BiSourceForm) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[26]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1613,7 +1682,7 @@ func (x *BiSourceForm) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BiSourceForm.ProtoReflect.Descriptor instead.
 func (*BiSourceForm) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{26}
+	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *BiSourceForm) GetId() int64 {
@@ -1755,7 +1824,7 @@ type BiSource struct {
 
 func (x *BiSource) Reset() {
 	*x = BiSource{}
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[27]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1767,7 +1836,7 @@ func (x *BiSource) String() string {
 func (*BiSource) ProtoMessage() {}
 
 func (x *BiSource) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[27]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1780,7 +1849,7 @@ func (x *BiSource) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BiSource.ProtoReflect.Descriptor instead.
 func (*BiSource) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{27}
+	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *BiSource) GetId() int64 {
@@ -1972,7 +2041,7 @@ type BiMetricChange struct {
 
 func (x *BiMetricChange) Reset() {
 	*x = BiMetricChange{}
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[28]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1984,7 +2053,7 @@ func (x *BiMetricChange) String() string {
 func (*BiMetricChange) ProtoMessage() {}
 
 func (x *BiMetricChange) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[28]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1997,7 +2066,7 @@ func (x *BiMetricChange) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BiMetricChange.ProtoReflect.Descriptor instead.
 func (*BiMetricChange) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{28}
+	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *BiMetricChange) GetMetricCode() string {
@@ -2046,7 +2115,7 @@ type BiMetricDifference struct {
 
 func (x *BiMetricDifference) Reset() {
 	*x = BiMetricDifference{}
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[29]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2058,7 +2127,7 @@ func (x *BiMetricDifference) String() string {
 func (*BiMetricDifference) ProtoMessage() {}
 
 func (x *BiMetricDifference) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[29]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2071,7 +2140,7 @@ func (x *BiMetricDifference) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BiMetricDifference.ProtoReflect.Descriptor instead.
 func (*BiMetricDifference) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{29}
+	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *BiMetricDifference) GetBefore() *BiSourceMeasure {
@@ -2101,7 +2170,7 @@ type BiModelImpact struct {
 
 func (x *BiModelImpact) Reset() {
 	*x = BiModelImpact{}
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[30]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2113,7 +2182,7 @@ func (x *BiModelImpact) String() string {
 func (*BiModelImpact) ProtoMessage() {}
 
 func (x *BiModelImpact) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[30]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2126,7 +2195,7 @@ func (x *BiModelImpact) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BiModelImpact.ProtoReflect.Descriptor instead.
 func (*BiModelImpact) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{30}
+	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *BiModelImpact) GetChanges() []*BiMetricDifference {
@@ -2233,7 +2302,7 @@ const file_bi_admin_v1_bi_source_proto_rawDesc = "" +
 	"\x18SaveBiSourceModelRequest\x12(\n" +
 	"\x02id\x18\x01 \x01(\x03B\x18\xbaG\x0e\x92\x02\v数据源ID\xbaH\x04\"\x02 \x00R\x02id\x12S\n" +
 	"\x05model\x18\x02 \x01(\v2\x1a.bi.admin.v1.BiSourceModelB!\xbaG\x18\x92\x02\x15数据源语义模型\xbaH\x03\xc8\x01\x01R\x05model\x12Z\n" +
-	"\x17expected_source_version\x18\x03 \x01(\x05B\"\xbaG\x18\x92\x02\x15预期数据源版本\xbaH\x04\x1a\x02 \x00R\x15expectedSourceVersion\"\x98\x03\n" +
+	"\x17expected_source_version\x18\x03 \x01(\x05B\"\xbaG\x18\x92\x02\x15预期数据源版本\xbaH\x04\x1a\x02 \x00R\x15expectedSourceVersion\"\xf7\x03\n" +
 	"\rBiSourceModel\x12>\n" +
 	"\n" +
 	"base_table\x18\x01 \x01(\tB\x1f\xbaG\x12\x92\x02\x0f事实表标识\xbaH\ar\x05\x10\x01\x18\x80\x04R\tbaseTable\x12Q\n" +
@@ -2242,7 +2311,8 @@ const file_bi_admin_v1_bi_source_proto_rawDesc = "" +
 	"\n" +
 	"dimensions\x18\x04 \x03(\v2\x1e.bi.admin.v1.BiSourceDimensionB\x12\xbaG\x0f\x92\x02\f语义维度R\n" +
 	"dimensions\x12L\n" +
-	"\bmeasures\x18\x05 \x03(\v2\x1c.bi.admin.v1.BiSourceMeasureB\x12\xbaG\x0f\x92\x02\f语义指标R\bmeasures\"\xf0\x01\n" +
+	"\bmeasures\x18\x05 \x03(\v2\x1c.bi.admin.v1.BiSourceMeasureB\x12\xbaG\x0f\x92\x02\f语义指标R\bmeasures\x12]\n" +
+	"\x0freport_timezone\x18\x06 \x01(\tB4\xbaG*\x92\x02'报表时区，使用 IANA 时区名称\xbaH\x04r\x02\x18@R\x0ereportTimezone\"\xf0\x01\n" +
 	"\x12BiSourceModelTable\x12'\n" +
 	"\x03key\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f表结构标识R\x03key\x12g\n" +
 	"\rtenant_column\x18\x02 \x01(\tBB\xbaG?\x92\x02<租户隔离字段，为空表示连接级隔离或共享表R\ftenantColumn\x12#\n" +
@@ -2256,7 +2326,7 @@ const file_bi_admin_v1_bi_source_proto_rawDesc = "" +
 	"\vright_table\x18\x03 \x01(\tB\x15\xbaG\x12\x92\x02\x0f维度表标识R\n" +
 	"rightTable\x12>\n" +
 	"\fright_column\x18\x04 \x01(\tB\x1b\xbaG\x18\x92\x02\x15维度表唯一字段R\vrightColumn\x12P\n" +
-	"\tjoin_type\x18\x05 \x01(\tB3\xbaG\x1e\x92\x02\x1b连接类型：inner或left\xbaH\x0fr\rR\x05innerR\x04leftR\bjoinType\"\xa3\x02\n" +
+	"\tjoin_type\x18\x05 \x01(\tB3\xbaG\x1e\x92\x02\x1b连接类型：inner或left\xbaH\x0fr\rR\x05innerR\x04leftR\bjoinType\"\x84\x03\n" +
 	"\x11BiSourceDimension\x12&\n" +
 	"\x04code\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f语义编码R\x04code\x12&\n" +
 	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f展示名称R\x04name\x12(\n" +
@@ -2265,7 +2335,11 @@ const file_bi_admin_v1_bi_source_proto_rawDesc = "" +
 	"\x06column\x18\x05 \x01(\tB\x15\xbaG\x12\x92\x02\x0f数据库字段R\x06column\x128\n" +
 	"\n" +
 	"filterable\x18\x06 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否允许过滤R\n" +
-	"filterable\"\xbd\x02\n" +
+	"filterable\x12_\n" +
+	"\thierarchy\x18\a \x01(\v2\x1e.bi.admin.v1.BiSourceHierarchyB!\xbaG\x1e\x92\x02\x1b可选的父子层级配置R\thierarchy\"\xbd\x01\n" +
+	"\x11BiSourceHierarchy\x12J\n" +
+	"\rparent_column\x18\x01 \x01(\tB%\xbaG\x18\x92\x02\x15父节点编号字段\xbaH\ar\x05\x10\x01\x18\x80\x01R\fparentColumn\x12\\\n" +
+	"\aroot_id\x18\x02 \x01(\tBC\xbaG9\x92\x026顶层节点的父编号，留空表示父编号为空\xbaH\x04r\x02\x18\x14R\x06rootId\"\xbd\x02\n" +
 	"\x0fBiSourceMeasure\x12&\n" +
 	"\x04code\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f语义编码R\x04code\x12&\n" +
 	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f展示名称R\x04name\x12(\n" +
@@ -2374,7 +2448,7 @@ func file_bi_admin_v1_bi_source_proto_rawDescGZIP() []byte {
 	return file_bi_admin_v1_bi_source_proto_rawDescData
 }
 
-var file_bi_admin_v1_bi_source_proto_msgTypes = make([]protoimpl.MessageInfo, 31)
+var file_bi_admin_v1_bi_source_proto_msgTypes = make([]protoimpl.MessageInfo, 32)
 var file_bi_admin_v1_bi_source_proto_goTypes = []any{
 	(*PageBiSourceRequest)(nil),            // 0: bi.admin.v1.PageBiSourceRequest
 	(*PageBiSourceResponse)(nil),           // 1: bi.admin.v1.PageBiSourceResponse
@@ -2401,20 +2475,21 @@ var file_bi_admin_v1_bi_source_proto_goTypes = []any{
 	(*BiSourceModelTable)(nil),             // 22: bi.admin.v1.BiSourceModelTable
 	(*BiSourceRelation)(nil),               // 23: bi.admin.v1.BiSourceRelation
 	(*BiSourceDimension)(nil),              // 24: bi.admin.v1.BiSourceDimension
-	(*BiSourceMeasure)(nil),                // 25: bi.admin.v1.BiSourceMeasure
-	(*BiSourceForm)(nil),                   // 26: bi.admin.v1.BiSourceForm
-	(*BiSource)(nil),                       // 27: bi.admin.v1.BiSource
-	(*BiMetricChange)(nil),                 // 28: bi.admin.v1.BiMetricChange
-	(*BiMetricDifference)(nil),             // 29: bi.admin.v1.BiMetricDifference
-	(*BiModelImpact)(nil),                  // 30: bi.admin.v1.BiModelImpact
-	(*commonv1.SecretCrypto)(nil),          // 31: common.v1.SecretCrypto
+	(*BiSourceHierarchy)(nil),              // 25: bi.admin.v1.BiSourceHierarchy
+	(*BiSourceMeasure)(nil),                // 26: bi.admin.v1.BiSourceMeasure
+	(*BiSourceForm)(nil),                   // 27: bi.admin.v1.BiSourceForm
+	(*BiSource)(nil),                       // 28: bi.admin.v1.BiSource
+	(*BiMetricChange)(nil),                 // 29: bi.admin.v1.BiMetricChange
+	(*BiMetricDifference)(nil),             // 30: bi.admin.v1.BiMetricDifference
+	(*BiModelImpact)(nil),                  // 31: bi.admin.v1.BiModelImpact
+	(*commonv1.SecretCrypto)(nil),          // 32: common.v1.SecretCrypto
 }
 var file_bi_admin_v1_bi_source_proto_depIdxs = []int32{
-	27, // 0: bi.admin.v1.PageBiSourceResponse.sources:type_name -> bi.admin.v1.BiSource
-	26, // 1: bi.admin.v1.CreateBiSourceRequest.source:type_name -> bi.admin.v1.BiSourceForm
-	26, // 2: bi.admin.v1.UpdateBiSourceRequest.source:type_name -> bi.admin.v1.BiSourceForm
+	28, // 0: bi.admin.v1.PageBiSourceResponse.sources:type_name -> bi.admin.v1.BiSource
+	27, // 1: bi.admin.v1.CreateBiSourceRequest.source:type_name -> bi.admin.v1.BiSourceForm
+	27, // 2: bi.admin.v1.UpdateBiSourceRequest.source:type_name -> bi.admin.v1.BiSourceForm
 	10, // 3: bi.admin.v1.OptionBiSourceDatabaseResponse.databases:type_name -> bi.admin.v1.BiSourceDatabase
-	26, // 4: bi.admin.v1.TestBiSourceRequest.source:type_name -> bi.admin.v1.BiSourceForm
+	27, // 4: bi.admin.v1.TestBiSourceRequest.source:type_name -> bi.admin.v1.BiSourceForm
 	14, // 5: bi.admin.v1.BiSourceSchemaTable.columns:type_name -> bi.admin.v1.BiSourceSchemaColumn
 	15, // 6: bi.admin.v1.ListBiSourceTablesResponse.tables:type_name -> bi.admin.v1.BiSourceSchemaTable
 	14, // 7: bi.admin.v1.PageBiSourceTableDataResponse.columns:type_name -> bi.admin.v1.BiSourceSchemaColumn
@@ -2423,41 +2498,42 @@ var file_bi_admin_v1_bi_source_proto_depIdxs = []int32{
 	22, // 10: bi.admin.v1.BiSourceModel.tables:type_name -> bi.admin.v1.BiSourceModelTable
 	23, // 11: bi.admin.v1.BiSourceModel.relations:type_name -> bi.admin.v1.BiSourceRelation
 	24, // 12: bi.admin.v1.BiSourceModel.dimensions:type_name -> bi.admin.v1.BiSourceDimension
-	25, // 13: bi.admin.v1.BiSourceModel.measures:type_name -> bi.admin.v1.BiSourceMeasure
-	31, // 14: bi.admin.v1.BiSourceForm.password:type_name -> common.v1.SecretCrypto
-	30, // 15: bi.admin.v1.BiSource.sync_summary:type_name -> bi.admin.v1.BiModelImpact
-	25, // 16: bi.admin.v1.BiMetricDifference.before:type_name -> bi.admin.v1.BiSourceMeasure
-	25, // 17: bi.admin.v1.BiMetricDifference.after:type_name -> bi.admin.v1.BiSourceMeasure
-	29, // 18: bi.admin.v1.BiModelImpact.changes:type_name -> bi.admin.v1.BiMetricDifference
-	0,  // 19: bi.admin.v1.BiSourceService.PageBiSource:input_type -> bi.admin.v1.PageBiSourceRequest
-	2,  // 20: bi.admin.v1.BiSourceService.GetBiSource:input_type -> bi.admin.v1.GetBiSourceRequest
-	3,  // 21: bi.admin.v1.BiSourceService.CreateBiSource:input_type -> bi.admin.v1.CreateBiSourceRequest
-	4,  // 22: bi.admin.v1.BiSourceService.UpdateBiSource:input_type -> bi.admin.v1.UpdateBiSourceRequest
-	5,  // 23: bi.admin.v1.BiSourceService.DeleteBiSource:input_type -> bi.admin.v1.DeleteBiSourceRequest
-	7,  // 24: bi.admin.v1.BiSourceService.SetBiSourceStatus:input_type -> bi.admin.v1.SetBiSourceStatusRequest
-	8,  // 25: bi.admin.v1.BiSourceService.OptionBiSourceDatabase:input_type -> bi.admin.v1.OptionBiSourceDatabaseRequest
-	11, // 26: bi.admin.v1.BiSourceService.TestBiSource:input_type -> bi.admin.v1.TestBiSourceRequest
-	13, // 27: bi.admin.v1.BiSourceService.ListBiSourceTables:input_type -> bi.admin.v1.ListBiSourceTablesRequest
-	17, // 28: bi.admin.v1.BiSourceService.PageBiSourceTableData:input_type -> bi.admin.v1.PageBiSourceTableDataRequest
-	20, // 29: bi.admin.v1.BiSourceService.SaveBiSourceModel:input_type -> bi.admin.v1.SaveBiSourceModelRequest
-	20, // 30: bi.admin.v1.BiSourceService.PreviewBiSourceModel:input_type -> bi.admin.v1.SaveBiSourceModelRequest
-	1,  // 31: bi.admin.v1.BiSourceService.PageBiSource:output_type -> bi.admin.v1.PageBiSourceResponse
-	27, // 32: bi.admin.v1.BiSourceService.GetBiSource:output_type -> bi.admin.v1.BiSource
-	27, // 33: bi.admin.v1.BiSourceService.CreateBiSource:output_type -> bi.admin.v1.BiSource
-	27, // 34: bi.admin.v1.BiSourceService.UpdateBiSource:output_type -> bi.admin.v1.BiSource
-	6,  // 35: bi.admin.v1.BiSourceService.DeleteBiSource:output_type -> bi.admin.v1.DeleteBiSourceResponse
-	27, // 36: bi.admin.v1.BiSourceService.SetBiSourceStatus:output_type -> bi.admin.v1.BiSource
-	9,  // 37: bi.admin.v1.BiSourceService.OptionBiSourceDatabase:output_type -> bi.admin.v1.OptionBiSourceDatabaseResponse
-	12, // 38: bi.admin.v1.BiSourceService.TestBiSource:output_type -> bi.admin.v1.TestBiSourceResponse
-	16, // 39: bi.admin.v1.BiSourceService.ListBiSourceTables:output_type -> bi.admin.v1.ListBiSourceTablesResponse
-	18, // 40: bi.admin.v1.BiSourceService.PageBiSourceTableData:output_type -> bi.admin.v1.PageBiSourceTableDataResponse
-	27, // 41: bi.admin.v1.BiSourceService.SaveBiSourceModel:output_type -> bi.admin.v1.BiSource
-	30, // 42: bi.admin.v1.BiSourceService.PreviewBiSourceModel:output_type -> bi.admin.v1.BiModelImpact
-	31, // [31:43] is the sub-list for method output_type
-	19, // [19:31] is the sub-list for method input_type
-	19, // [19:19] is the sub-list for extension type_name
-	19, // [19:19] is the sub-list for extension extendee
-	0,  // [0:19] is the sub-list for field type_name
+	26, // 13: bi.admin.v1.BiSourceModel.measures:type_name -> bi.admin.v1.BiSourceMeasure
+	25, // 14: bi.admin.v1.BiSourceDimension.hierarchy:type_name -> bi.admin.v1.BiSourceHierarchy
+	32, // 15: bi.admin.v1.BiSourceForm.password:type_name -> common.v1.SecretCrypto
+	31, // 16: bi.admin.v1.BiSource.sync_summary:type_name -> bi.admin.v1.BiModelImpact
+	26, // 17: bi.admin.v1.BiMetricDifference.before:type_name -> bi.admin.v1.BiSourceMeasure
+	26, // 18: bi.admin.v1.BiMetricDifference.after:type_name -> bi.admin.v1.BiSourceMeasure
+	30, // 19: bi.admin.v1.BiModelImpact.changes:type_name -> bi.admin.v1.BiMetricDifference
+	0,  // 20: bi.admin.v1.BiSourceService.PageBiSource:input_type -> bi.admin.v1.PageBiSourceRequest
+	2,  // 21: bi.admin.v1.BiSourceService.GetBiSource:input_type -> bi.admin.v1.GetBiSourceRequest
+	3,  // 22: bi.admin.v1.BiSourceService.CreateBiSource:input_type -> bi.admin.v1.CreateBiSourceRequest
+	4,  // 23: bi.admin.v1.BiSourceService.UpdateBiSource:input_type -> bi.admin.v1.UpdateBiSourceRequest
+	5,  // 24: bi.admin.v1.BiSourceService.DeleteBiSource:input_type -> bi.admin.v1.DeleteBiSourceRequest
+	7,  // 25: bi.admin.v1.BiSourceService.SetBiSourceStatus:input_type -> bi.admin.v1.SetBiSourceStatusRequest
+	8,  // 26: bi.admin.v1.BiSourceService.OptionBiSourceDatabase:input_type -> bi.admin.v1.OptionBiSourceDatabaseRequest
+	11, // 27: bi.admin.v1.BiSourceService.TestBiSource:input_type -> bi.admin.v1.TestBiSourceRequest
+	13, // 28: bi.admin.v1.BiSourceService.ListBiSourceTables:input_type -> bi.admin.v1.ListBiSourceTablesRequest
+	17, // 29: bi.admin.v1.BiSourceService.PageBiSourceTableData:input_type -> bi.admin.v1.PageBiSourceTableDataRequest
+	20, // 30: bi.admin.v1.BiSourceService.SaveBiSourceModel:input_type -> bi.admin.v1.SaveBiSourceModelRequest
+	20, // 31: bi.admin.v1.BiSourceService.PreviewBiSourceModel:input_type -> bi.admin.v1.SaveBiSourceModelRequest
+	1,  // 32: bi.admin.v1.BiSourceService.PageBiSource:output_type -> bi.admin.v1.PageBiSourceResponse
+	28, // 33: bi.admin.v1.BiSourceService.GetBiSource:output_type -> bi.admin.v1.BiSource
+	28, // 34: bi.admin.v1.BiSourceService.CreateBiSource:output_type -> bi.admin.v1.BiSource
+	28, // 35: bi.admin.v1.BiSourceService.UpdateBiSource:output_type -> bi.admin.v1.BiSource
+	6,  // 36: bi.admin.v1.BiSourceService.DeleteBiSource:output_type -> bi.admin.v1.DeleteBiSourceResponse
+	28, // 37: bi.admin.v1.BiSourceService.SetBiSourceStatus:output_type -> bi.admin.v1.BiSource
+	9,  // 38: bi.admin.v1.BiSourceService.OptionBiSourceDatabase:output_type -> bi.admin.v1.OptionBiSourceDatabaseResponse
+	12, // 39: bi.admin.v1.BiSourceService.TestBiSource:output_type -> bi.admin.v1.TestBiSourceResponse
+	16, // 40: bi.admin.v1.BiSourceService.ListBiSourceTables:output_type -> bi.admin.v1.ListBiSourceTablesResponse
+	18, // 41: bi.admin.v1.BiSourceService.PageBiSourceTableData:output_type -> bi.admin.v1.PageBiSourceTableDataResponse
+	28, // 42: bi.admin.v1.BiSourceService.SaveBiSourceModel:output_type -> bi.admin.v1.BiSource
+	31, // 43: bi.admin.v1.BiSourceService.PreviewBiSourceModel:output_type -> bi.admin.v1.BiModelImpact
+	32, // [32:44] is the sub-list for method output_type
+	20, // [20:32] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_bi_admin_v1_bi_source_proto_init() }
@@ -2472,7 +2548,7 @@ func file_bi_admin_v1_bi_source_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_bi_admin_v1_bi_source_proto_rawDesc), len(file_bi_admin_v1_bi_source_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   31,
+			NumMessages:   32,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

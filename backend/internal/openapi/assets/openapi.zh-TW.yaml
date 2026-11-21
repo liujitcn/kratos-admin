@@ -6941,6 +6941,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/bi.admin.v1.BiQueryResult'
+    /api/v1/admin/bi/query/refine:
+        post:
+            tags:
+                - BiQueryService
+            description: 基於本人成功的問數記錄調整分組和時間範圍。
+            operationId: BiQueryService_RefineBiQuery
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/bi.admin.v1.RefineBiQueryRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/bi.admin.v1.AskBiQueryResponse'
     /api/v1/admin/bi/source:
         get:
             tags:
@@ -13510,6 +13529,17 @@ components:
                 filterable:
                     type: boolean
                     description: 是否允許過濾
+                time_grains:
+                    type: array
+                    items:
+                        type: string
+                    description: 支援的日期粒度
+                hierarchy_levels:
+                    type: array
+                    items:
+                        type: integer
+                        format: int32
+                    description: 支援的層級
             description: BI 欄位描述。
         bi.admin.v1.BiFilterSpec:
             type: object
@@ -13526,6 +13556,20 @@ components:
                         type: string
                     description: 過濾值
             description: BI 過濾條件。
+        bi.admin.v1.BiGroupingOption:
+            type: object
+            properties:
+                field:
+                    type: string
+                    description: 分組維度編碼
+                time_grain:
+                    type: string
+                    description: 日期粒度：day、week、month、quarter、year
+                hierarchy_level:
+                    type: integer
+                    description: 分組層級：1或2
+                    format: int32
+            description: BI 單個分組維度的轉換方式。
         bi.admin.v1.BiMeasureDescriptor:
             type: object
             properties:
@@ -13738,6 +13782,11 @@ components:
                     items:
                         $ref: '#/components/schemas/bi.admin.v1.BiOrderSpec'
                     description: 結果排序規則
+                grouping_options:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiGroupingOption'
+                    description: 已選維度的日期粒度或層級
             description: BI 語義查詢計劃。
         bi.admin.v1.BiResultColumn:
             type: object
@@ -13893,6 +13942,9 @@ components:
                     type: integer
                     description: 最大結果行數
                     format: int32
+                report_timezone:
+                    type: string
+                    description: 報表時區
             description: BI 資料來源描述。
         bi.admin.v1.BiSourceDimension:
             type: object
@@ -13915,6 +13967,8 @@ components:
                 filterable:
                     type: boolean
                     description: 是否允許過濾
+                hierarchy:
+                    $ref: '#/components/schemas/bi.admin.v1.BiSourceHierarchy'
             description: 數據源語義維度。
         bi.admin.v1.BiSourceForm:
             type: object
@@ -13967,6 +14021,16 @@ components:
                     description: 狀態：1啟用，2禁用
                     format: int32
             description: BI 資料來源配置表單。
+        bi.admin.v1.BiSourceHierarchy:
+            type: object
+            properties:
+                parent_column:
+                    type: string
+                    description: 父節點編號欄位
+                root_id:
+                    type: string
+                    description: 頂層節點的父編號，留空表示父編號為空
+            description: 資料來源父子層級，節點編號取維度表關係的唯一目標欄位。
         bi.admin.v1.BiSourceMeasure:
             type: object
             properties:
@@ -14015,6 +14079,9 @@ components:
                     items:
                         $ref: '#/components/schemas/bi.admin.v1.BiSourceMeasure'
                     description: 語義指標
+                report_timezone:
+                    type: string
+                    description: 報表時區，使用 IANA 時區名稱
             description: 數據源可用的表、關聯關係和業務語義。
         bi.admin.v1.BiSourceModelTable:
             type: object
@@ -14120,6 +14187,9 @@ components:
                 end:
                     type: string
                     description: 範圍終點
+                end_exclusive:
+                    type: boolean
+                    description: 是否排除終點
             description: BI 時間範圍。
         bi.admin.v1.BiWorkbench:
             type: object
@@ -14321,6 +14391,25 @@ components:
                     type: string
                     description: 草稿版本
             description: 發佈 BI 儀表板請求。
+        bi.admin.v1.RefineBiQueryRequest:
+            type: object
+            properties:
+                query_record_id:
+                    type: string
+                    description: 原問數記錄編號
+                dimensions:
+                    type: array
+                    items:
+                        type: string
+                    description: 調整後的分組維度
+                grouping_options:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/bi.admin.v1.BiGroupingOption'
+                    description: 調整後的日期粒度或層級
+                time_range:
+                    $ref: '#/components/schemas/bi.admin.v1.BiTimeRangeSpec'
+            description: 調整本人問數結果，保留原資料來源、指標和業務過濾。
         bi.admin.v1.SaveBiCardRequest:
             type: object
             properties:

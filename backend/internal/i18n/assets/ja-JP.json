@@ -8236,5 +8236,65 @@
   },
   "bi.source.error.measure_formula_invalid": {
     "other": "共通指標の数式が無効です: {{.Code}}"
+  },
+  "legacy.error.fa89a58d3cd15715": {
+    "other": "月ごとの集計が指定されています。月単位のグループ化に対応する日付ディメンションを選択してください。"
+  },
+  "legacy.error.3009c145a621695f": {
+    "other": "指定された部門階層での集計が必要です。データソースの部門階層設定を確認してください。"
+  },
+  "legacy.error.a5ef09c7b66bccc5": {
+    "other": "グループ別の集計が指定されていますが、クエリプランでグループ化のディメンションが選択されていません。必要なディメンションがデータソースモデルに含まれているか確認してください。"
+  },
+  "legacy.error.7f4b12277d2dd48d": {
+    "other": "BI レポートのタイムゾーンが無効です。"
+  },
+  "legacy.error.4adc70812afce8e7": {
+    "other": "BI の期間の終了は開始より後にしてください。"
+  },
+  "legacy.error.b7102f2d31164cf7": {
+    "other": "BI の期間には日付または日時を指定してください。"
+  },
+  "legacy.error.0c0882be495d4b17": {
+    "other": "一方のグループ化ディメンションをカテゴリに、もう一方を系列に割り当ててください。"
+  },
+  "legacy.error.c00c1004e7a26cb2": {
+    "other": "このチャートでは 2 つのグループ化ディメンションを同時に表示できません。"
+  },
+  "legacy.error.d4d23e18ff7251c8": {
+    "other": "レポートに有効な IANA タイムゾーンを選択してください。"
+  },
+  "legacy.error.1bf8e446f95d37ec": {
+    "other": "階層ディメンションには、ファクトテーブルへの左外部結合、文字列の名前、および同じ整数型の親 ID と子 ID が必要です。"
+  },
+  "legacy.error.4a9ac258a8756861": {
+    "other": "BI 階層のルート ID には 0 以上の整数を指定してください。"
+  },
+  "legacy.error.60215c156f4cfe89": {
+    "other": "この BI データソースは階層ディメンションに対応していません。"
+  },
+  "legacy.error.eff82b9b3780ff4b": {
+    "other": "この BI データソースは期間の終了値を含めない指定に対応していません。"
+  },
+  "legacy.error.7431c84e0b79cf41": {
+    "other": "BI の階層ディメンションは左外部結合でファクトテーブルに直接関連付けてください。"
+  },
+  "legacy.error.55a42d97f8b7de08": {
+    "other": "BI の各グループ化オプションに、選択済みの異なるディメンションを指定してください。"
+  },
+  "legacy.error.7b92befadedbaa20": {
+    "other": "組み込みツールの実行器の種類が無効です。"
+  },
+  "legacy.error.a3e335bba7d61789": {
+    "other": "BI クエリの調整に失敗しました。"
+  },
+  "bi_grouping_option.mode.exclusive": {
+    "other": "日付の粒度または階層レベルのどちらか一方を選択してください。"
+  },
+  "refine_bi_query.query_record_id.positive": {
+    "other": "元の BI クエリ記録を選択してください。"
+  },
+  "legacy.error.bf4cac520fb8e668": {
+    "other": "BI データベースは、このレポートのタイムゾーンに対応していません。"
   }
 }

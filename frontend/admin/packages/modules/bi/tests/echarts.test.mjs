@@ -68,6 +68,29 @@ test("双维度多指标卡片保留全部查询指标并对齐缺失类别", ()
   }
 });
 
+test("月度部门卡片修复重复的轴字段，保留同名部门的独立系列", () => {
+  const query = {
+    dimensions: ["department", "created_at"],
+    measures: [{ code: "count" }],
+    grouping_options: [{ field: "created_at", time_grain: "month" }, { field: "department", hierarchy_level: 2 }]
+  };
+  const result = {
+    columns: [{ code: "department", type: "string" }, { code: "created_at", type: "date" }, { code: "count", type: "number" }],
+    rows: [
+      { values: ["研发 / 平台 (#1)", "2026-01-01", "2"] },
+      { values: ["运营 / 平台 (#2)", "2026-01-01", "7"] },
+      { values: ["研发 / 平台 (#1)", "2026-02-01", "3"] }
+    ]
+  };
+  for (const chart_json of ["", JSON.stringify({ encoding: { dimension: "created_at", series: "created_at" } })]) {
+    const card = buildCardChart({ id: 1, chart_type: "line", query, chart_json }, result);
+    const option = compileEcharts(card.chart, card.rows, BI_THEME_LIGHT);
+    assert.deepEqual(option.xAxis.data, ["2026-01-01", "2026-02-01"]);
+    assert.deepEqual(option.series.map(item => item.name), ["研发 / 平台 (#1)", "运营 / 平台 (#2)"]);
+    assert.deepEqual(option.series.map(item => item.data), [[2, 3], [7, null]]);
+  }
+});
+
 test("发布仪表盘的HTTP空结果能渲染空态并保留缺失结果", () => {
   const placed = {
     card_id: 1, chart_type: "bar",

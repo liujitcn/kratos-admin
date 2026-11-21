@@ -109,16 +109,17 @@ func (x *ListBiSourcesResponse) GetSources() []*BiSourceDescriptor {
 
 // BI 数据源描述。
 type BiSourceDescriptor struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Code          string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`                       // 数据源编码
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                       // 数据源名称
-	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`         // 数据源说明
-	Version       int32                  `protobuf:"varint,4,opt,name=version,proto3" json:"version,omitempty"`                // 数据源语义版本
-	Dimensions    []*BiFieldDescriptor   `protobuf:"bytes,5,rep,name=dimensions,proto3" json:"dimensions,omitempty"`           // 可用维度
-	Measures      []*BiMeasureDescriptor `protobuf:"bytes,6,rep,name=measures,proto3" json:"measures,omitempty"`               // 可用指标
-	MaxRows       int32                  `protobuf:"varint,7,opt,name=max_rows,json=maxRows,proto3" json:"max_rows,omitempty"` // 最大结果行数
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Code           string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`                                           // 数据源编码
+	Name           string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                           // 数据源名称
+	Description    string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`                             // 数据源说明
+	Version        int32                  `protobuf:"varint,4,opt,name=version,proto3" json:"version,omitempty"`                                    // 数据源语义版本
+	Dimensions     []*BiFieldDescriptor   `protobuf:"bytes,5,rep,name=dimensions,proto3" json:"dimensions,omitempty"`                               // 可用维度
+	Measures       []*BiMeasureDescriptor `protobuf:"bytes,6,rep,name=measures,proto3" json:"measures,omitempty"`                                   // 可用指标
+	MaxRows        int32                  `protobuf:"varint,7,opt,name=max_rows,json=maxRows,proto3" json:"max_rows,omitempty"`                     // 最大结果行数
+	ReportTimezone string                 `protobuf:"bytes,8,opt,name=report_timezone,json=reportTimezone,proto3" json:"report_timezone,omitempty"` // 报表时区
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *BiSourceDescriptor) Reset() {
@@ -200,15 +201,24 @@ func (x *BiSourceDescriptor) GetMaxRows() int32 {
 	return 0
 }
 
+func (x *BiSourceDescriptor) GetReportTimezone() string {
+	if x != nil {
+		return x.ReportTimezone
+	}
+	return ""
+}
+
 // BI 字段描述。
 type BiFieldDescriptor struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Code          string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`              // 字段编码
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`              // 字段名称
-	Type          string                 `protobuf:"bytes,3,opt,name=type,proto3" json:"type,omitempty"`              // 字段类型
-	Filterable    bool                   `protobuf:"varint,4,opt,name=filterable,proto3" json:"filterable,omitempty"` // 是否允许过滤
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Code            string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`                                                      // 字段编码
+	Name            string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                                      // 字段名称
+	Type            string                 `protobuf:"bytes,3,opt,name=type,proto3" json:"type,omitempty"`                                                      // 字段类型
+	Filterable      bool                   `protobuf:"varint,4,opt,name=filterable,proto3" json:"filterable,omitempty"`                                         // 是否允许过滤
+	TimeGrains      []string               `protobuf:"bytes,5,rep,name=time_grains,json=timeGrains,proto3" json:"time_grains,omitempty"`                        // 支持的日期粒度
+	HierarchyLevels []int32                `protobuf:"varint,6,rep,packed,name=hierarchy_levels,json=hierarchyLevels,proto3" json:"hierarchy_levels,omitempty"` // 支持的层级
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *BiFieldDescriptor) Reset() {
@@ -267,6 +277,20 @@ func (x *BiFieldDescriptor) GetFilterable() bool {
 		return x.Filterable
 	}
 	return false
+}
+
+func (x *BiFieldDescriptor) GetTimeGrains() []string {
+	if x != nil {
+		return x.TimeGrains
+	}
+	return nil
+}
+
+func (x *BiFieldDescriptor) GetHierarchyLevels() []int32 {
+	if x != nil {
+		return x.HierarchyLevels
+	}
+	return nil
 }
 
 // BI 指标描述。
@@ -393,16 +417,17 @@ func (x *PreviewBiQueryRequest) GetQuery() *BiQuerySpec {
 
 // BI 语义查询计划。
 type BiQuerySpec struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	SourceCode    string                 `protobuf:"bytes,1,opt,name=source_code,json=sourceCode,proto3" json:"source_code,omitempty"` // 数据源编码
-	Dimensions    []string               `protobuf:"bytes,2,rep,name=dimensions,proto3" json:"dimensions,omitempty"`                   // 分组维度编码
-	Measures      []*BiMeasureSpec       `protobuf:"bytes,3,rep,name=measures,proto3" json:"measures,omitempty"`                       // 查询指标
-	Filters       []*BiFilterSpec        `protobuf:"bytes,4,rep,name=filters,proto3" json:"filters,omitempty"`                         // 过滤条件
-	Limit         int32                  `protobuf:"varint,5,opt,name=limit,proto3" json:"limit,omitempty"`                            // 结果行数上限，默认100
-	TimeRange     *BiTimeRangeSpec       `protobuf:"bytes,6,opt,name=time_range,json=timeRange,proto3" json:"time_range,omitempty"`    // 时间范围
-	Orders        []*BiOrderSpec         `protobuf:"bytes,7,rep,name=orders,proto3" json:"orders,omitempty"`                           // 结果排序规则
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	SourceCode      string                 `protobuf:"bytes,1,opt,name=source_code,json=sourceCode,proto3" json:"source_code,omitempty"`                // 数据源编码
+	Dimensions      []string               `protobuf:"bytes,2,rep,name=dimensions,proto3" json:"dimensions,omitempty"`                                  // 分组维度编码
+	Measures        []*BiMeasureSpec       `protobuf:"bytes,3,rep,name=measures,proto3" json:"measures,omitempty"`                                      // 查询指标
+	Filters         []*BiFilterSpec        `protobuf:"bytes,4,rep,name=filters,proto3" json:"filters,omitempty"`                                        // 过滤条件
+	Limit           int32                  `protobuf:"varint,5,opt,name=limit,proto3" json:"limit,omitempty"`                                           // 结果行数上限，默认100
+	TimeRange       *BiTimeRangeSpec       `protobuf:"bytes,6,opt,name=time_range,json=timeRange,proto3" json:"time_range,omitempty"`                   // 时间范围
+	Orders          []*BiOrderSpec         `protobuf:"bytes,7,rep,name=orders,proto3" json:"orders,omitempty"`                                          // 结果排序规则
+	GroupingOptions []*BiGroupingOption    `protobuf:"bytes,8,rep,name=grouping_options,json=groupingOptions,proto3" json:"grouping_options,omitempty"` // 已选维度的日期粒度或层级
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *BiQuerySpec) Reset() {
@@ -484,19 +509,157 @@ func (x *BiQuerySpec) GetOrders() []*BiOrderSpec {
 	return nil
 }
 
+func (x *BiQuerySpec) GetGroupingOptions() []*BiGroupingOption {
+	if x != nil {
+		return x.GroupingOptions
+	}
+	return nil
+}
+
+// BI 单个分组维度的转换方式。
+type BiGroupingOption struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Field          string                 `protobuf:"bytes,1,opt,name=field,proto3" json:"field,omitempty"`                                          // 分组维度编码
+	TimeGrain      string                 `protobuf:"bytes,2,opt,name=time_grain,json=timeGrain,proto3" json:"time_grain,omitempty"`                 // 日期粒度
+	HierarchyLevel int32                  `protobuf:"varint,3,opt,name=hierarchy_level,json=hierarchyLevel,proto3" json:"hierarchy_level,omitempty"` // 分组层级
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *BiGroupingOption) Reset() {
+	*x = BiGroupingOption{}
+	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BiGroupingOption) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BiGroupingOption) ProtoMessage() {}
+
+func (x *BiGroupingOption) ProtoReflect() protoreflect.Message {
+	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BiGroupingOption.ProtoReflect.Descriptor instead.
+func (*BiGroupingOption) Descriptor() ([]byte, []int) {
+	return file_bi_admin_v1_bi_query_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *BiGroupingOption) GetField() string {
+	if x != nil {
+		return x.Field
+	}
+	return ""
+}
+
+func (x *BiGroupingOption) GetTimeGrain() string {
+	if x != nil {
+		return x.TimeGrain
+	}
+	return ""
+}
+
+func (x *BiGroupingOption) GetHierarchyLevel() int32 {
+	if x != nil {
+		return x.HierarchyLevel
+	}
+	return 0
+}
+
+// 调整本人问数结果，保留原数据源、指标和业务过滤。
+type RefineBiQueryRequest struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	QueryRecordId   int64                  `protobuf:"varint,1,opt,name=query_record_id,json=queryRecordId,proto3" json:"query_record_id,omitempty"`    // 原问数记录编号
+	Dimensions      []string               `protobuf:"bytes,2,rep,name=dimensions,proto3" json:"dimensions,omitempty"`                                  // 调整后的分组维度
+	GroupingOptions []*BiGroupingOption    `protobuf:"bytes,3,rep,name=grouping_options,json=groupingOptions,proto3" json:"grouping_options,omitempty"` // 调整后的日期粒度或层级
+	TimeRange       *BiTimeRangeSpec       `protobuf:"bytes,4,opt,name=time_range,json=timeRange,proto3" json:"time_range,omitempty"`                   // 调整后的时间范围
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *RefineBiQueryRequest) Reset() {
+	*x = RefineBiQueryRequest{}
+	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RefineBiQueryRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RefineBiQueryRequest) ProtoMessage() {}
+
+func (x *RefineBiQueryRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RefineBiQueryRequest.ProtoReflect.Descriptor instead.
+func (*RefineBiQueryRequest) Descriptor() ([]byte, []int) {
+	return file_bi_admin_v1_bi_query_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *RefineBiQueryRequest) GetQueryRecordId() int64 {
+	if x != nil {
+		return x.QueryRecordId
+	}
+	return 0
+}
+
+func (x *RefineBiQueryRequest) GetDimensions() []string {
+	if x != nil {
+		return x.Dimensions
+	}
+	return nil
+}
+
+func (x *RefineBiQueryRequest) GetGroupingOptions() []*BiGroupingOption {
+	if x != nil {
+		return x.GroupingOptions
+	}
+	return nil
+}
+
+func (x *RefineBiQueryRequest) GetTimeRange() *BiTimeRangeSpec {
+	if x != nil {
+		return x.TimeRange
+	}
+	return nil
+}
+
 // BI 时间范围。
 type BiTimeRangeSpec struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Field         string                 `protobuf:"bytes,1,opt,name=field,proto3" json:"field,omitempty"` // 时间维度编码
-	Start         string                 `protobuf:"bytes,2,opt,name=start,proto3" json:"start,omitempty"` // 范围起点
-	End           string                 `protobuf:"bytes,3,opt,name=end,proto3" json:"end,omitempty"`     // 范围终点
+	Field         string                 `protobuf:"bytes,1,opt,name=field,proto3" json:"field,omitempty"`                                    // 时间维度编码
+	Start         string                 `protobuf:"bytes,2,opt,name=start,proto3" json:"start,omitempty"`                                    // 范围起点
+	End           string                 `protobuf:"bytes,3,opt,name=end,proto3" json:"end,omitempty"`                                        // 范围终点
+	EndExclusive  bool                   `protobuf:"varint,4,opt,name=end_exclusive,json=endExclusive,proto3" json:"end_exclusive,omitempty"` // 是否排除终点
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *BiTimeRangeSpec) Reset() {
 	*x = BiTimeRangeSpec{}
-	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[7]
+	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -508,7 +671,7 @@ func (x *BiTimeRangeSpec) String() string {
 func (*BiTimeRangeSpec) ProtoMessage() {}
 
 func (x *BiTimeRangeSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[7]
+	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -521,7 +684,7 @@ func (x *BiTimeRangeSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BiTimeRangeSpec.ProtoReflect.Descriptor instead.
 func (*BiTimeRangeSpec) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_query_proto_rawDescGZIP(), []int{7}
+	return file_bi_admin_v1_bi_query_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *BiTimeRangeSpec) GetField() string {
@@ -545,6 +708,13 @@ func (x *BiTimeRangeSpec) GetEnd() string {
 	return ""
 }
 
+func (x *BiTimeRangeSpec) GetEndExclusive() bool {
+	if x != nil {
+		return x.EndExclusive
+	}
+	return false
+}
+
 // BI 结果排序规则。
 type BiOrderSpec struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -556,7 +726,7 @@ type BiOrderSpec struct {
 
 func (x *BiOrderSpec) Reset() {
 	*x = BiOrderSpec{}
-	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[8]
+	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -568,7 +738,7 @@ func (x *BiOrderSpec) String() string {
 func (*BiOrderSpec) ProtoMessage() {}
 
 func (x *BiOrderSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[8]
+	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -581,7 +751,7 @@ func (x *BiOrderSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BiOrderSpec.ProtoReflect.Descriptor instead.
 func (*BiOrderSpec) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_query_proto_rawDescGZIP(), []int{8}
+	return file_bi_admin_v1_bi_query_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *BiOrderSpec) GetField() string {
@@ -608,7 +778,7 @@ type BiMeasureSpec struct {
 
 func (x *BiMeasureSpec) Reset() {
 	*x = BiMeasureSpec{}
-	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[9]
+	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -620,7 +790,7 @@ func (x *BiMeasureSpec) String() string {
 func (*BiMeasureSpec) ProtoMessage() {}
 
 func (x *BiMeasureSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[9]
+	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -633,7 +803,7 @@ func (x *BiMeasureSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BiMeasureSpec.ProtoReflect.Descriptor instead.
 func (*BiMeasureSpec) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_query_proto_rawDescGZIP(), []int{9}
+	return file_bi_admin_v1_bi_query_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *BiMeasureSpec) GetCode() string {
@@ -655,7 +825,7 @@ type BiFilterSpec struct {
 
 func (x *BiFilterSpec) Reset() {
 	*x = BiFilterSpec{}
-	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[10]
+	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -667,7 +837,7 @@ func (x *BiFilterSpec) String() string {
 func (*BiFilterSpec) ProtoMessage() {}
 
 func (x *BiFilterSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[10]
+	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -680,7 +850,7 @@ func (x *BiFilterSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BiFilterSpec.ProtoReflect.Descriptor instead.
 func (*BiFilterSpec) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_query_proto_rawDescGZIP(), []int{10}
+	return file_bi_admin_v1_bi_query_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *BiFilterSpec) GetField() string {
@@ -719,7 +889,7 @@ type BiQueryResult struct {
 
 func (x *BiQueryResult) Reset() {
 	*x = BiQueryResult{}
-	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[11]
+	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -731,7 +901,7 @@ func (x *BiQueryResult) String() string {
 func (*BiQueryResult) ProtoMessage() {}
 
 func (x *BiQueryResult) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[11]
+	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -744,7 +914,7 @@ func (x *BiQueryResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BiQueryResult.ProtoReflect.Descriptor instead.
 func (*BiQueryResult) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_query_proto_rawDescGZIP(), []int{11}
+	return file_bi_admin_v1_bi_query_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *BiQueryResult) GetColumns() []*BiResultColumn {
@@ -804,7 +974,7 @@ type BiResultColumn struct {
 
 func (x *BiResultColumn) Reset() {
 	*x = BiResultColumn{}
-	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[12]
+	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -816,7 +986,7 @@ func (x *BiResultColumn) String() string {
 func (*BiResultColumn) ProtoMessage() {}
 
 func (x *BiResultColumn) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[12]
+	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -829,7 +999,7 @@ func (x *BiResultColumn) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BiResultColumn.ProtoReflect.Descriptor instead.
 func (*BiResultColumn) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_query_proto_rawDescGZIP(), []int{12}
+	return file_bi_admin_v1_bi_query_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *BiResultColumn) GetCode() string {
@@ -884,7 +1054,7 @@ type BiResultRow struct {
 
 func (x *BiResultRow) Reset() {
 	*x = BiResultRow{}
-	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[13]
+	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -896,7 +1066,7 @@ func (x *BiResultRow) String() string {
 func (*BiResultRow) ProtoMessage() {}
 
 func (x *BiResultRow) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[13]
+	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -909,7 +1079,7 @@ func (x *BiResultRow) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BiResultRow.ProtoReflect.Descriptor instead.
 func (*BiResultRow) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_query_proto_rawDescGZIP(), []int{13}
+	return file_bi_admin_v1_bi_query_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *BiResultRow) GetValues() []string {
@@ -931,7 +1101,7 @@ type AskBiQueryRequest struct {
 
 func (x *AskBiQueryRequest) Reset() {
 	*x = AskBiQueryRequest{}
-	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[14]
+	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -943,7 +1113,7 @@ func (x *AskBiQueryRequest) String() string {
 func (*AskBiQueryRequest) ProtoMessage() {}
 
 func (x *AskBiQueryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[14]
+	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -956,7 +1126,7 @@ func (x *AskBiQueryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AskBiQueryRequest.ProtoReflect.Descriptor instead.
 func (*AskBiQueryRequest) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_query_proto_rawDescGZIP(), []int{14}
+	return file_bi_admin_v1_bi_query_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *AskBiQueryRequest) GetQuestion() string {
@@ -993,7 +1163,7 @@ type AskBiQueryResponse struct {
 
 func (x *AskBiQueryResponse) Reset() {
 	*x = AskBiQueryResponse{}
-	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[15]
+	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1005,7 +1175,7 @@ func (x *AskBiQueryResponse) String() string {
 func (*AskBiQueryResponse) ProtoMessage() {}
 
 func (x *AskBiQueryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[15]
+	mi := &file_bi_admin_v1_bi_query_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1018,7 +1188,7 @@ func (x *AskBiQueryResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AskBiQueryResponse.ProtoReflect.Descriptor instead.
 func (*AskBiQueryResponse) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_query_proto_rawDescGZIP(), []int{15}
+	return file_bi_admin_v1_bi_query_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *AskBiQueryResponse) GetQuery() *BiQuerySpec {
@@ -1056,7 +1226,7 @@ const file_bi_admin_v1_bi_query_proto_rawDesc = "" +
 	"\x1abi/admin/v1/bi_query.proto\x12\vbi.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\x16\n" +
 	"\x14ListBiSourcesRequest\"x\n" +
 	"\x15ListBiSourcesResponse\x12_\n" +
-	"\asources\x18\x01 \x03(\v2\x1f.bi.admin.v1.BiSourceDescriptorB$\xbaG!\x92\x02\x1e当前用户可用的数据源R\asources\"\xb5\x03\n" +
+	"\asources\x18\x01 \x03(\v2\x1f.bi.admin.v1.BiSourceDescriptorB$\xbaG!\x92\x02\x1e当前用户可用的数据源R\asources\"\xf2\x03\n" +
 	"\x12BiSourceDescriptor\x12)\n" +
 	"\x04code\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f数据源编码R\x04code\x12)\n" +
 	"\x04name\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f数据源名称R\x04name\x127\n" +
@@ -1066,14 +1236,18 @@ const file_bi_admin_v1_bi_query_proto_rawDesc = "" +
 	"dimensions\x18\x05 \x03(\v2\x1e.bi.admin.v1.BiFieldDescriptorB\x12\xbaG\x0f\x92\x02\f可用维度R\n" +
 	"dimensions\x12P\n" +
 	"\bmeasures\x18\x06 \x03(\v2 .bi.admin.v1.BiMeasureDescriptorB\x12\xbaG\x0f\x92\x02\f可用指标R\bmeasures\x123\n" +
-	"\bmax_rows\x18\a \x01(\x05B\x18\xbaG\x15\x92\x02\x12最大结果行数R\amaxRows\"\xde\x01\n" +
+	"\bmax_rows\x18\a \x01(\x05B\x18\xbaG\x15\x92\x02\x12最大结果行数R\amaxRows\x12;\n" +
+	"\x0freport_timezone\x18\b \x01(\tB\x12\xbaG\x0f\x92\x02\f报表时区R\x0ereportTimezone\"\xde\x02\n" +
 	"\x11BiFieldDescriptor\x12&\n" +
 	"\x04code\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f字段编码R\x04code\x12&\n" +
 	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f字段名称R\x04name\x12?\n" +
 	"\x04type\x18\x03 \x01(\tB+\xbaG(\x92\x02%字段类型：string、number、dateR\x04type\x128\n" +
 	"\n" +
 	"filterable\x18\x04 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否允许过滤R\n" +
-	"filterable\"\xe8\x01\n" +
+	"filterable\x12<\n" +
+	"\vtime_grains\x18\x05 \x03(\tB\x1b\xbaG\x18\x92\x02\x15支持的日期粒度R\n" +
+	"timeGrains\x12@\n" +
+	"\x10hierarchy_levels\x18\x06 \x03(\x05B\x15\xbaG\x12\x92\x02\x0f支持的层级R\x0fhierarchyLevels\"\xe8\x01\n" +
 	"\x13BiMeasureDescriptor\x12&\n" +
 	"\x04code\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f指标编码R\x04code\x12&\n" +
 	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f指标名称R\x04name\x12&\n" +
@@ -1081,7 +1255,7 @@ const file_bi_admin_v1_bi_query_proto_rawDesc = "" +
 	"\x04unit\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f指标单位R\x04unit\x121\n" +
 	"\brevision\x18\x05 \x01(\x03B\x15\xbaG\x12\x92\x02\x0f指标修订号R\brevision\"g\n" +
 	"\x15PreviewBiQueryRequest\x12N\n" +
-	"\x05query\x18\x01 \x01(\v2\x18.bi.admin.v1.BiQuerySpecB\x1e\xbaG\x15\x92\x02\x12语义查询计划\xbaH\x03\xc8\x01\x01R\x05query\"\x81\x04\n" +
+	"\x05query\x18\x01 \x01(\v2\x18.bi.admin.v1.BiQuerySpecB\x1e\xbaG\x15\x92\x02\x12语义查询计划\xbaH\x03\xc8\x01\x01R\x05query\"\xff\x04\n" +
 	"\vBiQuerySpec\x12@\n" +
 	"\vsource_code\x18\x01 \x01(\tB\x1f\xbaG\x12\x92\x02\x0f数据源编码\xbaH\ar\x05\x10\x01\x18\x80\x01R\n" +
 	"sourceCode\x128\n" +
@@ -1093,11 +1267,28 @@ const file_bi_admin_v1_bi_query_proto_rawDesc = "" +
 	"\x05limit\x18\x05 \x01(\x05B.\xbaG!\x92\x02\x1e结果行数上限，默认100\xbaH\a\x1a\x05\x18\xe8\a(\x00R\x05limit\x12O\n" +
 	"\n" +
 	"time_range\x18\x06 \x01(\v2\x1c.bi.admin.v1.BiTimeRangeSpecB\x12\xbaG\x0f\x92\x02\f时间范围R\ttimeRange\x12J\n" +
-	"\x06orders\x18\a \x03(\v2\x18.bi.admin.v1.BiOrderSpecB\x18\xbaG\x15\x92\x02\x12结果排序规则R\x06orders\"\xad\x01\n" +
+	"\x06orders\x18\a \x03(\v2\x18.bi.admin.v1.BiOrderSpecB\x18\xbaG\x15\x92\x02\x12结果排序规则R\x06orders\x12|\n" +
+	"\x10grouping_options\x18\b \x03(\v2\x1d.bi.admin.v1.BiGroupingOptionB2\xbaG'\x92\x02$已选维度的日期粒度或层级\xbaH\x05\x92\x01\x02\x10\x02R\x0fgroupingOptions\"\xac\x03\n" +
+	"\x10BiGroupingOption\x128\n" +
+	"\x05field\x18\x01 \x01(\tB\"\xbaG\x15\x92\x02\x12分组维度编码\xbaH\ar\x05\x10\x01\x18\x80\x01R\x05field\x12\x7f\n" +
+	"\n" +
+	"time_grain\x18\x02 \x01(\tB`\xbaG5\x92\x022日期粒度：day、week、month、quarter、year\xbaH%r#R\x00R\x03dayR\x04weekR\x05monthR\aquarterR\x04yearR\ttimeGrain\x12L\n" +
+	"\x0fhierarchy_level\x18\x03 \x01(\x05B#\xbaG\x17\x92\x02\x14分组层级：1或2\xbaH\x06\x1a\x04\x18\x02(\x00R\x0ehierarchyLevel:\x8e\x01\xbaH\x8a\x01\x1a\x87\x01\n" +
+	"!bi_grouping_option.mode.exclusive\x12*请选择日期粒度或层级中的一项\x1a6(this.time_grain != '') != (this.hierarchy_level != 0)\"\xe5\x03\n" +
+	"\x14RefineBiQueryRequest\x12\x97\x01\n" +
+	"\x0fquery_record_id\x18\x01 \x01(\x03Bo\xbaG\x18\x92\x02\x15原问数记录编号\xbaHQ\xba\x01N\n" +
+	"(refine_bi_query.query_record_id.positive\x12\x18请选择原问数记录\x1a\bthis > 0R\rqueryRecordId\x12F\n" +
+	"\n" +
+	"dimensions\x18\x02 \x03(\tB&\xbaG\x1b\x92\x02\x18调整后的分组维度\xbaH\x05\x92\x01\x02\x10\x02R\n" +
+	"dimensions\x12y\n" +
+	"\x10grouping_options\x18\x03 \x03(\v2\x1d.bi.admin.v1.BiGroupingOptionB/\xbaG$\x92\x02!调整后的日期粒度或层级\xbaH\x05\x92\x01\x02\x10\x02R\x0fgroupingOptions\x12p\n" +
+	"\n" +
+	"time_range\x18\x04 \x01(\v2\x1c.bi.admin.v1.BiTimeRangeSpecB3\xbaG0\x92\x02-调整后的时间范围，缺省表示清除R\ttimeRange\"\xec\x01\n" +
 	"\x0fBiTimeRangeSpec\x128\n" +
 	"\x05field\x18\x01 \x01(\tB\"\xbaG\x15\x92\x02\x12时间维度编码\xbaH\ar\x05\x10\x01\x18\x80\x01R\x05field\x121\n" +
 	"\x05start\x18\x02 \x01(\tB\x1b\xbaG\x0f\x92\x02\f范围起点\xbaH\x06r\x04\x10\x01\x18@R\x05start\x12-\n" +
-	"\x03end\x18\x03 \x01(\tB\x1b\xbaG\x0f\x92\x02\f范围终点\xbaH\x06r\x04\x10\x01\x18@R\x03end\"\xa0\x01\n" +
+	"\x03end\x18\x03 \x01(\tB\x1b\xbaG\x0f\x92\x02\f范围终点\xbaH\x06r\x04\x10\x01\x18@R\x03end\x12=\n" +
+	"\rend_exclusive\x18\x04 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否排除终点R\fendExclusive\"\xa0\x01\n" +
 	"\vBiOrderSpec\x12G\n" +
 	"\x05field\x18\x01 \x01(\tB1\xbaG$\x92\x02!已选择的维度或指标编码\xbaH\ar\x05\x10\x01\x18\x80\x01R\x05field\x12H\n" +
 	"\tdirection\x18\x02 \x01(\tB*\xbaG\x1e\x92\x02\x1b排序方向：asc 或 desc\xbaH\x06r\x04\x10\x01\x18\x04R\tdirection\"A\n" +
@@ -1136,12 +1327,13 @@ const file_bi_admin_v1_bi_query_proto_rawDesc = "" +
 	"\x06result\x18\x02 \x01(\v2\x1a.bi.admin.v1.BiQueryResultB\x12\xbaG\x0f\x92\x02\f查询结果R\x06result\x127\n" +
 	"\n" +
 	"chart_type\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12建议图表类型R\tchartType\x12.\n" +
-	"\x05title\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12建议图表标题R\x05title2\xfd\x02\n" +
+	"\x05title\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12建议图表标题R\x05title2\xfc\x03\n" +
 	"\x0eBiQueryService\x12x\n" +
 	"\rListBiSources\x12!.bi.admin.v1.ListBiSourcesRequest\x1a\".bi.admin.v1.ListBiSourcesResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/api/v1/admin/bi/sources\x12{\n" +
 	"\x0ePreviewBiQuery\x12\".bi.admin.v1.PreviewBiQueryRequest\x1a\x1a.bi.admin.v1.BiQueryResult\")\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/api/v1/admin/bi/query/preview\x12t\n" +
 	"\n" +
-	"AskBiQuery\x12\x1e.bi.admin.v1.AskBiQueryRequest\x1a\x1f.bi.admin.v1.AskBiQueryResponse\"%\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/api/v1/admin/bi/query/askB\xb6\x01\n" +
+	"AskBiQuery\x12\x1e.bi.admin.v1.AskBiQueryRequest\x1a\x1f.bi.admin.v1.AskBiQueryResponse\"%\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/api/v1/admin/bi/query/ask\x12}\n" +
+	"\rRefineBiQuery\x12!.bi.admin.v1.RefineBiQueryRequest\x1a\x1f.bi.admin.v1.AskBiQueryResponse\"(\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/api/v1/admin/bi/query/refineB\xb6\x01\n" +
 	"\x0fcom.bi.admin.v1B\fBiQueryProtoP\x01ZGgithub.com/liujitcn/kratos-admin/backend/api/gen/go/bi/admin/v1;adminv1\xa2\x02\x03BAX\xaa\x02\vBi.Admin.V1\xca\x02\vBi\\Admin\\V1\xe2\x02\x17Bi\\Admin\\V1\\GPBMetadata\xea\x02\rBi::Admin::V1b\x06proto3"
 
 var (
@@ -1156,7 +1348,7 @@ func file_bi_admin_v1_bi_query_proto_rawDescGZIP() []byte {
 	return file_bi_admin_v1_bi_query_proto_rawDescData
 }
 
-var file_bi_admin_v1_bi_query_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_bi_admin_v1_bi_query_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_bi_admin_v1_bi_query_proto_goTypes = []any{
 	(*ListBiSourcesRequest)(nil),  // 0: bi.admin.v1.ListBiSourcesRequest
 	(*ListBiSourcesResponse)(nil), // 1: bi.admin.v1.ListBiSourcesResponse
@@ -1165,40 +1357,47 @@ var file_bi_admin_v1_bi_query_proto_goTypes = []any{
 	(*BiMeasureDescriptor)(nil),   // 4: bi.admin.v1.BiMeasureDescriptor
 	(*PreviewBiQueryRequest)(nil), // 5: bi.admin.v1.PreviewBiQueryRequest
 	(*BiQuerySpec)(nil),           // 6: bi.admin.v1.BiQuerySpec
-	(*BiTimeRangeSpec)(nil),       // 7: bi.admin.v1.BiTimeRangeSpec
-	(*BiOrderSpec)(nil),           // 8: bi.admin.v1.BiOrderSpec
-	(*BiMeasureSpec)(nil),         // 9: bi.admin.v1.BiMeasureSpec
-	(*BiFilterSpec)(nil),          // 10: bi.admin.v1.BiFilterSpec
-	(*BiQueryResult)(nil),         // 11: bi.admin.v1.BiQueryResult
-	(*BiResultColumn)(nil),        // 12: bi.admin.v1.BiResultColumn
-	(*BiResultRow)(nil),           // 13: bi.admin.v1.BiResultRow
-	(*AskBiQueryRequest)(nil),     // 14: bi.admin.v1.AskBiQueryRequest
-	(*AskBiQueryResponse)(nil),    // 15: bi.admin.v1.AskBiQueryResponse
+	(*BiGroupingOption)(nil),      // 7: bi.admin.v1.BiGroupingOption
+	(*RefineBiQueryRequest)(nil),  // 8: bi.admin.v1.RefineBiQueryRequest
+	(*BiTimeRangeSpec)(nil),       // 9: bi.admin.v1.BiTimeRangeSpec
+	(*BiOrderSpec)(nil),           // 10: bi.admin.v1.BiOrderSpec
+	(*BiMeasureSpec)(nil),         // 11: bi.admin.v1.BiMeasureSpec
+	(*BiFilterSpec)(nil),          // 12: bi.admin.v1.BiFilterSpec
+	(*BiQueryResult)(nil),         // 13: bi.admin.v1.BiQueryResult
+	(*BiResultColumn)(nil),        // 14: bi.admin.v1.BiResultColumn
+	(*BiResultRow)(nil),           // 15: bi.admin.v1.BiResultRow
+	(*AskBiQueryRequest)(nil),     // 16: bi.admin.v1.AskBiQueryRequest
+	(*AskBiQueryResponse)(nil),    // 17: bi.admin.v1.AskBiQueryResponse
 }
 var file_bi_admin_v1_bi_query_proto_depIdxs = []int32{
 	2,  // 0: bi.admin.v1.ListBiSourcesResponse.sources:type_name -> bi.admin.v1.BiSourceDescriptor
 	3,  // 1: bi.admin.v1.BiSourceDescriptor.dimensions:type_name -> bi.admin.v1.BiFieldDescriptor
 	4,  // 2: bi.admin.v1.BiSourceDescriptor.measures:type_name -> bi.admin.v1.BiMeasureDescriptor
 	6,  // 3: bi.admin.v1.PreviewBiQueryRequest.query:type_name -> bi.admin.v1.BiQuerySpec
-	9,  // 4: bi.admin.v1.BiQuerySpec.measures:type_name -> bi.admin.v1.BiMeasureSpec
-	10, // 5: bi.admin.v1.BiQuerySpec.filters:type_name -> bi.admin.v1.BiFilterSpec
-	7,  // 6: bi.admin.v1.BiQuerySpec.time_range:type_name -> bi.admin.v1.BiTimeRangeSpec
-	8,  // 7: bi.admin.v1.BiQuerySpec.orders:type_name -> bi.admin.v1.BiOrderSpec
-	12, // 8: bi.admin.v1.BiQueryResult.columns:type_name -> bi.admin.v1.BiResultColumn
-	13, // 9: bi.admin.v1.BiQueryResult.rows:type_name -> bi.admin.v1.BiResultRow
-	6,  // 10: bi.admin.v1.AskBiQueryResponse.query:type_name -> bi.admin.v1.BiQuerySpec
-	11, // 11: bi.admin.v1.AskBiQueryResponse.result:type_name -> bi.admin.v1.BiQueryResult
-	0,  // 12: bi.admin.v1.BiQueryService.ListBiSources:input_type -> bi.admin.v1.ListBiSourcesRequest
-	5,  // 13: bi.admin.v1.BiQueryService.PreviewBiQuery:input_type -> bi.admin.v1.PreviewBiQueryRequest
-	14, // 14: bi.admin.v1.BiQueryService.AskBiQuery:input_type -> bi.admin.v1.AskBiQueryRequest
-	1,  // 15: bi.admin.v1.BiQueryService.ListBiSources:output_type -> bi.admin.v1.ListBiSourcesResponse
-	11, // 16: bi.admin.v1.BiQueryService.PreviewBiQuery:output_type -> bi.admin.v1.BiQueryResult
-	15, // 17: bi.admin.v1.BiQueryService.AskBiQuery:output_type -> bi.admin.v1.AskBiQueryResponse
-	15, // [15:18] is the sub-list for method output_type
-	12, // [12:15] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	11, // 4: bi.admin.v1.BiQuerySpec.measures:type_name -> bi.admin.v1.BiMeasureSpec
+	12, // 5: bi.admin.v1.BiQuerySpec.filters:type_name -> bi.admin.v1.BiFilterSpec
+	9,  // 6: bi.admin.v1.BiQuerySpec.time_range:type_name -> bi.admin.v1.BiTimeRangeSpec
+	10, // 7: bi.admin.v1.BiQuerySpec.orders:type_name -> bi.admin.v1.BiOrderSpec
+	7,  // 8: bi.admin.v1.BiQuerySpec.grouping_options:type_name -> bi.admin.v1.BiGroupingOption
+	7,  // 9: bi.admin.v1.RefineBiQueryRequest.grouping_options:type_name -> bi.admin.v1.BiGroupingOption
+	9,  // 10: bi.admin.v1.RefineBiQueryRequest.time_range:type_name -> bi.admin.v1.BiTimeRangeSpec
+	14, // 11: bi.admin.v1.BiQueryResult.columns:type_name -> bi.admin.v1.BiResultColumn
+	15, // 12: bi.admin.v1.BiQueryResult.rows:type_name -> bi.admin.v1.BiResultRow
+	6,  // 13: bi.admin.v1.AskBiQueryResponse.query:type_name -> bi.admin.v1.BiQuerySpec
+	13, // 14: bi.admin.v1.AskBiQueryResponse.result:type_name -> bi.admin.v1.BiQueryResult
+	0,  // 15: bi.admin.v1.BiQueryService.ListBiSources:input_type -> bi.admin.v1.ListBiSourcesRequest
+	5,  // 16: bi.admin.v1.BiQueryService.PreviewBiQuery:input_type -> bi.admin.v1.PreviewBiQueryRequest
+	16, // 17: bi.admin.v1.BiQueryService.AskBiQuery:input_type -> bi.admin.v1.AskBiQueryRequest
+	8,  // 18: bi.admin.v1.BiQueryService.RefineBiQuery:input_type -> bi.admin.v1.RefineBiQueryRequest
+	1,  // 19: bi.admin.v1.BiQueryService.ListBiSources:output_type -> bi.admin.v1.ListBiSourcesResponse
+	13, // 20: bi.admin.v1.BiQueryService.PreviewBiQuery:output_type -> bi.admin.v1.BiQueryResult
+	17, // 21: bi.admin.v1.BiQueryService.AskBiQuery:output_type -> bi.admin.v1.AskBiQueryResponse
+	17, // 22: bi.admin.v1.BiQueryService.RefineBiQuery:output_type -> bi.admin.v1.AskBiQueryResponse
+	19, // [19:23] is the sub-list for method output_type
+	15, // [15:19] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_bi_admin_v1_bi_query_proto_init() }
@@ -1212,7 +1411,7 @@ func file_bi_admin_v1_bi_query_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_bi_admin_v1_bi_query_proto_rawDesc), len(file_bi_admin_v1_bi_query_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   16,
+			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

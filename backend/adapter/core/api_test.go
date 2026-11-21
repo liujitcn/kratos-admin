@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/bi/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	coredata "github.com/liujitcn/kratos-core/data"
@@ -126,6 +127,58 @@ func TestSyncAiEventPermissions(t *testing.T) {
 	slices.Sort(granted)
 	if !slices.Equal(granted, []string{"tenant-1:bi", "tenant-1:chat", "tenant-2:chat"}) {
 		t.Fatalf("事件权限越权或缺失: %v", granted)
+	}
+}
+
+// TestSyncBiQueryRefinementPermissions 验证只为具有原有问数能力的 BI 入口幂等补齐调整权限。
+func TestSyncBiQueryRefinementPermissions(t *testing.T) {
+	client, provider, adapter := newAPISyncTestData(t)
+	ctx := t.Context()
+	menus := []*models.BaseMenu{
+		{ID: 90991000, API: `["/base.v1.AiMessageService/SendAiMessage","/bi.admin.v1.BiQueryRecordService/GetBiQuery","/custom/read"]`, Meta: "{}", Status: 1},
+		{ID: 91020000, API: `["/bi.admin.v1.BiQueryService/AskBiQuery","/bi.admin.v1.BiQueryRecordService/GetBiQuery"]`, Meta: "{}", Status: 1},
+		{ID: 777, API: `["/bi.admin.v1.BiQueryService/AskBiQuery","/bi.admin.v1.BiQueryRecordService/GetBiQuery"]`, Meta: "{}", Status: 1},
+	}
+	err := client.DB.Create(menus).Error
+	if err != nil {
+		t.Fatal(err)
+	}
+	items := []*coredata.APIRecord{{Operation: adminv1.OperationBiQueryServiceRefineBiQuery, Method: "POST"}}
+	for range 2 {
+		if err = adapter.ReplaceAll(ctx, items); err != nil {
+			t.Fatal(err)
+		}
+	}
+	query := provider.Query(ctx).BaseMenu
+	for _, menu := range menus {
+		var stored *models.BaseMenu
+		stored, err = query.WithContext(ctx).Where(query.ID.Eq(menu.ID)).First()
+		if err != nil {
+			t.Fatal(err)
+		}
+		var want, actual []string
+		if err = json.Unmarshal([]byte(menu.API), &want); err != nil {
+			t.Fatal(err)
+		}
+		if menu.ID != 777 {
+			want = append(want, adminv1.OperationBiQueryServiceRefineBiQuery)
+		}
+		if err = json.Unmarshal([]byte(stored.API), &actual); err != nil || !slices.Equal(actual, want) {
+			t.Fatalf("菜单 %d 权限错误: %s; %v", menu.ID, stored.API, err)
+		}
+	}
+	// 已撤销原入口的菜单不会因启动同步恢复问数能力。
+	const readOnly = `["/bi.admin.v1.BiQueryRecordService/GetBiQuery"]`
+	if _, err = query.WithContext(ctx).Where(query.ID.Eq(91020000)).UpdateSimple(query.API.Value(readOnly)); err != nil {
+		t.Fatal(err)
+	}
+	if err = adapter.ReplaceAll(ctx, items); err != nil {
+		t.Fatal(err)
+	}
+	var stored *models.BaseMenu
+	stored, err = query.WithContext(ctx).Where(query.ID.Eq(91020000)).First()
+	if err != nil || stored.API != readOnly {
+		t.Fatalf("已撤销问数权限的菜单发生变化: %v, %v", stored, err)
 	}
 }
 

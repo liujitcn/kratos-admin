@@ -283,6 +283,11 @@ message BiSourceModel {
   repeated BiSourceRelation relations = 3 [(gnostic.openapi.v3.property) = {description: "表关联关系"}]; // 表关联关系
   repeated BiSourceDimension dimensions = 4 [(gnostic.openapi.v3.property) = {description: "语义维度"}]; // 语义维度
   repeated BiSourceMeasure measures = 5 [(gnostic.openapi.v3.property) = {description: "语义指标"}]; // 语义指标
+  string report_timezone = 6 [
+    json_name = "reportTimezone",
+    (gnostic.openapi.v3.property) = {description: "报表时区，使用 IANA 时区名称"},
+    (buf.validate.field).string.max_len = 64
+  ]; // 报表时区
 }
 
 // 语义模型中的表节点。
@@ -317,6 +322,21 @@ message BiSourceDimension {
   string table = 4 [(gnostic.openapi.v3.property) = {description: "所属表标识"}]; // 所属表标识
   string column = 5 [(gnostic.openapi.v3.property) = {description: "数据库字段"}]; // 数据库字段
   bool filterable = 6 [(gnostic.openapi.v3.property) = {description: "是否允许过滤"}]; // 是否允许过滤
+  BiSourceHierarchy hierarchy = 7 [(gnostic.openapi.v3.property) = {description: "可选的父子层级配置"}]; // 可选的父子层级配置
+}
+
+// 数据源父子层级，节点编号取维度表关系的唯一目标字段。
+message BiSourceHierarchy {
+  string parent_column = 1 [
+    json_name = "parentColumn",
+    (gnostic.openapi.v3.property) = {description: "父节点编号字段"},
+    (buf.validate.field).string = {min_len: 1, max_len: 128}
+  ]; // 父节点编号字段
+  string root_id = 2 [
+    json_name = "rootId",
+    (gnostic.openapi.v3.property) = {description: "顶层节点的父编号，留空表示父编号为空"},
+    (buf.validate.field).string.max_len = 20
+  ]; // 顶层节点的父编号，留空表示父编号为空
 }
 
 // 数据源语义指标。

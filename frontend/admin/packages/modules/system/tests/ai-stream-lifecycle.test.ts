@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { stripTypeScriptTypes } from "node:module";
-import { resolve } from "node:path";
+import { join } from "node:path";
 import test from "node:test";
 import type { AiStreamEvent } from "../src/views/ai/chat/types.js";
 
 test("终态立即释放发送状态，旧流结束不能覆盖审批后的新流", async () => {
-  const source = await readFile(resolve(import.meta.dirname, "../src/components/ai/useAiChatStream.ts"), "utf8");
+  const source = await readFile(join(process.cwd(), "src/components/ai/useAiChatStream.ts"), "utf8");
   const body = stripTypeScriptTypes(source.replace(/^import[\s\S]*?;\n/gm, "").replace("export function", "function"));
   const handlers: Array<(event: AiStreamEvent) => void> = [];
   const release: Array<() => void> = [];
@@ -46,7 +46,7 @@ test("终态立即释放发送状态，旧流结束不能覆盖审批后的新�
 });
 
 test("审批要求后同一条流仍可接收最终消息", async () => {
-  const source = await readFile(resolve(import.meta.dirname, "../src/components/ai/useAiChatStream.ts"), "utf8");
+  const source = await readFile(join(process.cwd(), "src/components/ai/useAiChatStream.ts"), "utf8");
   const body = stripTypeScriptTypes(source.replace(/^import[\s\S]*?;\n/gm, "").replace("export function", "function"));
   const handlers: Array<(event: AiStreamEvent) => void> = [];
   const release: Array<() => void> = [];
