@@ -2274,5 +2274,14 @@
   "system.ai.chat.bi_chart_bar": "Bar",
   "system.ai.chat.bi_chart_line": "Line",
   "system.ai.chat.bi_chart_pie": "Pie",
-  "system.ai.chat.bi_chart_metric": "Metric"
+  "system.ai.chat.bi_chart_metric": "Metric",
+  "system.ai.chat.value.default_conversation_title": "AI conversation",
+  "system.ai.chat.group.today": "Today",
+  "system.ai.chat.group.yesterday": "Yesterday",
+  "system.ai.chat.group.earlier": "Earlier",
+  "system.ai.chat.message.readonly_plugin_change": "Plugins cannot be changed in a read-only conversation",
+  "system.ai.chat.message.operation_failed": "Conversation operation failed",
+  "system.ai.chat.action.pin": "Pin",
+  "system.ai.chat.action.unpin": "Unpin",
+  "system.ai.chat.empty.no_match": "No matching conversations"
 }

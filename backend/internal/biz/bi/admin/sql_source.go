@@ -35,7 +35,7 @@ func openConfiguredSource(ctx context.Context, clients map[string]*gorm.Client, 
 	if item.Host == "" {
 		client := clients[item.SourceName]
 		if client == nil || client.DB == nil {
-			return nil, errorsx.InvalidArgument(fmt.Sprintf("BI 数据源绑定的数据库客户端不存在: %s", item.SourceName))
+			return nil, errorsx.WithMessageKey(errorsx.InvalidArgument(fmt.Sprintf("BI 数据源绑定的数据库客户端不存在: %s", item.SourceName)), "bi.source.error.client_missing", map[string]string{"Name": item.SourceName})
 		}
 		var db *sql.DB
 		db, err = client.DB.DB()

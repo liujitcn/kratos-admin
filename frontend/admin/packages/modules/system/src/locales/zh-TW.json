@@ -2274,5 +2274,14 @@
   "system.ai.chat.bi_chart_bar": "柱狀圖",
   "system.ai.chat.bi_chart_line": "折線圖",
   "system.ai.chat.bi_chart_pie": "圓餅圖",
-  "system.ai.chat.bi_chart_metric": "指標卡"
+  "system.ai.chat.bi_chart_metric": "指標卡",
+  "system.ai.chat.value.default_conversation_title": "AI 對話",
+  "system.ai.chat.group.today": "今天",
+  "system.ai.chat.group.yesterday": "昨天",
+  "system.ai.chat.group.earlier": "更早",
+  "system.ai.chat.message.readonly_plugin_change": "唯讀工作階段無法修改外掛",
+  "system.ai.chat.message.operation_failed": "工作階段操作失敗",
+  "system.ai.chat.action.pin": "置頂",
+  "system.ai.chat.action.unpin": "取消置頂",
+  "system.ai.chat.empty.no_match": "暫無符合的工作階段"
 }

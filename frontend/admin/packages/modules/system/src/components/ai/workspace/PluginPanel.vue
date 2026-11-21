@@ -210,7 +210,19 @@ import type {
   AiPluginTool
 } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_plugin";
 import { canConfigureAssistant, hasConnectedPluginConnection } from "./state";
+/** AI 插件工作区需要跨刷新保留的页面状态。 */
+type PluginWorkspaceTab = "catalog" | "connections" | "tools";
+/** AI 插件工作区跨刷新保存的筛选条件和插件选择。 */
+type PluginWorkspaceState = {
+  tab?: PluginWorkspaceTab;
+  keyword?: string;
+  connectionKeyword?: string;
+  toolKeyword?: string;
+  scope?: string;
+  toolPluginID?: string;
+};
 const props = defineProps<{
+  workspaceKey?: string;
   plugins: AiPlugin[];
   connections: AiPluginConnection[];
   mobile: boolean;
@@ -221,11 +233,24 @@ const props = defineProps<{
   canCreatePrivate: boolean;
 }>();
 const emit = defineEmits<{ refresh: []; select: [value: AiPluginSelection] }>();
-const tab = ref("catalog"),
-  keyword = ref(""),
-  connectionKeyword = ref(""),
-  toolKeyword = ref(""),
-  scope = ref("");
+/** 读取当前账号工作区的插件页状态，存储不可用时回退到默认值。 */
+function readPluginWorkspaceState(): PluginWorkspaceState {
+  if (!props.workspaceKey || typeof window === "undefined") return {};
+  try {
+    const value: unknown = JSON.parse(window.sessionStorage.getItem(`${props.workspaceKey}:plugins`) ?? "null");
+    return value && typeof value === "object" ? (value as PluginWorkspaceState) : {};
+  } catch {
+    return {};
+  }
+}
+const restoredState = readPluginWorkspaceState();
+const restoredTab: PluginWorkspaceTab =
+  restoredState.tab === "connections" || restoredState.tab === "tools" ? restoredState.tab : "catalog";
+const tab = ref<PluginWorkspaceTab>(restoredTab),
+  keyword = ref(typeof restoredState.keyword === "string" ? restoredState.keyword : ""),
+  connectionKeyword = ref(typeof restoredState.connectionKeyword === "string" ? restoredState.connectionKeyword : ""),
+  toolKeyword = ref(typeof restoredState.toolKeyword === "string" ? restoredState.toolKeyword : ""),
+  scope = ref(typeof restoredState.scope === "string" ? restoredState.scope : "");
 const managedPlugins = computed(() => props.plugins);
 const canManage = computed(() => canConfigureAssistant(props.mobile, props.canManageTools));
 const connectedPluginIDs = computed(
@@ -239,7 +264,7 @@ const visiblePlugins = computed(() =>
       `${item.name} ${item.description}`.toLowerCase().includes(keyword.value.toLowerCase())
   )
 );
-const toolPluginID = ref(""),
+const toolPluginID = ref(typeof restoredState.toolPluginID === "string" ? restoredState.toolPluginID : ""),
   toolError = ref("");
 const detail = ref<AiPlugin>(),
   detailOpen = ref(false),
@@ -729,11 +754,32 @@ onBeforeUnmount(() => {
 });
 
 watch(
+  [tab, keyword, connectionKeyword, toolKeyword, scope, toolPluginID],
+  ([currentTab, currentKeyword, currentConnectionKeyword, currentToolKeyword, currentScope, currentToolPluginID]) => {
+    if (!props.workspaceKey) return;
+    try {
+      window.sessionStorage.setItem(
+        `${props.workspaceKey}:plugins`,
+        JSON.stringify({
+          tab: currentTab,
+          keyword: currentKeyword,
+          connectionKeyword: currentConnectionKeyword,
+          toolKeyword: currentToolKeyword,
+          scope: currentScope,
+          toolPluginID: currentToolPluginID
+        })
+      );
+    } catch {
+      // 禁用存储时仍可使用当前页面。
+    }
+  }
+);
+
+watch(
   [tab, managedPlugins],
   ([currentTab, plugins]) => {
     if (currentTab !== "tools") return;
     if (!plugins.length) {
-      toolPluginID.value = "";
       toolError.value = "";
       return;
     }

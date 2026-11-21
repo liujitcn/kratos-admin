@@ -1,5 +1,8 @@
 <template>
   <div class="bi-designer">
+    <div v-if="$slots.toolbar" class="bi-designer__toolbar">
+      <slot name="toolbar" />
+    </div>
     <el-aside class="bi-designer__library" style="--el-aside-width: auto">
       <el-header class="bi-designer__library-header" style="--el-header-height: auto; --el-header-padding: 0">
         <el-text tag="h3">{{ t("bi.card.library") }}</el-text>
@@ -7,9 +10,13 @@
       </el-header>
       <div class="bi-designer__library-list">
         <div v-for="card in cards" :key="card.id" class="bi-designer__library-item">
-          <el-text tag="h4">{{ card.name }}</el-text>
+          <BiDataCard :card="card" :show-category="false" compact />
           <div class="bi-designer__library-meta">
-            <span>{{ ["metric", "metric_grid"].includes(card.chart_type) ? t(`bi.card.chart.${card.chart_type}`) : messages(`types.${card.chart_type}`) }}</span>
+            <span>{{
+              ["metric", "metric_grid"].includes(card.chart_type)
+                ? t(`bi.card.chart.${card.chart_type}`)
+                : messages(`types.${card.chart_type}`)
+            }}</span>
             <span v-if="addedCardIDs.has(card.id)" class="bi-designer__added">
               <el-icon><component :is="checkIcon" /></el-icon>{{ t("bi.card.added") }}
             </span>
@@ -45,54 +52,68 @@
         @drop.prevent="move(dragged, index)"
         @click="selected = item.id"
       >
-        <BiDataCard v-if="cardByID.get(item.card_id)" :card="cardByID.get(item.card_id)!">
-          <template #footer
-            ><el-button link :disabled="index === 0" @click.stop="move(index, index - 1)">{{
-              t("bi.workbench.move_before", { name: "" })
-            }}</el-button
-            ><el-button link :disabled="index === modelValue.cards.length - 1" @click.stop="move(index, index + 1)">{{
-              t("bi.workbench.move_after", { name: "" })
-            }}</el-button>
-            <el-popover trigger="click" :width="220">
-              <template #reference>
-                <el-button link type="primary" @click.stop="selected = item.id">{{
-                  t("bi.dashboard.layout_settings")
-                }}</el-button>
-              </template>
-              <el-form label-position="top" size="small">
-                <el-form-item :label="t('bi.dashboard.card_width')">
-                  <el-select :model-value="item.w" @change="resize(item.id, { w: $event })">
-                    <el-option :value="3" :label="t('bi.dashboard.width_quarter')" />
-                    <el-option :value="6" :label="t('bi.dashboard.width_half')" />
-                    <el-option :value="12" :label="t('bi.dashboard.width_full')" />
-                  </el-select>
-                </el-form-item>
-                <el-form-item :label="t('bi.dashboard.card_height')">
-                  <el-input-number
-                    :model-value="item.h"
-                    :min="3"
-                    :max="12"
-                    :precision="0"
-                    @update:model-value="resize(item.id, { h: $event || 4 })"
-                  />
-                </el-form-item>
-              </el-form>
-            </el-popover>
-            <el-button
-              v-if="cardByID.get(item.card_id)?.can_edit"
-              link
-              type="primary"
-              @click.stop="emit('edit-card', cardByID.get(item.card_id)!)"
-              >{{ t("bi.card.edit") }}</el-button
-            ><el-button link type="danger" @click.stop="remove(item.id)">{{
-              t("bi.workbench.remove", { name: "" })
-            }}</el-button></template
-          >
+        <BiDataCard
+          v-if="cardByID.get(item.card_id)"
+          :card="cardByID.get(item.card_id)!"
+          previewable
+          footer-actions
+          @preview="previewCard = cardByID.get(item.card_id)"
+        >
+          <template #actions>
+            <div class="bi-data-card__slot-actions bi-designer__card-actions">
+              <el-popover trigger="click" :width="220">
+                <template #reference>
+                  <el-tooltip :content="t('bi.dashboard.layout_settings')" placement="top">
+                    <el-button text circle :icon="layoutIcon" @click.stop="selected = item.id" />
+                  </el-tooltip>
+                </template>
+                <el-form label-position="top" size="small">
+                  <el-form-item :label="t('bi.dashboard.card_width')">
+                    <el-select :model-value="item.w" @change="resize(item.id, { w: $event })">
+                      <el-option :value="3" :label="t('bi.dashboard.width_quarter')" />
+                      <el-option :value="6" :label="t('bi.dashboard.width_half')" />
+                      <el-option :value="12" :label="t('bi.dashboard.width_full')" />
+                    </el-select>
+                  </el-form-item>
+                  <el-form-item :label="t('bi.dashboard.card_height')">
+                    <el-input-number
+                      :model-value="item.h"
+                      :min="3"
+                      :max="12"
+                      :precision="0"
+                      @update:model-value="resize(item.id, { h: $event || 4 })"
+                    />
+                  </el-form-item>
+                </el-form>
+              </el-popover>
+              <el-tooltip :content="t('bi.card.edit')" placement="top">
+                <el-button
+                  v-if="cardByID.get(item.card_id)?.can_edit"
+                  text
+                  circle
+                  :icon="editIcon"
+                  @click.stop="emit('edit-card', cardByID.get(item.card_id)!)"
+                />
+              </el-tooltip>
+              <el-tooltip :content="t('bi.workbench.remove', { name: cardByID.get(item.card_id)?.name || '' })" placement="top">
+                <el-button text circle type="danger" :icon="removeIcon" @click.stop="remove(item.id)" />
+              </el-tooltip>
+            </div>
+          </template>
         </BiDataCard>
         <el-alert v-else type="warning" :closable="false" :title="t('bi.dashboard.card_missing')" />
       </div>
       <el-empty v-if="!modelValue.cards.length" :description="t('bi.dashboard.choose_cards')" />
     </el-main>
+    <el-dialog
+      :model-value="Boolean(previewCard)"
+      :title="t('bi.card.preview')"
+      width="min(760px,94vw)"
+      destroy-on-close
+      @close="previewCard = undefined"
+    >
+      <BiDataCard v-if="previewCard" :card="previewCard" />
+    </el-dialog>
   </div>
 </template>
 <script setup lang="ts">
@@ -107,8 +128,12 @@ const props = defineProps<{ modelValue: DashboardLayout; cards: BiCard[] }>();
 const emit = defineEmits<{ "update:modelValue": [value: DashboardLayout]; "edit-card": [value: BiCard]; "create-card": [] }>();
 const selected = ref("");
 const dragged = ref(-1);
+const previewCard = ref<BiCard>();
 const plusIcon = Plus;
 const checkIcon = Check;
+const layoutIcon = Setting;
+const editIcon = EditPen;
+const removeIcon = Delete;
 const { t: messages } = useBiI18n();
 const cardByID = computed(() => new Map(props.cards.map(card => [card.id, card])));
 const addedCardIDs = computed(() => new Set(props.modelValue.cards.map(item => item.card_id)));
@@ -119,7 +144,7 @@ function add(card: BiCard) {
   emit("update:modelValue", { ...props.modelValue, cards: reflowDashboardCards([...props.modelValue.cards, item]) });
   selected.value = item.id;
 }
-/** 调整卡片顺序，拖动和方向按钮共用同一入口。 */
+/** 通过拖拽调整卡片顺序。 */
 function move(from: number, to: number) {
   if (from < 0 || to < 0 || from >= props.modelValue.cards.length || to >= props.modelValue.cards.length) return;
   const cards = [...props.modelValue.cards];
@@ -148,8 +173,19 @@ function resize(id: string, value: Partial<DashboardCardLayout>) {
 .bi-designer {
   display: grid;
   grid-template-columns: 240px minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
   align-items: start;
   gap: 16px;
+  height: 100%;
+  min-height: 0;
+}
+.bi-designer__toolbar {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  min-height: 0;
 }
 .bi-designer__library {
   position: sticky;
@@ -157,8 +193,8 @@ function resize(id: string, value: Partial<DashboardCardLayout>) {
   display: flex;
   box-sizing: border-box;
   min-width: 0;
-  height: min(760px, calc(100vh - 220px));
-  min-height: 360px;
+  height: 100%;
+  min-height: 0;
   flex-direction: column;
   overflow: hidden;
   border: 1px solid var(--admin-page-card-border);
@@ -196,19 +232,25 @@ function resize(id: string, value: Partial<DashboardCardLayout>) {
 .bi-designer__library-item:last-child {
   border-bottom: 0;
 }
-.bi-designer__library-item h4 {
-  margin: 0 0 8px;
-  color: var(--admin-page-text-primary);
-  font-size: 13px;
-  font-weight: 500;
-  line-height: 20px;
-  overflow-wrap: anywhere;
+.bi-designer__library-item :deep(.bi-data-card) {
+  border-color: var(--admin-page-divider);
+}
+.bi-designer__library-item :deep(.bi-data-card__native-actions) {
+  display: none;
+}
+.bi-designer__library-item :deep(.bi-data-card__header) {
+  padding: 10px 10px 0;
+}
+.bi-designer__library-item :deep(.bi-data-card__chart) {
+  height: 104px;
+  padding: 8px 10px;
 }
 .bi-designer__library-meta {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 8px;
+  padding-top: 8px;
   color: var(--admin-page-text-secondary);
   font-size: 12px;
   line-height: 20px;
@@ -238,7 +280,8 @@ function resize(id: string, value: Partial<DashboardCardLayout>) {
   background: var(--admin-page-card-bg-soft);
   border-radius: var(--admin-page-radius);
   min-width: 0;
-  min-height: max(600px, calc(100vh - 220px));
+  height: 100%;
+  min-height: 0;
 }
 .bi-designer__canvas > .el-empty {
   grid-column: 1 / -1;
@@ -260,6 +303,24 @@ function resize(id: string, value: Partial<DashboardCardLayout>) {
 .bi-designer__item :deep(.bi-data-card__footer .el-button) {
   margin-left: 0;
 }
+.bi-designer__card-actions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+  width: max-content;
+  min-width: max-content;
+  gap: 0;
+  align-items: center;
+  justify-content: flex-start;
+  margin-left: auto;
+  white-space: nowrap;
+}
+.bi-designer__card-actions :deep(.el-button + .el-button) {
+  margin-left: 0;
+}
+.bi-designer__card-actions :deep(.el-tooltip__trigger) {
+  flex: 0 0 auto;
+}
 .bi-designer__item.is-selected :deep(.bi-data-card) {
   border-color: var(--el-color-primary);
 }
@@ -271,6 +332,8 @@ function resize(id: string, value: Partial<DashboardCardLayout>) {
 @media (max-width: 700px) {
   .bi-designer {
     grid-template-columns: 1fr;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    height: auto;
   }
   .bi-designer__library {
     position: static;

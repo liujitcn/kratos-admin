@@ -62,7 +62,7 @@ function goBack() {
       >
         <view class="kratos-nav-bar__back-icon" aria-hidden="true" />
       </view>
-      <text class="kratos-nav-bar__title">{{ title }}</text>
+      <view class="kratos-nav-bar__title">{{ title }}</view>
       <slot name="action">
         <view
           v-if="action"
@@ -107,6 +107,7 @@ function goBack() {
 
 .kratos-nav-bar__title {
   position: absolute;
+  display: block;
   top: 50%;
   left: 50%;
   max-width: calc(100% - 95px);

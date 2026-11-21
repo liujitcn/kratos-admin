@@ -193,7 +193,7 @@ func compileSQL(driver string, maxRows int32, schema dto.ConfiguredSourceSchema,
 		dimension, ok := dimensions[code]
 		alias := tableAliases[dimension.Table]
 		if !ok || alias == "" {
-			return "", nil, nil, errorsx.InvalidArgument("BI 维度不存在: " + code)
+			return "", nil, nil, errorsx.WithMessageKey(errorsx.InvalidArgument("BI 维度不存在: "+code), "bi.query.error.dimension_missing", map[string]string{"Code": code})
 		}
 		column := quoteSourceIdentifier(driver, alias) + "." + quoteSourceIdentifier(driver, dimension.Column)
 		selectParts = append(selectParts, column+" AS "+quoteSourceIdentifier(driver, dimension.Code))
@@ -204,11 +204,11 @@ func compileSQL(driver string, maxRows int32, schema dto.ConfiguredSourceSchema,
 	for _, measureSpec := range spec.Measures {
 		measure, exists := measures[measureSpec.Code]
 		if !exists || measure.Type != bi.FieldTypeNumber || measure.Revision <= 0 {
-			return "", nil, nil, errorsx.InvalidArgument("BI 公共指标不可用: " + measureSpec.Code)
+			return "", nil, nil, errorsx.WithMessageKey(errorsx.InvalidArgument("BI 公共指标不可用: "+measureSpec.Code), "bi.query.error.measure_unavailable", map[string]string{"Code": measureSpec.Code})
 		}
 		expression, err := Parse(measure.Expression, baseFields)
 		if err != nil {
-			return "", nil, nil, errorsx.InvalidArgument("BI 公共指标公式无效: " + measureSpec.Code).WithCause(err)
+			return "", nil, nil, errorsx.WithMessageKey(errorsx.InvalidArgument("BI 公共指标公式无效: "+measureSpec.Code), "bi.query.error.measure_formula_invalid", map[string]string{"Code": measureSpec.Code}).WithCause(err)
 		}
 		selectParts = append(selectParts, expression.SQL(func(name string) string {
 			return quoteSourceIdentifier(driver, "t0") + "." + quoteSourceIdentifier(driver, name)
@@ -243,7 +243,7 @@ func compileSQL(driver string, maxRows int32, schema dto.ConfiguredSourceSchema,
 	for filterIndex, filter := range spec.Filters {
 		dimension, ok := dimensions[filter.Field]
 		if !ok || !dimension.Filterable || len(filter.Values) == 0 {
-			return "", nil, nil, errorsx.InvalidArgument("BI 过滤字段不可用: " + filter.Field)
+			return "", nil, nil, errorsx.WithMessageKey(errorsx.InvalidArgument("BI 过滤字段不可用: "+filter.Field), "bi.query.error.filter_field_unavailable", map[string]string{"Field": filter.Field})
 		}
 		alias := tableAliases[dimension.Table]
 		if alias == "" {
@@ -277,7 +277,7 @@ func compileSQL(driver string, maxRows int32, schema dto.ConfiguredSourceSchema,
 			whereParts = append(whereParts, column+" LIKE "+Placeholder(driver, len(args)+1))
 			args = append(args, dto.ExecutionParameter{Position: len(args) + 1, Kind: "filter", FilterIndex: filterIndex, Contains: true})
 		default:
-			return "", nil, nil, errorsx.InvalidArgument("BI 过滤操作符不支持: " + filter.Operator)
+			return "", nil, nil, errorsx.WithMessageKey(errorsx.InvalidArgument("BI 过滤操作符不支持: "+filter.Operator), "bi.query.error.operator_unsupported", map[string]string{"Operator": filter.Operator})
 		}
 		if overridePlaceholder != "" && len(whereParts) > previousWhere {
 			whereParts[len(whereParts)-1] = "(" + overridePlaceholder + " = 1 OR " + whereParts[len(whereParts)-1] + ")"
@@ -309,12 +309,12 @@ func compileSQL(driver string, maxRows int32, schema dto.ConfiguredSourceSchema,
 		orderParts := make([]string, 0, len(spec.Orders))
 		for _, order := range spec.Orders {
 			if order.Direction != "asc" && order.Direction != "desc" {
-				return "", nil, nil, errorsx.InvalidArgument("BI 排序方向不支持: " + order.Direction)
+				return "", nil, nil, errorsx.WithMessageKey(errorsx.InvalidArgument("BI 排序方向不支持: "+order.Direction), "bi.query.error.sort_direction_unsupported", map[string]string{"Direction": order.Direction})
 			}
 			column, ok := selectedDimensions[order.Field]
 			if !ok {
 				if _, measureSelected := selectedMeasures[order.Field]; !measureSelected {
-					return "", nil, nil, errorsx.InvalidArgument("BI 排序字段必须是已选择的维度或指标: " + order.Field)
+					return "", nil, nil, errorsx.WithMessageKey(errorsx.InvalidArgument("BI 排序字段必须是已选择的维度或指标: "+order.Field), "bi.query.error.sort_field_invalid", map[string]string{"Field": order.Field})
 				}
 				column = quoteSourceIdentifier(driver, order.Field)
 			}

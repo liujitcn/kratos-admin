@@ -405,10 +405,10 @@ func (c *WorkflowDefinitionCase) resolveTenantID(ctx context.Context, tenantID i
 func validateNodeConfig(nodeConfig string) error {
 	graph, err := workflow.Parse(nodeConfig)
 	if err != nil {
-		return errorsx.InvalidArgument("节点图配置无效: " + err.Error()).WithCause(err)
+		return errorsx.WithMessageKey(errorsx.InvalidArgument("节点图配置无效: "+err.Error()), "system.workflow.error.graph_invalid", map[string]string{"Detail": err.Error()}).WithCause(err)
 	}
 	if err := workflow.Validate(graph); err != nil {
-		return errorsx.InvalidArgument("节点图配置无效: " + err.Error())
+		return errorsx.WithMessageKey(errorsx.InvalidArgument("节点图配置无效: "+err.Error()), "system.workflow.error.graph_invalid", map[string]string{"Detail": err.Error()})
 	}
 	return nil
 }

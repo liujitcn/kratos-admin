@@ -1,4 +1,8 @@
 {
+  "common.language.zh-CN": "Chinese (Simplified)",
+  "common.language.en-US": "English",
+  "common.language.ja-JP": "Japanese",
+  "common.language.zh-TW": "Chinese (Traditional)",
   "common.action.back": "Back",
   "common.action.next": "Next",
   "common.action.previous": "Previous",

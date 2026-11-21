@@ -1,6 +1,6 @@
 <template>
   <div v-if="cards.length" class="bi-assistant-workbench__cards">
-    <el-container
+    <div
       v-for="(card, index) in cards"
       :key="card.id"
       class="bi-assistant-workbench__card"
@@ -10,17 +10,25 @@
       @dragover.prevent
       @drop.stop.prevent="emit('drop', zone, index)"
     >
-      <BiDataCard :card="card" :refresh-key="refreshKeys[card.id] || 0" :show-category="false" previewable @preview="emit('preview', card)">
+      <BiDataCard
+        :card="card"
+        :refresh-key="refreshKeys[card.id] || 0"
+        :show-category="false"
+        previewable
+        footer-actions
+        compact
+        @preview="emit('preview', card)"
+      >
         <template #actions>
-          <div class="bi-assistant-workbench__card-actions">
+          <div class="bi-data-card__slot-actions bi-assistant-workbench__card-actions">
             <el-tooltip :content="t('bi.card.refresh')" placement="top">
               <el-button text circle :icon="Refresh" @click.stop="emit('refresh', card)" />
             </el-tooltip>
-            <el-tooltip content="引用到对话" placement="top">
+            <el-tooltip :content="t('bi.card.quote')" placement="top">
               <el-button text circle :icon="CopyDocument" @click.stop="emit('quote', card)" />
             </el-tooltip>
             <el-tooltip :content="t('bi.workbench.remove', { name: card.name })" placement="top">
-              <el-button text circle :icon="Delete" @click.stop="emit('remove', card)" />
+              <el-button text circle type="danger" :icon="Delete" @click.stop="emit('remove', card)" />
             </el-tooltip>
           </div>
         </template>
@@ -31,7 +39,7 @@
           </span>
         </template>
       </BiDataCard>
-    </el-container>
+    </div>
   </div>
   <div v-else class="bi-assistant-workbench__empty">
     <el-icon><DataAnalysis /></el-icon>
@@ -63,3 +71,23 @@ const emit = defineEmits<{
   preview: [card: BiCard];
 }>();
 </script>
+
+<style scoped>
+.bi-assistant-workbench__card-actions {
+  display: inline-flex;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+  min-width: max-content;
+  align-items: center;
+  gap: 0;
+  margin-left: auto;
+  white-space: nowrap;
+}
+.bi-assistant-workbench__card-actions :deep(.el-tooltip__trigger) {
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+.bi-assistant-workbench__card-actions :deep(.el-button + .el-button) {
+  margin-left: 0;
+}
+</style>

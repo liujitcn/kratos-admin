@@ -1,13 +1,21 @@
 <template>
-  <article class="bi-data-card">
+  <article class="bi-data-card" :class="{ 'is-compact': compact }">
     <el-header class="bi-data-card__header" style="--el-header-height: auto; --el-header-padding: 0">
       <div class="bi-data-card__heading">
         <el-text tag="h3" class="bi-data-card__title">
-          <el-icon class="bi-data-card__icon"><component :is="icon" /></el-icon>{{ card.name }}
-          <el-tag v-if="card.chart_type === 'metric_grid'" size="small" effect="light" type="success">{{ t("bi.card.ai_generated") }}</el-tag>
+          <el-icon class="bi-data-card__icon"><component :is="icon" /></el-icon>
+          <span class="bi-data-card__name">{{ card.name }}</span>
+          <el-tag v-if="card.chart_type === 'metric_grid'" size="small" effect="light" type="success">{{
+            t("bi.card.ai_generated")
+          }}</el-tag>
+          <el-tag v-if="showCategory" size="small" effect="plain" type="info">{{
+            t(`bi.card.category.${card.category || "mine"}`)
+          }}</el-tag>
+          <span v-if="sourceName" class="bi-data-card__source">
+            <el-icon><component :is="sourceIcon" /></el-icon>{{ sourceName }}
+          </span>
         </el-text>
         <div class="bi-data-card__meta">
-          <el-tag v-if="showCategory" size="small" effect="plain" type="info">{{ t(`bi.card.category.${card.category || "mine"}`) }}</el-tag>
           <el-select
             v-if="showPeriodFilter"
             :model-value="effectiveRangeDays"
@@ -24,7 +32,7 @@
         </div>
       </div>
       <slot name="actions" />
-      <div class="bi-data-card__native-actions">
+      <div v-if="!footerActions" class="bi-data-card__native-actions">
         <el-tooltip :content="t('bi.card.export')" placement="top">
           <el-button text circle :icon="Download" :disabled="!data" @click.stop="exportResult" />
         </el-tooltip>
@@ -38,13 +46,31 @@
         <span>{{ error }}</span>
         <el-button link type="primary" @click="loadData">{{ t("bi.card.retry") }}</el-button>
       </div>
-      <BiCardVisualization v-else-if="data" :card="card" :result="data" />
+      <BiCardVisualization v-else-if="data" :card="card" :result="data" :compact="compact" />
       <el-empty v-else-if="!loading" :image-size="48" :description="t('common.message.no_data')" />
     </div>
-    <div v-if="sourceName" class="bi-data-card__source">
-      <el-icon><component :is="sourceIcon" /></el-icon>{{ sourceName }}
-    </div>
-    <el-footer v-if="$slots.footer" class="bi-data-card__footer" style="--el-footer-height: auto; --el-footer-padding: 0"><slot name="footer" /></el-footer>
+    <el-footer
+      v-if="$slots.footer || footerActions"
+      class="bi-data-card__footer"
+      style="--el-footer-height: auto; --el-footer-padding: 0"
+    >
+      <slot name="footer" />
+      <div v-if="footerActions" class="bi-data-card__native-actions">
+        <el-tooltip :content="t('bi.card.enlarge')" placement="top">
+          <el-button text circle :icon="ZoomIn" :aria-label="t('bi.card.enlarge')" @click.stop="emit('preview')" />
+        </el-tooltip>
+        <el-tooltip :content="t('bi.card.export')" placement="top">
+          <el-button
+            text
+            circle
+            :icon="Download"
+            :aria-label="t('bi.card.export')"
+            :disabled="!data"
+            @click.stop="exportResult"
+          />
+        </el-tooltip>
+      </div>
+    </el-footer>
   </article>
 </template>
 
@@ -72,8 +98,21 @@ const props = withDefaults(
     showCategory?: boolean;
     /** 是否展示内置「放大查看」按钮（仅父级接入放大弹窗时开启）。 */
     previewable?: boolean;
+    /** 是否将放大、导出操作放到卡片底部。 */
+    footerActions?: boolean;
+    /** 是否使用工作台和卡片库的紧凑卡片高度。 */
+    compact?: boolean;
   }>(),
-  { sourceName: "", refreshKey: 0, rangeDays: 0, showPeriodFilter: false, showCategory: true, previewable: false }
+  {
+    sourceName: "",
+    refreshKey: 0,
+    rangeDays: 0,
+    showPeriodFilter: false,
+    showCategory: true,
+    previewable: false,
+    footerActions: false,
+    compact: false
+  }
 );
 const emit = defineEmits<{ "update:rangeDays": [value: number]; preview: [] }>();
 const effectiveRangeDays = computed(() => (props.showPeriodFilter ? props.rangeDays : 0));
@@ -178,18 +217,26 @@ onBeforeUnmount(() => {
 <style scoped>
 .bi-data-card {
   display: flex;
-  min-width: 0;
   flex-direction: column;
+
+  min-width: 0;
+
+  --bi-card-header-height: 56px;
+  --bi-card-footer-height: 46px;
+  --bi-card-action-size: 32px;
   border: 1px solid var(--el-border-color-light);
   border-radius: var(--admin-page-radius);
   background: var(--el-bg-color);
 }
 .bi-data-card__header {
   display: flex;
-  align-items: flex-start;
+  box-sizing: border-box;
+  height: var(--bi-card-header-height);
+  align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 16px 16px 0;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--el-border-color-lighter);
 }
 .bi-data-card__heading {
   min-width: 0;
@@ -199,25 +246,38 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 8px;
   margin: 0;
+  min-width: 0;
+  overflow: hidden;
   color: var(--el-text-color-primary);
-  overflow-wrap: anywhere;
   font: inherit;
   font-size: 14px;
   font-weight: 500;
+  white-space: nowrap;
+}
+.bi-data-card__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .bi-data-card__meta {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
+  min-width: 0;
+  overflow: hidden;
   margin-top: 8px;
   color: var(--el-text-color-secondary);
   font-size: 12px;
+  white-space: nowrap;
 }
 .bi-data-card__chart {
   box-sizing: border-box;
   height: 280px;
   padding: 12px 16px;
+}
+.bi-data-card.is-compact .bi-data-card__chart {
+  height: 160px;
 }
 .bi-data-card__period {
   width: 130px;
@@ -226,8 +286,52 @@ onBeforeUnmount(() => {
 .bi-data-card__native-actions {
   display: flex;
   flex: none;
-  gap: 2px;
   align-items: center;
+  gap: 0;
+}
+.bi-data-card__header :deep(.bi-data-card__slot-actions) {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0;
+  min-width: max-content;
+  margin-left: auto;
+  white-space: nowrap;
+}
+.bi-data-card__header :deep(.bi-data-card__slot-actions .el-tooltip__trigger) {
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+.bi-data-card__header :deep(.bi-data-card__slot-actions .el-button),
+.bi-data-card__native-actions :deep(.el-button) {
+  box-sizing: border-box;
+  width: var(--bi-card-action-size);
+  height: var(--bi-card-action-size);
+  padding: 8px;
+  margin: 0;
+  color: var(--el-text-color-secondary);
+}
+.bi-data-card__header :deep(.bi-data-card__slot-actions .el-button--warning) {
+  color: var(--el-color-warning);
+}
+.bi-data-card__header :deep(.bi-data-card__slot-actions .el-button--danger) {
+  color: var(--el-color-danger);
+}
+.bi-data-card__header :deep(.bi-data-card__slot-actions .el-button.is-disabled),
+.bi-data-card__native-actions :deep(.el-button.is-disabled) {
+  color: var(--el-text-color-disabled);
+}
+.bi-data-card__header :deep(.bi-data-card__slot-actions .el-button:not(.is-disabled):hover),
+.bi-data-card__native-actions :deep(.el-button:not(.is-disabled):hover) {
+  color: var(--el-color-primary);
+  background: var(--el-color-primary-light-9);
+}
+.bi-data-card__header :deep(.bi-data-card__slot-actions .el-button--warning:not(.is-disabled):hover) {
+  color: var(--el-color-warning);
+}
+.bi-data-card__header :deep(.bi-data-card__slot-actions .el-button--danger:not(.is-disabled):hover) {
+  color: var(--el-color-danger);
 }
 .bi-data-card__error {
   display: flex;
@@ -241,22 +345,32 @@ onBeforeUnmount(() => {
   overflow-wrap: anywhere;
 }
 .bi-data-card__footer {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   flex-wrap: wrap;
+  justify-content: space-between;
   gap: 8px;
-  padding: 12px 16px;
+  min-height: var(--bi-card-footer-height);
+  padding: 6px 16px;
   border-top: 1px solid var(--el-border-color-lighter);
+}
+.bi-data-card__footer > .bi-data-card__native-actions {
+  margin-left: auto;
 }
 
 .bi-data-card__source {
   display: flex;
+  flex: 0 1 auto;
   align-items: center;
   gap: 5px;
-  padding: 0 16px 12px;
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
   color: var(--el-text-color-secondary);
-  font-size: 11px;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .bi-data-card__icon {
   flex: none;

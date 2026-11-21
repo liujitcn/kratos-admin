@@ -5,7 +5,7 @@
       style="--el-header-height: auto; --el-header-padding: 0"
       @click="handleTopbarClick"
     >
-      <el-button class="bi-assistant-workbench__icon-button" title="工具箱" @click.stop="toggleToolbox">
+      <el-button class="bi-assistant-workbench__icon-button" :title="t('bi.workbench.toolbox')" @click.stop="toggleToolbox">
         <el-icon><Grid /></el-icon>
         <span class="bi-assistant-workbench__dot" />
       </el-button>
@@ -22,7 +22,11 @@
         <div v-if="sessionMenuOpen" class="bi-assistant-workbench__session-menu" @click.stop>
           <div class="bi-assistant-workbench__session-search">
             <el-icon><Search /></el-icon>
-            <el-input v-model="sessionKeyword" placeholder="搜索会话" @keydown.esc="closeSessionMenu" />
+            <el-input
+              v-model="sessionKeyword"
+              :placeholder="t('system.ai.chat.placeholder.search_conversation')"
+              @keydown.esc="closeSessionMenu"
+            />
           </div>
           <div class="bi-assistant-workbench__session-list">
             <template v-for="group in sessionGroups" :key="group.label">
@@ -39,7 +43,9 @@
               >
                 <span class="bi-assistant-workbench__session-text">
                   <span class="bi-assistant-workbench__session-title">{{ session.title }}</span>
-                  <span class="bi-assistant-workbench__session-meta">{{ session.summary || "AI 对话" }}</span>
+                  <span class="bi-assistant-workbench__session-meta">{{
+                    session.summary || t("system.ai.chat.value.default_conversation_title")
+                  }}</span>
                 </span>
                 <el-dropdown
                   trigger="click"
@@ -47,65 +53,81 @@
                   @click.stop
                   @command="command => handleSessionMenuCommand(command, session)"
                 >
-                  <el-button class="bi-assistant-workbench__session-more" title="会话操作" @click.stop>
+                  <el-button
+                    class="bi-assistant-workbench__session-more"
+                    :title="t('system.ai.chat.action.conversation_menu')"
+                    @click.stop
+                  >
                     <el-icon><MoreFilled /></el-icon>
                   </el-button>
                   <template #dropdown>
                     <el-dropdown-menu>
-                      <el-dropdown-item command="rename" :icon="EditPen">重命名</el-dropdown-item>
+                      <el-dropdown-item command="rename" :icon="EditPen">{{
+                        t("system.ai.chat.action.rename")
+                      }}</el-dropdown-item>
                       <el-dropdown-item command="pin" :icon="Star">
-                        {{ pinnedSessionIDs.includes(session.id) ? "取消置顶" : "置顶" }}
+                        {{
+                          pinnedSessionIDs.includes(session.id)
+                            ? t("system.ai.chat.action.unpin")
+                            : t("system.ai.chat.action.pin")
+                        }}
                       </el-dropdown-item>
-                      <el-dropdown-item command="delete" :icon="Delete" divided>删除</el-dropdown-item>
+                      <el-dropdown-item command="delete" :icon="Delete" divided>{{ t("common.action.delete") }}</el-dropdown-item>
                     </el-dropdown-menu>
                   </template>
                 </el-dropdown>
               </div>
             </template>
             <div v-if="!sessionGroups.some(group => group.items.length)" class="bi-assistant-workbench__session-empty">
-              暂无匹配会话
+              {{ t("system.ai.chat.empty.no_match") }}
             </div>
           </div>
           <div class="bi-assistant-workbench__session-foot">
             <el-button class="bi-assistant-workbench__plain-button" @click="createSessionFromMenu">
               <el-icon><Plus /></el-icon>
-              新建会话
+              {{ t("system.ai.chat.action.new_conversation") }}
             </el-button>
           </div>
         </div>
       </div>
 
-      <el-button class="bi-assistant-workbench__icon-button" title="新建会话" @click.stop="createSession">
+      <el-button
+        class="bi-assistant-workbench__icon-button"
+        :title="t('system.ai.chat.action.new_conversation')"
+        @click.stop="createSession"
+      >
         <el-icon><Plus /></el-icon>
       </el-button>
 
       <span class="bi-assistant-workbench__spacer" />
 
       <div v-if="toolboxOpen" class="bi-assistant-workbench__toolbox" @click.stop>
-        <div class="bi-assistant-workbench__toolbox-title">工作台工具</div>
+        <div class="bi-assistant-workbench__toolbox-title">{{ t("bi.workbench.toolbox_title") }}</div>
         <div class="bi-assistant-workbench__toolbox-grid">
           <el-button @click="openWorkbenchTool('files')">
             <span class="bi-assistant-workbench__toolbox-icon"
               ><el-icon><Document /></el-icon
             ></span>
             <span v-if="fileCount" class="bi-assistant-workbench__toolbox-badge">{{ fileCount }}</span>
-            文件
+            {{ t("bi.workbench.tool.files") }}
           </el-button>
           <el-button @click="openWorkbenchTool('automations')">
             <span class="bi-assistant-workbench__toolbox-icon is-warning"
               ><el-icon><Timer /></el-icon
             ></span>
             <span v-if="pendingAutomationCount" class="bi-assistant-workbench__toolbox-badge">{{ pendingAutomationCount }}</span>
-            <span v-else-if="automationTotal" class="bi-assistant-workbench__toolbox-badge is-warning">{{ automationTotal }}</span>
+            <span v-else-if="automationTotal" class="bi-assistant-workbench__toolbox-badge is-warning">{{
+              automationTotal
+            }}</span>
             <span v-else class="bi-assistant-workbench__toolbox-badge is-warning-dot" />
-            自动化
+            {{ t("bi.workbench.tool.automations") }}
           </el-button>
           <el-button @click="openWorkbenchTool('plugins')">
             <span class="bi-assistant-workbench__toolbox-icon is-plugin"
               ><el-icon><Grid /></el-icon
             ></span>
             <span v-if="pluginCount" class="bi-assistant-workbench__toolbox-badge">{{ pluginCount }}</span>
-            插件
+            {{ t("bi.workbench.tool.plugins") }}
           </el-button>
         </div>
       </div>
@@ -121,7 +143,7 @@
             text
             circle
             :icon="collapsed.left ? DArrowRight : DArrowLeft"
-            :title="collapsed.left ? '展开左侧工作台' : '收起左侧工作台'"
+            :title="collapsed.left ? t('bi.workbench.side.expand_left') : t('bi.workbench.side.collapse_left')"
             @click="toggleZone('left')"
           />
           <span v-if="!collapsed.left" class="bi-assistant-workbench__spacer" />
@@ -143,7 +165,7 @@
             @preview="previewCard"
           />
         </div>
-        <span v-else class="bi-assistant-workbench__vertical-label">左</span>
+        <span v-else class="bi-assistant-workbench__vertical-label">{{ t("bi.workbench.side.left") }}</span>
       </el-aside>
 
       <el-main class="bi-assistant-workbench__chat">
@@ -191,7 +213,7 @@
             text
             circle
             :icon="collapsed.right ? DArrowLeft : DArrowRight"
-            :title="collapsed.right ? '展开右侧工作台' : '收起右侧工作台'"
+            :title="collapsed.right ? t('bi.workbench.side.expand_right') : t('bi.workbench.side.collapse_right')"
             @click="toggleZone('right')"
           />
         </el-header>
@@ -214,7 +236,7 @@
             @preview="previewCard"
           />
         </div>
-        <span v-else class="bi-assistant-workbench__vertical-label">右</span>
+        <span v-else class="bi-assistant-workbench__vertical-label">{{ t("bi.workbench.side.right") }}</span>
       </el-aside>
 
       <!-- 紧凑布局浮层遮罩：点击收起已展开的卡片区 -->
@@ -225,7 +247,7 @@
         <el-header class="bi-assistant-workbench__tool-head" style="--el-header-height: auto; --el-header-padding: 0">
           <span class="bi-assistant-workbench__tool-title">{{ workbenchViewTitle }}</span>
           <span class="bi-assistant-workbench__spacer" />
-          <el-button text :icon="Close" @click="workbenchView = 'chat'">返回对话</el-button>
+          <el-button text :icon="Close" @click="workbenchView = 'chat'">{{ t("bi.workbench.action.back_to_chat") }}</el-button>
         </el-header>
         <div class="bi-assistant-workbench__tool-body">
           <!-- v-if 按需挂载：避免表格在隐藏状态渲染导致列宽塌缩，切换时自动重新加载 -->
@@ -266,47 +288,54 @@
     <el-dialog
       v-model="cardPicker.open"
       class="bi-assistant-workbench__picker-dialog"
-      :title="t('bi.card.library')"
-      width="min(880px, calc(100vw - 64px))"
+      :title="t('bi.workbench.card.library_title')"
+      width="min(1440px, calc(100vw - 48px))"
       destroy-on-close
     >
       <div class="bi-assistant-workbench__picker-subrow">
-        <span>{{ t("bi.card.library_hint") }}</span>
-        <span class="bi-assistant-workbench__spacer" />
-        <span class="bi-assistant-workbench__picker-label">添加到</span>
-        <div class="bi-assistant-workbench__zone-picker">
-          <el-button :class="{ active: cardPicker.zone === 'left' }" @click="cardPicker.zone = 'left'">左侧</el-button>
-          <el-button :class="{ active: cardPicker.zone === 'right' }" @click="cardPicker.zone = 'right'">右侧</el-button>
+        <el-input v-model="cardPicker.keyword" clearable :prefix-icon="Search" :placeholder="t('bi.card.search')" />
+        <div class="bi-assistant-workbench__picker-target">
+          <span class="bi-assistant-workbench__picker-label">{{ t("bi.workbench.card.add_to") }}</span>
+          <div class="bi-assistant-workbench__zone-picker">
+            <el-button :class="{ active: cardPicker.zone === 'left' }" @click="cardPicker.zone = 'left'">{{
+              t("bi.workbench.side.left")
+            }}</el-button>
+            <el-button :class="{ active: cardPicker.zone === 'right' }" @click="cardPicker.zone = 'right'">{{
+              t("bi.workbench.side.right")
+            }}</el-button>
+          </div>
         </div>
       </div>
-      <div class="bi-assistant-workbench__picker-head">
-        <span>选择卡片，按当前会话口径固定到工作台</span>
-        <el-input v-model="cardPicker.keyword" clearable :prefix-icon="Search" :placeholder="t('bi.card.search')" />
-      </div>
       <div v-loading="cardPicker.loading" class="bi-assistant-workbench__picker-list">
-        <el-button
-          v-for="card in pickerCards"
+        <div
+          v-for="card in pickerVisibleCards"
           :key="card.id"
           class="bi-assistant-workbench__picker-item"
-          text
+          :class="{ 'is-added': isCardAdded(card) }"
+          :aria-disabled="isCardAdded(card)"
+          role="button"
+          tabindex="0"
           @click="addCard(card)"
+          @keydown.enter.prevent="addCard(card)"
+          @keydown.space.prevent="addCard(card)"
         >
-          <span class="bi-assistant-workbench__picker-icon"
-            ><el-icon><DataAnalysis /></el-icon
-          ></span>
-          <span class="bi-assistant-workbench__picker-text"
-            ><el-text tag="strong">{{ card.name }}</el-text
-            ><el-text tag="small">{{ card.source_code }} · {{ card.chart_type }}</el-text></span
-          >
-          <el-icon><Plus /></el-icon>
-        </el-button>
+          <BiDataCard :card="card" :show-category="false" compact />
+        </div>
         <el-empty v-if="!cardPicker.loading && !pickerCards.length" :description="t('bi.card.empty')" />
       </div>
+      <el-pagination
+        v-if="pickerCards.length > pickerPageSize"
+        v-model:current-page="cardPicker.page"
+        class="bi-assistant-workbench__picker-pagination"
+        :page-size="pickerPageSize"
+        :total="pickerCards.length"
+        layout="prev, pager, next"
+      />
     </el-dialog>
     <el-dialog
       v-model="cardPreview.open"
       class="bi-assistant-workbench__preview-dialog"
-      :title="cardPreview.card?.name || '卡片详情'"
+      :title="cardPreview.card?.name || t('bi.card.detail')"
       width="min(780px, calc(100vw - 64px))"
       destroy-on-close
     >
@@ -322,7 +351,6 @@ import {
   ArrowDown,
   Close,
   CopyDocument,
-  DataAnalysis,
   DArrowLeft,
   DArrowRight,
   Delete,
@@ -477,7 +505,8 @@ const allCards = ref<BiCard[]>([]);
 const refreshKeys = reactive<Record<number, number>>({});
 const dragged = ref<CardDrag>();
 const collapsed = reactive({ left: false, right: false });
-const cardPicker = reactive({ open: false, loading: false, allLoaded: false, keyword: "", zone: "right" as Zone });
+const pickerPageSize = 12;
+const cardPicker = reactive({ open: false, loading: false, allLoaded: false, keyword: "", page: 1, zone: "right" as Zone });
 const cardPreview = reactive<{ open: boolean; card?: BiCard }>({ open: false });
 const workbench = ref<BiWorkbench>({ dashboard_ids: [], favorite_ids: [], dashboards: [] });
 // shortcut: 左右分区暂存在浏览器本地，跨设备同步时再扩展 BiWorkbench 协议。
@@ -493,15 +522,17 @@ const visibleSessions = computed(() => {
     return pinDiff || sessionTime(right).getTime() - sessionTime(left).getTime();
   });
 });
-const activeSessionTitle = computed(() => sessions.value.find(item => item.id === activeSessionID.value)?.title || "新会话");
+const activeSessionTitle = computed(
+  () => sessions.value.find(item => item.id === activeSessionID.value)?.title || t("system.ai.chat.action.new_conversation")
+);
 const sessionGroups = computed(() => {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
   const yesterday = today - 86_400_000;
   const groups = [
-    { label: "今天", items: [] as AiSession[] },
-    { label: "昨天", items: [] as AiSession[] },
-    { label: "更早", items: [] as AiSession[] }
+    { label: t("system.ai.chat.group.today"), items: [] as AiSession[] },
+    { label: t("system.ai.chat.group.yesterday"), items: [] as AiSession[] },
+    { label: t("system.ai.chat.group.earlier"), items: [] as AiSession[] }
   ];
   visibleSessions.value.forEach(item => {
     const time = sessionTime(item).getTime();
@@ -511,16 +542,28 @@ const sessionGroups = computed(() => {
   return groups;
 });
 const workbenchViewTitle = computed(() => {
-  const titles = { files: "文件", automations: "定时任务", plugins: "插件" } as const;
+  const titles = {
+    files: t("bi.workbench.tool.files"),
+    automations: t("bi.workbench.tool.automations"),
+    plugins: t("bi.workbench.tool.plugins")
+  } as const;
   return workbenchView.value === "chat" ? "" : titles[workbenchView.value];
 });
 const pickerCards = computed(() => {
-  const used = new Set([...leftCards.value, ...rightCards.value].map(item => item.id));
   const keyword = cardPicker.keyword.trim().toLowerCase();
   return allCards.value.filter(
-    item => !used.has(item.id) && (!keyword || (item.name + " " + item.source_code).toLowerCase().includes(keyword))
+    item => !keyword || (item.name + " " + item.source_code + " " + item.chart_type).toLowerCase().includes(keyword)
   );
 });
+const pickerVisibleCards = computed(() => {
+  const start = (cardPicker.page - 1) * pickerPageSize;
+  return pickerCards.value.slice(start, start + pickerPageSize);
+});
+
+/** 返回卡片在当前工作台中的加入状态。 */
+function isCardAdded(card: BiCard) {
+  return leftCards.value.some(item => item.id === card.id) || rightCards.value.some(item => item.id === card.id);
+}
 
 /** 读取工作台会话置顶状态。 */
 function readPinnedSessionIDs() {
@@ -629,7 +672,7 @@ async function savePluginSelection() {
 /** 从插件目录选用确定账号并回到对话视图。 */
 async function addSessionPlugin(selection: AiPluginSelection) {
   if (activeSession.value?.read_only) {
-    ElMessage.warning("只读会话不能修改插件");
+    ElMessage.warning(t("system.ai.chat.message.readonly_plugin_change"));
     return;
   }
   pluginSelection.value = [...(activeSession.value?.plugins ?? [])];
@@ -671,21 +714,29 @@ async function handleSessionMenuCommand(command: string | number | object, sessi
       return;
     }
     if (String(command) === "rename") {
-      const result = await ElMessageBox.prompt("请输入新的会话名称", "重命名会话", {
-        inputValue: session.title,
-        confirmButtonText: "确定",
-        cancelButtonText: "取消"
-      });
+      const result = await ElMessageBox.prompt(
+        t("system.ai.chat.placeholder.conversation_name"),
+        t("system.ai.chat.dialog.rename_title"),
+        {
+          inputValue: session.title,
+          confirmButtonText: t("common.action.confirm"),
+          cancelButtonText: t("common.action.cancel")
+        }
+      );
       const response = await defAiSessionService.UpdateAiSession({ id: session.id, title: result.value.trim() });
       if (response.session) upsertSession(normalizeSession(response.session));
       return;
     }
     if (String(command) !== "delete") return;
-    await ElMessageBox.confirm(`是否删除会话「${session.title}」？`, "删除会话", {
-      confirmButtonText: "删除",
-      cancelButtonText: "取消",
-      type: "warning"
-    });
+    await ElMessageBox.confirm(
+      t("system.ai.chat.dialog.delete_description", { title: session.title }),
+      t("system.ai.chat.dialog.delete_title"),
+      {
+        confirmButtonText: t("common.action.delete"),
+        cancelButtonText: t("common.action.cancel"),
+        type: "warning"
+      }
+    );
     await defAiSessionService.DeleteAiSession({ id: session.id });
     sessions.value = sessions.value.filter(item => item.id !== session.id);
     if (activeSessionID.value === session.id) {
@@ -694,7 +745,7 @@ async function handleSessionMenuCommand(command: string | number | object, sessi
     }
   } catch (cause) {
     if (cause === "cancel" || cause === "close") return;
-    ElMessage.error(cause instanceof Error ? cause.message : "会话操作失败");
+    ElMessage.error(cause instanceof Error ? cause.message : t("system.ai.chat.message.operation_failed"));
   }
 }
 
@@ -705,9 +756,7 @@ async function createSessionFromMenu() {
 }
 
 /** 紧凑布局下是否有卡片区处于浮层展开态（用于显示遮罩） */
-const zoneScrimVisible = computed(
-  () => compact.value && (!collapsed.left || !collapsed.right) && workbenchView.value === "chat"
-);
+const zoneScrimVisible = computed(() => compact.value && (!collapsed.left || !collapsed.right) && workbenchView.value === "chat");
 
 /** 收起两侧卡片区（遮罩点击 / 进入紧凑布局时调用） */
 function collapseAllZones() {
@@ -733,6 +782,12 @@ watch(
     }
   },
   { immediate: true }
+);
+watch(
+  () => cardPicker.keyword,
+  () => {
+    cardPicker.page = 1;
+  }
 );
 
 async function loadCards() {
@@ -829,14 +884,15 @@ function quoteCard(card: BiCard) {
   if (!activeSessionID.value) return;
   drafts.value[activeSessionID.value] = {
     ...(drafts.value[activeSessionID.value] || { text: "", attachments: [] }),
-    text: "[引用卡片：" + card.name + "] "
+    text: t("bi.workbench.card.quote_prefix", { name: card.name }) + " "
   };
-  ElMessage.success("已在输入框引用该卡片");
+  ElMessage.success(t("bi.workbench.card.quote_success"));
 }
 
 async function openCardPicker(zone: Zone) {
   cardPicker.zone = zone;
   cardPicker.keyword = "";
+  cardPicker.page = 1;
   cardPicker.open = true;
   if (cardPicker.allLoaded) return;
   cardPicker.loading = true;
@@ -859,8 +915,9 @@ async function openCardPicker(zone: Zone) {
 }
 
 async function addCard(card: BiCard) {
+  if (isCardAdded(card)) return;
   const target = cardPicker.zone === "left" ? leftCards : rightCards;
-  if (!target.value.some(item => item.id === card.id)) target.value.push(card);
+  target.value.push(card);
   cardPicker.open = false;
   try {
     await saveFavorites();
@@ -974,7 +1031,7 @@ async function handleMessageAction(payload: { action: ChatMessageAction; item: C
     return;
   }
   if (payload.action === "speak") {
-    if (!window.speechSynthesis) return ElMessage.warning("当前浏览器不支持朗读");
+    if (!window.speechSynthesis) return ElMessage.warning(t("system.ai.chat.message.speech_unsupported"));
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(new SpeechSynthesisUtterance(payload.item.content));
     return;
@@ -988,7 +1045,7 @@ async function handleMessageAction(payload: { action: ChatMessageAction; item: C
     const result = await defAiSessionService.CreateAiSessionBranch({
       source_session_id: id,
       anchor_message_id: String(payload.item.id),
-      title: "分支：" + payload.item.content.slice(0, 18),
+      title: t("system.ai.chat.value.branch_title", { title: payload.item.content.slice(0, 18) }),
       terminal: Terminal.TERMINAL_ADMIN
     });
     const session = normalizeSession(result.session);
@@ -1464,6 +1521,7 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
   min-height: 100%;
 }
 .bi-assistant-workbench__card {
+  flex: none;
   min-width: 0;
   cursor: grab;
 }
@@ -1472,8 +1530,21 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
 }
 .bi-assistant-workbench__card-actions {
   display: flex;
-  gap: 2px;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+  width: max-content;
+  min-width: max-content;
+  gap: 0;
   align-items: center;
+  justify-content: flex-start;
+  margin-left: auto;
+  white-space: nowrap;
+}
+.bi-assistant-workbench__card-actions :deep(.el-button + .el-button) {
+  margin-left: 0;
+}
+.bi-assistant-workbench__card-actions :deep(.el-tooltip__trigger) {
+  flex: 0 0 auto;
 }
 .bi-assistant-workbench__card-foot {
   font-size: 11px;
@@ -1496,14 +1567,6 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
   color: var(--el-text-color-secondary);
   letter-spacing: 2px;
   writing-mode: vertical-rl;
-}
-.bi-assistant-workbench__picker-head {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  margin-bottom: 12px;
-  font-size: 12px;
-  color: var(--el-text-color-secondary);
 }
 .bi-assistant-workbench__picker-dialog :deep(.el-dialog) {
   overflow: hidden;
@@ -1536,11 +1599,18 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
 }
 .bi-assistant-workbench__picker-subrow {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   align-items: center;
+  justify-content: space-between;
   margin-bottom: 8px;
   font-size: 12px;
   color: var(--admin-page-text-placeholder);
+}
+.bi-assistant-workbench__picker-target {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 .bi-assistant-workbench__picker-label {
   color: var(--admin-page-text-secondary);
@@ -1571,63 +1641,73 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
   background: var(--el-color-primary);
   border-color: var(--el-color-primary);
 }
-.bi-assistant-workbench__picker-head .el-input {
-  max-width: 260px;
-  margin-left: auto;
+.bi-assistant-workbench__picker-subrow .el-input {
+  max-width: 280px;
 }
 .bi-assistant-workbench__picker-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  max-height: 52vh;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  max-height: 64vh;
   overflow: auto;
+}
+.bi-assistant-workbench__picker-pagination {
+  justify-content: flex-end;
+  margin-top: 16px;
 }
 .bi-assistant-workbench__picker-item {
   display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: flex-start;
+  flex-direction: column;
+  min-width: 0;
   width: 100%;
+  min-height: 0;
   height: auto;
-  padding: 10px;
+  padding: 0;
   margin: 0;
   color: var(--el-text-color-primary);
   text-align: left;
   cursor: pointer;
-  background: var(--el-fill-color-lighter);
-  border: 1px solid transparent;
+  border: 0;
   border-radius: var(--admin-page-radius);
 }
 .bi-assistant-workbench__picker-item:hover {
-  background: var(--el-color-primary-light-9);
-  border-color: var(--el-color-primary-light-5);
+  background: transparent;
 }
-.bi-assistant-workbench__picker-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  color: var(--el-color-primary);
-  background: var(--el-color-primary-light-9);
-  border-radius: var(--admin-page-radius);
-}
-.bi-assistant-workbench__picker-text {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-.bi-assistant-workbench__picker-text strong {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 13px;
-  white-space: nowrap;
-}
-.bi-assistant-workbench__picker-text small {
-  font-size: 11px;
+.bi-assistant-workbench__picker-item.is-added,
+.bi-assistant-workbench__picker-item.is-added:hover {
   color: var(--el-text-color-secondary);
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+.bi-assistant-workbench__picker-item :deep(.bi-data-card) {
+  width: 100%;
+  height: 100%;
+}
+.bi-assistant-workbench__picker-item :deep(.bi-data-card__native-actions) {
+  display: none;
+}
+.bi-assistant-workbench__picker-item :deep(.bi-data-card__header) {
+  height: 44px;
+  padding: 4px 10px;
+}
+.bi-assistant-workbench__picker-item :deep(.bi-data-card__chart) {
+  height: 112px;
+  padding: 8px 10px;
+}
+@media (max-width: 1100px) {
+  .bi-assistant-workbench__picker-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 720px) {
+  .bi-assistant-workbench__picker-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 480px) {
+  .bi-assistant-workbench__picker-list {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ---------- 紧凑布局：卡片区默认收起，展开时浮层覆盖聊天区（对齐原型） ---------- */

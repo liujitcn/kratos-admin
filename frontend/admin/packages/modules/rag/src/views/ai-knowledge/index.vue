@@ -457,7 +457,7 @@ function selectDocFile() {
 /** 读取选择的文档文件并逐个上传，展示整体进度。 */
 async function handleDocFileChange(file: UploadFile, uploadFiles: UploadFiles) {
   // el-upload 对多选文件逐项触发 change，只在最后一项统一处理整批文件。
-  if (file !== uploadFiles.at(-1)) return;
+  if (file.uid !== uploadFiles.at(-1)?.uid) return;
   const files = uploadFiles.flatMap(item => (item.raw ? [item.raw] : []));
   docFileInputRef.value?.clearFiles();
   if (!files.length || !docsDrawer.knowledge) return;

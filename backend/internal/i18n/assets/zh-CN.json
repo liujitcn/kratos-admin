@@ -8191,5 +8191,50 @@
   },
   "base.ai.event.session_id.positive": {
     "other": "会话或消息编号不合法"
+  },
+  "system.mcp.tool.write_confirmation_required": {
+    "other": "写入操作须通过 AI 助手人工确认，执行类工具暂不开放"
+  },
+  "bi.query.error.dimension_missing": {
+    "other": "BI 维度不存在: {{.Code}}"
+  },
+  "bi.query.error.measure_unavailable": {
+    "other": "BI 公共指标不可用: {{.Code}}"
+  },
+  "bi.query.error.measure_formula_invalid": {
+    "other": "BI 公共指标公式无效: {{.Code}}"
+  },
+  "bi.query.error.filter_field_unavailable": {
+    "other": "BI 过滤字段不可用: {{.Field}}"
+  },
+  "bi.query.error.operator_unsupported": {
+    "other": "BI 过滤操作符不支持: {{.Operator}}"
+  },
+  "bi.query.error.sort_direction_unsupported": {
+    "other": "BI 排序方向不支持: {{.Direction}}"
+  },
+  "bi.query.error.sort_field_invalid": {
+    "other": "BI 排序字段必须是已选择的维度或指标: {{.Field}}"
+  },
+  "system.workflow.error.graph_invalid": {
+    "other": "节点图配置无效: {{.Detail}}"
+  },
+  "system.workflow.error.assignee_type_unsupported": {
+    "other": "审批人类型不支持: {{.Type}}"
+  },
+  "system.workflow.error.assignee_unresolved": {
+    "other": "审批节点未解析到有效审批人: {{.NodeID}}"
+  },
+  "system.workflow.error.submit_validation_failed": {
+    "other": "提交校验失败: {{.Detail}}"
+  },
+  "bi.query.error.time_range_invalid": {
+    "other": "BI 时间范围表达式无效: {{.Value}}"
+  },
+  "bi.source.error.client_missing": {
+    "other": "BI 数据源绑定的数据库客户端不存在: {{.Name}}"
+  },
+  "bi.source.error.measure_formula_invalid": {
+    "other": "公共指标公式无效: {{.Code}}"
   }
 }

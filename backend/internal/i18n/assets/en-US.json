@@ -8191,5 +8191,50 @@
   },
   "base.ai.event.session_id.positive": {
     "other": "The session or message ID is invalid"
+  },
+  "system.mcp.tool.write_confirmation_required": {
+    "other": "Write operations require manual confirmation in the AI assistant; execution tools are not available."
+  },
+  "bi.query.error.dimension_missing": {
+    "other": "BI dimension does not exist: {{.Code}}"
+  },
+  "bi.query.error.measure_unavailable": {
+    "other": "BI public measure is unavailable: {{.Code}}"
+  },
+  "bi.query.error.measure_formula_invalid": {
+    "other": "Invalid BI public measure formula: {{.Code}}"
+  },
+  "bi.query.error.filter_field_unavailable": {
+    "other": "BI filter field is unavailable: {{.Field}}"
+  },
+  "bi.query.error.operator_unsupported": {
+    "other": "Unsupported BI filter operator: {{.Operator}}"
+  },
+  "bi.query.error.sort_direction_unsupported": {
+    "other": "Unsupported BI sort direction: {{.Direction}}"
+  },
+  "bi.query.error.sort_field_invalid": {
+    "other": "BI sort field must be a selected dimension or measure: {{.Field}}"
+  },
+  "system.workflow.error.graph_invalid": {
+    "other": "Invalid node graph configuration: {{.Detail}}"
+  },
+  "system.workflow.error.assignee_type_unsupported": {
+    "other": "Unsupported approver type: {{.Type}}"
+  },
+  "system.workflow.error.assignee_unresolved": {
+    "other": "No valid approver resolved for approval node: {{.NodeID}}"
+  },
+  "system.workflow.error.submit_validation_failed": {
+    "other": "Submission validation failed: {{.Detail}}"
+  },
+  "bi.query.error.time_range_invalid": {
+    "other": "Invalid BI time range expression: {{.Value}}"
+  },
+  "bi.source.error.client_missing": {
+    "other": "Database client bound to BI source does not exist: {{.Name}}"
+  },
+  "bi.source.error.measure_formula_invalid": {
+    "other": "Invalid public measure formula: {{.Code}}"
   }
 }

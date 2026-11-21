@@ -1,4 +1,8 @@
 {
+  "common.language.zh-CN": "简体中文",
+  "common.language.en-US": "英语",
+  "common.language.ja-JP": "日语",
+  "common.language.zh-TW": "繁体中文",
   "common.action.back": "返回",
   "common.action.next": "下一步",
   "common.action.previous": "上一步",

@@ -2274,5 +2274,14 @@
   "system.ai.chat.bi_chart_bar": "柱状图",
   "system.ai.chat.bi_chart_line": "折线图",
   "system.ai.chat.bi_chart_pie": "饼图",
-  "system.ai.chat.bi_chart_metric": "指标卡"
+  "system.ai.chat.bi_chart_metric": "指标卡",
+  "system.ai.chat.value.default_conversation_title": "AI 对话",
+  "system.ai.chat.group.today": "今天",
+  "system.ai.chat.group.yesterday": "昨天",
+  "system.ai.chat.group.earlier": "更早",
+  "system.ai.chat.message.readonly_plugin_change": "只读会话不能修改插件",
+  "system.ai.chat.message.operation_failed": "会话操作失败",
+  "system.ai.chat.action.pin": "置顶",
+  "system.ai.chat.action.unpin": "取消置顶",
+  "system.ai.chat.empty.no_match": "暂无匹配会话"
 }

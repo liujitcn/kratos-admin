@@ -407,6 +407,12 @@
   "ai/workspace/PluginPanel.vue": {
     "props": [
       {
+        "name": "workspaceKey",
+        "description": "",
+        "type": "string",
+        "required": false
+      },
+      {
         "name": "plugins",
         "description": "",
         "type": "AiPlugin[]",

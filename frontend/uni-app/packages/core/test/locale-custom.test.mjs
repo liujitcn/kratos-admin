@@ -77,3 +77,30 @@ test('启动初始化不在 uni-app 实例挂载前同步原生语言', () => {
     delete globalThis.uni
   }
 })
+
+test('语言配置回退按顺序刷新并吞掉处理器异常', async () => {
+  const runtime = loadLocales()
+  const events = []
+  const warnings = []
+  const previousWarn = console.warn
+  console.warn = (...args) => warnings.push(args)
+  globalThis.uni = { setStorageSync() {}, setLocale() {} }
+  const unregisterFirst = runtime.registerLocaleChangeHandler(async () => {
+    events.push('first:start')
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    events.push('first:end')
+    throw new Error('refresh failed')
+  })
+  const unregisterSecond = runtime.registerLocaleChangeHandler(() => events.push('second'))
+  try {
+    runtime.applyLanguageConfig({ languages: [{ language_code: 'en-US', native_name: 'English' }] })
+    await new Promise((resolve) => setTimeout(resolve, 10))
+    assert.deepEqual(events, ['first:start', 'first:end', 'second'])
+    assert.equal(warnings.length, 1)
+  } finally {
+    unregisterFirst()
+    unregisterSecond()
+    console.warn = previousWarn
+    delete globalThis.uni
+  }
+})

@@ -164,10 +164,10 @@ func (c *WorkflowInstanceCase) submit(
 	var graph *workflow.Graph
 	graph, err = workflow.Parse(definition.NodeConfig)
 	if err != nil {
-		return 0, errorsx.InvalidArgument("节点图配置无效: " + err.Error()).WithCause(err)
+		return 0, errorsx.WithMessageKey(errorsx.InvalidArgument("节点图配置无效: "+err.Error()), "system.workflow.error.graph_invalid", map[string]string{"Detail": err.Error()}).WithCause(err)
 	}
 	if err = workflow.Validate(graph); err != nil {
-		return 0, errorsx.InvalidArgument("节点图配置无效: " + err.Error())
+		return 0, errorsx.WithMessageKey(errorsx.InvalidArgument("节点图配置无效: "+err.Error()), "system.workflow.error.graph_invalid", map[string]string{"Detail": err.Error()})
 	}
 	startNode := graph.StartNode()
 	if startNode == nil {
@@ -1219,11 +1219,11 @@ func (c *WorkflowInstanceCase) resolveApprovers(ctx context.Context, tenantID, a
 				appendUser(c.applyDelegation(ctx, tenantID, user.ID))
 			}
 		default:
-			return nil, errorsx.InvalidArgument("审批人类型不支持: " + spec.Type)
+			return nil, errorsx.WithMessageKey(errorsx.InvalidArgument("审批人类型不支持: "+spec.Type), "system.workflow.error.assignee_type_unsupported", map[string]string{"Type": spec.Type})
 		}
 	}
 	if len(approvers) == 0 {
-		return nil, errorsx.InvalidArgument("审批节点未解析到有效审批人: " + node.ID)
+		return nil, errorsx.WithMessageKey(errorsx.InvalidArgument("审批节点未解析到有效审批人: "+node.ID), "system.workflow.error.assignee_unresolved", map[string]string{"NodeID": node.ID})
 	}
 	for _, userID := range approvers {
 		if err = c.ensureUserActive(ctx, tenantID, userID); err != nil {
@@ -1951,7 +1951,7 @@ func (c *WorkflowInstanceCase) beforeSubmitScript(ctx context.Context, instance 
 		return nil, err
 	}
 	if scriptErr != nil {
-		return nil, errorsx.InvalidArgument("提交校验失败: " + scriptErr.Error())
+		return nil, errorsx.WithMessageKey(errorsx.InvalidArgument("提交校验失败: "+scriptErr.Error()), "system.workflow.error.submit_validation_failed", map[string]string{"Detail": scriptErr.Error()})
 	}
 	var result dto.WorkflowScriptOutput
 	if err = json.Unmarshal([]byte(output), &result); err != nil {

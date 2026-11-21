@@ -256,7 +256,8 @@ func (h *McpCase) filterToolCall(next server.ToolHandlerFunc) server.ToolHandler
 			return mcp.NewToolResultError(h.localizeMcpError(ctx, err)), nil
 		}
 		if agentToolBlocked(baseAPI) || !agentToolReadOnly(baseAPI) {
-			return mcp.NewToolResultError("写入操作须通过 AI 助手人工确认，执行类工具暂不开放"), nil
+			message := h.localizeMcpMessage(ctx, "system.mcp.tool.write_confirmation_required", nil, "写入操作须通过 AI 助手人工确认，执行类工具暂不开放")
+			return mcp.NewToolResultError(message), nil
 		}
 		return next(ctx, req)
 	}

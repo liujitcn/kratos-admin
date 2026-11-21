@@ -1426,7 +1426,7 @@ function approvalExpired(item: ChatMessageItem) {
 /** 格式化审批截止时间为本地时间字符串，无值时显示占位符。 */
 function formatApprovalExpiry(item: ChatMessageItem) {
   const expires = resolveTimestamp(item.output_content?.approval?.expires_at)
-  return expires ? new Date(expires).toLocaleString() : '—'
+  return expires ? new Date(expires).toLocaleString(locale.value) : '—'
 }
 
 /** 统一错误提示：登录态失效由请求层弹窗处理，此处不再叠加提示。 */
@@ -1697,7 +1697,16 @@ uni-app :where(.ai-page) :deep(uni-text) {
   font-size: inherit;
 }
 
-/* 沿用 Taro 的块布局，保持详情和审批内容的外边距合并规则一致。 */
+/* 沿用 Taro 的块布局，保持导航、滚动内容和详情的外边距规则一致。 */
+uni-app :where(.ai-page) .ai-navbar {
+  display: block;
+}
+
+uni-app :where(.ai-page) .ai-body {
+  display: block;
+  overflow: hidden auto;
+}
+
 uni-app :where(.ai-page) :deep(.uni-scroll-view-content),
 uni-app :where(.ai-page) :deep(.approval-card) {
   display: block;
@@ -1744,6 +1753,20 @@ uni-app :where(.ai-page) :deep(.approval-card) {
   box-sizing: border-box;
   padding: 28rpx 20rpx 10rpx;
 }
+
+/* #ifdef H5 */
+/* H5 下 scroll-view 渲染成「宿主元素 + 滚动层 + 内容层」，padding 落在宿主元素上会形成一块
+   始终不参与滚动的留白，使导航栏下方的蓝色区域比 Taro 高；把间距下沉到滚动内容层后，
+   滚动时内容可以直接贴到导航栏底部，与 Taro 表现一致。 */
+.ai-body {
+  padding: 0;
+}
+
+.ai-body :deep(.uni-scroll-view-content) {
+  box-sizing: border-box;
+  padding: 28rpx 20rpx 10rpx;
+}
+/* #endif */
 
 .chat-list {
   padding-bottom: 24rpx;

@@ -732,11 +732,11 @@ func resolveRelativeTime(value string, now time.Time) (string, error) {
 		return now.Format(biTimeLayout), nil
 	}
 	if len(offset) < 3 || offset[0] != '-' {
-		return "", errorsx.InvalidArgument("BI 时间范围表达式无效: " + value)
+		return "", errorsx.WithMessageKey(errorsx.InvalidArgument("BI 时间范围表达式无效: "+value), "bi.query.error.time_range_invalid", map[string]string{"Value": value})
 	}
 	amount, err := strconv.Atoi(offset[1 : len(offset)-1])
 	if err != nil {
-		return "", errorsx.InvalidArgument("BI 时间范围表达式无效: " + value)
+		return "", errorsx.WithMessageKey(errorsx.InvalidArgument("BI 时间范围表达式无效: "+value), "bi.query.error.time_range_invalid", map[string]string{"Value": value})
 	}
 	switch offset[len(offset)-1] {
 	case 'd':
@@ -748,7 +748,7 @@ func resolveRelativeTime(value string, now time.Time) (string, error) {
 	case 'h':
 		return now.Add(-time.Duration(amount) * time.Hour).Format(biTimeLayout), nil
 	default:
-		return "", errorsx.InvalidArgument("BI 时间范围表达式无效: " + value)
+		return "", errorsx.WithMessageKey(errorsx.InvalidArgument("BI 时间范围表达式无效: "+value), "bi.query.error.time_range_invalid", map[string]string{"Value": value})
 	}
 }
 

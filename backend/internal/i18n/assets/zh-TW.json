@@ -8191,5 +8191,50 @@
   },
   "base.ai.event.session_id.positive": {
     "other": "會話或訊息編號不合法"
+  },
+  "system.mcp.tool.write_confirmation_required": {
+    "other": "寫入操作須透過 AI 助手人工確認，執行類工具暫不開放"
+  },
+  "bi.query.error.dimension_missing": {
+    "other": "BI 維度不存在: {{.Code}}"
+  },
+  "bi.query.error.measure_unavailable": {
+    "other": "BI 公共指標不可用: {{.Code}}"
+  },
+  "bi.query.error.measure_formula_invalid": {
+    "other": "BI 公共指標公式無效: {{.Code}}"
+  },
+  "bi.query.error.filter_field_unavailable": {
+    "other": "BI 過濾欄位不可用: {{.Field}}"
+  },
+  "bi.query.error.operator_unsupported": {
+    "other": "BI 過濾運算子不支援: {{.Operator}}"
+  },
+  "bi.query.error.sort_direction_unsupported": {
+    "other": "BI 排序方向不支援: {{.Direction}}"
+  },
+  "bi.query.error.sort_field_invalid": {
+    "other": "BI 排序欄位必須是已選擇的維度或指標: {{.Field}}"
+  },
+  "system.workflow.error.graph_invalid": {
+    "other": "節點圖設定無效: {{.Detail}}"
+  },
+  "system.workflow.error.assignee_type_unsupported": {
+    "other": "審核人類型不支援: {{.Type}}"
+  },
+  "system.workflow.error.assignee_unresolved": {
+    "other": "審核節點未解析到有效審核人: {{.NodeID}}"
+  },
+  "system.workflow.error.submit_validation_failed": {
+    "other": "提交校驗失敗: {{.Detail}}"
+  },
+  "bi.query.error.time_range_invalid": {
+    "other": "BI 時間範圍運算式無效: {{.Value}}"
+  },
+  "bi.source.error.client_missing": {
+    "other": "BI 資料來源綁定的資料庫用戶端不存在: {{.Name}}"
+  },
+  "bi.source.error.measure_formula_invalid": {
+    "other": "公共指標公式無效: {{.Code}}"
   }
 }

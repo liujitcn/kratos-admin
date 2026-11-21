@@ -48,3 +48,28 @@ test('自定义文案按语言与 key 覆盖，保留插值并在删除后恢复
   await runtime.setCurrentLocale('zh-CN')
   assert.equal(runtime.t('core.test.title', { name: 'C' }), 'zh-CN C')
 })
+
+test('语言配置回退按顺序刷新并吞掉处理器异常', async () => {
+  const runtime = loadLocales()
+  const events = []
+  const warnings = []
+  const previousWarn = console.warn
+  console.warn = (...args) => warnings.push(args)
+  const unregisterFirst = runtime.registerLocaleChangeHandler(async () => {
+    events.push('first:start')
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    events.push('first:end')
+    throw new Error('refresh failed')
+  })
+  const unregisterSecond = runtime.registerLocaleChangeHandler(() => events.push('second'))
+  try {
+    runtime.applyLanguageConfig({ languages: [{ language_code: 'en-US', native_name: 'English' }] })
+    await new Promise((resolve) => setTimeout(resolve, 10))
+    assert.deepEqual(events, ['first:start', 'first:end', 'second'])
+    assert.equal(warnings.length, 1)
+  } finally {
+    unregisterFirst()
+    unregisterSecond()
+    console.warn = previousWarn
+  }
+})

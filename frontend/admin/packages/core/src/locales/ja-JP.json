@@ -1,4 +1,8 @@
 {
+  "common.language.zh-CN": "簡体字中国語",
+  "common.language.en-US": "英語",
+  "common.language.ja-JP": "日本語",
+  "common.language.zh-TW": "繁体字中国語",
   "common.action.back": "戻る",
   "common.action.next": "次へ",
   "common.action.previous": "前へ",

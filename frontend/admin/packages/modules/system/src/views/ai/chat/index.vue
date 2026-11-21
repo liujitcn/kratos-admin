@@ -66,6 +66,7 @@
     <FilePanel ref="filePanelRef" v-show="assistantView === 'files'" />
     <PluginPanel
       v-show="assistantView === 'plugins'"
+      :workspace-key="workspaceKey"
       :plugins="plugins"
       :connections="connections"
       :mobile="mobile"
@@ -875,9 +876,8 @@ watch(
   value => void openNotificationResult(value)
 );
 
-// 只记录面板和已确认属于当前账号的会话编号。恢复仍以服务端返回的会话列表为准。
+// 记录当前工作区视图和已确认属于当前账号的会话编号。恢复仍以服务端返回的会话列表为准。
 watch([assistantView, activeSessionID], ([view, sessionID]) => {
-  if (!sessionID) return;
   try {
     window.sessionStorage.setItem(workspaceKey, JSON.stringify({ view, sessionID }));
   } catch {

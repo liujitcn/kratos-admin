@@ -81,6 +81,9 @@ export function registerLocaleMessages(modules: AdminModule[]): void {
     if (!module.messages) return;
     const defaultMessages = module.messages[DEFAULT_LOCALE] ?? {};
     const expectedKeys = requiredLocaleKeys(defaultMessages);
+    // 语言名称键按设计不参与跨语言一致性校验，但仍需注册，供语言下拉的本地名称回退读取。
+    const languageLabelKeys = Object.keys(defaultMessages).filter(key => key.startsWith("common.language."));
+    const registrationKeys = [...expectedKeys, ...languageLabelKeys];
     SUPPORTED_LOCALES.forEach(locale => {
       const messages = module.messages?.[locale];
       if (!messages) {
@@ -93,7 +96,7 @@ export function registerLocaleMessages(modules: AdminModule[]): void {
       }
 
       const target = merged.get(locale) as LocaleMessages;
-      expectedKeys.forEach(key => {
+      registrationKeys.forEach(key => {
         let message = targetMessages[key] ?? defaultMessages[key];
         assertLocaleKeyNamespace(module.name, key);
         if (Object.prototype.hasOwnProperty.call(target, key)) {

@@ -8191,5 +8191,50 @@
   },
   "base.ai.event.session_id.positive": {
     "other": "セッションまたはメッセージIDが無効です"
+  },
+  "system.mcp.tool.write_confirmation_required": {
+    "other": "書き込み操作は AI アシスタントでの手動確認が必要です。実行系ツールは利用できません。"
+  },
+  "bi.query.error.dimension_missing": {
+    "other": "BI ディメンションが存在しません: {{.Code}}"
+  },
+  "bi.query.error.measure_unavailable": {
+    "other": "BI 共通指標は利用できません: {{.Code}}"
+  },
+  "bi.query.error.measure_formula_invalid": {
+    "other": "BI 共通指標の数式が無効です: {{.Code}}"
+  },
+  "bi.query.error.filter_field_unavailable": {
+    "other": "BI フィルター項目は利用できません: {{.Field}}"
+  },
+  "bi.query.error.operator_unsupported": {
+    "other": "BI フィルター演算子はサポートされていません: {{.Operator}}"
+  },
+  "bi.query.error.sort_direction_unsupported": {
+    "other": "BI 並び順はサポートされていません: {{.Direction}}"
+  },
+  "bi.query.error.sort_field_invalid": {
+    "other": "BI 並び替え項目は選択済みのディメンションまたは指標である必要があります: {{.Field}}"
+  },
+  "system.workflow.error.graph_invalid": {
+    "other": "ノードグラフの設定が無効です: {{.Detail}}"
+  },
+  "system.workflow.error.assignee_type_unsupported": {
+    "other": "承認者タイプはサポートされていません: {{.Type}}"
+  },
+  "system.workflow.error.assignee_unresolved": {
+    "other": "承認ノードで有効な承認者が見つかりません: {{.NodeID}}"
+  },
+  "system.workflow.error.submit_validation_failed": {
+    "other": "送信検証に失敗しました: {{.Detail}}"
+  },
+  "bi.query.error.time_range_invalid": {
+    "other": "BI 時間範囲式が無効です: {{.Value}}"
+  },
+  "bi.source.error.client_missing": {
+    "other": "BI データソースにバインドされたデータベースクライアントが存在しません: {{.Name}}"
+  },
+  "bi.source.error.measure_formula_invalid": {
+    "other": "共通指標の数式が無効です: {{.Code}}"
   }
 }

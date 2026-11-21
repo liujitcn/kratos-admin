@@ -95,7 +95,18 @@ export function applyLanguageConfig(response: OptionLanguageResponse): void {
     ? currentLocale
     : supportedLocales[0] ?? DEFAULT_LOCALE
   useLocaleStore.setState({ locale, languageOptions, supportedLocales })
-  if (locale !== currentLocale) Taro.setStorageSync(LOCALE_STORAGE_KEY, locale)
+  if (locale !== currentLocale) {
+    Taro.setStorageSync(LOCALE_STORAGE_KEY, locale)
+    void (async () => {
+      for (const handler of localeChangeHandlers) {
+        try {
+          await handler()
+        } catch (error) {
+          console.warn('locale change refresh failed', error)
+        }
+      }
+    })()
+  }
 }
 
 /** 获取当前接口配置的语言选项。 */
@@ -113,23 +124,33 @@ export function registerLocaleMessages(modules: KratosTaroModule[]): void {
   defaultLocaleMessages.clear()
   SUPPORTED_LOCALES.forEach((locale) => defaultLocaleMessages.set(locale, {}))
   modules.forEach((module) => {
-    const expectedKeys = requiredLocaleKeys(module.messages?.[DEFAULT_LOCALE] || {})
+    const sourceMessages = module.messages?.[DEFAULT_LOCALE] || {}
+    const expectedKeys = requiredLocaleKeys(sourceMessages)
     SUPPORTED_LOCALES.forEach((locale) => {
       const messages = module.messages?.[locale]
-      if (!messages) throw new Error(localeRuntimeMessage('missing_bundle', { module: module.name, locale }))
+      if (!messages) {
+        warnLocaleIssue(localeRuntimeMessage('missing_bundle', { module: module.name, locale }))
+        return
+      }
       const keys = requiredLocaleKeys(messages)
       if (keys.join('\u0000') !== expectedKeys.join('\u0000')) {
-        throw new Error(localeRuntimeMessage('key_set_mismatch', { module: module.name, locale }))
+        warnLocaleIssue(localeRuntimeMessage('key_set_mismatch', { module: module.name, locale }))
       }
       const target = defaultLocaleMessages.get(locale) as LocaleMessages
       Object.keys(messages).forEach((key) => {
         if (!isAllowedLocaleKey(module.name, key)) {
-          throw new Error(localeRuntimeMessage('namespace_invalid', { module: module.name, key }))
+          warnLocaleIssue(localeRuntimeMessage('namespace_invalid', { module: module.name, key }))
+          return
         }
         if (Object.prototype.hasOwnProperty.call(target, key)) {
-          throw new Error(localeRuntimeMessage('duplicate_key', { locale, key }))
+          warnLocaleIssue(localeRuntimeMessage('duplicate_key', { locale, key }))
+          return
         }
-        assertLocalePlaceholders(module.name, key, messages[key], module.messages?.[DEFAULT_LOCALE]?.[key] || '')
+        const source = sourceMessages[key] ?? ''
+        if (!hasMatchingLocalePlaceholders(module.name, key, messages[key], source)) {
+          target[key] = source
+          return
+        }
         target[key] = messages[key]
       })
     })
@@ -208,17 +229,24 @@ export function useI18n() {
   }
 }
 
-function assertLocalePlaceholders(
+function hasMatchingLocalePlaceholders(
   moduleName: string,
   key: string,
   message: string,
   sourceMessage: string,
-): void {
+): boolean {
   const placeholders = (value: string) =>
     [...value.matchAll(/\{([A-Za-z0-9_]+)\}/g)].map((match) => match[1]).sort()
   if (placeholders(message).join('\u0000') !== placeholders(sourceMessage).join('\u0000')) {
-    throw new Error(localeRuntimeMessage('placeholder_mismatch', { module: moduleName, key }))
+    warnLocaleIssue(localeRuntimeMessage('placeholder_mismatch', { module: moduleName, key }))
+    return false
   }
+  return true
+}
+
+/** 记录语言包问题但不阻断应用启动，与 admin 端保持一致。 */
+function warnLocaleIssue(message: string): void {
+  console.warn(`[i18n] ${message}`)
 }
 
 function localeRuntimeMessage(key: string, params: Record<string, string>): string {

@@ -2274,5 +2274,14 @@
   "system.ai.chat.bi_chart_bar": "縦棒グラフ",
   "system.ai.chat.bi_chart_line": "折れ線グラフ",
   "system.ai.chat.bi_chart_pie": "円グラフ",
-  "system.ai.chat.bi_chart_metric": "指標カード"
+  "system.ai.chat.bi_chart_metric": "指標カード",
+  "system.ai.chat.value.default_conversation_title": "AI 会話",
+  "system.ai.chat.group.today": "今日",
+  "system.ai.chat.group.yesterday": "昨日",
+  "system.ai.chat.group.earlier": "それ以前",
+  "system.ai.chat.message.readonly_plugin_change": "読み取り専用の会話ではプラグインを変更できません",
+  "system.ai.chat.message.operation_failed": "会話操作に失敗しました",
+  "system.ai.chat.action.pin": "ピン留め",
+  "system.ai.chat.action.unpin": "ピン留めを解除",
+  "system.ai.chat.empty.no_match": "一致する会話がありません"
 }

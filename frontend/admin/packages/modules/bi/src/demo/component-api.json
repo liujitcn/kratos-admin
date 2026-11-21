@@ -350,6 +350,20 @@
         "type": "boolean",
         "required": false,
         "default": "false"
+      },
+      {
+        "name": "footerActions",
+        "description": "是否将放大、导出操作放到卡片底部。",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
+      },
+      {
+        "name": "compact",
+        "description": "是否使用工作台和卡片库的紧凑卡片高度。",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
       }
     ],
     "events": [
@@ -410,7 +424,13 @@
         "type": "() => void"
       }
     ],
-    "slots": [],
+    "slots": [
+      {
+        "name": "toolbar",
+        "description": "",
+        "type": "() => unknown"
+      }
+    ],
     "methods": []
   },
   "BiSourceModelDialog.vue": {

@@ -78,7 +78,10 @@ export function useBiI18n() {
     t(key: string, params: Record<string, unknown> = {}) {
       const currentLocale = locale.value;
       const projectMessage = getLocaleText(currentLocale, key);
-      const builtinMessages = currentLocale.toLowerCase().startsWith("zh") ? BI_MESSAGES_ZH : BI_MESSAGES_EN;
+      // 内置回退包仅有简中与英文：中文系语言（含 zh-TW，降级到简体）用中文包，
+      // ja-JP 等其余语言用英文包。项目语言包始终优先，仅当 key 缺失时才落到内置包。
+      const builtinMessages =
+        currentLocale === "zh-CN" || currentLocale === "zh-TW" ? BI_MESSAGES_ZH : BI_MESSAGES_EN;
       return interpolate(projectMessage || getBuiltinMessage(builtinMessages, key) || key, params);
     }
   };

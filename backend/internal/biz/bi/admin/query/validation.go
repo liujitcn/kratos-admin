@@ -22,7 +22,7 @@ func ValidateSpec(descriptor bi.SourceDescriptor, spec bi.QuerySpec) (bi.QuerySp
 	}
 	for _, code := range spec.Dimensions {
 		if _, ok := dimensions[code]; !ok {
-			return bi.QuerySpec{}, errorsx.InvalidArgument(fmt.Sprintf("BI 维度不存在: %s", code))
+			return bi.QuerySpec{}, errorsx.WithMessageKey(errorsx.InvalidArgument(fmt.Sprintf("BI 维度不存在: %s", code)), "bi.query.error.dimension_missing", map[string]string{"Code": code})
 		}
 	}
 	measures := make(map[string]bi.MeasureDescriptor, len(descriptor.Measures))
@@ -32,13 +32,13 @@ func ValidateSpec(descriptor bi.SourceDescriptor, spec bi.QuerySpec) (bi.QuerySp
 	for _, item := range spec.Measures {
 		_, ok := measures[item.Code]
 		if !ok {
-			return bi.QuerySpec{}, errorsx.InvalidArgument(fmt.Sprintf("BI 指标不可用: %s", item.Code))
+			return bi.QuerySpec{}, errorsx.WithMessageKey(errorsx.InvalidArgument(fmt.Sprintf("BI 指标不可用: %s", item.Code)), "bi.query.error.measure_unavailable", map[string]string{"Code": item.Code})
 		}
 	}
 	for _, item := range spec.Filters {
 		field, ok := dimensions[item.Field]
 		if !ok || !field.Filterable || len(item.Values) == 0 {
-			return bi.QuerySpec{}, errorsx.InvalidArgument(fmt.Sprintf("BI 过滤字段不可用: %s", item.Field))
+			return bi.QuerySpec{}, errorsx.WithMessageKey(errorsx.InvalidArgument(fmt.Sprintf("BI 过滤字段不可用: %s", item.Field)), "bi.query.error.filter_field_unavailable", map[string]string{"Field": item.Field})
 		}
 		if ((item.Operator == "eq" || item.Operator == "contains") && len(item.Values) != 1) || (item.Operator == "between" && len(item.Values) != 2) {
 			return bi.QuerySpec{}, errorsx.InvalidArgument("BI 过滤操作符和值数量不匹配")

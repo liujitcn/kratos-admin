@@ -8,7 +8,7 @@
       </div>
       <div v-if="metric.delta && metric.trend" class="bi-card-metric-grid__trend" :class="`is-${metric.trend}`">
         <el-icon><component :is="trendIcons[metric.trend]" /></el-icon>
-        <span>{{ metric.delta }}% {{ metric.compareLabel === "较昨日" ? t("bi.card.metric_grid.compare_default") : metric.compareLabel }}</span>
+        <span>{{ metric.delta }}% {{ metric.compareLabel === "较昨日" || metric.compareLabel === t("bi.card.metric_grid.compare_default") ? t("bi.card.metric_grid.compare_default") : metric.compareLabel }}</span>
       </div>
     </div>
   </div>

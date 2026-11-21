@@ -693,7 +693,7 @@ func configuredSourceModel(input *adminv1.BiSourceModel, discovered []*adminv1.B
 		}
 		expression, err := queryCompiler.Parse(measure.GetExpression(), fields)
 		if err != nil {
-			return dto.ConfiguredSourceSchema{}, errorsx.InvalidArgument("公共指标公式无效: " + measure.GetCode()).WithCause(err)
+			return dto.ConfiguredSourceSchema{}, errorsx.WithMessageKey(errorsx.InvalidArgument("公共指标公式无效: "+measure.GetCode()), "bi.source.error.measure_formula_invalid", map[string]string{"Code": measure.GetCode()}).WithCause(err)
 		}
 		fieldCodes[measure.GetCode()] = struct{}{}
 		metricNames[measure.GetName()] = true

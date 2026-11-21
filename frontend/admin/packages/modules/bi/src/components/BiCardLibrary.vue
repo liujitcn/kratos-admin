@@ -17,7 +17,9 @@
         <el-button type="primary" :icon="icons.Search" :loading="loading" @click="search">{{
           t("common.action.search")
         }}</el-button>
-        <el-button type="primary" plain :icon="icons.Plus" @click="router.push('/bi/query')">{{ t("bi.card.ask_create") }}</el-button>
+        <el-button type="primary" plain :icon="icons.Plus" @click="router.push('/bi/query')">{{
+          t("bi.card.ask_create")
+        }}</el-button>
         <span>{{ t("bi.card.total", { count: total }) }}</span>
       </div>
     </el-card>
@@ -28,33 +30,47 @@
         :key="card.id"
         :card="card"
         :source-name="sources.find(item => item.code === card.source_code)?.name || card.source_code"
+        previewable
+        footer-actions
+        compact
+        @preview="previewCard = card"
         ><template #actions>
-          <el-tooltip :content="t(workbench.favorite_ids.includes(card.id) ? 'bi.card.unfavorite' : 'bi.card.favorite', { name: card.name })">
-            <el-button
-              text
-              circle
-              :type="workbench.favorite_ids.includes(card.id) ? 'warning' : 'default'"
-              :icon="workbench.favorite_ids.includes(card.id) ? icons.StarFilled : icons.Star"
-              :aria-label="t(workbench.favorite_ids.includes(card.id) ? 'bi.card.unfavorite' : 'bi.card.favorite', { name: card.name })"
-              :aria-pressed="workbench.favorite_ids.includes(card.id)"
-              @click="toggleFavorite(card)"
-            />
-          </el-tooltip>
-        </template
+          <div class="bi-data-card__slot-actions bi-card-library__card-actions">
+            <el-tooltip
+              :content="
+                t(workbench.favorite_ids.includes(card.id) ? 'bi.card.unfavorite' : 'bi.card.favorite', { name: card.name })
+              "
+            >
+              <el-button
+                text
+                circle
+                :type="workbench.favorite_ids.includes(card.id) ? 'warning' : 'default'"
+                :icon="workbench.favorite_ids.includes(card.id) ? icons.StarFilled : icons.Star"
+                :aria-label="
+                  t(workbench.favorite_ids.includes(card.id) ? 'bi.card.unfavorite' : 'bi.card.favorite', { name: card.name })
+                "
+                :aria-pressed="workbench.favorite_ids.includes(card.id)"
+                @click="toggleFavorite(card)"
+              />
+            </el-tooltip>
+            <el-tooltip :content="t('common.action.edit')">
+              <el-button text circle :icon="icons.EditPen" :disabled="!card.can_edit" @click="openEditor(card)" />
+            </el-tooltip>
+            <el-tooltip :content="t('common.action.delete')">
+              <el-button text circle type="danger" :icon="icons.Delete" :disabled="!card.can_edit" @click="remove(card)" />
+            </el-tooltip>
+          </div> </template
         ><template #footer
-          ><div>
-            <el-button link type="primary" @click="previewCard = card">{{ t("bi.card.preview") }}</el-button
-            ><el-button v-if="card.can_edit" link @click="openEditor(card)">{{ t("common.action.edit") }}</el-button
-            ><el-button v-if="card.can_edit" link type="danger" @click="remove(card)">{{ t("common.action.delete") }}</el-button>
-          </div>
-          <el-button size="small" type="primary" @click="pickDashboard(card)">{{ t("bi.card.add_to_dashboard") }}</el-button
-          ><el-button
-            v-if="card.query_record_id"
-            link
-            :disabled="!card.can_edit"
-            @click="router.push({ path: '/bi/query', query: { record_id: String(card.query_record_id) } })"
-            >{{ t("bi.card.source_record", { id: card.query_record_id }) }}</el-button
-          ></template
+          ><div class="bi-card-library__footer-actions">
+            <el-button size="small" type="primary" @click="pickDashboard(card)">{{ t("bi.card.add_to_dashboard") }}</el-button
+            ><el-button
+              v-if="card.query_record_id"
+              link
+              :disabled="!card.can_edit"
+              @click="router.push({ path: '/bi/query', query: { record_id: String(card.query_record_id) } })"
+              >{{ t("bi.card.source_record", { id: card.query_record_id }) }}</el-button
+            >
+          </div></template
         ></BiDataCard
       >
     </div>
@@ -102,7 +118,7 @@ import { defBiDashboardService } from "../api/bi/admin/v1/bi_dashboard";
 import { parseDashboardLayout, reflowDashboardCards } from "../bi-dashboard-schema";
 import BiDataCard from "./BiDataCard.vue";
 import BiCardFormDialog from "./BiCardFormDialog.vue";
-const icons = { Star, StarFilled, Search, Plus };
+const icons = { Star, StarFilled, Search, Plus, EditPen, Delete };
 const router = useRouter(),
   cards = ref<BiCard[]>([]),
   sources = ref<BiSourceDescriptor[]>([]),
@@ -294,6 +310,29 @@ onActivated(() => {
 }
 .bi-card-library :deep(.el-pagination) {
   justify-content: flex-end;
+}
+.bi-card-library__footer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.bi-card-library__card-actions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+  width: max-content;
+  min-width: max-content;
+  gap: 0;
+  align-items: center;
+  justify-content: flex-start;
+  white-space: nowrap;
+}
+.bi-card-library__card-actions :deep(.el-button + .el-button) {
+  margin-left: 0;
+}
+.bi-card-library__card-actions :deep(.el-tooltip__trigger) {
+  flex: 0 0 auto;
 }
 @media (max-width: 1100px) {
   .bi-card-library__grid {

@@ -40,6 +40,18 @@ test("工具页在插件列表就绪后自动选择并使用服务端分页", as
   assert.match(source, /detailPageSize = 20/);
 });
 
+test("工具页刷新后保留工作区、插件选择和搜索条件", async () => {
+  const panel = await readFile(join(process.cwd(), "src/components/ai/workspace/PluginPanel.vue"), "utf8");
+  const chat = await readFile(join(process.cwd(), "src/views/ai/chat/index.vue"), "utf8");
+  assert.match(panel, /workspaceKey\?: string/);
+  assert.match(panel, /restoredState\.toolPluginID/);
+  assert.match(panel, /restoredState\.toolKeyword/);
+  assert.match(panel, /sessionStorage\.setItem\(\s*`\$\{props\.workspaceKey\}:plugins`/);
+  assert.match(chat, /:workspace-key="workspaceKey"/);
+  assert.match(chat, /watch\(\[assistantView, activeSessionID\][\s\S]*sessionStorage\.setItem/);
+  assert.doesNotMatch(chat, /watch\(\[assistantView, activeSessionID\][\s\S]*if \(!sessionID\) return/);
+});
+
 test("连接和工具操作列的按钮带图标并保留点击处理", async () => {
   const source = await readFile(join(process.cwd(), "src/components/ai/workspace/PluginPanel.vue"), "utf8");
 

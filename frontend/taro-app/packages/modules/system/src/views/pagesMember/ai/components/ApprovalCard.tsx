@@ -1,5 +1,5 @@
 import { Text, View } from '@tarojs/components'
-import { t } from '@liujitcn/kratos-taro-app-core'
+import { t, useI18n } from '@liujitcn/kratos-taro-app-core'
 import type { AiToolApproval } from '../../../../rpc/base/v1/ai_tool'
 import { workspaceTimestamp } from '../workspace'
 
@@ -11,6 +11,7 @@ type ApprovalCardProps = {
 
 /** ApprovalCard 在移动端只读展示参数，确认操作留在管理端。 */
 export default function ApprovalCard({ approval }: ApprovalCardProps) {
+  const { locale } = useI18n()
   const expires = workspaceTimestamp(approval.expires_at)
   const expired = expires > 0 && expires <= Date.now()
   return (
@@ -23,7 +24,7 @@ export default function ApprovalCard({ approval }: ApprovalCardProps) {
         </View>
       ))}
       <View>
-        {t('system.ai.workspace.expires')} · {expires ? new Date(expires).toLocaleString() : '—'}
+        {t('system.ai.workspace.expires')} · {expires ? new Date(expires).toLocaleString(locale) : '—'}
       </View>
       {expired ? <View>{t('system.ai.workspace.approval_expired')}</View> : null}
     </View>
