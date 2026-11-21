@@ -264,13 +264,13 @@ export async function getRequestAccessToken(): Promise<string> {
     return "";
   }
   if (!userStore.token && hasRefreshCookieHint()) {
-    await handleTokenRefresh(false);
+    await handleTokenRefresh();
   }
 
   const expiresAt = getTokenExpiresAt();
   const remainingTime = expiresAt - Date.now();
   if (expiresAt && remainingTime <= 5 * 60 * 1000) {
-    await handleTokenRefresh(false);
+    await handleTokenRefresh();
   }
 
   return getUserStore().token.trim();
@@ -286,12 +286,9 @@ export async function ensureAccessToken() {
     return true;
   }
 
-  if (!hasRefreshCookieHint()) {
-    return false;
-  }
-
   try {
-    await handleTokenRefresh(false);
+    // 提示 Cookie 可能缺失，启动时由服务端验证实际的 HttpOnly 刷新凭据。
+    await handleTokenRefresh();
     return hasValidAccessToken();
   } catch {
     return false;
@@ -415,7 +412,7 @@ service.interceptors.response.use(
       ) {
         requestConfig._authRetried = true;
         try {
-          await handleTokenRefresh(false);
+          await handleTokenRefresh();
           requestConfig.headers.Authorization = getUserStore().token.trim();
           return service(requestConfig);
         } catch (refreshError) {
@@ -445,9 +442,8 @@ function request<Request = unknown, Response = unknown>(config: AxiosRequestConf
 
 export default request;
 
-// 刷新 Token 的锁
-let isRefreshing = false;
-let refreshPromise: Promise<void> | null = null;
+// 当前页面的并发请求共用一次刷新。
+let refreshPromise: Promise<void> | undefined;
 
 /** 判断刷新令牌是否已被服务端判定为失效。 */
 function isRefreshTokenUnauthorized(error: unknown) {
@@ -458,32 +454,28 @@ function isRefreshTokenUnauthorized(error: unknown) {
   return status === 401 || code === 401;
 }
 
-/** 刷新 Token 处理 */
-async function handleTokenRefresh(promptOnFailure = true) {
-  if (!isRefreshing) {
-    isRefreshing = true;
-    refreshPromise = refreshAccessToken()
-      .catch(error => {
-        if (isRefreshTokenUnauthorized(error)) {
-          // 刷新令牌失效后立即终止后续自动刷新，避免旧 Cookie 被反复提交。
+/** 合并本页刷新，并在同源标签页间串行轮换 Cookie。 */
+async function handleTokenRefresh() {
+  if (!refreshPromise) {
+    const authVersion = getUserStore().authVersion;
+    const refresh = async () => {
+      if (isAuthTransitioning() || getUserStore().authVersion !== authVersion) return;
+      try {
+        await refreshAccessToken();
+      } catch (error) {
+        if (isRefreshTokenUnauthorized(error) && !isAuthTransitioning() && getUserStore().authVersion === authVersion) {
           clearRefreshExpiryCookie();
           getUserStore().clearAuthData();
         }
-        if (promptOnFailure) {
-          console.log("Token refresh failed:", error);
-          handleAuthExpired();
-        }
         throw error;
-      })
-      .finally(() => {
-        isRefreshing = false;
-        refreshPromise = null;
-      });
+      }
+    };
+    // shortcut: 不支持 Web Locks 的环境仅合并同页请求，待部署环境支持同源锁后可去掉回退。
+    refreshPromise = (navigator.locks ? navigator.locks.request("kratos-admin:refresh-token", refresh) : refresh()).finally(() => {
+      refreshPromise = undefined;
+    });
   }
-
-  if (refreshPromise) {
-    await refreshPromise;
-  }
+  await refreshPromise;
 }
 
 /** 调用刷新令牌接口并回写最新认证信息 */

@@ -64,6 +64,12 @@
         "required": false
       },
       {
+        "name": "deletable",
+        "description": "只展示删除菜单，供记录不可重命名但允许删除的列表复用。",
+        "type": "boolean",
+        "required": false
+      },
+      {
         "name": "hideCollapse",
         "description": "历史弹层不显示桌面折叠控件。",
         "type": "boolean",

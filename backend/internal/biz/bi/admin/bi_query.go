@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"regexp"
 	"slices"
 	"sort"
 	"strconv"
@@ -31,6 +32,10 @@ import (
 	"google.golang.org/protobuf/proto"
 	gormio "gorm.io/gorm"
 )
+
+// biGroupingQuestionPattern 识别明确分组及部门统计表达，防止模型静默返回总数。
+// shortcut: 不推断其他省略分组词的自然语言意图，需要通用语义校验时扩展查询契约。
+var biGroupingQuestionPattern = regexp.MustCompile(`(?i)(?:按|按照|依照)(?:[^，。！？?\n]{1,40}?(?:分组|分布)|部门(?:统计|汇总))|\bgroup(?:ed)?\s+by\b|\bbreak(?:down|\s+down)\s+by\b`)
 
 const (
 	biDefaultLimit   int32 = 100
@@ -156,6 +161,9 @@ chart_type 只支持 bar、line、area、pie、donut、scatter、radar、gauge�
 	}
 	if output.Query.SourceCode == "" || len(output.Query.Measures) == 0 {
 		return nil, errorsx.InvalidArgument("BI 问数未生成完整查询计划，请检查数据源是否配置了所需指标和维度")
+	}
+	if len(output.Query.Dimensions) == 0 && biGroupingQuestionPattern.MatchString(question) {
+		return nil, errorsx.InvalidArgument("问题要求分组统计，但查询计划未选择分组维度，请检查数据源模型是否包含所需维度")
 	}
 	fallback := "bar"
 	if len(output.Query.Dimensions) == 0 {

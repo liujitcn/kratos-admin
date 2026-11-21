@@ -52,11 +52,6 @@
         "type": "(card: BiCard) => void"
       },
       {
-        "name": "export",
-        "description": "",
-        "type": "(card: BiCard) => void"
-      },
-      {
         "name": "preview",
         "description": "",
         "type": "(card: BiCard) => void"
@@ -348,6 +343,13 @@
         "type": "boolean",
         "required": false,
         "default": "true"
+      },
+      {
+        "name": "previewable",
+        "description": "是否展示内置「放大查看」按钮（仅父级接入放大弹窗时开启）。",
+        "type": "boolean",
+        "required": false,
+        "default": "false"
       }
     ],
     "events": [
@@ -355,6 +357,11 @@
         "name": "update:rangeDays",
         "description": "",
         "type": "(value: number) => void"
+      },
+      {
+        "name": "preview",
+        "description": "",
+        "type": "() => void"
       }
     ],
     "slots": [

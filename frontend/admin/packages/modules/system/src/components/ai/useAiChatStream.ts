@@ -148,7 +148,7 @@ export function useAiChatStream(options: AiChatStreamOptions) {
     pendingDeltaMap.clear();
   }
 
-  /** 处理 AI 助手流式事件。 */
+  /** 处理 AI 助手事件，权威终态到达后立即释放旧流以接续审批。 */
   function handleAiStreamEvent(event: AiStreamEvent, task: AiStreamTask) {
     if (task.controller.signal.aborted || runningStreamTaskMap.get(event.payload.session_id) !== task) return;
     task.messageID = event.payload.message_id;
@@ -162,9 +162,10 @@ export function useAiChatStream(options: AiChatStreamOptions) {
     }
     if (event.event === "finish" || event.event === "approval_required") {
       handleAiFinish(event.payload, task);
-      return;
+    } else {
+      handleAiError(event.payload, task);
     }
-    handleAiError(event.payload, task);
+    if (event.event !== "approval_required") cancelSession(event.payload.session_id);
   }
 
   /** 处理流式活动时间线事件。 */

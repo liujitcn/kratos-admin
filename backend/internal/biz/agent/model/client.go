@@ -280,6 +280,7 @@ func newResponsesModel(ctx context.Context, cfg *modelconfig.ModelConfig) (model
 		config.MaxTokens = &value
 	}
 	config.HTTPClient = securityconfig.NewLiveAIHTTPClient(time.Duration(cfg.TimeoutSeconds) * time.Second)
+	config.HTTPClient.Transport = responsesPDFTransport{RoundTripper: config.HTTPClient.Transport}
 	return agenticopenai.NewResponsesModel(ctx, config)
 }
 

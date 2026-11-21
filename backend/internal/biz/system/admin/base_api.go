@@ -7,7 +7,9 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/go-kratos/kratos/v3/log"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	admindata "github.com/liujitcn/kratos-admin/backend/internal/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
@@ -307,7 +309,7 @@ func (c *BaseAPICase) updateToolConfiguration(ctx context.Context, id int64, syn
 	if identity.TenantId != 1 || (identity.RoleCode != "super" && identity.RoleCode != "admin") {
 		return errorsx.PermissionDenied("API工具配置仅允许平台管理员维护")
 	}
-	return c.tx.Transaction(ctx, func(txCtx context.Context) error {
+	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		query := c.Query(txCtx).BaseAPI
 		var model *models.BaseAPI
 		model, err = c.Find(txCtx, repository.Where(query.ID.Eq(id)), repository.Clauses(clause.Locking{Strength: "UPDATE"}))
@@ -340,6 +342,13 @@ func (c *BaseAPICase) updateToolConfiguration(ctx context.Context, id int64, syn
 		_, err = installation.WithContext(txCtx).Where(installation.PluginID.In(ids...)).UpdateSimple(installation.Revision.Add(1))
 		return err
 	})
+	if err != nil {
+		return err
+	}
+	if err = admindata.InvalidateBaseAPICache(c.Cache); err != nil {
+		log.Error("API工具缓存失效失败，执行前仍将查库校验", "error", err)
+	}
+	return nil
 }
 
 // toBaseAPIDTO 转换接口数据并补充所属 OpenAPI 文档信息。

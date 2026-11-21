@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/dto"
+	admindata "github.com/liujitcn/kratos-admin/backend/internal/data"
 	"github.com/liujitcn/kratos-kit/auth/data"
 
 	kratosErrors "github.com/go-kratos/kratos/v3/errors"
@@ -87,6 +88,22 @@ func (c *AiPluginCase) ListAiPluginTool(ctx context.Context, req *basev1.ListAiP
 	}
 	total := int64(len(visibleSnapshots))
 	visibleSnapshots = paginateAiPluginTools(visibleSnapshots, req.GetPageNum(), req.GetPageSize())
+	var apiRecords map[string][]*models.BaseAPI
+	var apiConfigs map[string]agent.ToolConfig
+	if row.Source == "API" {
+		apiRecords, err = admindata.LoadBaseAPICache(ctx, c.mcpCase.baseAPIRepo, c.Cache)
+		if err != nil {
+			return nil, err
+		}
+		names := make([]string, 0, len(visibleSnapshots))
+		for _, snapshot := range visibleSnapshots {
+			names = append(names, snapshot.SourceName)
+		}
+		apiConfigs, err = c.mcpCase.toolConfigs(ctx, terminal, names, apiRecords)
+		if err != nil {
+			return nil, err
+		}
+	}
 	result := &basev1.ListAiPluginToolResponse{Total: total}
 	for _, snapshot := range visibleSnapshots {
 		item := &basev1.AiPluginTool{Id: strconv.FormatInt(snapshot.ID, 10), PluginId: req.PluginId, SourceName: snapshot.SourceName, Description: snapshot.Description, InputSchema: snapshot.InputSchema, ContractHash: snapshot.ContractHash, State: snapshot.State, Effect: snapshot.Effect}
@@ -94,12 +111,7 @@ func (c *AiPluginCase) ListAiPluginTool(ctx context.Context, req *basev1.ListAiP
 			item.ConnectionId = snapshot.DiscoveryScope
 		}
 		if row.Source == "API" {
-			apiQuery := c.mcpCase.baseAPIRepo.Query(ctx).BaseAPI
-			var apis []*models.BaseAPI
-			apis, err = c.mcpCase.baseAPIRepo.List(ctx, repository.Where(apiQuery.ToolName.Eq(snapshot.SourceName)))
-			if err != nil {
-				return nil, err
-			}
+			apis := apiRecords[snapshot.SourceName]
 			item.Allowed = len(apis) > 0
 			for _, api := range apis {
 				item.Allowed = item.Allowed && api.AgentStatus == 1 && !agentToolBlocked(api)
@@ -127,13 +139,7 @@ func (c *AiPluginCase) ListAiPluginTool(ctx context.Context, req *basev1.ListAiP
 			item.EffectiveEnabled = false
 		}
 		if item.EffectiveEnabled && row.Source == "API" {
-			var configs map[string]agent.ToolConfig
-
-			configs, err = c.mcpCase.ToolConfigs(ctx, terminal, []string{snapshot.SourceName})
-			if err != nil {
-				return nil, err
-			}
-			item.EffectiveEnabled = configs[snapshot.SourceName].Enabled
+			item.EffectiveEnabled = apiConfigs[snapshot.SourceName].Enabled
 		}
 		if item.EffectiveEnabled && snapshot.DiscoveryScope != "local" {
 			var connection *models.AiPluginConnection

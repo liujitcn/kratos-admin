@@ -2,6 +2,7 @@
   <div class="agent-sender-wrap">
     <BaseXSender
       ref="senderRef"
+      :key="senderRevision"
       class="agent-sender"
       variant="updown"
       submit-type="enter"
@@ -226,6 +227,7 @@ const emit = defineEmits<{
 }>();
 
 const senderRef = ref<InstanceType<typeof BaseXSender>>();
+const senderRevision = ref(0);
 const inputText = ref(props.draft?.text ?? "");
 const selectedAttachments = ref<AiAttachment[]>([...(props.draft?.attachments ?? [])]);
 onMounted(() =>
@@ -342,7 +344,8 @@ function handleSubmit() {
   });
   inputText.value = "";
   selectedAttachments.value = [];
-  senderRef.value?.clear();
+  // 清空时重建内部编辑器，避免异步清空在首条消息切换布局后再访问已销毁实例。
+  senderRevision.value++;
   resetFileInput();
 }
 
@@ -398,8 +401,8 @@ function handleSelectAttachment() {
 
 /** 将本地文件列表上传后同步到输入器附件区。 */
 async function handleFileChange(file: UploadFile, uploadFiles: UploadFiles) {
-  // el-upload 对多选文件逐项触发 change，只在最后一项统一提交整批文件。
-  if (file !== uploadFiles.at(-1)) return;
+  // 文件列表会被 Vue 代理，按 uid 判断最后一项以统一提交整批文件。
+  if (file.uid !== uploadFiles.at(-1)?.uid) return;
   await uploadAttachments(uploadFiles.flatMap(item => (item.raw ? [item.raw] : [])));
 }
 

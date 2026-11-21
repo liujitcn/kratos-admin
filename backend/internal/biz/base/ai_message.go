@@ -10,6 +10,7 @@ import (
 	"io"
 	"mime"
 	"net/http"
+	"net/url"
 	"path"
 	"regexp"
 	"slices"
@@ -846,7 +847,7 @@ var generatedFileURLPattern = regexp.MustCompile(`https?://[^\s"'<>\\]+`)
 
 // persistGeneratedToolFiles 识别工具输出中的文档产物并转存为系统持久文件。
 // 外部转换服务的签名链接存在有效期，回复落库前把产物拉取到对象存储并登记为生成文件；
-// 单个文件失败只记录日志并保留原始链接，不阻断回复落库。
+// 单个文件失败保留原始链接并明确提示未登记，不阻断回复落库。
 func (c *AiMessageCase) persistGeneratedToolFiles(ctx context.Context, tenantID int64, reply *ai.Response) {
 	if reply == nil || len(reply.Tools) == 0 || c.aiFileCase == nil || c.OSS == nil {
 		return
@@ -855,7 +856,7 @@ func (c *AiMessageCase) persistGeneratedToolFiles(ctx context.Context, tenantID 
 		rawURL := product.downloadURL
 		content, err := fetchGeneratedFile(ctx, rawURL)
 		if err != nil {
-			log.Warn("拉取AI生成文件失败，保留原始链接", "url", rawURL, "error", err)
+			reportGeneratedFileFailure(reply, product.filename, "拉取", err)
 			continue
 		}
 		fileName := product.filename
@@ -868,7 +869,7 @@ func (c *AiMessageCase) persistGeneratedToolFiles(ctx context.Context, tenantID 
 		directory := path.Join(aiGeneratedFileDirectory, time.Now().Format("2006/01/02"))
 		storedName := fmt.Sprintf("%d%s", id.GenSnowflakeID(), extension)
 		if _, err = c.OSS.UploadByByte(storedName, directory, content); err != nil {
-			log.Warn("转存AI生成文件失败，保留原始链接", "url", rawURL, "error", err)
+			reportGeneratedFileFailure(reply, product.filename, "转存", err)
 			continue
 		}
 		objectPath := path.Join(directory, storedName)
@@ -882,7 +883,7 @@ func (c *AiMessageCase) persistGeneratedToolFiles(ctx context.Context, tenantID 
 			LinkURL:     objectPath,
 			ContentHash: hex.EncodeToString(hash[:]),
 		}); err != nil {
-			log.Warn("登记AI生成文件失败", "url", rawURL, "error", err)
+			reportGeneratedFileFailure(reply, product.filename, "登记", err)
 			continue
 		}
 		persistentURL := publicFileURL(objectPath)
@@ -1549,4 +1550,13 @@ func (c *AiMessageCase) validatePendingAiTools(ctx context.Context, session *mod
 		return errorsx.PermissionDenied("工具配置或当前用户权限已变化，请重新发起").WithCause(err)
 	}
 	return nil
+}
+
+// reportGeneratedFileFailure 显示产物登记失败，并避免将临时签名链接写入错误日志。
+func reportGeneratedFileFailure(reply *ai.Response, filename, stage string, err error) {
+	if requestError, ok := errors.AsType[*url.Error](err); ok {
+		err = requestError.Err
+	}
+	log.Warn("AI生成文件未保存到文件工作区", "filename", filename, "stage", stage, "error", err)
+	reply.Content += fmt.Sprintf("\n\n> 文件“%s”未保存到文件工作区（%s失败），当前仅保留原始临时下载链接。请管理员检查 AI 出站白名单、文件服务和存储配置后重新生成。", filename, stage)
 }

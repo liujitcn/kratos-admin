@@ -111,6 +111,61 @@ func (h *ToolFilterHandler) BeforeModelRewriteState(
 	return ctx, state, nil
 }
 
+// AfterModelRewriteState 在工具执行和审批前合并同编号的重复或占位块，冲突编号直接终止。
+func (h *ToolFilterHandler) AfterModelRewriteState(ctx context.Context, state *adk.TypedChatModelAgentState[*schema.AgenticMessage], _ *adk.TypedModelContext[*schema.AgenticMessage]) (context.Context, *adk.TypedChatModelAgentState[*schema.AgenticMessage], error) {
+	if len(state.Messages) == 0 {
+		return ctx, state, nil
+	}
+	value := state.Messages[len(state.Messages)-1]
+	if value == nil || value.Role != schema.AgenticRoleTypeAssistant {
+		return ctx, state, nil
+	}
+	previousIDs := make(map[string]bool)
+	for _, history := range state.Messages[:len(state.Messages)-1] {
+		for _, call := range message.ToolCalls(history) {
+			if call.ID != "" {
+				previousIDs[call.ID] = true
+			}
+		}
+	}
+	seen := make(map[string]int)
+	blocks := make([]*schema.ContentBlock, 0, len(value.ContentBlocks))
+	for _, block := range value.ContentBlocks {
+		if block != nil && block.FunctionToolCall != nil && block.FunctionToolCall.CallID != "" {
+			call := block.FunctionToolCall
+			if previousIDs[call.CallID] {
+				return ctx, state, fmt.Errorf("模型重复使用已处理的工具调用编号 %q，已停止执行", call.CallID)
+			}
+			if index, ok := seen[call.CallID]; ok {
+				previous := blocks[index].FunctionToolCall
+				// 部分网关先发送同名空参数占位块，完整块到达后仅保留一次可执行调用。
+				if previous.Name != "" && previous.Name == call.Name && (previous.Arguments == "" || call.Arguments == "") {
+					if previous.Arguments == "" {
+						blocks[index] = block
+					}
+					continue
+				}
+				if previous.Name != call.Name || previous.Arguments != call.Arguments {
+					return ctx, state, fmt.Errorf("模型返回冲突的工具调用编号 %q，已停止执行", call.CallID)
+				}
+				continue
+			}
+			seen[call.CallID] = len(blocks)
+		}
+		blocks = append(blocks, block)
+	}
+	var err error
+	blocks, err = removeVerifiedToolCallFragments(blocks)
+	if err != nil {
+		return ctx, state, err
+	}
+	// 仅复制消息外壳，不改模型回调仍可能读取的原消息。
+	cloned := *value
+	cloned.ContentBlocks = blocks
+	state.Messages[len(state.Messages)-1] = &cloned
+	return ctx, state, nil
+}
+
 // BeforeAgent 将本轮可执行工具池同步限制到允许暴露的集合内。
 func (h *ToolFilterHandler) BeforeAgent(
 	ctx context.Context,

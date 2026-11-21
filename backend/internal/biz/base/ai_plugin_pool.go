@@ -20,6 +20,7 @@ import (
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/plugin"
+	admindata "github.com/liujitcn/kratos-admin/backend/internal/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-admin/backend/pkg/agent"
 	"github.com/liujitcn/kratos-admin/backend/pkg/aiplugin"
@@ -55,6 +56,14 @@ func (c *AiPluginCase) SyncBuiltinTools(ctx context.Context) error {
 		}
 	}
 
+	if err = admindata.InvalidateBaseAPICache(c.Cache); err != nil {
+		return err
+	}
+	var apiRecords map[string][]*models.BaseAPI
+	apiRecords, err = admindata.LoadBaseAPICache(ctx, c.mcpCase.baseAPIRepo, c.Cache)
+	if err != nil {
+		return err
+	}
 	names := make([]string, 0)
 	for _, terminal := range []string{"admin", "app"} {
 		for _, registered := range c.aiRuntime.RegisteredTools(terminal) {
@@ -64,6 +73,10 @@ func (c *AiPluginCase) SyncBuiltinTools(ctx context.Context) error {
 				return err
 			}
 			if c.manifestOwnsTool(ctx, terminal, info.Name) {
+				continue
+			}
+			apis := apiRecords[info.Name]
+			if len(apis) == 0 {
 				continue
 			}
 			raw := []byte(`{"type":"object"}`)
@@ -78,14 +91,9 @@ func (c *AiPluginCase) SyncBuiltinTools(ctx context.Context) error {
 					return err
 				}
 			}
-			apiQuery := c.mcpCase.baseAPIRepo.Query(ctx).BaseAPI
-			var apis []*models.BaseAPI
-			apis, err = c.mcpCase.baseAPIRepo.List(ctx, repository.Where(apiQuery.ToolName.Eq(info.Name)))
+			raw, err = agentToolSchema(apis[0].Operation, raw)
 			if err != nil {
 				return err
-			}
-			if len(apis) == 0 {
-				continue
 			}
 			effect := "read"
 			for _, api := range apis {
@@ -260,6 +268,12 @@ func (c *AiPluginCase) ResolveToolPool(ctx context.Context, terminal string, sel
 			}}
 		} else {
 			base = ref.Binding.Tool
+			if ref.Plugin.Source == "API" {
+				base, err = agentToolWithSchema(ctx, base, ref.Snapshot.InputSchema)
+				if err != nil {
+					return agent.ToolPool{}, err
+				}
+			}
 		}
 		pool.Tools = append(pool.Tools, base)
 	}
@@ -315,6 +329,22 @@ func (c *AiPluginCase) resolveToolRefs(ctx context.Context, terminal string, sel
 		if err != nil {
 			return nil, err
 		}
+		var apiRecords map[string][]*models.BaseAPI
+		var apiConfigs map[string]agent.ToolConfig
+		if row.Source == "API" {
+			apiRecords, err = admindata.LoadBaseAPICache(ctx, c.mcpCase.baseAPIRepo, c.Cache)
+			if err != nil {
+				return nil, err
+			}
+			sourceNames := make([]string, 0, len(snapshots))
+			for _, snapshot := range snapshots {
+				sourceNames = append(sourceNames, snapshot.SourceName)
+			}
+			apiConfigs, err = c.mcpCase.toolConfigs(ctx, terminal, sourceNames, apiRecords)
+			if err != nil {
+				return nil, err
+			}
+		}
 		for _, snapshot := range snapshots {
 			ref := dto.AiPluginResolvedTool{Plugin: row, Installation: installation, Snapshot: snapshot, Connection: connection, Name: snapshot.SourceName}
 			if row.Source == "MCP" {
@@ -347,21 +377,10 @@ func (c *AiPluginCase) resolveToolRefs(ctx context.Context, terminal string, sel
 			}
 			apiRevision := ""
 			if row.Source == "API" {
-				var configs map[string]agent.ToolConfig
-
-				configs, err = c.mcpCase.ToolConfigs(ctx, terminal, []string{snapshot.SourceName})
-				if err != nil {
-					return nil, err
-				}
-				if !configs[snapshot.SourceName].Enabled {
+				if !apiConfigs[snapshot.SourceName].Enabled {
 					continue
 				}
-				apiQuery := c.mcpCase.baseAPIRepo.Query(ctx).BaseAPI
-				var apis []*models.BaseAPI
-				apis, err = c.mcpCase.baseAPIRepo.List(ctx, repository.Where(apiQuery.ToolName.Eq(snapshot.SourceName)), repository.Order(apiQuery.ID.Asc()))
-				if err != nil {
-					return nil, err
-				}
+				apis := apiRecords[snapshot.SourceName]
 				for _, api := range apis {
 					apiRevision += fmt.Sprintf(":api%d:%d:%d:%s", api.ID, api.AgentStatus, api.McpStatus, api.ToolPrompts)
 				}

@@ -9,6 +9,7 @@ import (
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
+	admindata "github.com/liujitcn/kratos-admin/backend/internal/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-admin/backend/pkg/agent"
@@ -134,13 +135,23 @@ func (h *McpCase) ToolConfigs(ctx context.Context, terminal string, names []stri
 	if len(filteredNames) == 0 {
 		return result, nil
 	}
-	query := h.baseAPIRepo.Query(ctx).BaseAPI
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.ToolName.In(filteredNames...)))
-	list, err := h.baseAPIRepo.List(ctx, opts...)
+	apis, err := admindata.LoadBaseAPICache(ctx, h.baseAPIRepo, h.Cache)
 	if err != nil {
 		return nil, err
 	}
+	return h.toolConfigs(ctx, terminal, filteredNames, apis)
+}
+
+// toolConfigs 基于同一元数据快照逐次校验当前主体权限，不跨用户缓存授权结果。
+func (h *McpCase) toolConfigs(ctx context.Context, terminal string, filteredNames []string, apis map[string][]*models.BaseAPI) (map[string]ai.ToolConfig, error) {
+	result := make(map[string]ai.ToolConfig, len(filteredNames))
+	var list []*models.BaseAPI
+	for _, name := range filteredNames {
+		if matchToolTerminal(terminal, name) {
+			list = append(list, apis[name]...)
+		}
+	}
+	var err error
 	totalByName := make(map[string]int, len(filteredNames))
 	enabledByName := make(map[string]int, len(filteredNames))
 	promptsByName := make(map[string][]string, len(filteredNames))
@@ -205,12 +216,13 @@ func (h *McpCase) applyMcpToolPrompts(ctx context.Context, tools []mcp.Tool) err
 	if len(toolNames) == 0 {
 		return nil
 	}
-	query := h.baseAPIRepo.Query(ctx).BaseAPI
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.ToolName.In(toolNames...)))
-	list, err := h.baseAPIRepo.List(ctx, opts...)
+	apis, err := admindata.LoadBaseAPICache(ctx, h.baseAPIRepo, h.Cache)
 	if err != nil {
 		return err
+	}
+	var list []*models.BaseAPI
+	for _, name := range toolNames {
+		list = append(list, apis[name]...)
 	}
 	promptDescByName := make(map[string]string, len(list))
 	for _, item := range list {
@@ -403,19 +415,12 @@ func (h *McpCase) PrepareToolCall(ctx context.Context, terminal string, name str
 
 // prepareAgentToolArguments 在进程内调用边界应用 HTTP/gRPC 同等的 Proto 校验和租户补全。
 func prepareAgentToolArguments(ctx context.Context, operation string, arguments string) (string, error) {
-	operation = strings.ReplaceAll(strings.TrimPrefix(operation, "/"), "/", ".")
-	var err error
-	var descriptor protoreflect.Descriptor
-	descriptor, err = protoregistry.GlobalFiles.FindDescriptorByName(protoreflect.FullName(operation))
+	descriptor, err := agentToolRequestDescriptor(operation)
 	if err != nil {
-		return "", errorsx.Internal("工具接口契约不存在").WithCause(err)
-	}
-	method, ok := descriptor.(protoreflect.MethodDescriptor)
-	if !ok {
-		return "", errorsx.Internal("工具接口契约无效")
+		return "", err
 	}
 	var messageType protoreflect.MessageType
-	messageType, err = protoregistry.GlobalTypes.FindMessageByName(method.Input().FullName())
+	messageType, err = protoregistry.GlobalTypes.FindMessageByName(descriptor.FullName())
 	if err != nil {
 		return "", errorsx.Internal("工具请求契约不存在").WithCause(err)
 	}

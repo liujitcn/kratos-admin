@@ -122,66 +122,101 @@
       </section>
 
       <section v-else class="source-model__semantics">
-        <div class="source-model__semantic-section">
-          <el-header style="--el-header-height: auto; --el-header-padding: 0">
-            <el-text tag="strong">{{ t('bi.source.model.field.dimensions') }}</el-text>
-            <el-button size="small" :icon="CirclePlus" @click="addDimension">{{ t('bi.source.model.action.add_dimension') }}</el-button>
-          </el-header>
-          <el-table :data="model.dimensions" size="small" border>
-            <el-table-column :label="t('bi.source.model.field.code')" min-width="135">
-              <template #default="{ row }"><el-input v-model="row.code" /></template>
-            </el-table-column>
-            <el-table-column :label="t('bi.source.model.field.display_name')" min-width="135">
-              <template #default="{ row }"><el-input v-model="row.name" /></template>
-            </el-table-column>
-            <el-table-column :label="t('bi.source.model.field.table')" min-width="160">
-              <template #default="{ row }">
-                <el-select v-model="row.table" @change="row.column = ''; row.type = 'string'">
-                  <el-option v-for="table in selectedTables" :key="table.key" :label="schemaLabel(table)" :value="table.key" />
-                </el-select>
-              </template>
-            </el-table-column>
-            <el-table-column :label="t('bi.source.model.field.column')" min-width="160">
-              <template #default="{ row }">
-                <el-select v-model="row.column" @change="row.type = fieldType(row.table, row.column)">
-                  <el-option v-for="column in tableFor(row.table)?.columns" :key="column.name" :label="schemaLabel(column)" :value="column.name" />
-                </el-select>
-              </template>
-            </el-table-column>
-            <el-table-column :label="t('bi.source.model.field.type')" width="110">
-              <template #default="{ row }">{{ row.type }}</template>
-            </el-table-column>
-            <el-table-column :label="t('bi.source.model.field.filterable')" width="115" align="center">
-              <template #default="{ row }"><el-switch v-model="row.filterable" /></template>
-            </el-table-column>
-            <el-table-column width="64" align="center">
-              <template #default="{ $index }"><el-button text type="danger" :icon="Delete" @click="model.dimensions.splice($index, 1)" /></template>
-            </el-table-column>
-          </el-table>
-        </div>
+        <div class="source-model__field-layout">
+          <aside class="source-model__browser">
+            <div class="source-model__browser-head">
+              <el-text tag="strong">{{ t('bi.source.model.browser.title') }}</el-text>
+              <el-input v-model="columnFilter" size="small" clearable :prefix-icon="Search" :placeholder="t('bi.source.model.browser.search')" />
+            </div>
+            <p class="source-model__browser-hint">{{ t('bi.source.model.browser.hint') }}</p>
+            <el-scrollbar class="source-model__browser-list">
+              <div v-for="table in browserTables" :key="table.key" class="source-model__browser-table">
+                <div class="source-model__browser-table-name" :title="schemaLabel(table)">{{ schemaLabel(table) }}<el-tag v-if="table.key === model.base_table" size="small" type="success" effect="plain">{{ t('bi.source.model.field.base_table') }}</el-tag></div>
+                <div
+                  v-for="column in browserColumns(table)"
+                  :key="column.name"
+                  class="source-model__browser-column"
+                  :class="{'is-dimension': isDimensionAdded(table.key, column.name), 'is-measure': isMeasureColumnAdded(table.key, column.name)}"
+                >
+                  <span class="source-model__column-type" :data-type="fieldType(table.key, column.name)">{{ typeLabel(fieldType(table.key, column.name)) }}</span>
+                  <span class="source-model__browser-column-name" :title="schemaLabel(column)">{{ schemaLabel(column) }}</span>
+                  <div class="source-model__browser-column-actions">
+                    <template v-if="fieldType(table.key, column.name) === 'number' && table.key === model.base_table">
+                      <el-tag v-if="isMeasureColumnAdded(table.key, column.name)" size="small" type="info" effect="plain">{{ t('bi.source.model.browser.added_measure') }}</el-tag>
+                      <el-button v-else size="small" text type="primary" @click="addMeasureFrom(table, column)">{{ t('bi.source.model.browser.add_measure') }}</el-button>
+                    </template>
+                    <el-tooltip v-else-if="fieldType(table.key, column.name) === 'number'" :content="t('bi.source.model.browser.base_only')" placement="top">
+                      <el-button size="small" text type="primary" disabled>{{ t('bi.source.model.browser.add_measure') }}</el-button>
+                    </el-tooltip>
+                    <el-tag v-if="isDimensionAdded(table.key, column.name)" size="small" type="info" effect="plain">{{ t('bi.source.model.browser.added_dimension') }}</el-tag>
+                    <el-button v-else size="small" text type="primary" @click="addDimensionFrom(table, column)">{{ t('bi.source.model.browser.add_dimension') }}</el-button>
+                  </div>
+                </div>
+              </div>
+              <el-empty v-if="!browserHasColumns" :description="t('bi.source.model.browser.empty')" :image-size="64" />
+            </el-scrollbar>
+          </aside>
 
-        <div class="source-model__semantic-section">
-          <el-header style="--el-header-height: auto; --el-header-padding: 0">
-            <el-text tag="strong">{{ t('bi.source.model.field.measures') }}</el-text>
-            <el-button size="small" :icon="CirclePlus" @click="addMeasure">{{ t('bi.source.model.action.add_measure') }}</el-button>
-          </el-header>
-          <el-table :data="model.measures" size="small" border>
-            <el-table-column :label="t('bi.source.model.field.code')" min-width="135">
-              <template #default="{ row }"><el-input v-model="row.code" :disabled="row.revision > 0" maxlength="128" /></template>
-            </el-table-column>
-            <el-table-column :label="t('bi.source.model.field.display_name')" min-width="135">
-              <template #default="{ row }"><el-input v-model="row.name" /></template>
-            </el-table-column>
-            <el-table-column :label="t('bi.sql.expression')" min-width="360">
-              <template #default="{ row }"><CodeEditor v-model="row.expression" language="sql" height="120px" /></template>
-            </el-table-column>
-            <el-table-column :label="t('bi.sql.unit')" min-width="100">
-              <template #default="{ row }"><el-input v-model="row.unit" maxlength="32" /></template>
-            </el-table-column>
-            <el-table-column width="64" align="center">
-              <template #default="{ $index }"><el-button text type="danger" :icon="Delete" @click="model.measures.splice($index, 1)" /></template>
-            </el-table-column>
-          </el-table>
+          <div class="source-model__field-lists">
+            <div class="source-model__field-list">
+              <header class="source-model__field-list-head">
+                <div class="source-model__field-list-title">
+                  <el-text tag="strong">{{ t('bi.source.model.field.dimensions') }}</el-text>
+                  <el-text size="small" type="info">{{ t('bi.source.model.hint.dimension') }}</el-text>
+                </div>
+                <el-text size="small" type="info" v-if="model.dimensions.length">{{ model.dimensions.length }} 项</el-text>
+              </header>
+              <p v-if="!model.dimensions.length" class="source-model__list-empty">{{ t('bi.source.model.dimensions_empty') }}</p>
+              <div v-else class="source-model__field-rows">
+                <div v-for="(row, index) in model.dimensions" :key="row.code" class="source-model__field-row">
+                  <span class="source-model__column-type" :data-type="row.type">{{ typeLabel(row.type) }}</span>
+                  <el-input v-model="row.name" size="small" :placeholder="t('bi.source.model.field.display_name')" class="source-model__name-input" />
+                  <span class="source-model__field-ref" :title="fieldRef(row.table, row.column)">{{ fieldRef(row.table, row.column) }}</span>
+                  <div class="source-model__filter-cell">
+                    <el-switch v-model="row.filterable" size="small" />
+                    <span>{{ t('bi.source.model.field.filterable') }}</span>
+                    <el-tooltip :content="t('bi.source.model.hint.filterable')" placement="top">
+                      <el-icon class="source-model__filter-help"><QuestionFilled /></el-icon>
+                    </el-tooltip>
+                  </div>
+                  <el-button text type="danger" size="small" :icon="Delete" :aria-label="t('bi.source.model.action.remove_field')" @click="model.dimensions.splice(index, 1)" />
+                </div>
+              </div>
+            </div>
+
+            <div class="source-model__field-list">
+              <header class="source-model__field-list-head">
+                <div class="source-model__field-list-title">
+                  <el-text tag="strong">{{ t('bi.source.model.field.measures') }}</el-text>
+                  <el-text size="small" type="info">{{ t('bi.source.model.hint.measure') }}</el-text>
+                </div>
+                <el-button size="small" :icon="MagicStick" :disabled="!recommendableMeasures.length" @click="recommendMeasures">{{ t('bi.source.model.action.recommend_measures') }}</el-button>
+              </header>
+              <p v-if="!model.measures.length" class="source-model__list-empty">{{ t('bi.source.model.measures_empty') }}</p>
+              <div v-else class="source-model__field-rows">
+                <div v-for="(row, index) in model.measures" :key="row.code" class="source-model__field-row is-measure-row">
+                  <el-input v-model="row.name" size="small" :placeholder="t('bi.source.model.field.display_name')" class="source-model__name-input" />
+                  <el-select
+                    size="small"
+                    class="source-model__agg-select"
+                    :model-value="aggOf(row.expression)"
+                    @update:model-value="setMeasureAgg(row, String($event ?? ''))"
+                  >
+                    <el-option value="sum" :label="t('bi.card.aggregation.sum')" />
+                    <el-option value="count" :label="t('bi.card.aggregation.count')" />
+                    <el-option value="avg" :label="t('bi.card.aggregation.avg')" />
+                    <el-option value="max" :label="t('bi.card.aggregation.max')" />
+                    <el-option value="min" :label="t('bi.card.aggregation.min')" />
+                    <el-option value="custom" :label="t('bi.source.model.aggregation.custom')" />
+                  </el-select>
+                  <span v-if="aggOf(row.expression) !== 'custom'" class="source-model__field-ref source-model__expression-text" :title="row.expression">{{ row.expression }}</span>
+                  <CodeEditor v-else v-model="row.expression" language="sql" height="72px" class="source-model__expression" />
+                  <el-input v-model="row.unit" size="small" maxlength="32" :placeholder="t('bi.sql.unit')" class="source-model__unit-input" />
+                  <el-button text type="danger" size="small" :icon="Delete" :aria-label="t('bi.source.model.action.remove_field')" @click="model.measures.splice(index, 1)" />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <el-alert :title="t('bi.sql.shared_notice')" type="info" show-icon :closable="false" />
@@ -243,7 +278,7 @@ import type { Connection, Edge, EdgeMouseEvent, Node, NodeDragEvent } from "@vue
 import { Background } from "@vue-flow/background";
 import { Controls } from "@vue-flow/controls";
 import { MiniMap } from "@vue-flow/minimap";
-import { CirclePlus, DataAnalysis, Delete, View } from "@element-plus/icons-vue";
+import { DataAnalysis, Delete, MagicStick, QuestionFilled, Search, View } from "@element-plus/icons-vue";
 import { t } from "@liujitcn/kratos-admin-core";
 import CodeEditor from "@liujitcn/kratos-admin-core/components/CodeEditor/index.vue";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
@@ -321,6 +356,24 @@ const dataPreviewColumns = computed<ColumnProps[]>(() => (previewTable.value?.co
 const selectedTables = computed(() => schemaTables.value.filter(table => model.value.tables.some(item => item.key === table.key)));
 const filteredTables = computed(() => schemaTables.value.filter(table => `${table.schema_name}.${schemaLabel(table)}`.toLowerCase().includes(tableFilter.value.toLowerCase())));
 const selectedRelation = computed(() => model.value.relations[selectedRelationIndex.value]);
+/** 字段浏览器搜索关键字。 */
+const columnFilter = ref("");
+/** 指标编码到基础列名的映射，用于聚合方式切换时重建表达式。 */
+const measureColumnMap = ref<Record<string, string>>({});
+/** 指标仅支持事实表数值字段；推荐指标候选 = 事实表中尚未添加为指标的、非枚举外键且非审计字段的数值字段。 */
+const recommendableMeasures = computed(() => (tableFor(model.value.base_table)?.columns ?? [])
+  .filter(column => fieldType(model.value.base_table, column.name) === "number" && !isAuxiliaryColumn(column) && !isMeasureColumnAdded(model.value.base_table, column.name)));
+/** 字段浏览器是否有可展示的字段。 */
+const browserHasColumns = computed(() => selectedTables.value.some(table => browserColumns(table).length > 0));
+/** 字段浏览器的表顺序：事实表优先，其余按选择顺序。 */
+const browserTables = computed(() => [
+  ...selectedTables.value.filter(table => table.key === model.value.base_table),
+  ...selectedTables.value.filter(table => table.key !== model.value.base_table)
+]);
+/** 按搜索关键字过滤指定表的字段。 */
+function browserColumns(table: BiSourceSchemaTable): BiSourceSchemaColumn[] {
+  return table.columns.filter(column => `${column.name} ${column.comment}`.toLowerCase().includes(columnFilter.value.toLowerCase()));
+}
 /** 数据表节点及按目标纵向顺序分布的连接点。 */
 type TableNodeData = {key: string; name: string; schema_name: string; targetPosition: Position; handles: Array<{id: string; top: number; position: Position}>};
 const nodes = computed<Node<TableNodeData>[]>(() => selectedTables.value.map((table, index) => {
@@ -396,6 +449,8 @@ async function loadModel() {
   sourceVersion.value = 0;
   schemaTables.value = [];
   model.value = emptyModel();
+  columnFilter.value = "";
+  measureColumnMap.value = {};
   previewResult.value = undefined;
   try {
     const [current, result] = await Promise.all([
@@ -560,22 +615,72 @@ function fieldType(table: string, column: string): string {
   return "string";
 }
 
-/** 增加一条语义维度。 */
-function addDimension() {
-  const table = selectedTables.value[0];
-  const column = table?.columns[0];
-  if (!table || !column) return;
-  const code = semanticCode(table.name, column.name, model.value.dimensions.length);
-  model.value.dimensions.push({code, name: column.name, type: fieldType(table.key, column.name), table: table.key, column: column.name, filterable: true});
+/** 显示字段的 BI 类型标签。 */
+function typeLabel(type: string): string {
+  return type === "number" ? t("bi.source.model.type.number") : type === "date" ? t("bi.source.model.type.date") : t("bi.source.model.type.string");
 }
 
-/** 增加一条事实表指标。 */
-function addMeasure() {
-  const table = tableFor(model.value.base_table);
-  const column = table?.columns.find(item => fieldType(table.key, item.name) === "number") ?? table?.columns[0];
-  if (!table || !column) return;
+/** 判断维度是否已经覆盖指定表字段。 */
+function isDimensionAdded(tableKey: string, columnName: string): boolean {
+  return model.value.dimensions.some(dimension => dimension.table === tableKey && dimension.column === columnName);
+}
+
+/** 判断数值字段是否不适合作为指标：注释带"枚举"标记，或字段名为 *_id、*_type、*_status、*_state、*_by、*_at、is_*、has_* 形态（外键、枚举和创建人、时间等通用审计字段）。 */
+function isAuxiliaryColumn(column: BiSourceSchemaColumn): boolean {
+  if (column.comment.includes("枚举")) return true;
+  return /_(id|type|status|state|by|at)$/.test(column.name.toLowerCase()) || /^(is|has)_/.test(column.name.toLowerCase());
+}
+
+/** 从聚合表达式解析基础列名，无法解析时返回 null。 */
+function parseMeasureColumn(expression: string): string | null {
+  const match = /^\s*([A-Za-z]+)\s*\((.+)\)\s*$/.exec(expression);
+  return match ? match[2].trim() : null;
+}
+
+/** 判断事实表数值字段是否已经添加为指标。 */
+function isMeasureColumnAdded(tableKey: string, columnName: string): boolean {
+  if (tableKey !== model.value.base_table) return false;
+  return model.value.measures.some(measure => (measureColumnMap.value[measure.code] ?? parseMeasureColumn(measure.expression)) === columnName);
+}
+
+/** 解析指标的聚合方式，无法识别时视为自定义 SQL。 */
+function aggOf(expression: string): string {
+  const match = /^\s*([A-Za-z]+)\s*\((.*)\)\s*$/.exec(expression);
+  const agg = match?.[1].toLowerCase() ?? "";
+  return ["sum", "count", "avg", "max", "min"].includes(agg) ? agg : "custom";
+}
+
+/** 切换聚合方式后重建表达式；自定义 SQL 保留原文。 */
+function setMeasureAgg(row: BiSourceMeasure, agg: string) {
+  if (agg === "custom") return;
+  const column = measureColumnMap.value[row.code] ?? parseMeasureColumn(row.expression);
+  if (!column) return;
+  row.expression = `${agg.toUpperCase()}(${column})`;
+}
+
+/** 展示维度所属表和字段。 */
+function fieldRef(tableKey: string, column: string): string {
+  return `${tableFor(tableKey)?.name ?? tableKey}.${column}`;
+}
+
+/** 从字段浏览器把字段添加为语义维度。 */
+function addDimensionFrom(table: BiSourceSchemaTable, column: BiSourceSchemaColumn) {
+  if (isDimensionAdded(table.key, column.name)) return;
+  const code = semanticCode(table.name, column.name, model.value.dimensions.length);
+  model.value.dimensions.push({code, name: column.comment || column.name, type: fieldType(table.key, column.name), table: table.key, column: column.name, filterable: true});
+}
+
+/** 从字段浏览器把事实表数值字段添加为指标。 */
+function addMeasureFrom(table: BiSourceSchemaTable, column: BiSourceSchemaColumn) {
+  if (table.key !== model.value.base_table || isMeasureColumnAdded(table.key, column.name)) return;
   const code = semanticCode(table.name, column.name, model.value.measures.length);
-  model.value.measures.push({code, name: column.name, type: "number", expression: fieldType(table.key, column.name) === "number" ? `SUM(${column.name})` : "COUNT(*)", unit: "", revision: 0});
+  model.value.measures.push({code, name: column.comment || column.name, type: "number", expression: `SUM(${column.name})`, unit: "", revision: 0});
+  measureColumnMap.value[code] = column.name;
+}
+
+/** 一键把事实表全部数值字段建为指标。 */
+function recommendMeasures() {
+  for (const column of recommendableMeasures.value) addMeasureFrom(tableFor(model.value.base_table)!, column);
 }
 
 /** 生成合法且稳定的语义字段编码。 */
@@ -765,14 +870,21 @@ function isCurrentSession(currentSession: number, sourceID: number): boolean {
 
 <style scoped lang="scss">
 .source-model {
-  min-height: 680px;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
   padding-top: 4px;
+}
+
+.source-model > .el-steps {
+  flex-shrink: 0;
 }
 
 .source-model__tables {
   display: grid;
   grid-template-rows: auto 1fr auto;
-  height: min(640px, calc(100dvh - 240px));
+  flex: 1;
+  min-height: 0;
   margin-top: 20px;
 }
 
@@ -790,7 +902,6 @@ function isCurrentSession(currentSession: number, sourceID: number): boolean {
 
 .source-model__table-row {
   display: flex;
-  min-height: 52px;
   align-items: center;
   gap: 12px;
   padding: 8px 14px;
@@ -846,8 +957,9 @@ function isCurrentSession(currentSession: number, sourceID: number): boolean {
 .source-model__relations {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 280px;
+  flex: 1;
+  min-height: 0;
   gap: 12px;
-  height: min(640px, calc(100dvh - 240px));
   margin-top: 20px;
 }
 
@@ -969,23 +1081,228 @@ function isCurrentSession(currentSession: number, sourceID: number): boolean {
 }
 
 .source-model__semantics {
-  display: grid;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
   gap: 14px;
-  max-height: min(640px, calc(100dvh - 240px));
-  overflow: auto;
   margin-top: 20px;
   padding-right: 2px;
 }
 
-.source-model__semantic-section,
+.source-model__field-layout {
+  display: grid;
+  flex: 1;
+  min-height: 0;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 14px;
+}
+
+.source-model__browser {
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  min-height: 0;
+  border: 1px solid var(--el-border-color-lighter);
+  border-radius: var(--admin-page-radius, 6px);
+}
+
+.source-model__browser-head {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px 0;
+}
+
+.source-model__browser-hint {
+  margin: 8px 12px 4px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--el-text-color-regular);
+  background: var(--el-fill-color-light);
+  border-radius: var(--admin-page-radius, 6px);
+  padding: 7px 9px;
+}
+
+.source-model__browser-list {
+  min-height: 0;
+  padding: 2px 8px 10px;
+}
+
+.source-model__browser-table-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 4px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--el-text-color-regular);
+}
+
+.source-model__browser-column {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 4px;
+  border-radius: var(--admin-page-radius, 6px);
+}
+
+.source-model__browser-column:hover {
+  background: var(--el-fill-color-light);
+}
+
+.source-model__column-type {
+  flex-shrink: 0;
+  padding: 1px 5px;
+  font-size: 12px;
+  border-radius: 4px;
+  background: var(--el-fill-color);
+  color: var(--el-text-color-secondary);
+}
+
+.source-model__column-type[data-type="number"] {
+  background: var(--el-color-warning-light-9);
+  color: var(--el-color-warning);
+}
+
+.source-model__column-type[data-type="date"] {
+  background: var(--el-color-primary-light-9);
+  color: var(--el-color-primary);
+}
+
+.source-model__browser-column-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.source-model__browser-column-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 4px;
+}
+
+.source-model__browser-column-actions .el-button {
+  padding: 2px 7px;
+}
+
+.source-model__field-lists {
+  display: grid;
+  min-height: 0;
+  align-content: start;
+  gap: 14px;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.source-model__field-list,
 .source-model__preview {
   display: grid;
+  flex-shrink: 0;
   gap: 10px;
 }
 
-.source-model__semantic-section header strong,
+.source-model__field-list-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--el-border-color-lighter);
+  border-bottom: none;
+  border-radius: var(--admin-page-radius, 6px) var(--admin-page-radius, 6px) 0 0;
+}
+
+.source-model__field-list-title {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.source-model__field-list-head strong,
 .source-model__preview header strong {
   font-weight: 600;
+}
+
+.source-model__field-rows {
+  border: 1px solid var(--el-border-color-lighter);
+  border-radius: 0 0 var(--admin-page-radius, 6px) var(--admin-page-radius, 6px);
+}
+
+.source-model__field-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+}
+
+.source-model__field-row + .source-model__field-row {
+  border-top: 1px solid var(--el-border-color-lighter);
+}
+
+.source-model__field-row:hover {
+  background: var(--el-fill-color-lighter);
+}
+
+.source-model__name-input {
+  width: 140px;
+  flex-shrink: 0;
+}
+
+.source-model__agg-select {
+  width: 110px;
+  flex-shrink: 0;
+}
+
+.source-model__field-ref {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 12px;
+  color: var(--el-text-color-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.source-model__expression-text {
+  flex: 1;
+  font-family: var(--el-font-family, monospace);
+}
+
+.source-model__expression {
+  flex: 1;
+  min-width: 0;
+}
+
+.source-model__unit-input {
+  width: 80px;
+  flex-shrink: 0;
+}
+
+.source-model__filter-cell {
+  display: flex;
+  margin-left: auto;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  font-size: 12px;
+  color: var(--el-text-color-regular);
+}
+
+.source-model__filter-help {
+  color: var(--el-text-color-placeholder);
+  cursor: help;
+}
+
+.source-model__list-empty {
+  padding: 16px 12px;
+  font-size: 12px;
+  color: var(--el-text-color-secondary);
+  text-align: center;
+  border: 1px dashed var(--el-border-color-lighter);
+  border-radius: var(--admin-page-radius, 6px);
 }
 
 .source-model__preview header span {
@@ -1004,13 +1321,22 @@ function isCurrentSession(currentSession: number, sourceID: number): boolean {
     min-height: 0;
   }
 
-  .source-model__tables {
-    height: min(640px, calc(100dvh - 300px));
+  .source-model__table-toolbar,
+  .source-model__relations,
+  .source-model__field-layout {
+    grid-template-columns: 1fr;
   }
 
-  .source-model__table-toolbar,
-  .source-model__relations {
-    grid-template-columns: 1fr;
+  .source-model__field-layout {
+    flex: none;
+  }
+
+  .source-model__semantics {
+    overflow-y: auto;
+  }
+
+  .source-model__browser {
+    max-height: 300px;
   }
 
   .source-model__table-row {
@@ -1044,6 +1370,21 @@ function isCurrentSession(currentSession: number, sourceID: number): boolean {
 
   .source-model__relation-panel {
     min-height: 200px;
+  }
+}
+</style>
+
+<style lang="scss">
+/* 弹窗整体不超过视口：主体弹性填充剩余空间，保证底部按钮始终可见、页面不出滚动条。 */
+.bi-source-model-dialog {
+  display: flex;
+  max-height: 96dvh;
+  flex-direction: column;
+
+  .el-dialog__body {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: auto;
   }
 }
 </style>

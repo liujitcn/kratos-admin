@@ -1302,9 +1302,9 @@ function openGeneratedFile(file: AiAttachment) {
   window.open(url, "_blank", "noopener");
 }
 
-/** 通过鉴权下载接口保存生成文件，保持与文件面板一致。 */
+/** 通过鉴权下载接口传递原始文件路径，避免预览绝对地址被当作存储键。 */
 async function downloadGeneratedFile(file: AiAttachment) {
-  await defFileService.DownloadFile(resolveAIAttachmentUrl(file.url), file.name);
+  await defFileService.DownloadFile(file.url, file.name);
 }
 
 /** 格式化附件大小展示文本。 */

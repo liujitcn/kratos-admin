@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { createDialogRequestController } from "../src/components/Dialog/interface/index.js";
 
@@ -60,4 +61,11 @@ test("过期打开请求的异常不会影响当前请求", async () => {
   resolveSecond(2);
   assert.equal(await secondOpen, true);
   assert.deepEqual(commits, [2]);
+});
+
+test("登录协议预览的确定按钮关闭弹窗", async () => {
+  const source = await readFile("src/views/login/components/LoginForm.vue", "utf8");
+  const agreementDialog = source.match(/<ProDialog\b[^>]*v-model="agreementDialog\.visible"[^>]*>/)?.[0];
+  assert.ok(agreementDialog, "缺少登录协议预览弹窗");
+  assert.match(agreementDialog, /@confirm="agreementDialog\.visible = false"/);
 });

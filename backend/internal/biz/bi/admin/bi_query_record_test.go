@@ -32,6 +32,7 @@ func TestAskBiQueryPersistsRecords(t *testing.T) {
 	plan := `{"query":{"source_code":"test","measures":[{"code":"count"}]},"chart_type":"metric","title":"用户数量"}`
 	tests := []struct {
 		name        string
+		question    string
 		modelStatus int
 		output      string
 		queryErr    error
@@ -40,6 +41,11 @@ func TestAskBiQueryPersistsRecords(t *testing.T) {
 		wantChart   string
 	}{
 		{name: "成功", modelStatus: http.StatusOK, output: plan, wantChart: "metric"},
+		{name: "条件统计不要求分组", question: "按照以下条件统计用户总数：状态为启用", modelStatus: http.StatusOK, output: plan, wantChart: "metric"},
+		{name: "部门过滤不要求分组", question: "按部门为研发筛选后统计用户总数", modelStatus: http.StatusOK, output: plan, wantChart: "metric"},
+		{name: "部门分组不能退化为总数", question: "按部门统计用户数量", modelStatus: http.StatusOK, output: plan, wantError: "问题要求分组统计，但查询计划未选择分组维度"},
+		{name: "显式分组不能遗漏", question: "按地区分组统计用户数量", modelStatus: http.StatusOK, output: plan, wantError: "问题要求分组统计，但查询计划未选择分组维度"},
+		{name: "英文分组不能遗漏", question: "Count users grouped by department", modelStatus: http.StatusOK, output: plan, wantError: "问题要求分组统计，但查询计划未选择分组维度"},
 		{name: "指标网格建议", modelStatus: http.StatusOK, output: strings.Replace(plan, `"metric"`, `"metric_grid"`, 1), wantChart: "metric_grid"},
 		{name: "图型建议不匹配", modelStatus: http.StatusOK, output: strings.Replace(plan, `"metric"`, `"pie"`, 1), wantChart: "metric"},
 		{name: "未启用模型", wantError: "AI供应商或模型选择无效"},
@@ -90,8 +96,12 @@ func TestAskBiQueryPersistsRecords(t *testing.T) {
 			sourceCase := NewBiSourceCase(baseCase, store, data.NewBiSourceRepository(store), registry, nil, data.NewBiCardRepository(store), data.NewBiDashboardRepository(store), data.NewBiDashboardVersionRepository(store), nil)
 			queryRepo := data.NewBiQueryRepository(store)
 			c := NewBiQueryCase(baseCase, sourceCase, modelStore, queryRepo)
+			question := test.question
+			if question == "" {
+				question = "统计用户数量"
+			}
 			var answer *adminv1.AskBiQueryResponse
-			answer, err = c.AskBiQuery(askCtx, &adminv1.AskBiQueryRequest{Question: "统计用户数量"})
+			answer, err = c.AskBiQuery(askCtx, &adminv1.AskBiQueryRequest{Question: question})
 			if test.wantError == "" && err != nil || test.wantError != "" && (err == nil || !strings.Contains(err.Error(), test.wantError)) {
 				t.Fatalf("问数结果错误: %v, wantError=%q", err, test.wantError)
 			}
@@ -112,7 +122,7 @@ func TestAskBiQueryPersistsRecords(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if record.Question != "统计用户数量" || record.TenantId != 1 || record.UserId != 10 || record.ProjectId != 42 {
+			if record.Question != question || record.TenantId != 1 || record.UserId != 10 || record.ProjectId != 42 {
 				t.Fatalf("问数内容或认证身份未正确保存: %v", record)
 			}
 			if test.wantError != "" {

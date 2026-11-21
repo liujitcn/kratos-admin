@@ -67,7 +67,12 @@
       <el-link type="primary" @click="openAgreement('privacy')">{{ t("core.login.privacy_protocol") }}</el-link>
     </span>
   </div>
-  <ProDialog v-model="agreementDialog.visible" :title="agreementDialog.title" width="min(760px, calc(100vw - 32px))">
+  <ProDialog
+    v-model="agreementDialog.visible"
+    :title="agreementDialog.title"
+    width="min(760px, calc(100vw - 32px))"
+    @confirm="agreementDialog.visible = false"
+  >
     <RichTextPreview :model-value="agreementDialog.content" class="login-agreement-content" />
   </ProDialog>
   <div class="login-btn">

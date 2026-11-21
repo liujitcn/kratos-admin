@@ -86,6 +86,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { getCurrentLocale, t } from "@liujitcn/kratos-admin-core";
+import { useUserStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import { getAdminAiFlowBlockRenderers } from "@liujitcn/kratos-admin-system";
 import { defAiMessageService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_message";
 import { defAiSessionService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_session";
@@ -137,7 +138,10 @@ defineOptions({
 
 const mobile = useMediaQuery("(max-width: 768px)");
 const route = useRoute();
-const assistantView = ref<AssistantView>(resolveAssistantView(route.query.view));
+const { tenant_id, user_name } = useUserStore().userInfo;
+const workspaceKey = `kratos-admin:ai:workspace:${JSON.stringify([tenant_id, user_name, route.fullPath])}`;
+const restoredWorkspace = readWorkspacePosition();
+const assistantView = ref<AssistantView>(resolveAssistantView(restoredWorkspace?.view ?? route.query.view));
 const filePanelRef = ref<InstanceType<typeof FilePanel>>();
 const pendingAutomationCount = ref(0);
 const automationPanel = ref<InstanceType<typeof AutomationPanel>>();
@@ -201,6 +205,15 @@ const aiFlowBlockRenderers = getAdminAiFlowBlockRenderers();
 /** 将外部入口的查询参数转换为助手工作区视图。 */
 function resolveAssistantView(value: unknown): AssistantView {
   return typeof value === "string" && isAssistantView(value) ? value : "chat";
+}
+
+/** 读取当前账号、入口和标签页上次打开的位置。 */
+function readWorkspacePosition(): { view?: unknown; sessionID?: unknown } | undefined {
+  try {
+    return JSON.parse(window.sessionStorage.getItem(workspaceKey) ?? "null") ?? undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 /** 切换会话时同步当前活动会话。 */
@@ -558,6 +571,9 @@ async function ensureSessionsLoaded(force = false) {
       void loadAiShortcuts();
       const response = await defAiSessionService.ListAiSession({});
       sessions.value = normalizeSessionList(response?.sessions);
+      if (!activeSessionID.value) {
+        activeSessionID.value = sessions.value.find(item => item.id === restoredWorkspace?.sessionID)?.id ?? "";
+      }
       const sessionID = await ensureActiveSession();
       if (sessionID) await loadMessages(sessionID);
     } catch (error) {
@@ -858,6 +874,16 @@ watch(
   () => route.query.run_id,
   value => void openNotificationResult(value)
 );
+
+// 只记录面板和已确认属于当前账号的会话编号。恢复仍以服务端返回的会话列表为准。
+watch([assistantView, activeSessionID], ([view, sessionID]) => {
+  if (!sessionID) return;
+  try {
+    window.sessionStorage.setItem(workspaceKey, JSON.stringify({ view, sessionID }));
+  } catch {
+    // 禁用存储时仍可使用当前页面。
+  }
+});
 
 // 切到文件面板时刷新列表，保证刚生成的文件立即可见。
 watch(assistantView, view => {

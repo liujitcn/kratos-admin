@@ -6,9 +6,12 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"sync/atomic"
 	"testing"
 
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/securityconfig"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	agent "github.com/liujitcn/kratos-admin/backend/pkg/agent"
@@ -22,6 +25,54 @@ import (
 )
 
 var generatedTestDSNFlag = flag.String("generated-test-dsn", "", "生成文件持久化集成测试数据库 DSN")
+
+// TestGeneratedFilesRespectOutboundPolicy 验证转存登记成功，以及安全拒绝时的可见提示。
+func TestGeneratedFilesRespectOutboundPolicy(t *testing.T) {
+	previous := securityconfig.Current()
+	t.Cleanup(func() { securityconfig.Set(previous) })
+	for _, allowed := range []bool{false, true} {
+		name := "拒绝私网"
+		if allowed {
+			name = "精确授权后转存"
+		}
+		t.Run(name, func(t *testing.T) {
+			c, ctx, _, _ := newAiEventTestCase(t)
+			c.OSS = local.NewOSS(t.TempDir())
+			var requested atomic.Bool
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				requested.Store(true)
+				_, _ = w.Write([]byte("%PDF-1.4 test"))
+			}))
+			t.Cleanup(server.Close)
+			config := securityconfig.Default()
+			if allowed {
+				config.AIAllowedCIDRs = []string{"127.0.0.1/32"}
+			}
+			securityconfig.Set(config)
+			signedURL := server.URL + "/files/test?sig=secret"
+			reply := &ai.Response{Content: "下载：" + signedURL, Tools: []agent.ToolUsage{{Output: `{"download_url":"` + signedURL + `","filename":"验证.pdf"}`}}}
+			c.persistGeneratedToolFiles(ctx, 7, reply)
+			if requested.Load() != allowed || (len(reply.Attachments) == 1) != allowed {
+				t.Fatalf("出站边界或附件转存结果错误: requested=%v attachments=%d", requested.Load(), len(reply.Attachments))
+			}
+			if !allowed {
+				if !strings.Contains(reply.Content, "未保存到文件工作区") {
+					t.Fatal("文件转存失败仍静默显示生成成功")
+				}
+				return
+			}
+			page, err := c.aiFileCase.PageAiFile(ctx, &basev1.PageAiFileRequest{PageNum: 1, PageSize: 10})
+			if err != nil || page.Total != 1 || page.Files[0].SourceType != aiFileSourceGenerated {
+				t.Fatalf("生成成果未登记: %v, %v", page, err)
+			}
+			var stored []byte
+			stored, err = c.OSS.GetFileByte(strings.TrimPrefix(reply.Attachments[0].Url, "/data/"))
+			if err != nil || string(stored) != "%PDF-1.4 test" || strings.Contains(reply.Content, signedURL) {
+				t.Fatalf("持久文件内容或正文链接错误: %q, %v", stored, err)
+			}
+		})
+	}
+}
 
 // TestCollectGeneratedProducts 验证工具输出的结构化产物与裸链接两类解析形态。
 func TestCollectGeneratedProducts(t *testing.T) {
