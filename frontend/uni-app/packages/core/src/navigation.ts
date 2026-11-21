@@ -5,7 +5,7 @@ import { hasValidToken } from './utils/auth'
 import { redirectToLogin } from './utils/navigation'
 import { resolveStaticView } from './module'
 import { matchLogicalPath, parseLogicalQuery } from './navigation-pattern.mjs'
-import { buildMenuTree } from './navigation-tree.mjs'
+import { buildMenuTree, resolveRootMenuId } from './navigation-tree.mjs'
 import { getCurrentLocale, t } from './locales'
 import { useSettingStore } from './stores'
 
@@ -393,6 +393,20 @@ export function useAppNavigation() {
     tabBar,
     navigate: navigateAppRoute,
   }
+}
+
+/**
+ * 判断物理页面路由是否归属于底部导航项。
+ * 与 KratosTabBar 的显隐规则保持一致，页面据此决定是否预留底部导航高度。
+ */
+export function useAppTabBar(route: string) {
+  const { menus: appMenus, tabBar } = useAppNavigation()
+  return computed(() => {
+    const routeMenu = appMenus.value.find((menu) => resolveStaticView(menu.viewKey) === route)
+    if (!routeMenu) return false
+    const tabMenuId = resolveRootMenuId(appMenus.value, routeMenu.id, APP_MENU_ROOT_ID)
+    return tabBar.value.some((menu) => menu.id === tabMenuId)
+  })
 }
 
 /** 打开可替换的状态视图。 */

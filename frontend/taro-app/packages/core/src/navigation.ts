@@ -4,7 +4,7 @@ import { defBaseMenuService } from './api/system/app/v1/base_menu'
 import type { BaseMenu, ListBaseMenuResponse } from './rpc/system/app/v1/base_menu'
 import { resolveStaticView } from './module'
 import { matchLogicalPath, parseLogicalQuery } from './navigation-pattern.mjs'
-import { buildMenuTree } from './navigation-tree.mjs'
+import { buildMenuTree, resolveRootMenuId } from './navigation-tree.mjs'
 import { hasValidToken } from './utils/auth'
 import { redirectToLogin } from './utils/navigation'
 import { getCurrentLocale, t } from './locales'
@@ -214,6 +214,19 @@ function createNavigationState(menus: AppMenu[], ready: boolean): AppNavigationS
 export const useAppNavigation = create<AppNavigationState>(() =>
   createNavigationState(defaultAppMenus, false),
 )
+
+/**
+ * 判断物理页面路由是否归属于底部导航项。
+ * 与 KratosTabBar 的显隐规则保持一致，页面据此决定是否预留底部导航高度。
+ */
+export function useAppTabBarVisible(route: string): boolean {
+  const menus = useAppNavigation((state) => state.menus)
+  const tabBar = useAppNavigation((state) => state.tabBar)
+  const routeMenu = menus.find((menu) => resolveStaticView(menu.viewKey) === route)
+  if (!routeMenu) return false
+  const tabMenuId = resolveRootMenuId(menus, routeMenu.id, APP_MENU_ROOT_ID)
+  return tabBar.some((menu) => menu.id === tabMenuId)
+}
 
 let adapter: AppNavigationAdapter = {
   list: () => defBaseMenuService.ListBaseMenu(),

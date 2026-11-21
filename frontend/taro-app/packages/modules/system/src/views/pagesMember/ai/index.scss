@@ -18,6 +18,12 @@ page {
   background: var(--kratos-bg-gradient);
 }
 
+/* 当前路由没有命中底部导航项时导航栏不渲染，此时不再预留导航高度，
+   否则输入区下方会留下一条浮空的空白带（uni-app 端同样按此规则处理）。 */
+.ai-page.has-no-tab-bar {
+  --kratos-tab-bar-space: env(safe-area-inset-bottom, 0px);
+}
+
 .ai-navbar {
   flex-shrink: 0;
   padding: 0 20px;

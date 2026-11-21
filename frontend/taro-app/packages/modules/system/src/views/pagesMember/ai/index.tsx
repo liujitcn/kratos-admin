@@ -6,6 +6,7 @@ import {
   KratosNavBar,
   t,
   uploadFile,
+  useAppTabBarVisible,
   useI18n,
   useThemeStore,
 } from '@liujitcn/kratos-taro-app-core'
@@ -84,6 +85,8 @@ const STARTER_PROMPT_PAGE_SIZE = 4
 export default function AiPage() {
   const { locale } = useI18n()
   const themeStore = useThemeStore()
+  /** 底部导航是否真实渲染；未渲染时不预留导航高度，避免输入区下方出现空白带。 */
+  const hasTabBar = useAppTabBarVisible('pagesMember/ai/index')
   const windowInfo = Taro.getWindowInfo() as ReturnType<typeof Taro.getWindowInfo> & {
     safeAreaInsets?: { top?: number; bottom?: number }
   }
@@ -870,7 +873,11 @@ export default function AiPage() {
   }, [])
 
   return (
-    <View className={`ai-page ${themeStore.theme === 'light' ? 'theme-light' : 'theme-dark'}`}>
+    <View
+      className={`ai-page ${themeStore.theme === 'light' ? 'theme-light' : 'theme-dark'}${
+        hasTabBar ? '' : ' has-no-tab-bar'
+      }`}
+    >
       <View className='ai-navbar'>
         <KratosNavBar
           title={t(activeView === 'chat' ? 'system.ai.chat_title' : workspaceTitle)}

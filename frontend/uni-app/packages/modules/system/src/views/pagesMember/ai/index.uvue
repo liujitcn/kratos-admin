@@ -29,7 +29,7 @@ import { parseAiResultParams } from './resultLink'
 import { defAiAutomationService } from '../../../api/base/v1/ai_automation'
 import type { AiAutomationRun } from '../../../rpc/base/v1/ai_automation'
 import WelcomePanel from './components/WelcomePanel.uvue'
-import { useI18n } from '@liujitcn/kratos-uni-app-core'
+import { useAppTabBar, useI18n } from '@liujitcn/kratos-uni-app-core'
 import { useThemeStore } from '@liujitcn/kratos-uni-app-core/stores'
 import {
   type AiStreamEvent,
@@ -86,6 +86,11 @@ const MAX_ATTACHMENT_COUNT = 6
 const STARTER_PROMPT_PAGE_SIZE = 4
 const { locale, t } = useI18n()
 const themeStore = useThemeStore()
+/** 底部导航是否真实渲染；未渲染时不预留导航高度，避免输入区下方出现空白带。 */
+const hasTabBar = useAppTabBar('pagesMember/ai/index')
+const pageClass = computed(
+  () => `${themeStore.themeClass}${hasTabBar.value ? '' : ' has-no-tab-bar'}`,
+)
 const windowInfo = uni.getWindowInfo()
 let safeAreaTop =
   windowInfo.safeArea?.top || windowInfo.statusBarHeight || windowInfo.safeAreaInsets?.top || 0
@@ -1490,7 +1495,7 @@ watch(
 </script>
 
 <template>
-  <view class="ai-page" :class="themeStore.themeClass" @keydown.esc="closeWorkspaceOverlays">
+  <view class="ai-page" :class="pageClass" @keydown.esc="closeWorkspaceOverlays">
     <view class="ai-navbar"
       ><KratosNavBar
         :title="t(activeFunction === 'chat' ? 'system.ai.chat_title' : workspaceTitle)"
@@ -1740,6 +1745,12 @@ uni-app :where(.ai-page) :deep(.approval-card) {
   color: var(--kratos-color-text);
   font-size: 14px;
   background: var(--kratos-bg-gradient);
+}
+
+/* 当前路由没有命中底部导航项时导航栏不渲染，此时不再预留导航高度，
+   否则输入区下方会留下一条浮空的空白带（Taro 端同样按此规则处理）。 */
+.ai-page.has-no-tab-bar {
+  --kratos-tab-bar-space: env(safe-area-inset-bottom, 0px);
 }
 
 .ai-navbar {
