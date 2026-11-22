@@ -4,13 +4,19 @@ on:
   push:
     tags:
       - "npm/v*"
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Existing npm release tag (for example npm/v0.1.19)"
+        required: true
+        type: string
 
 permissions:
   contents: read
   id-token: write
 
 concurrency:
-  group: npm-publish-${{ github.ref }}
+  group: npm-publish-${{ inputs.release_tag || github.ref_name }}
   cancel-in-progress: false
 
 jobs:
@@ -19,8 +25,25 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - name: Checkout release tag
+      - name: Checkout workflow revision
         uses: actions/checkout@v7
+
+      - name: Verify release tag and resolve version
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag || github.ref_name }}
+        run: |
+          if [[ ! "$RELEASE_TAG" =~ ^npm/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo 'Expected an npm/vX.Y.Z release tag' >&2
+            exit 1
+          fi
+          if [[ "$GITHUB_EVENT_NAME" == workflow_dispatch ]]; then
+            git fetch --no-tags --depth=1 origin "refs/tags/$RELEASE_TAG"
+            if ! git diff --quiet FETCH_HEAD HEAD -- . ':(exclude).github/workflows/publish-npm.yml'; then
+              echo 'Release source differs from the npm tag' >&2
+              exit 1
+            fi
+          fi
+          echo "NPM_EXPECTED_VERSION=${RELEASE_TAG#npm/v}" >> "$GITHUB_ENV"
 
       - name: Set up Node.js
         uses: actions/setup-node@v6
@@ -35,11 +58,11 @@ jobs:
           corepack enable
           corepack prepare pnpm@10.33.4 --activate
 
-      - name: Resolve release version
-        run: echo "NPM_EXPECTED_VERSION=${GITHUB_REF_NAME#npm/v}" >> "${GITHUB_ENV}"
-
       - name: Install dependencies
         run: make -C frontend init
+
+      - name: Build admin core workspace exports
+        run: pnpm --dir frontend/admin --filter @liujitcn/kratos-admin-core build:package
 
       - name: Check, test and package all frontends
         run: make -C frontend package
