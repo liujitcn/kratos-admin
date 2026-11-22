@@ -264,7 +264,11 @@
         <template v-else>
           <el-button :disabled="loading || saving" :loading="analyzing" @click="analyzeModel">{{ t('bi.sql.preview_changes') }}</el-button>
           <el-button :disabled="loading || saving || analyzing" @click="refreshVersion">{{ t('bi.sql.refresh_model') }}</el-button>
-          <el-button type="primary" :loading="saving" :disabled="!impactReady" @click="saveModel">{{ t('bi.source.model.action.save') }}</el-button>
+          <el-tooltip :content="t('bi.source.model.hint.save_requires_impact')" :disabled="impactReady" placement="top">
+            <span>
+              <el-button type="primary" :loading="saving" :disabled="!impactReady" @click="saveModel">{{ t('bi.source.model.action.save') }}</el-button>
+            </span>
+          </el-tooltip>
           <el-button :icon="DataAnalysis" :disabled="!modelSaved" :loading="previewing" @click="previewModel">{{ t('bi.source.model.action.preview') }}</el-button>
           <el-button v-if="modelSaved" @click="open = false">{{ t('bi.source.model.action.done') }}</el-button>
         </template>
@@ -713,7 +717,9 @@ function addDimensionFrom(table: BiSourceSchemaTable, column: BiSourceSchemaColu
 function addMeasureFrom(table: BiSourceSchemaTable, column: BiSourceSchemaColumn) {
   if (table.key !== model.value.base_table || isMeasureColumnAdded(table.key, column.name)) return;
   const code = semanticCode(table.name, column.name, model.value.measures.length);
-  model.value.measures.push({code, name: column.comment || column.name, type: "number", expression: `SUM(${column.name})`, unit: "", revision: 0});
+  // id 形态字段（主键/雪花 ID）默认按计数聚合，避免"数量"类问数生成 SUM(大整数) 的无意义结果
+  const expression = /(^|_)id$/i.test(column.name) ? `COUNT(${column.name})` : `SUM(${column.name})`;
+  model.value.measures.push({code, name: column.comment || column.name, type: "number", expression, unit: "", revision: 0});
   measureColumnMap.value[code] = column.name;
 }
 

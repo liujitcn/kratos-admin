@@ -503,7 +503,8 @@ async function handleBranchMessage(item: ChatMessageItem) {
     source_session_id: sourceSessionID,
     anchor_message_id: String(item.id),
     title: buildBranchSessionTitle(item),
-    terminal: Terminal.TERMINAL_ADMIN
+    // 分支沿用源会话的终端配置，保持跨端继续时工具池一致
+    terminal: sessions.value.find(session => session.id === sourceSessionID)?.terminal ?? Terminal.TERMINAL_ADMIN
   });
   const branchSession = normalizeSession(response.session);
   upsertSession(branchSession);
@@ -704,7 +705,7 @@ async function handleDeleteSession(item: AiSession) {
   delete drafts.value[item.id];
 
   if (activeSessionID.value === item.id) {
-    activeSessionID.value = sessions.value[0]?.id ?? "";
+    activeSessionID.value = sessions.value.find(session => session.terminal === Terminal.TERMINAL_ADMIN)?.id ?? "";
   }
   const nextSessionID = await ensureActiveSession();
   if (nextSessionID) await loadMessages(nextSessionID);
@@ -712,10 +713,11 @@ async function handleDeleteSession(item: AiSession) {
   ElMessage.success(t("system.ai.chat.message.conversation_deleted"));
 }
 
-/** 保证当前存在可用会话；当列表为空时自动创建首个会话。 */
+/** 保证当前存在可用会话；默认续用最近的管理端会话，没有时自动创建首个会话。 */
 async function ensureActiveSession() {
   if (activeSessionID.value) return activeSessionID.value;
-  activeSessionID.value = sessions.value[0]?.id ?? (await createSession()) ?? "";
+  // 会话跨端共享，管理端只自动续用管理端会话，避免静默沿用移动端会话的终端工具池
+  activeSessionID.value = sessions.value.find(item => item.terminal === Terminal.TERMINAL_ADMIN)?.id ?? (await createSession()) ?? "";
   if (activeSessionID.value && drafts.value[""]) {
     drafts.value[activeSessionID.value] = drafts.value[""];
     delete drafts.value[""];

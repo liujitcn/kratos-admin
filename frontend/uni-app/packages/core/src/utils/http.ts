@@ -163,6 +163,19 @@ function isAuthErrorResponse(data: unknown) {
   )
 }
 
+/** 识别响应体中的登录态失效（401/UNAUTHENTICATED）；403 属权限问题，不应触发重新登录。 */
+function isUnauthenticatedResponse(data: unknown) {
+  if (!data || typeof data !== 'object') {
+    return false
+  }
+
+  const response = data as Data
+  const code = response.code !== undefined ? String(response.code) : ''
+  const reason = response.reason !== undefined ? String(response.reason) : ''
+
+  return code === '401' || reason === '401' || reason === 'UNAUTHENTICATED'
+}
+
 // 当前请求属于公共认证接口时，不应自动附带登录态。
 function isNoAuthRequest(url: string) {
   return NO_AUTH_URL_SET.has(url)
@@ -188,7 +201,7 @@ function resolveAuthMode(options: HttpRequestOptions, url: string): AuthMode {
 export const http = <T>(options: HttpRequestOptions) => {
   // 1. 返回 Promise 对象
   return new Promise<T>((resolve, reject) => {
-    const sendRequest = async (retriedAsAnonymous = false) => {
+    const sendRequest = async (retriedAsAnonymous = false, authRetried = false) => {
       try {
         const requestOptions: HttpRequestOptions = {
           ...options,
@@ -197,6 +210,19 @@ export const http = <T>(options: HttpRequestOptions) => {
         const requestUrl = String(requestOptions.url)
         const authMode = resolveAuthMode(requestOptions, requestUrl)
         requestOptions.authMode = retriedAsAnonymous && authMode === 'optional' ? 'none' : authMode
+        // 401 时单飞刷新令牌并重放原请求一次，返回 true 表示已安排重放；仍失败才引导重新登录。
+        const retryAfterTokenRefresh = async () => {
+          if (authRetried || authMode !== 'required') {
+            return false
+          }
+          try {
+            await handleTokenRefresh()
+          } catch {
+            return false
+          }
+          void sendRequest(retriedAsAnonymous, true)
+          return true
+        }
         let accessToken = ''
         try {
           accessToken = await getAccessTokenByMode(
@@ -225,26 +251,50 @@ export const http = <T>(options: HttpRequestOptions) => {
             const responseData = res.data as Data
             // 状态码 2xx， axios 就是这样设计的
             if (res.statusCode >= 200 && res.statusCode < 300) {
-              if (isAuthErrorResponse(responseData)) {
+              if (isUnauthenticatedResponse(responseData)) {
                 if (authMode === 'optional' && !retriedAsAnonymous) {
                   silentClearAuthData()
                   void sendRequest(true)
                   return
                 }
-                handleAuthExpiredByMode(authMode, requestUrl, responseData)
+                void retryAfterTokenRefresh().then((retried) => {
+                  if (!retried) {
+                    handleAuthExpiredByMode(authMode, requestUrl, responseData)
+                    reject(res)
+                  }
+                })
+                return
+              }
+              if (isAuthErrorResponse(responseData)) {
+                // 403/PERMISSION_DENIED 属权限不足：按普通业务错误提示，不触发重新登录。
+                void uni.showToast({
+                  icon: 'none',
+                  title: responseData.message || t('common.message.request_error'),
+                })
                 reject(res)
                 return
               }
               // 2.1 提取核心数据 res.data
               resolve(res.data as T)
-            } else if (res.statusCode === 401 || res.statusCode === 403) {
-              // 401/403 错误 -> 清理用户信息，跳转到登录页
+            } else if (res.statusCode === 401) {
+              // 401 先刷新令牌重放一次；仍失效才清理用户信息，跳转到登录页
               if (authMode === 'optional' && !retriedAsAnonymous) {
                 silentClearAuthData()
                 void sendRequest(true)
                 return
               }
-              handleAuthExpiredByMode(authMode, requestUrl, responseData)
+              void retryAfterTokenRefresh().then((retried) => {
+                if (!retried) {
+                  handleAuthExpiredByMode(authMode, requestUrl, responseData)
+                  reject(res)
+                }
+              })
+            } else if (res.statusCode === 403) {
+              // 403 属权限不足：按普通业务错误提示，不触发重新登录。
+              void uni.showToast({
+                icon: 'none',
+                title: responseData.message || t('common.message.request_error'),
+              })
               reject(res)
             } else {
               // 其他错误 -> 根据后端错误信息轻提示
@@ -298,10 +348,13 @@ function handleTokenRefresh() {
     return refreshTokenPromise
   }
   isRefreshing = true
-  refreshTokenPromise = refreshAccessToken()
+  refreshTokenPromise = refreshAccessTokenWithCrossTabLock()
     .catch((error) => {
-      // 刷新失败后立即撤销本地认证，避免弹窗等待期间后台请求反复提交旧刷新令牌。
-      silentClearAuthData()
+      // 仅当刷新接口明确判定令牌失效时才撤销本地认证；网络抖动/超时保留令牌下次再试，
+      // 避免一次瞬时失败把用户踢回登录页。
+      if (isRefreshTokenUnauthorized(error)) {
+        silentClearAuthData()
+      }
       throw error
     })
     .finally(() => {
@@ -309,6 +362,40 @@ function handleTokenRefresh() {
       refreshTokenPromise = null
     })
   return refreshTokenPromise
+}
+
+/** 供流式请求在 401 后强制续签一次；成功后用 getRequestAccessToken 取新令牌重放。 */
+export function refreshSessionToken() {
+  return handleTokenRefresh()
+}
+
+type WebLocksManager = {
+  request: (name: string, callback: () => Promise<void>) => Promise<void>
+}
+
+/** H5 端用 Web Locks 串行化跨标签页的刷新令牌轮换，避免并发刷新在后端轮换式刷新下互相踢下线。 */
+async function refreshAccessTokenWithCrossTabLock() {
+  const locks =
+    typeof navigator !== 'undefined'
+      ? (navigator as unknown as { locks?: WebLocksManager }).locks
+      : undefined
+  if (locks) {
+    await locks.request('kratos-uni-app:refresh-token', () => refreshAccessToken())
+    return
+  }
+  await refreshAccessToken()
+}
+
+/** 判断刷新失败是否源于刷新令牌被服务端明确拒绝；其余失败一律保留本地登录态。 */
+function isRefreshTokenUnauthorized(error: unknown) {
+  if (!error || typeof error !== 'object') {
+    return false
+  }
+  const response = error as { statusCode?: number; data?: unknown }
+  if (typeof response.statusCode !== 'number') {
+    return false
+  }
+  return response.statusCode === 401 || isUnauthenticatedResponse(response.data)
 }
 
 /** 按认证模式取访问令牌：required 缺失或失效时弹窗引导重登，optional 静默降级为匿名。 */

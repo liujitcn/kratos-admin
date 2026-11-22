@@ -368,6 +368,11 @@ func matchToolTerminal(terminal, toolName string) bool {
 	case "bi_admin_v1_bi_query_service_ask_bi_query", "bi_admin_v1_bi_query_service_list_bi_sources", "bi_admin_v1_bi_query_service_preview_bi_query":
 		return true
 	}
+	// 不携带任何终端标记的工具（如 Gotenberg/Xberg 等第三方 MCP 工具）视为两端通用
+	if !strings.Contains(toolName, "_admin_") && !strings.Contains(toolName, "_app_") &&
+		!strings.HasPrefix(toolName, "admin_") && !strings.HasPrefix(toolName, "app_") {
+		return true
+	}
 	return strings.HasPrefix(toolName, "base_") ||
 		strings.HasPrefix(toolName, terminal+"_") ||
 		strings.Contains(toolName, "_"+terminal+"_")

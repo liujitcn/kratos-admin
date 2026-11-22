@@ -78,9 +78,9 @@ function handleModelSelect(providerId: number, modelName: string) {
   emit('model-change', providerId, modelName)
 }
 
-/** 打开知识库选择弹层；发送中或无可选项时忽略。 */
+/** 打开知识库选择弹层；发送中忽略，无知识库时展示弹层内空态。 */
 function openKnowledgePicker() {
-  if (props.sending || !props.knowledgeOptions.length) {
+  if (props.sending) {
     return
   }
   showKnowledgePicker.value = true
@@ -115,7 +115,7 @@ function handleKnowledgeToggle(knowledgeId: number) {
       <view
         class="composer-model-chip"
         :class="{
-          'is-disabled': sending || !knowledgeOptions.length,
+          'is-disabled': sending,
           'is-selected': knowledgeIds.length > 0,
         }"
         @tap="openKnowledgePicker"

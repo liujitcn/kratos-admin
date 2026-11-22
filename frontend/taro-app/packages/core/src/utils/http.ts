@@ -95,6 +95,15 @@ function isAuthErrorResponse(data: unknown): boolean {
   )
 }
 
+/** 识别响应体中的登录态失效（401/UNAUTHENTICATED）；403 属权限问题，不应触发重新登录。 */
+function isUnauthenticatedResponse(data: unknown): boolean {
+  if (!data || typeof data !== 'object') return false
+  const response = data as ErrorData
+  const code = response.code === undefined ? '' : String(response.code)
+  const reason = response.reason === undefined ? '' : String(response.reason)
+  return code === '401' || reason === '401' || reason === 'UNAUTHENTICATED'
+}
+
 function resolveAuthMode(options: HttpRequestOptions, url: string): AuthMode {
   if (options.authMode) return options.authMode
   if (options.header?.Authorization === 'no-auth' || NO_AUTH_URL_SET.has(url)) return 'none'
@@ -109,15 +118,26 @@ function resolveRequestUrl(url: string): string {
 
 /** 发送经过认证、刷新令牌和统一错误处理的 Taro 请求。 */
 export async function http<T>(options: HttpRequestOptions): Promise<T> {
-  return sendRequest<T>(options, false)
+  return sendRequest<T>(options, false, false)
 }
 
 async function sendRequest<T>(
   options: HttpRequestOptions,
   retriedAsAnonymous: boolean,
+  authRetried: boolean,
 ): Promise<T> {
   const requestUrl = String(options.url)
   const authMode = resolveAuthMode(options, requestUrl)
+  // 401 时单飞刷新令牌并重放原请求一次，返回 true 表示应重放；仍失败才引导重新登录。
+  const retryAfterTokenRefresh = async (): Promise<boolean> => {
+    if (authRetried || authMode !== 'required') return false
+    try {
+      await handleTokenRefresh()
+    } catch {
+      return false
+    }
+    return true
+  }
   let accessToken = ''
   try {
     accessToken = await getAccessTokenByMode(
@@ -126,7 +146,7 @@ async function sendRequest<T>(
   } catch (error) {
     if (authMode === 'optional' && !retriedAsAnonymous) {
       silentClearAuthData()
-      return sendRequest<T>(options, true)
+      return sendRequest<T>(options, true, authRetried)
     }
     throw error
   }
@@ -145,23 +165,46 @@ async function sendRequest<T>(
       },
     })
     const responseData = response.data as ErrorData | null | undefined
-    if (
-      response.statusCode >= 200 &&
-      response.statusCode < 300 &&
-      !isAuthErrorResponse(responseData)
-    ) {
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      if (isUnauthenticatedResponse(responseData)) {
+        if (authMode === 'optional' && !retriedAsAnonymous) {
+          silentClearAuthData()
+          return sendRequest<T>(options, true, authRetried)
+        }
+        if (await retryAfterTokenRefresh()) {
+          return sendRequest<T>(options, retriedAsAnonymous, true)
+        }
+        handleAuthExpiredByMode(authMode, requestUrl, responseData)
+        throw response
+      }
+      if (isAuthErrorResponse(responseData)) {
+        // 403/PERMISSION_DENIED 属权限不足：按普通业务错误提示，不触发重新登录。
+        await Taro.showToast({
+          icon: 'none',
+          title: responseData?.message || t('common.message.request_error'),
+        })
+        throw response
+      }
       return response.data as T
     }
-    if (
-      response.statusCode === 401 ||
-      response.statusCode === 403 ||
-      isAuthErrorResponse(responseData)
-    ) {
+    if (response.statusCode === 401) {
+      // 401 先刷新令牌重放一次；仍失效才清理用户信息，跳转到登录页
       if (authMode === 'optional' && !retriedAsAnonymous) {
         silentClearAuthData()
-        return sendRequest<T>(options, true)
+        return sendRequest<T>(options, true, authRetried)
+      }
+      if (await retryAfterTokenRefresh()) {
+        return sendRequest<T>(options, retriedAsAnonymous, true)
       }
       handleAuthExpiredByMode(authMode, requestUrl, responseData)
+      throw response
+    }
+    if (response.statusCode === 403) {
+      // 403 属权限不足：按普通业务错误提示，不触发重新登录。
+      await Taro.showToast({
+        icon: 'none',
+        title: responseData?.message || t('common.message.request_error'),
+      })
       throw response
     }
     await Taro.showToast({
@@ -220,16 +263,49 @@ async function getAccessTokenByMode(authMode: AuthMode): Promise<string> {
 
 function handleTokenRefresh(): Promise<void> {
   if (refreshTokenPromise) return refreshTokenPromise
-  refreshTokenPromise = refreshAccessToken()
+  refreshTokenPromise = refreshAccessTokenWithCrossTabLock()
     .catch((error) => {
-      // 刷新失败后立即撤销本地认证，避免弹窗等待期间后台请求反复提交旧刷新令牌。
-      silentClearAuthData()
+      // 仅当刷新接口明确判定令牌失效时才撤销本地认证；网络抖动/超时保留令牌下次再试，
+      // 避免一次瞬时失败把用户踢回登录页。
+      if (isRefreshTokenUnauthorized(error)) {
+        silentClearAuthData()
+      }
       throw error
     })
     .finally(() => {
       refreshTokenPromise = null
     })
   return refreshTokenPromise
+}
+
+/** 供流式请求在 401 后强制续签一次；成功后用 getRequestAccessToken 取新令牌重放。 */
+export function refreshSessionToken(): Promise<void> {
+  return handleTokenRefresh()
+}
+
+type WebLocksManager = {
+  request: (name: string, callback: () => Promise<void>) => Promise<void>
+}
+
+/** H5 端用 Web Locks 串行化跨标签页的刷新令牌轮换，避免并发刷新在后端轮换式刷新下互相踢下线。 */
+async function refreshAccessTokenWithCrossTabLock(): Promise<void> {
+  const locks =
+    typeof navigator !== 'undefined'
+      ? (navigator as unknown as { locks?: WebLocksManager }).locks
+      : undefined
+  if (locks) {
+    await locks.request('kratos-taro-app:refresh-token', () => refreshAccessToken())
+    return
+  }
+  await refreshAccessToken()
+}
+
+/** 判断刷新失败是否源于刷新令牌被服务端明确拒绝；其余失败一律保留本地登录态。 */
+function isRefreshTokenUnauthorized(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false
+  const response = error as { statusCode?: number; data?: unknown }
+  if (typeof response.statusCode !== 'number') return false
+  return response.statusCode === 401 || isUnauthenticatedResponse(response.data)
 }
 
 async function refreshAccessToken(): Promise<void> {

@@ -64,9 +64,9 @@ export default function Composer(props: ComposerProps) {
     props.onModelChange(providerId, modelName)
   }
 
-  /** 打开可用知识库选择器。 */
+  /** 打开可用知识库选择器；发送中忽略，无知识库时展示弹层内空态。 */
   const openKnowledgePicker = () => {
-    if (props.sending || !props.knowledgeOptions.length) return
+    if (props.sending) return
     setShowKnowledgePicker(true)
   }
 
@@ -92,7 +92,7 @@ export default function Composer(props: ComposerProps) {
           <UniIcon type='down' size={12} color={iconColor} />
         </View>
         <View
-          className={`composer-model-chip${props.sending || !props.knowledgeOptions.length ? ' is-disabled' : ''}${props.knowledgeIds.length ? ' is-selected' : ''}`}
+          className={`composer-model-chip${props.sending ? ' is-disabled' : ''}${props.knowledgeIds.length ? ' is-selected' : ''}`}
           onClick={openKnowledgePicker}
         >
           <Text className='composer-model-chip__spark'>📚</Text>

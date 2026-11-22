@@ -106,6 +106,7 @@
   "bi.source.model.hint.dimension": "How to view the data",
   "bi.source.model.hint.measure": "Value to aggregate",
   "bi.source.model.hint.filterable": "When enabled, users can filter by this dimension in queries and cards",
+  "bi.source.model.hint.save_requires_impact": "Run \"Check changes\" first to analyze the impact before saving",
   "bi.source.model.dimensions_empty": "Click \"＋Dimension\" on a field in the list on the left to start",
   "bi.source.model.measures_empty": "Click \"＋Measure\" on a numeric fact-table field, or use recommended measures",
   "bi.source.model.action.recommend_measures": "Recommend measures",

@@ -3,6 +3,7 @@ import {
   getRequestAccessToken,
   handleAuthExpired,
   http,
+  refreshSessionToken,
   requestBaseURL,
   sourceClient,
 } from '@liujitcn/kratos-taro-app-core/utils/http'
@@ -76,6 +77,7 @@ async function resolveStreamErrorMessage(response: Response): Promise<string> {
 export async function SendAiMessageStream(
   request: SendAiMessageRequest,
   options?: AiMessageStreamOptions,
+  authRetried = false,
 ): Promise<Response> {
   const accessToken = await getRequestAccessToken()
   const headers: Record<string, string> = {
@@ -95,8 +97,18 @@ export async function SendAiMessageStream(
     signal: options?.signal,
   })
 
-  // direct stream 不经过 uni.request 拦截器，需要在这里补齐登录失效处理。
-  if (response.status === 401 || response.status === 403) {
+  // direct stream 不经过 Taro.request 拦截器，需要在这里补齐登录失效处理：
+  // 401 由网关在业务处理前拦截，先刷新令牌重放一次（流未消费，重放安全），仍失效才引导重登。
+  if (response.status === 401) {
+    if (!authRetried) {
+      try {
+        await refreshSessionToken()
+      } catch {
+        handleAuthExpired('required')
+        throw new AuthPromptError()
+      }
+      return SendAiMessageStream(request, options, true)
+    }
     handleAuthExpired('required')
     throw new AuthPromptError()
   }
@@ -114,14 +126,16 @@ export function StreamAiMessageByChunkedRequest(
 ): AiMessageChunkedStreamTask {
   let requestTask: ChunkedRequestTask | undefined
   let aborted = false
-  let receivedChunk = false
-  const decoder = createChunkTextDecoder()
 
-  const promise = (async () => {
+  /** 发起一次 chunked 流式请求；401 时刷新令牌重放一次（401 由网关在业务处理前拦截，重放安全）。 */
+  const sendChunkedRequest = async (authRetried: boolean) => {
     const accessToken = await getRequestAccessToken()
     if (aborted) {
       return
     }
+    // 每次重放使用全新的解码器与分片状态，避免上一次 401 响应残留字节影响正文解码。
+    const decoder = createChunkTextDecoder()
+    let receivedChunk = false
 
     await new Promise<void>((resolve, reject) => {
       requestTask = Taro.request<ArrayBuffer>({
@@ -144,9 +158,18 @@ export function StreamAiMessageByChunkedRequest(
             resolve()
             return
           }
-          if (res.statusCode === 401 || res.statusCode === 403) {
-            handleAuthExpired('required')
-            reject(new AuthPromptError())
+          if (res.statusCode === 401) {
+            if (!authRetried) {
+              refreshSessionToken()
+                .then(() => sendChunkedRequest(true).then(resolve, reject))
+                .catch(() => {
+                  handleAuthExpired('required')
+                  reject(new AuthPromptError())
+                })
+            } else {
+              handleAuthExpired('required')
+              reject(new AuthPromptError())
+            }
             return
           }
           if (res.statusCode < 200 || res.statusCode >= 300) {
@@ -192,6 +215,10 @@ export function StreamAiMessageByChunkedRequest(
         }
       })
     })
+  }
+
+  const promise = (async () => {
+    await sendChunkedRequest(false)
   })()
 
   return {

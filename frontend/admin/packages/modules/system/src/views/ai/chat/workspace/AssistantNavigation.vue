@@ -12,7 +12,16 @@
       @toggle-collapse="emit('toggle')"
     >
       <template #session-meta="{ item }"
-        ><span v-if="item.automation_id">{{ t("system.ai.workspace.automations") }} · </span>{{ item.summary }}</template
+        ><el-tag
+          v-if="item.terminal === Terminal.TERMINAL_APP"
+          class="assistant-session-terminal"
+          size="small"
+          type="success"
+          effect="plain"
+        >
+          {{ t("system.ai.session.terminal.app") }}
+        </el-tag>
+        <span v-if="item.automation_id">{{ t("system.ai.workspace.automations") }} · </span>{{ item.summary }}</template
       >
       <template #navigation>
         <nav class="assistant-nav" :aria-label="t('system.ai.workspace.navigation')">
@@ -134,7 +143,20 @@
           historyOpen = false;
           emit('create');
         "
-      />
+      >
+        <template #session-meta="{ item }"
+          ><el-tag
+            v-if="item.terminal === Terminal.TERMINAL_APP"
+            class="assistant-session-terminal"
+            size="small"
+            type="success"
+            effect="plain"
+          >
+            {{ t("system.ai.session.terminal.app") }}
+          </el-tag>
+          <span v-if="item.automation_id">{{ t("system.ai.workspace.automations") }} · </span>{{ item.summary }}</template
+        >
+      </SessionPanel>
     </ProDialog>
   </div>
 </template>
@@ -145,6 +167,7 @@ import { t } from "@liujitcn/kratos-admin-core";
 import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import SessionPanel from "@liujitcn/kratos-admin-system/components/AiSessionPanel/index.vue";
 import type { AiSession } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
+import { Terminal } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
 import { isAssistantView, type AssistantView } from "@liujitcn/kratos-admin-system/components/ai/workspace/state";
 import type { SessionAction } from "../types";
 const props = defineProps<{
@@ -184,6 +207,10 @@ function selectSession(item: AiSession) {
 }
 </script>
 <style scoped lang="scss">
+.assistant-session-terminal {
+  margin-right: 4px;
+  vertical-align: middle;
+}
 .assistant-history-panel {
   display: flex !important;
   min-height: 300px;

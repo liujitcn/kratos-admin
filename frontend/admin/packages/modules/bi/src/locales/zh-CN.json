@@ -106,6 +106,7 @@
   "bi.source.model.hint.dimension": "从哪个角度看数据",
   "bi.source.model.hint.measure": "要统计的数值",
   "bi.source.model.hint.filterable": "开启后，用户可在问数和卡片中按该维度筛选数据",
+  "bi.source.model.hint.save_requires_impact": "请先点击“检查变更影响”完成变更分析，再保存模型",
   "bi.source.model.dimensions_empty": "从左侧字段列表点击「＋维度」开始配置",
   "bi.source.model.measures_empty": "从左侧事实表的数值字段点击「＋指标」，或使用推荐指标",
   "bi.source.model.action.recommend_measures": "推荐指标",

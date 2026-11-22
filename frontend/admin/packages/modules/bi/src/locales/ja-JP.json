@@ -106,6 +106,7 @@
   "bi.source.model.hint.dimension": "データを見る角度",
   "bi.source.model.hint.measure": "集計する数値",
   "bi.source.model.hint.filterable": "有効にすると、問い合わせやカードでこのディメンションによる絞り込みが可能になります",
+  "bi.source.model.hint.save_requires_impact": "保存する前に「変更影響をチェック」で変更分析を実行してください",
   "bi.source.model.dimensions_empty": "左のフィールドリストで「＋ディメンション」をクリックして開始してください",
   "bi.source.model.measures_empty": "左のファクトテーブルの数値フィールドで「＋メジャー」をクリックするか、推奨メジャーを使用してください",
   "bi.source.model.action.recommend_measures": "推奨メジャー",
