@@ -256,6 +256,8 @@ make tag VERSION=0.0.30
 
 `make tag` 会先执行只读的 `make i18n-check`，检查语言包、SQL 翻译脚本、OpenAPI 多语言文档；生成物未同步时会直接拒绝发布，不会在发布过程中自动翻译或改写文件。随后发布脚本要求当前分支为远程默认分支且与 `origin` 同步，使用同一个 `X.Y.Z` 更新后端服务、全部前端 npm 包以及 `backend/go.mod`、`backend/client/go.mod` 对 `backend/api` 的依赖；若 `backend/api` 有未提交改动会先单独提交该目录，随后推送 `backend/api/vX.Y.Z`，再提交依赖和版本变更，执行后端测试和前端打包，最后推送 `backend/client/vX.Y.Z`、`backend/vX.Y.Z`、`vX.Y.Z`、`npm/vX.Y.Z`。`backend/api`、`backend/client` 和 `backend` 三个模块 tag 的版本号始终一致。后续 Docker 构建默认使用同一个后端服务版本作为镜像 tag，无需再次指定 `TAG`。`npm/vX.Y.Z` 触发 `.github/workflows/publish-npm.yml`，通过 npm Trusted Publishing 发布以上 12 个包；三个默认宿主均为私有包，不参与发布。本机需要可用的 `git`、`gh` 和 GitHub 登录态。
 
+如果 API tag 已推送且后续 tag 尚未创建，可以用相同的版本继续发布。只要当前 `backend/api` 的内容与 API tag 一致，脚本就会复用该 tag。如果 API 内容已修改，需要指定新的 `VERSION`。
+
 只做本地 npm 发布时：
 
 ```bash

@@ -203,14 +203,10 @@ def release_tags(version: tuple[int, int, int]) -> tuple[str, ...]:
     )
 
 
-def resolve_release_tags(
-    version: tuple[int, int, int], *, skip: tuple[str, ...] = ()
-) -> tuple[str, ...]:
-    """生成本次发布需要推送的 tag。"""
-    tags = release_tags(version)
+def resolve_release_tags(version: tuple[int, int, int]) -> tuple[str, ...]:
+    """检查并返回发布末尾需要推送的 tag，API tag 单独处理。"""
+    tags = release_tags(version)[1:]
     for tag in tags:
-        if tag in skip:
-            continue
         if tag_exists_locally(tag) or tag_exists_remotely(tag):
             raise RuntimeError(f"tag 已存在，拒绝覆盖: {tag}")
     return tags
@@ -356,11 +352,15 @@ def push_tag(tag: str) -> None:
 
 
 def ensure_api_tag(version: tuple[int, int, int], commit: str) -> None:
-    """先创建并推送指向当前 API 提交的模块 tag。"""
+    """先发布 API 模块，续跑时复用目录内容一致的同版本 tag。"""
     tag = release_tags(version)[0]
     current = tag_commit(tag)
     if current and current != commit:
-        raise RuntimeError(f"tag {tag} 已指向其他提交，拒绝覆盖")
+        tagged_tree, release_tree = run(
+            ["git", "rev-parse", f"{current}:backend/api", f"{commit}:backend/api"]
+        ).splitlines()
+        if tagged_tree != release_tree:
+            raise RuntimeError(f"tag {tag} 与当前提交的 API 内容不同，拒绝覆盖，请指定新的 VERSION")
     if not current:
         run(["git", "tag", tag, commit])
     if tag_exists_remotely(tag):
@@ -512,8 +512,7 @@ def main() -> int:
             return 0
 
         version = resolve_version(args.version)
-        api_tag = release_tags(version)[0]
-        tags = resolve_release_tags(version, skip=(api_tag,))
+        tags = resolve_release_tags(version)
         target = version_text(version)
         print(f"发布版本: {target}")
         print(
