@@ -33,7 +33,9 @@ page {
   flex: 1;
   min-height: 0;
   box-sizing: border-box;
-  padding: 28px 20px 10px;
+  /* 不设 padding-bottom：uni-app 端 scroll-view 的 padding-bottom 不参与滚到底收敛，
+     滚到底后卡片与输入区的间距只由 message-row 与 chat-list 的下边距构成，此处保持一致。 */
+  padding: 28px 20px 0;
 }
 
 .chat-list {
