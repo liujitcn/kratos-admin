@@ -730,7 +730,7 @@ async function createSession(options?: { title?: string }) {
     const response = await defAiSessionService.CreateAiSession({
       title: options?.title || t("system.ai.chat.value.new_conversation"),
       terminal: Terminal.TERMINAL_ADMIN,
-      plugins: []
+      plugins: [{ plugin_id: "1", connection_id: "" }]
     });
     const normalizedSession = normalizeSession(response.session);
     upsertSession(normalizedSession);

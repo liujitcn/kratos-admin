@@ -100,7 +100,8 @@ func (s ConfiguredSourceSchema) Descriptor(code, name, description string, versi
 	for _, item := range s.Dimensions {
 		field := bi.FieldDescriptor{Code: item.Code, Name: item.Name, Type: item.Type, Filterable: item.Filterable}
 		if driver == "mysql" || driver == "postgres" || driver == "tidb" {
-			if item.Type == bi.FieldTypeDate && item.DatabaseType != "" {
+			// 日期维度统一授予分组粒度；旧版本保存的模型缺 databaseType，同样按日期列对待避免问数粒度被拒。
+			if item.Type == bi.FieldTypeDate {
 				field.TimeGrains = []string{"day", "week", "month", "quarter", "year"}
 			}
 			if item.Hierarchy != nil {

@@ -1515,6 +1515,10 @@ func (c *AiMessageCase) bindAiSessionTools(ctx context.Context, session *models.
 	var pool agent.ToolPool
 	if terminal == "app" && session.AutomationRunID == 0 && len(selections) == 0 {
 		pool, err = c.aiPluginCase.ResolveAutomaticAppToolPool(ctx)
+	} else if len(selections) == 0 && session.AutomationRunID == 0 {
+		// 旧数据把管理端"留空默认系统工具"存成了空数组，这里归一到内置插件让存量会话自愈；
+		// 自动化结果会话保持冻结语义，不注入默认工具。
+		pool, err = c.aiPluginCase.ResolveToolPool(ctx, terminal, nil)
 	} else {
 		pool, err = c.aiPluginCase.ResolveToolPool(ctx, terminal, selections)
 	}

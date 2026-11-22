@@ -94,7 +94,8 @@ func (c *AiSessionCase) CreateAiSession(ctx context.Context, req *basev1.CreateA
 
 	terminal := ai.NormalizeTerminal(req.GetTerminal())
 	selections := req.Plugins
-	if selections == nil {
+	// 契约约定"留空默认系统工具"：nil 与空数组等价，管理端归一到内置插件，应用端交给运行时自动匹配。
+	if len(selections) == 0 {
 		if terminal == int32(basev1.Terminal_TERMINAL_APP) {
 			selections = make([]*basev1.AiPluginSelection, 0)
 		} else {

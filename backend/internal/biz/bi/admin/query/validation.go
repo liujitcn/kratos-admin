@@ -4,6 +4,7 @@ import (
 	"cmp"
 	"fmt"
 	"slices"
+	"strings"
 
 	"github.com/liujitcn/kratos-admin/backend/pkg/bi"
 	"github.com/liujitcn/kratos-core/errorsx"
@@ -69,9 +70,12 @@ func ValidateSpec(descriptor bi.SourceDescriptor, spec bi.QuerySpec) (bi.QuerySp
 		if _, ok := selected[option.Field]; !ok || (index > 0 && spec.GroupingOptions[index-1].Field == option.Field) {
 			return bi.QuerySpec{}, errorsx.InvalidArgument("BI 分组选项必须对应唯一的已选维度")
 		}
+		// 模型可能输出中文或英文同义粒度，统一归一到目录编码后再校验。
+		option.TimeGrain = normalizeTimeGrain(option.TimeGrain)
+		spec.GroupingOptions[index] = option
 		if !(option.HierarchyLevel == 0 && slices.Contains(field.TimeGrains, option.TimeGrain)) &&
 			!(option.TimeGrain == "" && slices.Contains(field.HierarchyLevels, option.HierarchyLevel)) {
-			return bi.QuerySpec{}, errorsx.InvalidArgument("BI 维度不支持所选日期粒度或层级: " + option.Field)
+			return bi.QuerySpec{}, errorsx.InvalidArgument(fmt.Sprintf("BI 维度不支持所选日期粒度或层级: %s (time_grain=%q, hierarchy_level=%d)", option.Field, option.TimeGrain, option.HierarchyLevel))
 		}
 	}
 	for _, item := range spec.Measures {
@@ -86,4 +90,22 @@ func ValidateSpec(descriptor bi.SourceDescriptor, spec bi.QuerySpec) (bi.QuerySp
 		}
 	}
 	return spec, nil
+}
+
+// normalizeTimeGrain 把模型可能输出的中英文同义粒度归一到目录编码。
+func normalizeTimeGrain(value string) string {
+	switch strings.ToLower(strings.TrimSpace(value)) {
+	case "日", "天", "daily", "day":
+		return "day"
+	case "周", "weekly", "week":
+		return "week"
+	case "月", "每月", "monthly", "month":
+		return "month"
+	case "季度", "季", "quarterly", "quarter":
+		return "quarter"
+	case "年", "每年", "yearly", "year":
+		return "year"
+	default:
+		return strings.ToLower(strings.TrimSpace(value))
+	}
 }
