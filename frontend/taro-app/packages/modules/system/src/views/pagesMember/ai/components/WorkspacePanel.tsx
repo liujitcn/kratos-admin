@@ -276,6 +276,9 @@ const WorkspacePanel = forwardRef<AiWorkspaceHandle, WorkspacePanelProps>(functi
                     await defAiPluginService.ListAiPluginTool({
                       plugin_id: plugin.id,
                       terminal: Terminal.TERMINAL_APP,
+                      keyword: "",
+                      page_num: 0,
+                      page_size: 0,
                     })
                   ).tools || [],
                 ] as const,

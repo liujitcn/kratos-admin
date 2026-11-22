@@ -31,7 +31,7 @@ test('移动端冻结操作只读展示参数，任何状态均不提供批准�
               contents:
                 path === '@tarojs/components'
                   ? "export const Button='button', Text='text', View='view'"
-                  : 'export const t = key => key',
+                  : "export const t = key => key; export const useI18n = () => ({ locale: 'zh-CN', t })",
             }))
           },
         },

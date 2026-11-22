@@ -178,7 +178,8 @@ test('本地令牌有效但服务端返回 401 时静默刷新令牌', async () 
                             token_type: 'Bearer',
                             access_token: 'renewed',
                             refresh_token: 'renewed-refresh',
-                            expires_in: 60,
+                            // 有效期需大于预刷新阈值（5 分钟），否则续签后立即触发下一次预刷新，干扰“只刷新一次”断言
+                            expires_in: 3600,
                           },
                         })
                       }

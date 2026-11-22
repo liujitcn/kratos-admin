@@ -498,16 +498,10 @@ const RELOGIN_PROMPT_TIMEOUT = 60_000
 
 /** 业务页提示重新登录；登录页只清理残留登录态，避免后台请求触发循环弹窗。 */
 async function promptRelogin() {
-  // 401 来自旧会话的在途请求而当前已是有效登录态时直接忽略，避免刚登录成功被弹窗打断。
+  // 401 来自旧会话的在途请求（含刚续签却被服务端拒绝的重放）而当前仍是有效登录态时直接忽略，
+  // 避免刚登录成功被弹窗打断；请求层已做过刷新重放，这里不再重复续签。
   if (hasValidToken()) {
-    // 本地令牌未过期但服务端已判定失效时，先强制续签一次；续签成功即静默恢复，
-    // 续签失败清空残留登录态后继续弹窗，避免停留在“本地有效”的假登录态。
-    try {
-      await handleTokenRefresh()
-      return
-    } catch {
-      silentClearAuthData()
-    }
+    return
   }
   const pages = getCurrentPages()
   if (pages[pages.length - 1]?.route === 'pages/login/login') {
