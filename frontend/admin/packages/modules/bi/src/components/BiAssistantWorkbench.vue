@@ -108,7 +108,7 @@
             <span class="bi-assistant-workbench__toolbox-icon"
               ><el-icon><Document /></el-icon
             ></span>
-            <span v-if="fileCount" class="bi-assistant-workbench__toolbox-badge">{{ fileCount }}</span>
+            <span class="bi-assistant-workbench__toolbox-badge">{{ fileCount }}</span>
             {{ t("bi.workbench.tool.files") }}
           </el-button>
           <el-button @click="openWorkbenchTool('automations')">
@@ -116,17 +116,14 @@
               ><el-icon><Timer /></el-icon
             ></span>
             <span v-if="pendingAutomationCount" class="bi-assistant-workbench__toolbox-badge">{{ pendingAutomationCount }}</span>
-            <span v-else-if="automationTotal" class="bi-assistant-workbench__toolbox-badge is-warning">{{
-              automationTotal
-            }}</span>
-            <span v-else class="bi-assistant-workbench__toolbox-badge is-warning-dot" />
+            <span v-else class="bi-assistant-workbench__toolbox-badge is-warning">{{ automationTotal }}</span>
             {{ t("bi.workbench.tool.automations") }}
           </el-button>
           <el-button @click="openWorkbenchTool('plugins')">
             <span class="bi-assistant-workbench__toolbox-icon is-plugin"
               ><el-icon><Grid /></el-icon
             ></span>
-            <span v-if="pluginCount" class="bi-assistant-workbench__toolbox-badge">{{ pluginCount }}</span>
+            <span class="bi-assistant-workbench__toolbox-badge">{{ pluginCount }}</span>
             {{ t("bi.workbench.tool.plugins") }}
           </el-button>
         </div>
@@ -464,14 +461,14 @@ const fileCount = ref(0);
 async function loadToolCounts() {
   try {
     const response = await defAiAutomationService.CountAiAutomation({});
-    automationTotal.value = response.total;
-    pendingAutomationCount.value = response.pending_count;
+    automationTotal.value = response.total ?? 0;
+    pendingAutomationCount.value = response.pending_count ?? 0;
   } catch {
     // 角标仅做提示，查询失败时保持现有数值。
   }
   try {
     const response = await defAiPluginService.CountAiPlugin({});
-    pluginCount.value = response.total;
+    pluginCount.value = response.total ?? 0;
   } catch {
     // 角标仅做提示，查询失败时保持现有数值。
   }
@@ -486,7 +483,7 @@ async function refreshPluginTools() {
 async function loadFileCount() {
   try {
     const response = await defAiFileService.CountAiFile({ view: AiFileView.AI_FILE_VIEW_ALL, keyword: "" });
-    fileCount.value = response.total;
+    fileCount.value = response.total ?? 0;
   } catch {
     // 角标仅做提示，查询失败时保持现有数值。
   }
@@ -1412,12 +1409,6 @@ onBeforeUnmount(() => document.removeEventListener("click", closeTopbarPopovers)
   border-radius: 8px;
 }
 .bi-assistant-workbench__toolbox-badge.is-warning {
-  background: var(--el-color-warning);
-}
-.bi-assistant-workbench__toolbox-badge.is-warning-dot {
-  width: 8px;
-  min-width: 8px;
-  padding: 0;
   background: var(--el-color-warning);
 }
 .bi-assistant-workbench__body {
