@@ -336,15 +336,7 @@ func (c *CodeGenColumnCase) listCodeGenOptionTables(ctx context.Context, sourceN
 	if err != nil {
 		return nil, err
 	}
-	var tableInfos []dto.CodeGenDatabaseTable
-	err = database.DB.WithContext(ctx).
-		Table("information_schema.tables").
-		Select(basebiz.TableMetadataColumns(database.Driver())).
-		Where("table_schema = "+basebiz.CurrentSchemaExpr(database.Driver())).
-		Where("table_type = ?", "BASE TABLE").
-		Order("table_name").
-		Find(&tableInfos).Error
-	return tableInfos, err
+	return listDatabaseTableMetadata(ctx, database, nil)
 }
 
 // mergeCodeGenColumns 合并数据库字段元数据与已保存配置。
