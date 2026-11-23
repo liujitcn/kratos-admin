@@ -93,12 +93,25 @@ def required_message_keys(messages: dict[str, object]) -> list[str]:
     return sorted(key for key in messages if not key.startswith(LANGUAGE_LABEL_PREFIX))
 
 
+# 占位符覆盖三种生态形态：前端/通用单花括号 {name}、Go 模板 {{.Field}}、printf 动词 %d/%s/%w。
+# Go 模板必须先于单花括号剥离，避免 {{.Field}} 被内层规则误判。
+# printf 动词后不允许紧跟字母（如 "50%off" 中的 %o），避免把百分号字面量当成占位符。
+GO_TEMPLATE_PLACEHOLDER_PATTERN = re.compile(r"\{\{\s*\.[A-Za-z0-9_]+\s*\}\}")
+PRINTF_VERB_PATTERN = re.compile(r"%[#0+\- ]*[0-9.]*[bcdoOxXUeEfFgGstvqwp](?![A-Za-z])")
+SIMPLE_PLACEHOLDER_PATTERN = re.compile(r"\{[A-Za-z0-9_]+\}")
+
+
 def message_placeholders(value: object) -> list[str]:
     if isinstance(value, dict):
         value = value.get("other", "")
     if not isinstance(value, str):
         return []
-    return sorted(re.findall(r"\{([A-Za-z0-9_]+)\}", value))
+    go_template = GO_TEMPLATE_PLACEHOLDER_PATTERN.findall(value)
+    remainder = GO_TEMPLATE_PLACEHOLDER_PATTERN.sub("", value)
+    printf = PRINTF_VERB_PATTERN.findall(remainder)
+    remainder = PRINTF_VERB_PATTERN.sub("", remainder)
+    simple = SIMPLE_PLACEHOLDER_PATTERN.findall(remainder)
+    return sorted(go_template + printf + simple)
 
 
 def validate_locale_sets(file_sets: dict[str, dict[str, Path]]) -> list[str]:

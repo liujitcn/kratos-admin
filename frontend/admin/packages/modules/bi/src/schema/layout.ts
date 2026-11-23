@@ -12,7 +12,7 @@ export function flowPlace<T extends { x?: number; y?: number; w: number; h: numb
         (item.h ?? 4) < 1
     )
   )
-    throw new Error("卡片栅格尺寸无效");
+    throw new Error("BI_INVALID_CARD_GRID");
   const placed = charts.map(item => ({ ...item }));
   const occupied = new Set<string>();
   const mark = (c: T) => {

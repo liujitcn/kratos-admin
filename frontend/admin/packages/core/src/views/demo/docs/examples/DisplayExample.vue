@@ -17,7 +17,7 @@
     </template>
     <DataPanelCard v-else-if="componentId === 'DataPanelCard'" title="本月访问" description="最近四周的本地示例数据" primary>
       <template #extra><el-button size="small" @click="visits += 120">模拟新增</el-button></template>
-      <div class="data-number">{{ visits.toLocaleString() }}<span>次访问</span></div>
+      <div class="data-number">{{ visits.toLocaleString(getCurrentLocale()) }}<span>次访问</span></div>
       <div class="card-chart">
         <ECharts :key="globalStore.isDark ? 'dark' : 'light'" :theme="globalStore.isDark ? 'dark' : undefined" :option="option" />
       </div>
@@ -44,6 +44,7 @@ import Grid from "@/components/Grid/index.vue";
 import GridItem from "@/components/Grid/components/GridItem.vue";
 import type { ECOption } from "@/components/ECharts/config";
 import { useGlobalStore } from "@/stores/modules/global";
+import { getCurrentLocale } from "@/locales";
 import { useDemoActive } from "./useDemoActive";
 
 defineProps<{ componentId: string }>();

@@ -30,7 +30,7 @@ export interface DashboardCardLayout {
 export function parseDashboardLayout(value: string): DashboardLayout {
   if (!value) return { schemaVersion: 4, name: "", cards: [] };
   const layout = JSON.parse(value) as DashboardLayout;
-  if (layout.schemaVersion !== 4 || !Array.isArray(layout.cards)) throw new Error("仪表盘布局格式无效");
+  if (layout.schemaVersion !== 4 || !Array.isArray(layout.cards)) throw new Error("BI_INVALID_DASHBOARD_LAYOUT");
   return { schemaVersion: 4, name: layout.name, cards: layout.cards };
 }
 

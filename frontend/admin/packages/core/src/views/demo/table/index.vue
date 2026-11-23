@@ -41,7 +41,7 @@ import { ElMessage, ElMessageBox, ElProgress, ElTooltip } from "element-plus";
 import { CirclePlus, Delete, EditPen, QuestionFilled, View } from "@element-plus/icons-vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable";
-import { t } from "@/locales";
+import { getCurrentLocale, t } from "@/locales";
 
 import DemoFormDialog from "../components/DemoFormDialog.vue";
 import DemoDetailDrawer from "../components/DemoDetailDrawer.vue";
@@ -329,7 +329,7 @@ function handleOpenDetail(row: DemoProject) {
           { label: t("core.demo.table.field.level"), value: levelOption?.label ?? row.level, tag: true, tagType: (levelOption?.tagType as "success" | "info" | "warning" | "danger") ?? "info" },
           { label: t("core.demo.table.field.owner"), value: row.owner },
           { label: t("common.field.status"), value: row.status === STATUS_ENABLE ? t("common.status.enabled") : t("common.status.disabled"), tag: true, tagType: row.status === STATUS_ENABLE ? "success" : "info" },
-          { label: t("core.demo.table.field.budget"), value: `¥ ${(row.budget / 100).toLocaleString()}` },
+          { label: t("core.demo.table.field.budget"), value: `¥ ${(row.budget / 100).toLocaleString(getCurrentLocale())}` },
           { label: t("core.demo.table.field.region"), value: formatRegion(row.region) },
           { label: t("common.field.created_at"), value: row.created_at }
         ]
@@ -337,8 +337,8 @@ function handleOpenDetail(row: DemoProject) {
       {
         title: t("core.demo.table.group.task"),
         fields: [
-          { label: t("core.demo.table.field.task_total"), value: String(row.task_total) },
-          { label: t("core.demo.table.field.progress"), value: `${row.progress}%` }
+          { label: t("core.demo.table.field.task_total"), value: new Intl.NumberFormat(getCurrentLocale()).format(row.task_total) },
+          { label: t("core.demo.table.field.progress"), value: new Intl.NumberFormat(getCurrentLocale(), { style: "percent" }).format(row.progress / 100) }
         ]
       }
     ],

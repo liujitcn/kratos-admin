@@ -155,7 +155,13 @@ export function applyLanguageConfig(response: OptionLanguageResponse): void {
   mutableLanguageOptions.value = options.length ? options : getFallbackLanguageOptions();
   const availableLocales = getSupportedLocales();
   if (!availableLocales.includes(mutableLocale.value)) {
-    applyLocale(availableLocales[0] ?? DEFAULT_LOCALE);
+    const fallback = availableLocales[0] ?? DEFAULT_LOCALE;
+    applyLocale(fallback);
+    // 当前语言被禁用时同步持久化并通知动态数据刷新，避免界面与偏好长期不一致。
+    window.localStorage.setItem(LOCALE_STORAGE_KEY, fallback);
+    for (const handler of localeChangeHandlers) {
+      void Promise.resolve(handler()).catch(error => console.warn("[i18n] locale refresh failed", error));
+    }
   }
 }
 
@@ -266,9 +272,23 @@ function requiredLocaleKeys(messages: LocaleMessages): string[] {
     .sort();
 }
 
+/**
+ * 提取文案中的全部占位符。覆盖三种生态形态，规则与 scripts/sync_locales.py 保持一致：
+ * Go 模板 {{.Field}}、printf 动词 %d/%s/%w、单花括号 {name}。
+ * 先剥离 Go 模板与 printf，避免其内部被单花括号规则误判或重复计数。
+ */
+function extractLocalePlaceholders(value: string): string[] {
+  const goTemplate = value.match(/\{\{\s*\.[A-Za-z0-9_]+\s*\}\}/g) ?? [];
+  const withoutGoTemplate = value.replace(/\{\{\s*\.[A-Za-z0-9_]+\s*\}\}/g, "");
+  const printf = withoutGoTemplate.match(/%[#0+\- ]*[0-9.]*[bcdoOxXUeEfFgGstvqwp]/g) ?? [];
+  const withoutPrintf = withoutGoTemplate.replace(/%[#0+\- ]*[0-9.]*[bcdoOxXUeEfFgGstvqwp]/g, "");
+  const simple = withoutPrintf.match(/\{[A-Za-z0-9_]+\}/g) ?? [];
+  return [...goTemplate, ...printf, ...simple];
+}
+
 /** 校验翻译占位符集合与默认语言一致，不一致时告警并由调用方回退默认文案。 */
 function hasMatchingLocalePlaceholders(moduleName: string, key: string, message: string, sourceMessage: string): boolean {
-  const placeholders = (value: string) => [...value.matchAll(/\{([A-Za-z0-9_]+)\}/g)].map(match => match[1]).sort();
+  const placeholders = (value: string) => extractLocalePlaceholders(value).sort();
   // 排序后用不可见分隔符拼接比较，保证占位符顺序无关
   if (placeholders(message).join("\u0000") !== placeholders(sourceMessage).join("\u0000")) {
     warnLocaleIssue(`${moduleName} 的 ${key} 占位符集合不一致，已回退到 ${DEFAULT_LOCALE}`);

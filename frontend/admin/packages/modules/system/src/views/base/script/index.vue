@@ -225,7 +225,7 @@ async function handleBeforeSetStatus(row: BaseScript) {
 function handleDelete(row: BaseScript) {
   ElMessageBox.confirm(t("system.base.script.message.confirm_delete", { name: row.name }), t("common.title.warning"), { type: "warning" }).then(async () => {
     await defBaseScriptService.DeleteBaseScript({ id: String(row.id) });
-    ElMessage.success(t("common.message.delete_success"));
+    ElMessage.success(t("common.message.delete_success", { resource: t("system.base.script.resource") }));
     proTable.value?.getTableList();
   });
 }

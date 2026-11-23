@@ -1811,6 +1811,7 @@
   "system.sse.error.auth_expired": "SSE authentication has expired",
   "system.sse.error.connection_closed": "SSE connection closed",
   "system.sse.error.connection_failed": "SSE connection failed: {status}",
+  "system.base.script.resource": "script",
   "system.base.script.action.create": "Create script",
   "system.base.script.action.edit": "Edit script",
   "system.base.script.action.run": "Test run",

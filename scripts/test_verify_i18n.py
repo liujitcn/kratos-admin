@@ -73,6 +73,37 @@ class I18nVerificationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "共享词条内容不一致"):
             sync_locales.validate_locale_sets(files)
 
+    def test_all_placeholder_shapes_are_validated(self) -> None:
+        """Go 模板与 printf 占位符必须和单花括号一样参与一致性校验。"""
+        # 三类占位符都能被提取
+        self.assertEqual(
+            sync_locales.message_placeholders(
+                "时区 {{.Location}} UTC{{.Offset}}；%d(%s) %w；删除{resource}成功"
+            ),
+            sorted(["{{.Location}}", "{{.Offset}}", "%d", "%s", "%w", "{resource}"]),
+        )
+        # 百分号字面量不会被误判为占位符
+        self.assertEqual(sync_locales.message_placeholders("折扣 50%off"), [])
+
+        # 各语言放同一组三类占位符时通过（使用 codegen 前缀满足后端目录的专属约束）
+        key = "system.code.gen.placeholder_shapes"
+        source = "时区 {{.Location}}；调用 %d(%s) 失败 %w；{resource}"
+        for path in self.directories["backend"].glob("*.json"):
+            self.write(path, json.dumps({key: {"other": source}}, ensure_ascii=False))
+        files = {name: sync_locales.locale_files(directory) for name, directory in self.directories.items()}
+        sync_locales.validate_locale_sets(files)
+
+        # 某一语言漏掉 Go 模板占位符时必须拦截
+        ja_path = self.directories["backend"] / "ja-JP.json"
+        self.write(ja_path, json.dumps({key: {"other": "时区；调用 %d(%s) 失败 %w；{resource}"}}, ensure_ascii=False))
+        with self.assertRaisesRegex(ValueError, "占位符不一致"):
+            sync_locales.validate_locale_sets(files)
+
+        # 某一语言漏掉 printf 占位符时也必须拦截
+        self.write(ja_path, json.dumps({key: {"other": "时区 {{.Location}}；调用失败 %w；{resource}"}}, ensure_ascii=False))
+        with self.assertRaisesRegex(ValueError, "占位符不一致"):
+            sync_locales.validate_locale_sets(files)
+
     def test_missing_proto_cel_key(self) -> None:
         """缺少 CEL RuleId 的翻译时必须失败。"""
         self.write(self.root / "backend/api/proto/login.proto", 'id: "base.login.tenant_code.required"')

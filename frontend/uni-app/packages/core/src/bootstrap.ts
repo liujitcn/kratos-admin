@@ -50,6 +50,7 @@ export function bootstrapKratosApp(options: KratosAppBootstrapOptions) {
       // 语言公共接口失败时继续使用静态语言包和系统语言。
     })
   registerLocaleChangeHandler(async () => {
+    syncH5DocumentTitle()
     const settingStore = useSettingStore(options.pinia)
     await settingStore.loadData()
     await initializeAppNavigation()

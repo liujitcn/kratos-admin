@@ -127,8 +127,12 @@ const hourText = computed(() => String(now.value.getHours()).padStart(2, "0"));
 /** 当前分钟，补齐两位。 */
 const minuteText = computed(() => String(now.value.getMinutes()).padStart(2, "0"));
 
-/** 当前时间所属的上午或下午时段。 */
-const periodText = computed(() => (now.value.getHours() < 12 ? "AM" : "PM"));
+/** 当前时间所属的上午或下午时段，按当前语言本地化（中文“上午/下午”、日文“午前/午後”、英文“AM/PM”）。 */
+const periodText = computed(() =>
+  new Intl.DateTimeFormat(locale.value, { hour: "numeric", hour12: true, dayPeriod: "short" })
+    .formatToParts(now.value)
+    .find(part => part.type === "dayPeriod")?.value ?? ""
+);
 
 /** 按“日期 星期”格式展示当前本地日期。 */
 const dateText = computed(() => {

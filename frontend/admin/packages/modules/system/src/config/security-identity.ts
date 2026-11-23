@@ -26,11 +26,7 @@ export const securityIdentityConfig: RuntimeConfigDefinition<SecurityIdentityCon
       prop: "account_renames",
       labelKey: "system.base.runtime_config.security_identity.field.account_renames",
       component: "kv-list",
-      colSpan: 24,
-      props: {
-        keyInputProps: { placeholder: "用户 ID" },
-        valueInputProps: { placeholder: "新用户名" }
-      }
+      colSpan: 24
     }
   ]
 };

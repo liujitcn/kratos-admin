@@ -1,4 +1,5 @@
 import Taro from '@tarojs/taro'
+import { getCurrentLocale } from '../locales'
 
 const configuredStaticUrl =
   process.env.VITE_APP_STATIC_URL || process.env.VITE_APP_API_URL || ''
@@ -27,9 +28,13 @@ export function formatDate(date: Date, format = 'YYYY-MM-DD HH:mm:ss'): string {
     .replace('ss', seconds)
 }
 
-/** 将分单位金额格式化为元。 */
+/** 将分单位金额按当前语言区域格式化为元，保留两位小数与千分位。 */
 export function formatPrice(price: number): string {
-  return price ? (price / 100).toFixed(2) : '0.00'
+  const formatter = new Intl.NumberFormat(getCurrentLocale(), {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
+  return formatter.format(price ? price / 100 : 0)
 }
 
 /** 格式化后端静态资源地址。 */

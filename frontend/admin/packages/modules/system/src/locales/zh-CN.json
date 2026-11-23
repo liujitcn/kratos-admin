@@ -1811,6 +1811,7 @@
   "system.sse.error.auth_expired": "SSE 认证已失效",
   "system.sse.error.connection_closed": "SSE 连接已关闭",
   "system.sse.error.connection_failed": "SSE 连接失败：{status}",
+  "system.base.script.resource": "脚本",
   "system.base.script.action.create": "新建脚本",
   "system.base.script.action.edit": "编辑脚本",
   "system.base.script.action.run": "试运行",

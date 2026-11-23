@@ -21,15 +21,10 @@ export const useTime = () => {
     month.value = date.getMonth() + 1;
     week.value = new Intl.DateTimeFormat(getCurrentLocale(), { weekday: "short" }).format(date);
     day.value = date.getDate();
-    hour.value =
-      (date.getHours() + "")?.padStart(2, "0") ||
-      new Intl.NumberFormat(undefined, { minimumIntegerDigits: 2 }).format(date.getHours());
-    minute.value =
-      (date.getMinutes() + "")?.padStart(2, "0") ||
-      new Intl.NumberFormat(undefined, { minimumIntegerDigits: 2 }).format(date.getMinutes());
-    second.value =
-      (date.getSeconds() + "")?.padStart(2, "0") ||
-      new Intl.NumberFormat(undefined, { minimumIntegerDigits: 2 }).format(date.getSeconds());
+    const twoDigits = new Intl.NumberFormat(getCurrentLocale(), { minimumIntegerDigits: 2 });
+    hour.value = twoDigits.format(date.getHours());
+    minute.value = twoDigits.format(date.getMinutes());
+    second.value = twoDigits.format(date.getSeconds());
     nowTime.value = new Intl.DateTimeFormat(getCurrentLocale(), {
       year: "numeric",
       month: "2-digit",
@@ -37,7 +32,7 @@ export const useTime = () => {
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
-      hour12: false
+      hour12: getCurrentLocale() === "en-US"
     }).format(date);
   };
 

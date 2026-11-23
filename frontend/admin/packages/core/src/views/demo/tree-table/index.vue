@@ -57,7 +57,7 @@ import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/compone
 import ProTable from "@/components/ProTable";
 import TreeFilter from "@/components/TreeFilter/index.vue";
 import type { ProFormOption } from "@/components/ProForm/interface";
-import { t } from "@/locales";
+import { getCurrentLocale, t } from "@/locales";
 
 import DemoFormDialog from "../components/DemoFormDialog.vue";
 import DemoDetailDrawer from "../components/DemoDetailDrawer.vue";
@@ -283,7 +283,7 @@ function handleOpenDetail(row: DemoEmployee) {
         title: t("core.demo.detail.section.work"),
         fields: [
           { label: t("common.field.department"), value: findDeptName(row.dept_id) },
-          { label: t("core.demo.tree.field.salary"), value: `¥ ${(row.salary / 100).toLocaleString()}` }
+          { label: t("core.demo.tree.field.salary"), value: `¥ ${(row.salary / 100).toLocaleString(getCurrentLocale())}` }
         ]
       }
     ],

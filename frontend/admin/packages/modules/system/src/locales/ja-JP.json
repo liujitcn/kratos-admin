@@ -1811,6 +1811,7 @@
   "system.sse.error.auth_expired": "SSE 認証の有効期限が切れました",
   "system.sse.error.connection_closed": "SSE 接続が閉じられました",
   "system.sse.error.connection_failed": "SSE 接続に失敗しました: {status}",
+  "system.base.script.resource": "スクリプト",
   "system.base.script.action.create": "スクリプトを作成",
   "system.base.script.action.edit": "スクリプトを編集",
   "system.base.script.action.run": "テスト実行",

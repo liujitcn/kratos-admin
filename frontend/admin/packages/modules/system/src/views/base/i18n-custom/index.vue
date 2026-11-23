@@ -347,7 +347,7 @@ function handleDelete(selected?: BaseI18nCustom | BaseI18nCustom[] | number | st
   ).then(async () => {
     await defBaseI18nCustomService.DeleteBaseI18nCustom({ id: ids });
     await refreshAdminRuntimeConfig();
-    ElMessage.success(t("common.message.delete_success"));
+    ElMessage.success(t("common.message.delete_success", { resource: t("system.base.i18n_custom.resource") }));
     proTable.value?.getTableList();
   });
 }

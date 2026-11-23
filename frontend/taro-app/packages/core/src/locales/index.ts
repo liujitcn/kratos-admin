@@ -229,14 +229,26 @@ export function useI18n() {
   }
 }
 
+/**
+ * 提取文案中的全部占位符，规则与 scripts/sync_locales.py 保持一致：
+ * Go 模板 {{.Field}}、printf 动词 %d/%s/%w、单花括号 {name}。
+ */
+function extractLocalePlaceholders(value: string): string[] {
+  const goTemplate = value.match(/\{\{\s*\.[A-Za-z0-9_]+\s*\}\}/g) ?? []
+  const withoutGoTemplate = value.replace(/\{\{\s*\.[A-Za-z0-9_]+\s*\}\}/g, '')
+  const printf = withoutGoTemplate.match(/%[#0+\- ]*[0-9.]*[bcdoOxXUeEfFgGstvqwp]/g) ?? []
+  const withoutPrintf = withoutGoTemplate.replace(/%[#0+\- ]*[0-9.]*[bcdoOxXUeEfFgGstvqwp]/g, '')
+  const simple = withoutPrintf.match(/\{[A-Za-z0-9_]+\}/g) ?? []
+  return [...goTemplate, ...printf, ...simple]
+}
+
 function hasMatchingLocalePlaceholders(
   moduleName: string,
   key: string,
   message: string,
   sourceMessage: string,
 ): boolean {
-  const placeholders = (value: string) =>
-    [...value.matchAll(/\{([A-Za-z0-9_]+)\}/g)].map((match) => match[1]).sort()
+  const placeholders = (value: string) => extractLocalePlaceholders(value).sort()
   if (placeholders(message).join('\u0000') !== placeholders(sourceMessage).join('\u0000')) {
     warnLocaleIssue(localeRuntimeMessage('placeholder_mismatch', { module: moduleName, key }))
     return false

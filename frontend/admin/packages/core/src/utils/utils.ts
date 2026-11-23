@@ -1,3 +1,5 @@
+import { getCurrentLocale } from "@/locales";
+
 /**
  * JSON 格式化显示。
  */
@@ -10,11 +12,11 @@ export function formatJson(str: string) {
 }
 
 /**
- * 将后端分单位金额转换为元字符串。
+ * 将后端分单位金额转换为按当前区域格式化的元字符串，保留两位小数与千分位。
  */
 export function formatPrice(price?: number) {
-  if (!price) return "0.00";
-  return (price / 100).toFixed(2);
+  if (!price) return new Intl.NumberFormat(getCurrentLocale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(0);
+  return new Intl.NumberFormat(getCurrentLocale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(price / 100);
 }
 
 /** 将时间值格式化为统一的本地日期时间文本。 */

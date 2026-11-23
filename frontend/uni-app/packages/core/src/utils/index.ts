@@ -1,3 +1,5 @@
+import { getCurrentLocale } from '../locales'
+
 const baseURL = import.meta.env.VITE_APP_STATIC_URL || import.meta.env.VITE_APP_API_URL
 
 /** 将后端数据文件地址切换到当前构建配置的静态资源域名。 */
@@ -49,14 +51,18 @@ export const formatDate = (date: Date, format = 'YYYY-MM-DD HH:mm:ss') => {
 }
 
 /**
- * 金额格式化函数
+ * 金额格式化函数：按当前语言区域格式化，保留两位小数与千分位。
  * @param price 金额
  */
 export const formatPrice = (price: number) => {
+  const formatter = new Intl.NumberFormat(getCurrentLocale(), {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
   if (!price) {
-    return '0.00'
+    return formatter.format(0)
   }
-  return (price / 100).toFixed(2)
+  return formatter.format(price / 100)
 }
 
 /**
