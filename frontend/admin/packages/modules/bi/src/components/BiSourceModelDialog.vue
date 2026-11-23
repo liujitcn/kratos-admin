@@ -1426,6 +1426,10 @@ function isCurrentSession(currentSession: number, sourceID: number): boolean {
 /* 弹窗整体不超过视口：主体弹性填充剩余空间，保证底部按钮始终可见、页面不出滚动条。 */
 .bi-source-model-dialog {
   display: flex;
+
+  // 显式高度打破 flex 内容高度循环：el-dialog 高度由内容决定，body 为 flex-basis 0、
+  // 内容 .source-model 又 height:100% 反向依赖 body，缺显式高度会双向塌陷（body 仅剩 padding 高度）。
+  height: min(92vh, 920px);
   max-height: 96dvh;
   flex-direction: column;
 

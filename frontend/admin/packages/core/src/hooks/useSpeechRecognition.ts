@@ -82,6 +82,16 @@ export function useSpeechRecognition({ onError, onStart, onEnd, onResult }: Spee
   let recognition: SpeechRecognitionInstance | null = null;
   let recognitionSession = 0;
   let finalText = "";
+  let startGuardTimer: ReturnType<typeof setTimeout> | null = null;
+  let startAcknowledged = false;
+
+  /** 清除识别启动守卫定时器。 */
+  function clearStartGuard() {
+    if (startGuardTimer) {
+      clearTimeout(startGuardTimer);
+      startGuardTimer = null;
+    }
+  }
 
   /** 获取当前浏览器支持的语音识别构造函数。 */
   function resolveRecognitionConstructor() {
@@ -109,6 +119,8 @@ export function useSpeechRecognition({ onError, onStart, onEnd, onResult }: Spee
     nextRecognition.lang = "zh-CN";
     nextRecognition.onstart = () => {
       if (!isCurrentRecognition()) return;
+      startAcknowledged = true;
+      clearStartGuard();
       loading.value = true;
       value.value = "";
       onStart?.();
@@ -122,33 +134,49 @@ export function useSpeechRecognition({ onError, onStart, onEnd, onResult }: Spee
     };
     nextRecognition.onerror = error => {
       if (!isCurrentRecognition()) return;
+      clearStartGuard();
       loading.value = false;
       recognition = null;
       onError?.(error);
     };
     nextRecognition.onend = () => {
       if (!isCurrentRecognition()) return;
+      clearStartGuard();
       loading.value = false;
       recognition = null;
       onEnd?.(value.value);
     };
 
     loading.value = true;
+    startAcknowledged = false;
     try {
       nextRecognition.start();
     } catch (error) {
       if (!isCurrentRecognition()) return;
+      clearStartGuard();
       loading.value = false;
       recognition = null;
       onError?.({
         code: -2,
         message: error instanceof Error ? error.message : String(error)
       });
+      return;
     }
+    // 无麦克风或权限被静默拒绝时，部分浏览器不触发 onerror/onend，超时复位避免录音按钮与发送按钮永久禁用。
+    clearStartGuard();
+    startGuardTimer = setTimeout(() => {
+      startGuardTimer = null;
+      if (!isCurrentRecognition() || startAcknowledged) return;
+      recognitionSession++;
+      loading.value = false;
+      recognition = null;
+      onError?.({ code: -3, message: "语音识别启动超时，请检查麦克风设备与浏览器授权" });
+    }, 5000);
   }
 
   /** 停止当前语音识别。 */
   function stop() {
+    clearStartGuard();
     const currentRecognition = recognition;
     if (!currentRecognition) return;
     recognition = null;
@@ -160,6 +188,7 @@ export function useSpeechRecognition({ onError, onStart, onEnd, onResult }: Spee
 
   if (getCurrentInstance()) {
     onBeforeUnmount(() => {
+      clearStartGuard();
       const currentRecognition = recognition;
       recognition = null;
       recognitionSession++;
