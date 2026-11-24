@@ -788,6 +788,9 @@
   "legacy.error.034b0adab4e608e8": {
     "other": "查询语言失败"
   },
+  "legacy.error.03b31b56ce9d209e": {
+    "other": "只有默认租户可以测试服务端数据库客户端"
+  },
   "legacy.error.03be4b2cd229dfde": {
     "other": "数据源版本已变化，请刷新后重新预览"
   },
@@ -1192,6 +1195,9 @@
   },
   "legacy.error.1689611862abe259": {
     "other": "指标卡不能选择分组维度"
+  },
+  "legacy.error.16e1c1e0e932d67b": {
+    "other": "测试数据库连接失败"
   },
   "legacy.error.1706c4959e58af6a": {
     "other": "删除项目失败，项目不存在"
@@ -1862,6 +1868,9 @@
   "legacy.error.38575468bd5f4185": {
     "other": "出库脱敏策略不能为空"
   },
+  "legacy.error.38ad8471ba4c5e69": {
+    "other": "BI 数据源已变更，请刷新后重试"
+  },
   "legacy.error.38c29cd72f9c1d82": {
     "other": "访问令牌服务未初始化"
   },
@@ -2051,6 +2060,9 @@
   "legacy.error.4224023e7217ea64": {
     "other": "embedding模型所属供应商不存在"
   },
+  "legacy.error.422750cd3e796ca0": {
+    "other": "连接参数已变更，请重新输入数据库密码"
+  },
   "legacy.error.424b444c31bcfe1f": {
     "other": "批量生成定义冲突"
   },
@@ -2143,6 +2155,9 @@
   },
   "legacy.error.44b45b049ae6f2a2": {
     "other": "查询开放授权客户端凭据失败"
+  },
+  "legacy.error.44c6a02412d0f1a4": {
+    "other": "无法打开数据库，请检查连接参数"
   },
   "legacy.error.44da1869e0376a29": {
     "other": "转办目标用户无效"
@@ -2852,6 +2867,9 @@
   "legacy.error.68166c0df150f899": {
     "other": "智能问数失败"
   },
+  "legacy.error.68395874ff110984": {
+    "other": "校验 BI 数据源版本失败"
+  },
   "legacy.error.6875490152490a8a": {
     "other": "查询定时任务下拉列表失败"
   },
@@ -3193,6 +3211,9 @@
   },
   "legacy.error.76e780b7e84d7a14": {
     "other": "读取日志目录失败"
+  },
+  "legacy.error.76eb2e3fa12aa03c": {
+    "other": "初始化数据库元数据查询失败"
   },
   "legacy.error.771c738a3c8356ae": {
     "other": "页面菜单下只能创建按钮"
@@ -4211,6 +4232,9 @@
   "legacy.error.af8be8010133e43a": {
     "other": "代码生成任务ID不能为空"
   },
+  "legacy.error.af9672c4e288783f": {
+    "other": "独立数据库连接的密码不能为空"
+  },
   "legacy.error.afac2a2e5bf769d4": {
     "other": "审批动作无效"
   },
@@ -4900,6 +4924,9 @@
   },
   "legacy.error.d132998d88c706a1": {
     "other": "安装策略已变化"
+  },
+  "legacy.error.d14c323cacb9c64a": {
+    "other": "获取数据库连接池失败"
   },
   "legacy.error.d1700e2d9ad8a545": {
     "other": "消息租户不能为空"
@@ -7286,13 +7313,13 @@
   "system.admin.code.gen.column.list.table_id.required": {
     "other": "代码生成表配置ID不能为空"
   },
-  "system.admin.code.gen.column.list_gen_database_column.source_name.required": {
+  "system.admin.database.columns.source_name.required": {
     "other": "数据源名称不能为空"
   },
-  "system.admin.code.gen.column.list_gen_database_column.table_name.pattern": {
+  "system.admin.database.columns.table_name.pattern": {
     "other": "数据库表名格式不正确"
   },
-  "system.admin.code.gen.column.list_gen_database_column.table_name.required": {
+  "system.admin.database.columns.table_name.required": {
     "other": "数据库表名不能为空"
   },
   "system.admin.code.gen.column.save.table_id.required": {

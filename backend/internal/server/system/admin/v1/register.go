@@ -96,7 +96,7 @@ type Services struct {
 	BaseTableBackup         *admin.BaseTableBackupService
 	BaseTableBackupRecord   *admin.BaseTableBackupRecordService
 	BaseTableBackupRestore  *admin.BaseTableBackupRestoreService
-	BaseTableSource         *admin.BaseTableSourceService
+	Database                *admin.DatabaseService
 	BaseRedactOutputPolicy  *admin.BaseRedactOutputPolicyService
 	BaseRedactRule          *admin.BaseRedactRuleService
 	BaseRedactStoragePolicy *admin.BaseRedactStoragePolicyService
@@ -169,7 +169,7 @@ func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
 	adminv1.RegisterBaseTableBackupServiceServer(srv, adminv1.RedactedBaseTableBackupServiceServer(s.BaseTableBackup))
 	adminv1.RegisterBaseTableBackupRecordServiceServer(srv, adminv1.RedactedBaseTableBackupRecordServiceServer(s.BaseTableBackupRecord))
 	adminv1.RegisterBaseTableBackupRestoreServiceServer(srv, adminv1.RedactedBaseTableBackupRestoreServiceServer(s.BaseTableBackupRestore))
-	adminv1.RegisterBaseTableSourceServiceServer(srv, adminv1.RedactedBaseTableSourceServiceServer(s.BaseTableSource))
+	adminv1.RegisterDatabaseServiceServer(srv, adminv1.RedactedDatabaseServiceServer(s.Database))
 	adminv1.RegisterBaseRedactOutputPolicyServiceServer(srv, adminv1.RedactedBaseRedactOutputPolicyServiceServer(s.BaseRedactOutputPolicy))
 	adminv1.RegisterBaseRedactRuleServiceServer(srv, adminv1.RedactedBaseRedactRuleServiceServer(s.BaseRedactRule))
 	adminv1.RegisterBaseRedactStoragePolicyServiceServer(srv, adminv1.RedactedBaseRedactStoragePolicyServiceServer(s.BaseRedactStoragePolicy))
@@ -245,7 +245,7 @@ func (s Services) RegisterHTTP(srv *http.Server) {
 	adminv1.RegisterBaseTableBackupServiceHTTPServer(srv, adminv1.RedactedBaseTableBackupServiceServer(s.BaseTableBackup))
 	adminv1.RegisterBaseTableBackupRecordServiceHTTPServer(srv, adminv1.RedactedBaseTableBackupRecordServiceServer(s.BaseTableBackupRecord))
 	adminv1.RegisterBaseTableBackupRestoreServiceHTTPServer(srv, adminv1.RedactedBaseTableBackupRestoreServiceServer(s.BaseTableBackupRestore))
-	adminv1.RegisterBaseTableSourceServiceHTTPServer(srv, adminv1.RedactedBaseTableSourceServiceServer(s.BaseTableSource))
+	adminv1.RegisterDatabaseServiceHTTPServer(srv, adminv1.RedactedDatabaseServiceServer(s.Database))
 	adminv1.RegisterBaseRedactOutputPolicyServiceHTTPServer(srv, adminv1.RedactedBaseRedactOutputPolicyServiceServer(s.BaseRedactOutputPolicy))
 	adminv1.RegisterBaseRedactRuleServiceHTTPServer(srv, adminv1.RedactedBaseRedactRuleServiceServer(s.BaseRedactRule))
 	adminv1.RegisterBaseRedactStoragePolicyServiceHTTPServer(srv, adminv1.RedactedBaseRedactStoragePolicyServiceServer(s.BaseRedactStoragePolicy))
@@ -305,7 +305,9 @@ func (s Services) RegisterMCP(server *mcp.Server) {
 	adminv1.RegisterBaseFileServiceMCPTools(mcpSrv, s.BaseFile)
 	adminv1.RegisterBaseMessageProviderServiceMCPTools(mcpSrv, s.BaseMessageProvider)
 	adminv1.RegisterBaseMessageTemplateServiceMCPTools(mcpSrv, s.BaseMessageTemplate)
-	adminv1.RegisterBaseTableSourceServiceMCPTools(mcpSrv, s.BaseTableSource)
+	adminv1.RegisterDatabaseServiceOptionBaseTableSourceMCPTool(mcpSrv, s.Database)
+	adminv1.RegisterDatabaseServiceOptionBaseTableMCPTool(mcpSrv, s.Database)
+	adminv1.RegisterDatabaseServiceListTableColumnsMCPTool(mcpSrv, s.Database)
 }
 
 // AgentTools 创建 system.admin.v1 的管理端 AI 助手工具。
@@ -413,7 +415,20 @@ func (s Services) AgentTools() ([]tool.Invokable, error) {
 			return adminv1.NewBaseMessageTemplateServiceAgentTools(s.BaseMessageTemplate)
 		},
 		func() ([]tool.Invokable, error) {
-			return adminv1.NewBaseTableSourceServiceAgentTools(s.BaseTableSource)
+			// 连接探测只走管理接口，不开放给 Agent。
+			tools := make([]tool.Invokable, 0, 3)
+			for _, build := range []func(adminv1.DatabaseServiceServer) (tool.Invokable, error){
+				adminv1.NewDatabaseServiceOptionBaseTableSourceAgentTool,
+				adminv1.NewDatabaseServiceOptionBaseTableAgentTool,
+				adminv1.NewDatabaseServiceListTableColumnsAgentTool,
+			} {
+				item, err := build(s.Database)
+				if err != nil {
+					return nil, err
+				}
+				tools = append(tools, item)
+			}
+			return tools, nil
 		},
 		func() ([]tool.Invokable, error) {
 			return adminv1.NewOpsMonitoringServiceAgentTools(s.OpsMonitoring)

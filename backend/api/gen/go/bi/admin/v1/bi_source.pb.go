@@ -569,104 +569,6 @@ func (x *BiSourceDatabase) GetDriver() string {
 	return ""
 }
 
-// 测试 BI 数据源请求。
-type TestBiSourceRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Source        *BiSourceForm          `protobuf:"bytes,1,opt,name=source,proto3" json:"source,omitempty"` // 待测试数据源
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *TestBiSourceRequest) Reset() {
-	*x = TestBiSourceRequest{}
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[11]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *TestBiSourceRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*TestBiSourceRequest) ProtoMessage() {}
-
-func (x *TestBiSourceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[11]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use TestBiSourceRequest.ProtoReflect.Descriptor instead.
-func (*TestBiSourceRequest) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{11}
-}
-
-func (x *TestBiSourceRequest) GetSource() *BiSourceForm {
-	if x != nil {
-		return x.Source
-	}
-	return nil
-}
-
-// 测试 BI 数据源响应。
-type TestBiSourceResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"` // 是否可访问
-	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`  // 测试结果说明
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *TestBiSourceResponse) Reset() {
-	*x = TestBiSourceResponse{}
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[12]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *TestBiSourceResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*TestBiSourceResponse) ProtoMessage() {}
-
-func (x *TestBiSourceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[12]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use TestBiSourceResponse.ProtoReflect.Descriptor instead.
-func (*TestBiSourceResponse) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{12}
-}
-
-func (x *TestBiSourceResponse) GetSuccess() bool {
-	if x != nil {
-		return x.Success
-	}
-	return false
-}
-
-func (x *TestBiSourceResponse) GetMessage() string {
-	if x != nil {
-		return x.Message
-	}
-	return ""
-}
-
 // 查询数据源数据库表结构的请求。
 type ListBiSourceTablesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -677,7 +579,7 @@ type ListBiSourceTablesRequest struct {
 
 func (x *ListBiSourceTablesRequest) Reset() {
 	*x = ListBiSourceTablesRequest{}
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[13]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -689,7 +591,7 @@ func (x *ListBiSourceTablesRequest) String() string {
 func (*ListBiSourceTablesRequest) ProtoMessage() {}
 
 func (x *ListBiSourceTablesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[13]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -702,7 +604,7 @@ func (x *ListBiSourceTablesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListBiSourceTablesRequest.ProtoReflect.Descriptor instead.
 func (*ListBiSourceTablesRequest) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{13}
+	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ListBiSourceTablesRequest) GetId() int64 {
@@ -727,7 +629,7 @@ type BiSourceSchemaColumn struct {
 
 func (x *BiSourceSchemaColumn) Reset() {
 	*x = BiSourceSchemaColumn{}
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[14]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -739,7 +641,7 @@ func (x *BiSourceSchemaColumn) String() string {
 func (*BiSourceSchemaColumn) ProtoMessage() {}
 
 func (x *BiSourceSchemaColumn) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[14]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -752,7 +654,7 @@ func (x *BiSourceSchemaColumn) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BiSourceSchemaColumn.ProtoReflect.Descriptor instead.
 func (*BiSourceSchemaColumn) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{14}
+	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *BiSourceSchemaColumn) GetName() string {
@@ -812,7 +714,7 @@ type BiSourceSchemaTable struct {
 
 func (x *BiSourceSchemaTable) Reset() {
 	*x = BiSourceSchemaTable{}
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[15]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -824,7 +726,7 @@ func (x *BiSourceSchemaTable) String() string {
 func (*BiSourceSchemaTable) ProtoMessage() {}
 
 func (x *BiSourceSchemaTable) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[15]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -837,7 +739,7 @@ func (x *BiSourceSchemaTable) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BiSourceSchemaTable.ProtoReflect.Descriptor instead.
 func (*BiSourceSchemaTable) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{15}
+	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *BiSourceSchemaTable) GetKey() string {
@@ -892,7 +794,7 @@ type ListBiSourceTablesResponse struct {
 
 func (x *ListBiSourceTablesResponse) Reset() {
 	*x = ListBiSourceTablesResponse{}
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[16]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -904,7 +806,7 @@ func (x *ListBiSourceTablesResponse) String() string {
 func (*ListBiSourceTablesResponse) ProtoMessage() {}
 
 func (x *ListBiSourceTablesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[16]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -917,7 +819,7 @@ func (x *ListBiSourceTablesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListBiSourceTablesResponse.ProtoReflect.Descriptor instead.
 func (*ListBiSourceTablesResponse) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{16}
+	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ListBiSourceTablesResponse) GetTables() []*BiSourceSchemaTable {
@@ -941,7 +843,7 @@ type PageBiSourceTableDataRequest struct {
 
 func (x *PageBiSourceTableDataRequest) Reset() {
 	*x = PageBiSourceTableDataRequest{}
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[17]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -953,7 +855,7 @@ func (x *PageBiSourceTableDataRequest) String() string {
 func (*PageBiSourceTableDataRequest) ProtoMessage() {}
 
 func (x *PageBiSourceTableDataRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[17]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -966,7 +868,7 @@ func (x *PageBiSourceTableDataRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PageBiSourceTableDataRequest.ProtoReflect.Descriptor instead.
 func (*PageBiSourceTableDataRequest) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{17}
+	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *PageBiSourceTableDataRequest) GetId() int64 {
@@ -1016,7 +918,7 @@ type PageBiSourceTableDataResponse struct {
 
 func (x *PageBiSourceTableDataResponse) Reset() {
 	*x = PageBiSourceTableDataResponse{}
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[18]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1028,7 +930,7 @@ func (x *PageBiSourceTableDataResponse) String() string {
 func (*PageBiSourceTableDataResponse) ProtoMessage() {}
 
 func (x *PageBiSourceTableDataResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[18]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1041,7 +943,7 @@ func (x *PageBiSourceTableDataResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PageBiSourceTableDataResponse.ProtoReflect.Descriptor instead.
 func (*PageBiSourceTableDataResponse) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{18}
+	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *PageBiSourceTableDataResponse) GetColumns() []*BiSourceSchemaColumn {
@@ -1075,7 +977,7 @@ type BiSourceTableDataRow struct {
 
 func (x *BiSourceTableDataRow) Reset() {
 	*x = BiSourceTableDataRow{}
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[19]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1087,7 +989,7 @@ func (x *BiSourceTableDataRow) String() string {
 func (*BiSourceTableDataRow) ProtoMessage() {}
 
 func (x *BiSourceTableDataRow) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[19]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1100,7 +1002,7 @@ func (x *BiSourceTableDataRow) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BiSourceTableDataRow.ProtoReflect.Descriptor instead.
 func (*BiSourceTableDataRow) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{19}
+	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *BiSourceTableDataRow) GetValues() []string {
@@ -1122,7 +1024,7 @@ type SaveBiSourceModelRequest struct {
 
 func (x *SaveBiSourceModelRequest) Reset() {
 	*x = SaveBiSourceModelRequest{}
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[20]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1134,7 +1036,7 @@ func (x *SaveBiSourceModelRequest) String() string {
 func (*SaveBiSourceModelRequest) ProtoMessage() {}
 
 func (x *SaveBiSourceModelRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[20]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1147,7 +1049,7 @@ func (x *SaveBiSourceModelRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SaveBiSourceModelRequest.ProtoReflect.Descriptor instead.
 func (*SaveBiSourceModelRequest) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{20}
+	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *SaveBiSourceModelRequest) GetId() int64 {
@@ -1186,7 +1088,7 @@ type BiSourceModel struct {
 
 func (x *BiSourceModel) Reset() {
 	*x = BiSourceModel{}
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[21]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1198,7 +1100,7 @@ func (x *BiSourceModel) String() string {
 func (*BiSourceModel) ProtoMessage() {}
 
 func (x *BiSourceModel) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[21]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1211,7 +1113,7 @@ func (x *BiSourceModel) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BiSourceModel.ProtoReflect.Descriptor instead.
 func (*BiSourceModel) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{21}
+	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *BiSourceModel) GetBaseTable() string {
@@ -1269,7 +1171,7 @@ type BiSourceModelTable struct {
 
 func (x *BiSourceModelTable) Reset() {
 	*x = BiSourceModelTable{}
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[22]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1281,7 +1183,7 @@ func (x *BiSourceModelTable) String() string {
 func (*BiSourceModelTable) ProtoMessage() {}
 
 func (x *BiSourceModelTable) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[22]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1294,7 +1196,7 @@ func (x *BiSourceModelTable) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BiSourceModelTable.ProtoReflect.Descriptor instead.
 func (*BiSourceModelTable) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{22}
+	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *BiSourceModelTable) GetKey() string {
@@ -1339,7 +1241,7 @@ type BiSourceRelation struct {
 
 func (x *BiSourceRelation) Reset() {
 	*x = BiSourceRelation{}
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[23]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1351,7 +1253,7 @@ func (x *BiSourceRelation) String() string {
 func (*BiSourceRelation) ProtoMessage() {}
 
 func (x *BiSourceRelation) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[23]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1364,7 +1266,7 @@ func (x *BiSourceRelation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BiSourceRelation.ProtoReflect.Descriptor instead.
 func (*BiSourceRelation) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{23}
+	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *BiSourceRelation) GetLeftTable() string {
@@ -1418,7 +1320,7 @@ type BiSourceDimension struct {
 
 func (x *BiSourceDimension) Reset() {
 	*x = BiSourceDimension{}
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[24]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1430,7 +1332,7 @@ func (x *BiSourceDimension) String() string {
 func (*BiSourceDimension) ProtoMessage() {}
 
 func (x *BiSourceDimension) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[24]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1443,7 +1345,7 @@ func (x *BiSourceDimension) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BiSourceDimension.ProtoReflect.Descriptor instead.
 func (*BiSourceDimension) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{24}
+	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *BiSourceDimension) GetCode() string {
@@ -1506,7 +1408,7 @@ type BiSourceHierarchy struct {
 
 func (x *BiSourceHierarchy) Reset() {
 	*x = BiSourceHierarchy{}
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[25]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1518,7 +1420,7 @@ func (x *BiSourceHierarchy) String() string {
 func (*BiSourceHierarchy) ProtoMessage() {}
 
 func (x *BiSourceHierarchy) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[25]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1531,7 +1433,7 @@ func (x *BiSourceHierarchy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BiSourceHierarchy.ProtoReflect.Descriptor instead.
 func (*BiSourceHierarchy) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{25}
+	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *BiSourceHierarchy) GetParentColumn() string {
@@ -1563,7 +1465,7 @@ type BiSourceMeasure struct {
 
 func (x *BiSourceMeasure) Reset() {
 	*x = BiSourceMeasure{}
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[26]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1575,7 +1477,7 @@ func (x *BiSourceMeasure) String() string {
 func (*BiSourceMeasure) ProtoMessage() {}
 
 func (x *BiSourceMeasure) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[26]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1588,7 +1490,7 @@ func (x *BiSourceMeasure) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BiSourceMeasure.ProtoReflect.Descriptor instead.
 func (*BiSourceMeasure) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{26}
+	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *BiSourceMeasure) GetCode() string {
@@ -1657,7 +1559,7 @@ type BiSourceForm struct {
 
 func (x *BiSourceForm) Reset() {
 	*x = BiSourceForm{}
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[27]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1669,7 +1571,7 @@ func (x *BiSourceForm) String() string {
 func (*BiSourceForm) ProtoMessage() {}
 
 func (x *BiSourceForm) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[27]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1682,7 +1584,7 @@ func (x *BiSourceForm) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BiSourceForm.ProtoReflect.Descriptor instead.
 func (*BiSourceForm) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{27}
+	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *BiSourceForm) GetId() int64 {
@@ -1824,7 +1726,7 @@ type BiSource struct {
 
 func (x *BiSource) Reset() {
 	*x = BiSource{}
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[28]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1836,7 +1738,7 @@ func (x *BiSource) String() string {
 func (*BiSource) ProtoMessage() {}
 
 func (x *BiSource) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[28]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1849,7 +1751,7 @@ func (x *BiSource) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BiSource.ProtoReflect.Descriptor instead.
 func (*BiSource) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{28}
+	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *BiSource) GetId() int64 {
@@ -2041,7 +1943,7 @@ type BiMetricChange struct {
 
 func (x *BiMetricChange) Reset() {
 	*x = BiMetricChange{}
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[29]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2053,7 +1955,7 @@ func (x *BiMetricChange) String() string {
 func (*BiMetricChange) ProtoMessage() {}
 
 func (x *BiMetricChange) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[29]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2066,7 +1968,7 @@ func (x *BiMetricChange) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BiMetricChange.ProtoReflect.Descriptor instead.
 func (*BiMetricChange) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{29}
+	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *BiMetricChange) GetMetricCode() string {
@@ -2115,7 +2017,7 @@ type BiMetricDifference struct {
 
 func (x *BiMetricDifference) Reset() {
 	*x = BiMetricDifference{}
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[30]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2127,7 +2029,7 @@ func (x *BiMetricDifference) String() string {
 func (*BiMetricDifference) ProtoMessage() {}
 
 func (x *BiMetricDifference) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[30]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2140,7 +2042,7 @@ func (x *BiMetricDifference) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BiMetricDifference.ProtoReflect.Descriptor instead.
 func (*BiMetricDifference) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{30}
+	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *BiMetricDifference) GetBefore() *BiSourceMeasure {
@@ -2170,7 +2072,7 @@ type BiModelImpact struct {
 
 func (x *BiModelImpact) Reset() {
 	*x = BiModelImpact{}
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[31]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2182,7 +2084,7 @@ func (x *BiModelImpact) String() string {
 func (*BiModelImpact) ProtoMessage() {}
 
 func (x *BiModelImpact) ProtoReflect() protoreflect.Message {
-	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[31]
+	mi := &file_bi_admin_v1_bi_source_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2195,7 +2097,7 @@ func (x *BiModelImpact) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BiModelImpact.ProtoReflect.Descriptor instead.
 func (*BiModelImpact) Descriptor() ([]byte, []int) {
-	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{31}
+	return file_bi_admin_v1_bi_source_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *BiModelImpact) GetChanges() []*BiMetricDifference {
@@ -2260,12 +2162,7 @@ const file_bi_admin_v1_bi_source_proto_rawDesc = "" +
 	"\tdatabases\x18\x01 \x03(\v2\x1d.bi.admin.v1.BiSourceDatabaseB'\xbaG$\x92\x02!服务端数据库客户端列表R\tdatabases\"l\n" +
 	"\x10BiSourceDatabase\x12)\n" +
 	"\x04name\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f客户端名称R\x04name\x12-\n" +
-	"\x06driver\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f数据库驱动R\x06driver\"h\n" +
-	"\x13TestBiSourceRequest\x12Q\n" +
-	"\x06source\x18\x01 \x01(\v2\x19.bi.admin.v1.BiSourceFormB\x1e\xbaG\x15\x92\x02\x12待测试数据源\xbaH\x03\xc8\x01\x01R\x06source\"{\n" +
-	"\x14TestBiSourceResponse\x12/\n" +
-	"\asuccess\x18\x01 \x01(\bB\x15\xbaG\x12\x92\x02\x0f是否可访问R\asuccess\x122\n" +
-	"\amessage\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12测试结果说明R\amessage\"E\n" +
+	"\x06driver\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f数据库驱动R\x06driver\"E\n" +
 	"\x19ListBiSourceTablesRequest\x12(\n" +
 	"\x02id\x18\x01 \x01(\x03B\x18\xbaG\x0e\x92\x02\v数据源ID\xbaH\x04\"\x02 \x00R\x02id\"\xcf\x02\n" +
 	"\x14BiSourceSchemaColumn\x12&\n" +
@@ -2420,7 +2317,7 @@ const file_bi_admin_v1_bi_source_proto_rawDesc = "" +
 	"\achanges\x18\x01 \x03(\v2\x1f.bi.admin.v1.BiMetricDifferenceB\x12\xbaG\x0f\x92\x02\f指标变更R\achanges\x12B\n" +
 	"\x0eaffected_cards\x18\x02 \x01(\x05B\x1b\xbaG\x18\x92\x02\x15受影响卡片数量R\raffectedCards\x12[\n" +
 	"\x13affected_dashboards\x18\x03 \x01(\x05B*\xbaG'\x92\x02$需要重新发布的仪表盘数量R\x12affectedDashboards\x12<\n" +
-	"\x0esource_version\x18\x04 \x01(\x05B\x15\xbaG\x12\x92\x02\x0f数据源版本R\rsourceVersion2\xea\f\n" +
+	"\x0esource_version\x18\x04 \x01(\x05B\x15\xbaG\x12\x92\x02\x0f数据源版本R\rsourceVersion2\xe6\v\n" +
 	"\x0fBiSourceService\x12t\n" +
 	"\fPageBiSource\x12 .bi.admin.v1.PageBiSourceRequest\x1a!.bi.admin.v1.PageBiSourceResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/admin/bi/source\x12k\n" +
 	"\vGetBiSource\x12\x1f.bi.admin.v1.GetBiSourceRequest\x1a\x15.bi.admin.v1.BiSource\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/bi/source/{id}\x12t\n" +
@@ -2428,8 +2325,7 @@ const file_bi_admin_v1_bi_source_proto_rawDesc = "" +
 	"\x0eUpdateBiSource\x12\".bi.admin.v1.UpdateBiSourceRequest\x1a\x15.bi.admin.v1.BiSource\"3\x82\xd3\xe4\x93\x02-:\x06source\x1a#/api/v1/admin/bi/source/{source.id}\x12\x7f\n" +
 	"\x0eDeleteBiSource\x12\".bi.admin.v1.DeleteBiSourceRequest\x1a#.bi.admin.v1.DeleteBiSourceResponse\"$\x82\xd3\xe4\x93\x02\x1e*\x1c/api/v1/admin/bi/source/{id}\x12\x81\x01\n" +
 	"\x11SetBiSourceStatus\x12%.bi.admin.v1.SetBiSourceStatusRequest\x1a\x15.bi.admin.v1.BiSource\".\x82\xd3\xe4\x93\x02(:\x01*\x1a#/api/v1/admin/bi/source/{id}/status\x12\xa4\x01\n" +
-	"\x16OptionBiSourceDatabase\x12*.bi.admin.v1.OptionBiSourceDatabaseRequest\x1a+.bi.admin.v1.OptionBiSourceDatabaseResponse\"1\x82\xd3\xe4\x93\x02+\x12)/api/v1/admin/bi/source/options/databases\x12\x81\x01\n" +
-	"\fTestBiSource\x12 .bi.admin.v1.TestBiSourceRequest\x1a!.bi.admin.v1.TestBiSourceResponse\",\x82\xd3\xe4\x93\x02&:\x06source\"\x1c/api/v1/admin/bi/source/test\x12\x92\x01\n" +
+	"\x16OptionBiSourceDatabase\x12*.bi.admin.v1.OptionBiSourceDatabaseRequest\x1a+.bi.admin.v1.OptionBiSourceDatabaseResponse\"1\x82\xd3\xe4\x93\x02+\x12)/api/v1/admin/bi/source/options/databases\x12\x92\x01\n" +
 	"\x12ListBiSourceTables\x12&.bi.admin.v1.ListBiSourceTablesRequest\x1a'.bi.admin.v1.ListBiSourceTablesResponse\"+\x82\xd3\xe4\x93\x02%\x12#/api/v1/admin/bi/source/{id}/tables\x12\x9f\x01\n" +
 	"\x15PageBiSourceTableData\x12).bi.admin.v1.PageBiSourceTableDataRequest\x1a*.bi.admin.v1.PageBiSourceTableDataResponse\"/\x82\xd3\xe4\x93\x02)\x12'/api/v1/admin/bi/source/{id}/table-data\x12\x80\x01\n" +
 	"\x11SaveBiSourceModel\x12%.bi.admin.v1.SaveBiSourceModelRequest\x1a\x15.bi.admin.v1.BiSource\"-\x82\xd3\xe4\x93\x02':\x01*\x1a\"/api/v1/admin/bi/source/{id}/model\x12\x90\x01\n" +
@@ -2448,7 +2344,7 @@ func file_bi_admin_v1_bi_source_proto_rawDescGZIP() []byte {
 	return file_bi_admin_v1_bi_source_proto_rawDescData
 }
 
-var file_bi_admin_v1_bi_source_proto_msgTypes = make([]protoimpl.MessageInfo, 32)
+var file_bi_admin_v1_bi_source_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
 var file_bi_admin_v1_bi_source_proto_goTypes = []any{
 	(*PageBiSourceRequest)(nil),            // 0: bi.admin.v1.PageBiSourceRequest
 	(*PageBiSourceResponse)(nil),           // 1: bi.admin.v1.PageBiSourceResponse
@@ -2461,79 +2357,74 @@ var file_bi_admin_v1_bi_source_proto_goTypes = []any{
 	(*OptionBiSourceDatabaseRequest)(nil),  // 8: bi.admin.v1.OptionBiSourceDatabaseRequest
 	(*OptionBiSourceDatabaseResponse)(nil), // 9: bi.admin.v1.OptionBiSourceDatabaseResponse
 	(*BiSourceDatabase)(nil),               // 10: bi.admin.v1.BiSourceDatabase
-	(*TestBiSourceRequest)(nil),            // 11: bi.admin.v1.TestBiSourceRequest
-	(*TestBiSourceResponse)(nil),           // 12: bi.admin.v1.TestBiSourceResponse
-	(*ListBiSourceTablesRequest)(nil),      // 13: bi.admin.v1.ListBiSourceTablesRequest
-	(*BiSourceSchemaColumn)(nil),           // 14: bi.admin.v1.BiSourceSchemaColumn
-	(*BiSourceSchemaTable)(nil),            // 15: bi.admin.v1.BiSourceSchemaTable
-	(*ListBiSourceTablesResponse)(nil),     // 16: bi.admin.v1.ListBiSourceTablesResponse
-	(*PageBiSourceTableDataRequest)(nil),   // 17: bi.admin.v1.PageBiSourceTableDataRequest
-	(*PageBiSourceTableDataResponse)(nil),  // 18: bi.admin.v1.PageBiSourceTableDataResponse
-	(*BiSourceTableDataRow)(nil),           // 19: bi.admin.v1.BiSourceTableDataRow
-	(*SaveBiSourceModelRequest)(nil),       // 20: bi.admin.v1.SaveBiSourceModelRequest
-	(*BiSourceModel)(nil),                  // 21: bi.admin.v1.BiSourceModel
-	(*BiSourceModelTable)(nil),             // 22: bi.admin.v1.BiSourceModelTable
-	(*BiSourceRelation)(nil),               // 23: bi.admin.v1.BiSourceRelation
-	(*BiSourceDimension)(nil),              // 24: bi.admin.v1.BiSourceDimension
-	(*BiSourceHierarchy)(nil),              // 25: bi.admin.v1.BiSourceHierarchy
-	(*BiSourceMeasure)(nil),                // 26: bi.admin.v1.BiSourceMeasure
-	(*BiSourceForm)(nil),                   // 27: bi.admin.v1.BiSourceForm
-	(*BiSource)(nil),                       // 28: bi.admin.v1.BiSource
-	(*BiMetricChange)(nil),                 // 29: bi.admin.v1.BiMetricChange
-	(*BiMetricDifference)(nil),             // 30: bi.admin.v1.BiMetricDifference
-	(*BiModelImpact)(nil),                  // 31: bi.admin.v1.BiModelImpact
-	(*commonv1.SecretCrypto)(nil),          // 32: common.v1.SecretCrypto
+	(*ListBiSourceTablesRequest)(nil),      // 11: bi.admin.v1.ListBiSourceTablesRequest
+	(*BiSourceSchemaColumn)(nil),           // 12: bi.admin.v1.BiSourceSchemaColumn
+	(*BiSourceSchemaTable)(nil),            // 13: bi.admin.v1.BiSourceSchemaTable
+	(*ListBiSourceTablesResponse)(nil),     // 14: bi.admin.v1.ListBiSourceTablesResponse
+	(*PageBiSourceTableDataRequest)(nil),   // 15: bi.admin.v1.PageBiSourceTableDataRequest
+	(*PageBiSourceTableDataResponse)(nil),  // 16: bi.admin.v1.PageBiSourceTableDataResponse
+	(*BiSourceTableDataRow)(nil),           // 17: bi.admin.v1.BiSourceTableDataRow
+	(*SaveBiSourceModelRequest)(nil),       // 18: bi.admin.v1.SaveBiSourceModelRequest
+	(*BiSourceModel)(nil),                  // 19: bi.admin.v1.BiSourceModel
+	(*BiSourceModelTable)(nil),             // 20: bi.admin.v1.BiSourceModelTable
+	(*BiSourceRelation)(nil),               // 21: bi.admin.v1.BiSourceRelation
+	(*BiSourceDimension)(nil),              // 22: bi.admin.v1.BiSourceDimension
+	(*BiSourceHierarchy)(nil),              // 23: bi.admin.v1.BiSourceHierarchy
+	(*BiSourceMeasure)(nil),                // 24: bi.admin.v1.BiSourceMeasure
+	(*BiSourceForm)(nil),                   // 25: bi.admin.v1.BiSourceForm
+	(*BiSource)(nil),                       // 26: bi.admin.v1.BiSource
+	(*BiMetricChange)(nil),                 // 27: bi.admin.v1.BiMetricChange
+	(*BiMetricDifference)(nil),             // 28: bi.admin.v1.BiMetricDifference
+	(*BiModelImpact)(nil),                  // 29: bi.admin.v1.BiModelImpact
+	(*commonv1.SecretCrypto)(nil),          // 30: common.v1.SecretCrypto
 }
 var file_bi_admin_v1_bi_source_proto_depIdxs = []int32{
-	28, // 0: bi.admin.v1.PageBiSourceResponse.sources:type_name -> bi.admin.v1.BiSource
-	27, // 1: bi.admin.v1.CreateBiSourceRequest.source:type_name -> bi.admin.v1.BiSourceForm
-	27, // 2: bi.admin.v1.UpdateBiSourceRequest.source:type_name -> bi.admin.v1.BiSourceForm
+	26, // 0: bi.admin.v1.PageBiSourceResponse.sources:type_name -> bi.admin.v1.BiSource
+	25, // 1: bi.admin.v1.CreateBiSourceRequest.source:type_name -> bi.admin.v1.BiSourceForm
+	25, // 2: bi.admin.v1.UpdateBiSourceRequest.source:type_name -> bi.admin.v1.BiSourceForm
 	10, // 3: bi.admin.v1.OptionBiSourceDatabaseResponse.databases:type_name -> bi.admin.v1.BiSourceDatabase
-	27, // 4: bi.admin.v1.TestBiSourceRequest.source:type_name -> bi.admin.v1.BiSourceForm
-	14, // 5: bi.admin.v1.BiSourceSchemaTable.columns:type_name -> bi.admin.v1.BiSourceSchemaColumn
-	15, // 6: bi.admin.v1.ListBiSourceTablesResponse.tables:type_name -> bi.admin.v1.BiSourceSchemaTable
-	14, // 7: bi.admin.v1.PageBiSourceTableDataResponse.columns:type_name -> bi.admin.v1.BiSourceSchemaColumn
-	19, // 8: bi.admin.v1.PageBiSourceTableDataResponse.rows:type_name -> bi.admin.v1.BiSourceTableDataRow
-	21, // 9: bi.admin.v1.SaveBiSourceModelRequest.model:type_name -> bi.admin.v1.BiSourceModel
-	22, // 10: bi.admin.v1.BiSourceModel.tables:type_name -> bi.admin.v1.BiSourceModelTable
-	23, // 11: bi.admin.v1.BiSourceModel.relations:type_name -> bi.admin.v1.BiSourceRelation
-	24, // 12: bi.admin.v1.BiSourceModel.dimensions:type_name -> bi.admin.v1.BiSourceDimension
-	26, // 13: bi.admin.v1.BiSourceModel.measures:type_name -> bi.admin.v1.BiSourceMeasure
-	25, // 14: bi.admin.v1.BiSourceDimension.hierarchy:type_name -> bi.admin.v1.BiSourceHierarchy
-	32, // 15: bi.admin.v1.BiSourceForm.password:type_name -> common.v1.SecretCrypto
-	31, // 16: bi.admin.v1.BiSource.sync_summary:type_name -> bi.admin.v1.BiModelImpact
-	26, // 17: bi.admin.v1.BiMetricDifference.before:type_name -> bi.admin.v1.BiSourceMeasure
-	26, // 18: bi.admin.v1.BiMetricDifference.after:type_name -> bi.admin.v1.BiSourceMeasure
-	30, // 19: bi.admin.v1.BiModelImpact.changes:type_name -> bi.admin.v1.BiMetricDifference
-	0,  // 20: bi.admin.v1.BiSourceService.PageBiSource:input_type -> bi.admin.v1.PageBiSourceRequest
-	2,  // 21: bi.admin.v1.BiSourceService.GetBiSource:input_type -> bi.admin.v1.GetBiSourceRequest
-	3,  // 22: bi.admin.v1.BiSourceService.CreateBiSource:input_type -> bi.admin.v1.CreateBiSourceRequest
-	4,  // 23: bi.admin.v1.BiSourceService.UpdateBiSource:input_type -> bi.admin.v1.UpdateBiSourceRequest
-	5,  // 24: bi.admin.v1.BiSourceService.DeleteBiSource:input_type -> bi.admin.v1.DeleteBiSourceRequest
-	7,  // 25: bi.admin.v1.BiSourceService.SetBiSourceStatus:input_type -> bi.admin.v1.SetBiSourceStatusRequest
-	8,  // 26: bi.admin.v1.BiSourceService.OptionBiSourceDatabase:input_type -> bi.admin.v1.OptionBiSourceDatabaseRequest
-	11, // 27: bi.admin.v1.BiSourceService.TestBiSource:input_type -> bi.admin.v1.TestBiSourceRequest
-	13, // 28: bi.admin.v1.BiSourceService.ListBiSourceTables:input_type -> bi.admin.v1.ListBiSourceTablesRequest
-	17, // 29: bi.admin.v1.BiSourceService.PageBiSourceTableData:input_type -> bi.admin.v1.PageBiSourceTableDataRequest
-	20, // 30: bi.admin.v1.BiSourceService.SaveBiSourceModel:input_type -> bi.admin.v1.SaveBiSourceModelRequest
-	20, // 31: bi.admin.v1.BiSourceService.PreviewBiSourceModel:input_type -> bi.admin.v1.SaveBiSourceModelRequest
-	1,  // 32: bi.admin.v1.BiSourceService.PageBiSource:output_type -> bi.admin.v1.PageBiSourceResponse
-	28, // 33: bi.admin.v1.BiSourceService.GetBiSource:output_type -> bi.admin.v1.BiSource
-	28, // 34: bi.admin.v1.BiSourceService.CreateBiSource:output_type -> bi.admin.v1.BiSource
-	28, // 35: bi.admin.v1.BiSourceService.UpdateBiSource:output_type -> bi.admin.v1.BiSource
-	6,  // 36: bi.admin.v1.BiSourceService.DeleteBiSource:output_type -> bi.admin.v1.DeleteBiSourceResponse
-	28, // 37: bi.admin.v1.BiSourceService.SetBiSourceStatus:output_type -> bi.admin.v1.BiSource
-	9,  // 38: bi.admin.v1.BiSourceService.OptionBiSourceDatabase:output_type -> bi.admin.v1.OptionBiSourceDatabaseResponse
-	12, // 39: bi.admin.v1.BiSourceService.TestBiSource:output_type -> bi.admin.v1.TestBiSourceResponse
-	16, // 40: bi.admin.v1.BiSourceService.ListBiSourceTables:output_type -> bi.admin.v1.ListBiSourceTablesResponse
-	18, // 41: bi.admin.v1.BiSourceService.PageBiSourceTableData:output_type -> bi.admin.v1.PageBiSourceTableDataResponse
-	28, // 42: bi.admin.v1.BiSourceService.SaveBiSourceModel:output_type -> bi.admin.v1.BiSource
-	31, // 43: bi.admin.v1.BiSourceService.PreviewBiSourceModel:output_type -> bi.admin.v1.BiModelImpact
-	32, // [32:44] is the sub-list for method output_type
-	20, // [20:32] is the sub-list for method input_type
-	20, // [20:20] is the sub-list for extension type_name
-	20, // [20:20] is the sub-list for extension extendee
-	0,  // [0:20] is the sub-list for field type_name
+	12, // 4: bi.admin.v1.BiSourceSchemaTable.columns:type_name -> bi.admin.v1.BiSourceSchemaColumn
+	13, // 5: bi.admin.v1.ListBiSourceTablesResponse.tables:type_name -> bi.admin.v1.BiSourceSchemaTable
+	12, // 6: bi.admin.v1.PageBiSourceTableDataResponse.columns:type_name -> bi.admin.v1.BiSourceSchemaColumn
+	17, // 7: bi.admin.v1.PageBiSourceTableDataResponse.rows:type_name -> bi.admin.v1.BiSourceTableDataRow
+	19, // 8: bi.admin.v1.SaveBiSourceModelRequest.model:type_name -> bi.admin.v1.BiSourceModel
+	20, // 9: bi.admin.v1.BiSourceModel.tables:type_name -> bi.admin.v1.BiSourceModelTable
+	21, // 10: bi.admin.v1.BiSourceModel.relations:type_name -> bi.admin.v1.BiSourceRelation
+	22, // 11: bi.admin.v1.BiSourceModel.dimensions:type_name -> bi.admin.v1.BiSourceDimension
+	24, // 12: bi.admin.v1.BiSourceModel.measures:type_name -> bi.admin.v1.BiSourceMeasure
+	23, // 13: bi.admin.v1.BiSourceDimension.hierarchy:type_name -> bi.admin.v1.BiSourceHierarchy
+	30, // 14: bi.admin.v1.BiSourceForm.password:type_name -> common.v1.SecretCrypto
+	29, // 15: bi.admin.v1.BiSource.sync_summary:type_name -> bi.admin.v1.BiModelImpact
+	24, // 16: bi.admin.v1.BiMetricDifference.before:type_name -> bi.admin.v1.BiSourceMeasure
+	24, // 17: bi.admin.v1.BiMetricDifference.after:type_name -> bi.admin.v1.BiSourceMeasure
+	28, // 18: bi.admin.v1.BiModelImpact.changes:type_name -> bi.admin.v1.BiMetricDifference
+	0,  // 19: bi.admin.v1.BiSourceService.PageBiSource:input_type -> bi.admin.v1.PageBiSourceRequest
+	2,  // 20: bi.admin.v1.BiSourceService.GetBiSource:input_type -> bi.admin.v1.GetBiSourceRequest
+	3,  // 21: bi.admin.v1.BiSourceService.CreateBiSource:input_type -> bi.admin.v1.CreateBiSourceRequest
+	4,  // 22: bi.admin.v1.BiSourceService.UpdateBiSource:input_type -> bi.admin.v1.UpdateBiSourceRequest
+	5,  // 23: bi.admin.v1.BiSourceService.DeleteBiSource:input_type -> bi.admin.v1.DeleteBiSourceRequest
+	7,  // 24: bi.admin.v1.BiSourceService.SetBiSourceStatus:input_type -> bi.admin.v1.SetBiSourceStatusRequest
+	8,  // 25: bi.admin.v1.BiSourceService.OptionBiSourceDatabase:input_type -> bi.admin.v1.OptionBiSourceDatabaseRequest
+	11, // 26: bi.admin.v1.BiSourceService.ListBiSourceTables:input_type -> bi.admin.v1.ListBiSourceTablesRequest
+	15, // 27: bi.admin.v1.BiSourceService.PageBiSourceTableData:input_type -> bi.admin.v1.PageBiSourceTableDataRequest
+	18, // 28: bi.admin.v1.BiSourceService.SaveBiSourceModel:input_type -> bi.admin.v1.SaveBiSourceModelRequest
+	18, // 29: bi.admin.v1.BiSourceService.PreviewBiSourceModel:input_type -> bi.admin.v1.SaveBiSourceModelRequest
+	1,  // 30: bi.admin.v1.BiSourceService.PageBiSource:output_type -> bi.admin.v1.PageBiSourceResponse
+	26, // 31: bi.admin.v1.BiSourceService.GetBiSource:output_type -> bi.admin.v1.BiSource
+	26, // 32: bi.admin.v1.BiSourceService.CreateBiSource:output_type -> bi.admin.v1.BiSource
+	26, // 33: bi.admin.v1.BiSourceService.UpdateBiSource:output_type -> bi.admin.v1.BiSource
+	6,  // 34: bi.admin.v1.BiSourceService.DeleteBiSource:output_type -> bi.admin.v1.DeleteBiSourceResponse
+	26, // 35: bi.admin.v1.BiSourceService.SetBiSourceStatus:output_type -> bi.admin.v1.BiSource
+	9,  // 36: bi.admin.v1.BiSourceService.OptionBiSourceDatabase:output_type -> bi.admin.v1.OptionBiSourceDatabaseResponse
+	14, // 37: bi.admin.v1.BiSourceService.ListBiSourceTables:output_type -> bi.admin.v1.ListBiSourceTablesResponse
+	16, // 38: bi.admin.v1.BiSourceService.PageBiSourceTableData:output_type -> bi.admin.v1.PageBiSourceTableDataResponse
+	26, // 39: bi.admin.v1.BiSourceService.SaveBiSourceModel:output_type -> bi.admin.v1.BiSource
+	29, // 40: bi.admin.v1.BiSourceService.PreviewBiSourceModel:output_type -> bi.admin.v1.BiModelImpact
+	30, // [30:41] is the sub-list for method output_type
+	19, // [19:30] is the sub-list for method input_type
+	19, // [19:19] is the sub-list for extension type_name
+	19, // [19:19] is the sub-list for extension extendee
+	0,  // [0:19] is the sub-list for field type_name
 }
 
 func init() { file_bi_admin_v1_bi_source_proto_init() }
@@ -2548,7 +2439,7 @@ func file_bi_admin_v1_bi_source_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_bi_admin_v1_bi_source_proto_rawDesc), len(file_bi_admin_v1_bi_source_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   32,
+			NumMessages:   30,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

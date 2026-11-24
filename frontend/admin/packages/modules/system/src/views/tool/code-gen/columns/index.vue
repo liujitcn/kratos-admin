@@ -537,6 +537,8 @@ import { useTabsStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import { defBaseDictService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_dict";
 import { loadEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_language";
 import { defCodeGenColumnService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/code_gen_column";
+import type { DatabaseColumn, BaseTableOption } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/database";
+import { defDatabaseService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/database";
 import { defCodeGenTableService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/code_gen_table";
 import type { OptionBaseDictResponse_BaseDict } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_dict";
 import type {
@@ -544,10 +546,9 @@ import type {
   CodeGenColumnFormConfig,
   CodeGenColumnListConfig,
   CodeGenColumnOptionConfig,
-  CodeGenColumnQueryConfig,
-  CodeGenDatabaseColumn
+  CodeGenColumnQueryConfig
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_column";
-import type { CodeGenDatabaseTable, CodeGenTableForm } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_table";
+import type { CodeGenTableForm } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_table";
 import CodeGenLocaleEditor from "../components/CodeGenLocaleEditor.vue";
 import {
   copyCodeGenOptionToEmptyMatches,
@@ -586,8 +587,8 @@ const columns = ref<CodeGenColumnView[]>([]);
 const columnTableRef = ref<HTMLElement>();
 const formData = reactive<CodeGenTableForm>(createDefaultCodeGenTableForm());
 const dictionaries = ref<OptionBaseDictResponse_BaseDict[]>([]);
-const databaseTables = ref<CodeGenDatabaseTable[]>([]);
-const databaseColumns = reactive<Record<string, CodeGenDatabaseColumn[]>>({});
+const databaseTables = ref<BaseTableOption[]>([]);
+const databaseColumns = reactive<Record<string, DatabaseColumn[]>>({});
 const staticOptions = reactive(new Map<string, CodeGenStaticOption[]>());
 const loadingDictionaries = ref(false);
 const loadingDatabaseTables = ref(false);
@@ -1003,7 +1004,7 @@ async function loadDatabaseTables() {
   if (databaseTablesLoaded || loadingDatabaseTables.value) return;
   loadingDatabaseTables.value = true;
   try {
-    const data = await defCodeGenTableService.ListCodeGenDatabaseTable({ source_name: formData.source_name });
+    const data = await defDatabaseService.OptionBaseTable({ source_name: formData.source_name });
     databaseTables.value = data.tables ?? [];
     databaseTablesLoaded = true;
   } finally {
@@ -1016,7 +1017,7 @@ async function loadDatabaseColumns(tableName: string) {
   if (!tableName || databaseColumns[tableName] || loadingDatabaseColumns.has(tableName)) return;
   loadingDatabaseColumns.add(tableName);
   try {
-    const data = await defCodeGenColumnService.ListCodeGenDatabaseColumn({
+    const data = await defDatabaseService.ListTableColumns({
       source_name: formData.source_name,
       table_name: tableName
     });
@@ -1042,7 +1043,7 @@ function applyTableOptionDefaultFields(option: CodeGenColumnOptionConfig, compon
 }
 
 /** 格式化数据表字段选项。 */
-function formatDatabaseColumn(column: CodeGenDatabaseColumn) {
+function formatDatabaseColumn(column: DatabaseColumn) {
   const columnType = column.column_type || column.db_type;
   return column.comment ? `${column.name}（${column.comment} / ${columnType}）` : `${column.name}（${columnType}）`;
 }

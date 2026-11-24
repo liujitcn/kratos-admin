@@ -1,5 +1,5 @@
 <template>
-  <el-main class="bi-card-library" style="--el-main-padding: 0; flex: 0 1 auto; overflow: visible">
+  <div class="bi-card-library">
     <el-card class="admin-page-card" shadow="never">
       <el-tabs v-model="category" @tab-change="search">
         <el-tab-pane v-for="item in categories" :key="item" :name="item">
@@ -101,7 +101,7 @@
       @confirm="addToDashboard"
       @closed="target.id = undefined"
     />
-  </el-main>
+  </div>
 </template>
 <script setup lang="ts">
 import { computed, onMounted, onActivated, reactive, ref } from "vue";
@@ -279,7 +279,7 @@ onActivated(() => {
 .bi-card-library {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
   min-width: 0;
 }
 .bi-card-library__count {
@@ -306,7 +306,7 @@ onActivated(() => {
 .bi-card-library__grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  gap: 10px;
 }
 .bi-card-library :deep(.el-pagination) {
   justify-content: flex-end;

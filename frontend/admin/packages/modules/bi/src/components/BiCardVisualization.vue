@@ -14,8 +14,11 @@
   </div>
   <div v-else-if="data.metricOnly" class="bi-card-metrics" :class="{ 'is-multiple': data.metrics.length > 1, 'is-compact': compact }">
     <div v-for="metric in data.metrics" :key="metric.code" class="bi-card-metrics__item">
-      <span v-if="data.metrics.length > 1">{{ metric.name }}</span
-      ><el-text tag="strong">{{ formatCardMetric(metric.value) }}</el-text>
+      <span>{{ metric.name }}</span>
+      <div>
+        <el-text tag="strong">{{ formatCardMetric(metric.value) }}</el-text>
+        <el-text v-if="metric.unit" tag="small" class="bi-card-metrics__unit">{{ metric.unit }}</el-text>
+      </div>
     </div>
   </div>
   <div v-else class="bi-card-plot">
@@ -33,21 +36,20 @@ import { buildCardChart, formatCardMetric } from "../card-schema";
 import { useBiTheme } from "../env";
 import BiChart from "./BiChart.vue";
 
-const props = defineProps<{ card: BiCard; result: BiQueryResult; compact?: boolean }>();
+const props = defineProps<{
+  card: BiCard;
+  result: BiQueryResult;
+  compact?: boolean;
+  /** 工作台的非交互缩略图，自动使用紧凑布局。 */
+  thumbnail?: boolean;
+}>();
 const theme = useBiTheme();
 const trendIcons = { up: ArrowUp, down: ArrowDown, flat: Minus };
+const compact = computed(() => props.compact || props.thumbnail);
 const data = computed(() => {
-  const value = buildCardChart(props.card, props.result);
-  if (props.compact) {
-    value.chart.style = { ...value.chart.style, showLegend: false, showLabel: false, dataZoom: false };
-    value.chart.options = { tooltip: { show: false }, visualMap: { show: false } };
-    if (["bar", "line", "area", "scatter", "heatmap"].includes(props.card.chart_type)) {
-      value.chart.options.grid = { left: 4, right: 4, top: 6, bottom: 4 };
-      value.chart.options.xAxis = { type: props.card.chart_type === "scatter" ? "value" : "category", show: false };
-      value.chart.options.yAxis = { type: props.card.chart_type === "heatmap" ? "category" : "value", show: false };
-    }
-  }
-  return value;
+  const data = buildCardChart(props.card, props.result, compact.value);
+  if (props.thumbnail) data.chart.thumbnail = true;
+  return data;
 });
 </script>
 
@@ -153,9 +155,12 @@ const data = computed(() => {
   font-variant-numeric: tabular-nums;
 }
 .bi-card-metrics__item span,
-.bi-card-gauge__details span {
+.bi-card-metrics__unit {
   color: var(--el-text-color-secondary);
   font-size: 12px;
+}
+.bi-card-metrics__unit {
+  margin-inline-start: 4px;
 }
 .bi-card-metrics:not(.is-multiple) {
   align-content: start;

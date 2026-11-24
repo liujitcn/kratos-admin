@@ -8,12 +8,12 @@ import {
   formatCardMetric
 } from "../src/card-schema.ts";
 
-test("卡片原样使用服务端聚合结果，指标卡保留大整数和金额精度", () => {
-  const result = { columns: [{ code: "amount", type: "number" }], rows: [{ values: ["9007199254740993"] }] };
+test("指标卡保留名称、单位和服务端聚合精度", () => {
+  const result = { columns: [{ code: "amount", name: "消费金额", type: "number", unit: "元" }], rows: [{ values: ["9007199254740993"] }] };
   const card = { id: 1, chart_type: "metric", query: { dimensions: [], measures: [{ code: "amount" }] } };
   const snapshot = structuredClone(result);
   const actual = buildCardChart(card, result);
-  assert.equal(actual.metrics[0].value, "9007199254740993");
+  assert.deepEqual(actual.metrics[0], { code: "amount", name: "消费金额", value: "9007199254740993", unit: "元" });
   assert.equal(actual.metricOnly, true);
   assert.equal(actual.chart.aggregation, "none");
   assert.deepEqual(result, snapshot);
@@ -26,6 +26,22 @@ test("无分组查询自动展示指标，空数据和缺失值不会显示NaN",
   assert.equal(actual.metricOnly, true);
   assert.equal(actual.metrics[0].value, "—");
   assert.deepEqual(actual.rows, []);
+});
+
+test("指标卡和指标网格隐藏缺值的单位，但保留零值和单位", () => {
+  const columns = [{ code: "amount", name: "金额", type: "number", unit: "元" }];
+  const query = { dimensions: [], measures: [{ code: "amount" }] };
+  for (const chart_type of ["metric", "metric_grid"]) {
+    const card = { id: 1, chart_type, query };
+    for (const rows of [[], [{ values: [""] }]]) {
+      const [metric] = buildCardChart(card, { columns, rows }).metrics;
+      assert.equal(metric.value, "—");
+      assert.equal(metric.unit, "");
+    }
+    const [metric] = buildCardChart(card, { columns, rows: [{ values: ["0"] }] }).metrics;
+    assert.equal(metric.value, "0");
+    assert.equal(metric.unit, "元");
+  }
 });
 
 test("按个人配置顺序组装仪表盘入口，忽略已撤回或删除的仪表盘", () => {

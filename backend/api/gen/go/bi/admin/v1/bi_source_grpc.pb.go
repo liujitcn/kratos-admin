@@ -27,7 +27,6 @@ const (
 	BiSourceService_DeleteBiSource_FullMethodName         = "/bi.admin.v1.BiSourceService/DeleteBiSource"
 	BiSourceService_SetBiSourceStatus_FullMethodName      = "/bi.admin.v1.BiSourceService/SetBiSourceStatus"
 	BiSourceService_OptionBiSourceDatabase_FullMethodName = "/bi.admin.v1.BiSourceService/OptionBiSourceDatabase"
-	BiSourceService_TestBiSource_FullMethodName           = "/bi.admin.v1.BiSourceService/TestBiSource"
 	BiSourceService_ListBiSourceTables_FullMethodName     = "/bi.admin.v1.BiSourceService/ListBiSourceTables"
 	BiSourceService_PageBiSourceTableData_FullMethodName  = "/bi.admin.v1.BiSourceService/PageBiSourceTableData"
 	BiSourceService_SaveBiSourceModel_FullMethodName      = "/bi.admin.v1.BiSourceService/SaveBiSourceModel"
@@ -54,8 +53,6 @@ type BiSourceServiceClient interface {
 	SetBiSourceStatus(ctx context.Context, in *SetBiSourceStatusRequest, opts ...grpc.CallOption) (*BiSource, error)
 	// 查询服务端已配置的数据库客户端选项。
 	OptionBiSourceDatabase(ctx context.Context, in *OptionBiSourceDatabaseRequest, opts ...grpc.CallOption) (*OptionBiSourceDatabaseResponse, error)
-	// 测试数据源连接是否可访问。
-	TestBiSource(ctx context.Context, in *TestBiSourceRequest, opts ...grpc.CallOption) (*TestBiSourceResponse, error)
 	// 发现已保存数据源中的表、字段和唯一键。
 	ListBiSourceTables(ctx context.Context, in *ListBiSourceTablesRequest, opts ...grpc.CallOption) (*ListBiSourceTablesResponse, error)
 	// 分页查询数据源中指定表的数据。
@@ -144,16 +141,6 @@ func (c *biSourceServiceClient) OptionBiSourceDatabase(ctx context.Context, in *
 	return out, nil
 }
 
-func (c *biSourceServiceClient) TestBiSource(ctx context.Context, in *TestBiSourceRequest, opts ...grpc.CallOption) (*TestBiSourceResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TestBiSourceResponse)
-	err := c.cc.Invoke(ctx, BiSourceService_TestBiSource_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *biSourceServiceClient) ListBiSourceTables(ctx context.Context, in *ListBiSourceTablesRequest, opts ...grpc.CallOption) (*ListBiSourceTablesResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListBiSourceTablesResponse)
@@ -214,8 +201,6 @@ type BiSourceServiceServer interface {
 	SetBiSourceStatus(context.Context, *SetBiSourceStatusRequest) (*BiSource, error)
 	// 查询服务端已配置的数据库客户端选项。
 	OptionBiSourceDatabase(context.Context, *OptionBiSourceDatabaseRequest) (*OptionBiSourceDatabaseResponse, error)
-	// 测试数据源连接是否可访问。
-	TestBiSource(context.Context, *TestBiSourceRequest) (*TestBiSourceResponse, error)
 	// 发现已保存数据源中的表、字段和唯一键。
 	ListBiSourceTables(context.Context, *ListBiSourceTablesRequest) (*ListBiSourceTablesResponse, error)
 	// 分页查询数据源中指定表的数据。
@@ -254,9 +239,6 @@ func (UnimplementedBiSourceServiceServer) SetBiSourceStatus(context.Context, *Se
 }
 func (UnimplementedBiSourceServiceServer) OptionBiSourceDatabase(context.Context, *OptionBiSourceDatabaseRequest) (*OptionBiSourceDatabaseResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method OptionBiSourceDatabase not implemented")
-}
-func (UnimplementedBiSourceServiceServer) TestBiSource(context.Context, *TestBiSourceRequest) (*TestBiSourceResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method TestBiSource not implemented")
 }
 func (UnimplementedBiSourceServiceServer) ListBiSourceTables(context.Context, *ListBiSourceTablesRequest) (*ListBiSourceTablesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListBiSourceTables not implemented")
@@ -417,24 +399,6 @@ func _BiSourceService_OptionBiSourceDatabase_Handler(srv interface{}, ctx contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BiSourceService_TestBiSource_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TestBiSourceRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(BiSourceServiceServer).TestBiSource(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: BiSourceService_TestBiSource_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BiSourceServiceServer).TestBiSource(ctx, req.(*TestBiSourceRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _BiSourceService_ListBiSourceTables_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListBiSourceTablesRequest)
 	if err := dec(in); err != nil {
@@ -541,10 +505,6 @@ var BiSourceService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "OptionBiSourceDatabase",
 			Handler:    _BiSourceService_OptionBiSourceDatabase_Handler,
-		},
-		{
-			MethodName: "TestBiSource",
-			Handler:    _BiSourceService_TestBiSource_Handler,
 		},
 		{
 			MethodName: "ListBiSourceTables",

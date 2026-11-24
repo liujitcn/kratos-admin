@@ -1,18 +1,19 @@
 package biz
 
 import (
+	"cmp"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
 	"github.com/liujitcn/kratos-admin/backend/adapter/kit"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	basebiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/redact"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/dbmeta"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
@@ -24,7 +25,6 @@ import (
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
 	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
-	"gorm.io/gorm"
 )
 
 // BaseRedactStoragePolicyCase 提供入库脱敏策略管理能力。
@@ -125,7 +125,7 @@ func (c *BaseRedactStoragePolicyCase) listTableComments(ctx context.Context, row
 			// 数据源已下线的策略回退展示裸表名，不阻塞整个列表。
 			continue
 		}
-		var metas []dto.CodeGenDatabaseTable
+		var metas []dbmeta.Table
 		metas, err = listDatabaseTableMetadata(ctx, client, tableNames)
 		if err != nil {
 			return nil, errorsx.Internal("查询数据表注释失败").WithCause(err)
@@ -386,35 +386,23 @@ func (c *BaseRedactStoragePolicyCase) ListBaseRedactStorageTable(ctx context.Con
 	if err != nil {
 		return nil, errorsx.InvalidArgument("请选择已初始化的数据源").WithCause(err)
 	}
-	type tenantTable struct {
-		Name    string `gorm:"column:name"`
-		Comment string `gorm:"column:comment"`
-	}
-	var rows []tenantTable
-	driverName := client.Driver()
-	err = client.DB.WithContext(ctx).
-		Table("information_schema.tables AS tables").
-		Select("tables.table_name AS name, "+basebiz.TableCommentExpr(driverName, "tables.")+" AS comment").
-		Joins("JOIN information_schema.columns AS columns ON columns.table_schema = tables.table_schema AND columns.table_name = tables.table_name AND columns.column_name = ?", "tenant_id").
-		Where("tables.table_schema = "+basebiz.CurrentSchemaExpr(driverName)).
-		Where("tables.table_type = ?", "BASE TABLE").
-		Order("tables.table_name").
-		Find(&rows).Error
+	var rows []dbmeta.Table
+	rows, err = dbmeta.ListTables(ctx, client.DB, client.Driver(), dbmeta.TableScope{RequireColumn: "tenant_id"})
 	if err != nil {
 		return nil, errorsx.Internal("查询包含租户ID的数据表失败").WithCause(err)
 	}
 	tables := make([]*adminv1.BaseRedactStorageTable, 0, len(rows))
 	for _, row := range rows {
-		comment := row.Comment
+		comment := row.TableComment
 		if comment == "" {
-			comment = row.Name
+			comment = row.TableName
 		}
-		tables = append(tables, &adminv1.BaseRedactStorageTable{Name: row.Name, Comment: comment})
+		tables = append(tables, &adminv1.BaseRedactStorageTable{Name: row.TableName, Comment: comment})
 	}
 	return &adminv1.ListBaseRedactStorageTableResponse{Tables: tables}, nil
 }
 
-// ListBaseRedactStorageColumn 查询可入库脱敏的字符串字段列表。
+// ListBaseRedactStorageColumn 查询可入库脱敏且不属于主键、唯一索引的字符串字段。
 func (c *BaseRedactStoragePolicyCase) ListBaseRedactStorageColumn(ctx context.Context, req *adminv1.ListBaseRedactStorageColumnRequest) (*adminv1.ListBaseRedactStorageColumnResponse, error) {
 	err := redact.EnsureRedactPlatformOperator(ctx, c.BaseCase)
 	if err != nil {
@@ -430,43 +418,21 @@ func (c *BaseRedactStoragePolicyCase) ListBaseRedactStorageColumn(ctx context.Co
 	if !client.Migrator().HasColumn(req.GetTableName(), "tenant_id") {
 		return nil, errorsx.InvalidArgument("只能选择包含租户ID的数据表")
 	}
-	var columnTypes []gorm.ColumnType
-	columnTypes, err = client.Migrator().ColumnTypes(req.GetTableName())
+	var metadata []dbmeta.StorageColumn
+	metadata, err = dbmeta.ListStorageColumns(ctx, client.DB, client.Driver(), req.GetTableName())
 	if err != nil {
 		return nil, errorsx.Internal("查询数据库字段失败").WithCause(err)
 	}
-	var indexes []gorm.Index
-	indexes, err = client.Migrator().GetIndexes(req.GetTableName())
-	if err != nil {
-		return nil, errorsx.Internal("查询数据库索引失败").WithCause(err)
-	}
-	columns := make([]*adminv1.BaseRedactStorageColumn, 0, len(columnTypes))
-	for _, columnType := range columnTypes {
-		if !redact.IsRedactStringDatabaseType(columnType.DatabaseTypeName()) {
+	columns := make([]*adminv1.BaseRedactStorageColumn, 0, len(metadata))
+	for _, column := range metadata {
+		if column.IsKey || !redact.IsRedactStringDatabaseType(column.DataType) {
 			continue
-		}
-		if primary, ok := columnType.PrimaryKey(); ok && primary {
-			continue
-		}
-		if unique, ok := columnType.Unique(); ok && unique {
-			continue
-		}
-		if isUniqueStorageIndexColumn(columnType.Name(), indexes) {
-			continue
-		}
-		comment, _ := columnType.Comment()
-		if comment == "" {
-			comment = columnType.Name()
-		}
-		columnTypeName, _ := columnType.ColumnType()
-		if columnTypeName == "" {
-			columnTypeName = columnType.DatabaseTypeName()
 		}
 		columns = append(columns, &adminv1.BaseRedactStorageColumn{
-			Name:       columnType.Name(),
-			Comment:    comment,
-			DbType:     columnType.DatabaseTypeName(),
-			ColumnType: columnTypeName,
+			Name:       column.Name,
+			Comment:    cmp.Or(column.Comment, column.Name),
+			DbType:     column.DataType,
+			ColumnType: column.ColumnType,
 		})
 	}
 	return &adminv1.ListBaseRedactStorageColumnResponse{Columns: columns}, nil
@@ -487,7 +453,7 @@ func (c *BaseRedactStoragePolicyCase) ensureNoStoredValues(ctx context.Context, 
 	return nil
 }
 
-// validateStorageForm 校验入库策略的目标字段和规则参数，默认租户策略即全局策略。
+// validateStorageForm 校验入库策略字段不属于主键或唯一索引，并检查规则参数。
 func (c *BaseRedactStoragePolicyCase) validateStorageForm(ctx context.Context, input *adminv1.BaseRedactStoragePolicyForm) (*models.BaseRedactRule, error) {
 	if input.GetTenantId() <= 0 {
 		return nil, errorsx.InvalidArgument("请选择租户")
@@ -513,31 +479,23 @@ func (c *BaseRedactStoragePolicyCase) validateStorageForm(ctx context.Context, i
 	if !client.Migrator().HasColumn(input.GetTableName(), "tenant_id") && !strings.EqualFold(rule.RuleType, "ENCRYPT") {
 		return nil, errorsx.InvalidArgument("只能选择包含租户ID的数据表")
 	}
-	var columnTypes []gorm.ColumnType
-	columnTypes, err = client.Migrator().ColumnTypes(input.GetTableName())
+	var metadata []dbmeta.StorageColumn
+	metadata, err = dbmeta.ListStorageColumns(ctx, client.DB, client.Driver(), input.GetTableName())
 	if err != nil {
 		return nil, errorsx.Internal("查询数据库字段约束失败").WithCause(err)
 	}
-	var indexes []gorm.Index
-	indexes, err = client.Migrator().GetIndexes(input.GetTableName())
-	if err != nil {
-		return nil, errorsx.Internal("查询数据库索引约束失败").WithCause(err)
+	index := slices.IndexFunc(metadata, func(column dbmeta.StorageColumn) bool {
+		return strings.EqualFold(column.Name, input.GetColumnName())
+	})
+	if index < 0 {
+		return nil, errorsx.InvalidArgument("数据库字段不存在")
 	}
-	for _, columnType := range columnTypes {
-		if !strings.EqualFold(columnType.Name(), input.GetColumnName()) {
-			continue
-		}
-		if !redact.IsRedactStringDatabaseType(columnType.DatabaseTypeName()) {
-			return nil, errorsx.InvalidArgument("只有字符串字段支持入库脱敏")
-		}
-		unique, ok := columnType.Unique()
-		if ok && unique {
-			return nil, errorsx.InvalidArgument("唯一索引字段不支持入库脱敏")
-		}
-		if isUniqueStorageIndexColumn(columnType.Name(), indexes) {
-			return nil, errorsx.InvalidArgument("唯一索引字段不支持入库脱敏")
-		}
-		break
+	column := metadata[index]
+	if !redact.IsRedactStringDatabaseType(column.DataType) {
+		return nil, errorsx.InvalidArgument("只有字符串字段支持入库脱敏")
+	}
+	if column.IsKey {
+		return nil, errorsx.InvalidArgument("唯一索引字段不支持入库脱敏")
 	}
 	err = kit.ValidateRedactRule(rule.Code, rule.RuleType, input.GetRuleParams())
 	if err != nil {
@@ -548,22 +506,6 @@ func (c *BaseRedactStoragePolicyCase) validateStorageForm(ctx context.Context, i
 		return nil, errorsx.InvalidArgument("入库脱敏策略状态无效")
 	}
 	return rule, nil
-}
-
-// isUniqueStorageIndexColumn 判断字段是否属于单列或复合唯一索引。
-func isUniqueStorageIndexColumn(columnName string, indexes []gorm.Index) bool {
-	for _, index := range indexes {
-		unique, ok := index.Unique()
-		if !ok || !unique {
-			continue
-		}
-		for _, indexedColumn := range index.Columns() {
-			if strings.EqualFold(indexedColumn, columnName) {
-				return true
-			}
-		}
-	}
-	return false
 }
 
 // toBaseRedactStoragePolicy 转换入库脱敏策略列表项并填充数据表注释。

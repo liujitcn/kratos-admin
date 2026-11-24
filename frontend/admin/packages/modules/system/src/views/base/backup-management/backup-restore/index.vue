@@ -36,7 +36,7 @@ import { t } from "@liujitcn/kratos-admin-core";
 import { formatDateTime } from "@liujitcn/kratos-admin-core/format";
 import { resolvePersistedMessage } from "../../../../utils/persisted-message";
 import { defBaseTableBackupRestoreService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_table_backup_restore";
-import { defBaseTableSourceService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_table_source";
+import { defDatabaseService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/database";
 import {
   BaseTableBackupRestoreMode,
   BaseTableBackupRestoreStatus,
@@ -176,7 +176,7 @@ function resetForm() {
 /** 加载目标数据源后打开手工恢复弹窗。 */
 async function openDialog() {
   await formDialogRef.value?.open({
-    load: () => defBaseTableSourceService.OptionBaseTableSource({}),
+    load: () => defDatabaseService.OptionBaseTableSource({}),
     commit: data => {
       sourceOptions.value = (data.value ?? []).map(value => ({ label: value, value }));
       if (!sourceOptions.value.some(item => item.value === formData.target_source_name))

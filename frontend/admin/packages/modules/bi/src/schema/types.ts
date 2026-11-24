@@ -72,6 +72,7 @@ export interface BiChartStyle {
   format?: BiNumberFormat;
 }
 
+/** 独立于图表引擎的渲染配置。 */
 export interface BiChartSchema {
   id: string;
   title?: string;
@@ -79,6 +80,12 @@ export interface BiChartSchema {
   /** 图表引擎，默认 "echarts" */
   engine?: string;
   type: BiChartType;
+  /** 小卡片布局：保留数据标签和交互提示，减少绘图区留白。 */
+  compact?: boolean;
+  /** 只读缩略图：使用紧凑布局，不显示图例和交互提示。 */
+  thumbnail?: boolean;
+  /** 查询结果的指标名称及单位，按原始字段编码寻址。 */
+  measureLabels?: Record<string, string>;
   /** 12 列网格坐标（栅格单位）；x/y 缺省自动流式放置 */
   x?: number;
   y?: number;

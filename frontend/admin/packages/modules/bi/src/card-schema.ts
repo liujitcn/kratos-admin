@@ -6,7 +6,8 @@ import type { BiQueryResult, BiSourceDescriptor } from "./rpc/bi/admin/v1/bi_que
 /** 将卡片查询结果映射到现有图表引擎，保留分组及全部所选指标。 */
 export function buildCardChart(
   card: BiCard,
-  result: BiQueryResult
+  result: BiQueryResult,
+  compact = false
 ): { chart: BiChartSchema; rows: BiRow[]; metrics: CardMetric[]; metricOnly: boolean } {
   const config = parseCardChart(card);
   const metricGrid = card.chart_type === "metric_grid";
@@ -47,6 +48,10 @@ export function buildCardChart(
       id: `card_${card.id}`,
       datasetId: `card_${card.id}`,
       type: card.chart_type,
+      ...(compact && {
+        compact,
+        measureLabels: Object.fromEntries(numericFields.map(({ code, name, unit }) => [code, unit ? `${name || code}（${unit}）` : name || code]))
+      }),
       encoding: {
         dimension,
         measure,
@@ -58,23 +63,24 @@ export function buildCardChart(
       style: {
         showLabel: false,
         showLegend: Boolean(series) || measures.length > 1 || card.chart_type === "pie" || card.chart_type === "donut",
-        ...config.style
+        ...config.style,
+        ...(compact && { showLabel: false, dataZoom: false })
       }
     },
     rows,
     metrics: metricItems.map(item => {
       const code = item.value;
       const column = result.columns.find(resultColumn => resultColumn.code === code);
-      const value = String(rows[0]?.[code] ?? "—");
+      const value = String(rows[0]?.[code] ?? "") || "—";
       const compareValue = item.compare ? String(rows[0]?.[item.compare] ?? "") : undefined;
       const change = metricGrid ? metricChange(value, compareValue) : undefined;
       return {
         code,
         name: column?.name || code,
         value,
+        unit: value === "—" ? "" : column?.unit || "",
         ...(metricGrid
           ? {
-              unit: column?.unit || "",
               ...(compareValue !== undefined && compareValue !== "" ? { compareValue } : {}),
               ...(change
                 ? { compareLabel: item.compareLabel || "较昨日", delta: change.delta, trend: change.trend }

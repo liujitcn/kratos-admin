@@ -17,13 +17,6 @@ service CodeGenColumnService {
     };
   }
 
-  // 查询数据库表字段列表
-  rpc ListCodeGenDatabaseColumn(ListCodeGenDatabaseColumnRequest) returns (ListCodeGenDatabaseColumnResponse) {
-    option (google.api.http) = {
-      get: "/api/v1/admin/code-gen/database/table/{table_name}/column"
-    };
-  }
-
   // 保存代码生成字段配置
   rpc SaveCodeGenColumn(SaveCodeGenColumnRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
@@ -43,37 +36,11 @@ message ListCodeGenColumnResponse {
   repeated CodeGenColumn code_gen_columns = 1 [(gnostic.openapi.v3.property) = {description: "代码生成字段配置列表"}]; // 代码生成字段配置列表
 }
 
-// 数据库表字段列表查询条件
-message ListCodeGenDatabaseColumnRequest {
-  string table_name = 1 [(gnostic.openapi.v3.property) = {description: "数据库表名"}, (buf.validate.field).cel = {id: "system.admin.code.gen.column.list_gen_database_column.table_name.required" message: "数据库表名不能为空" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "system.admin.code.gen.column.list_gen_database_column.table_name.pattern" message: "数据库表名格式不正确" expression: "this.matches('^[a-z][a-z0-9_]*$')"}]; // 数据库表名
-  string source_name = 2 [(gnostic.openapi.v3.property) = {description: "数据源名称"}, (buf.validate.field).cel = {id: "system.admin.code.gen.column.list_gen_database_column.source_name.required" message: "数据源名称不能为空" expression: "this.size() > 0"}]; // 数据源名称
-}
-
-// 数据库表字段列表响应
-message ListCodeGenDatabaseColumnResponse {
-  repeated CodeGenDatabaseColumn columns = 1 [(gnostic.openapi.v3.property) = {description: "数据库字段列表"}]; // 数据库字段列表
-}
-
 // 代码生成字段配置保存条件
 message SaveCodeGenColumnRequest {
   int64 table_id = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置ID"}, (buf.validate.field).cel = {id: "system.admin.code.gen.column.save.table_id.required" message: "代码生成表配置ID不能为空" expression: "this > 0"}]; // 代码生成表配置ID
 
   repeated CodeGenColumn code_gen_columns = 2 [(gnostic.openapi.v3.property) = {description: "代码生成字段配置列表"}]; // 代码生成字段配置列表
-}
-
-// 数据库字段元数据
-message CodeGenDatabaseColumn {
-  string name = 1 [(gnostic.openapi.v3.property) = {description: "数据库字段名"}]; // 数据库字段名
-
-  string comment = 2 [(gnostic.openapi.v3.property) = {description: "数据库字段注释"}]; // 数据库字段注释
-
-  string db_type = 3 [(gnostic.openapi.v3.property) = {description: "数据库字段类型"}]; // 数据库字段类型
-
-  string column_type = 4 [(gnostic.openapi.v3.property) = {description: "数据库完整字段类型"}]; // 数据库完整字段类型
-
-  bool is_primary = 5 [(gnostic.openapi.v3.property) = {description: "是否主键"}]; // 是否主键
-
-  bool is_nullable = 6 [(gnostic.openapi.v3.property) = {description: "是否允许为空"}]; // 是否允许为空
 }
 
 // 代码生成字段配置

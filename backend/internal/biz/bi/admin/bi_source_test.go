@@ -1,13 +1,20 @@
 package admin
 
 import (
+	"context"
 	"database/sql"
 	"testing"
 	"time"
 
+	"github.com/go-kratos/kratos/v3/errors"
+	"github.com/liujitcn/kratos-admin/backend/adapter/kit"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/bi/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/bi/admin/query"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/dbconn"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-admin/backend/pkg/bi"
+	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/sdk"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -153,4 +160,77 @@ func sourceTableDataRowValues(rows []*adminv1.BiSourceTableDataRow) [][]string {
 		result = append(result, row.GetValues())
 	}
 	return result
+}
+
+// TestConnectionTestPasswordScope 验证测试不能把其他租户或原连接的凭据转发给不同连接。
+func TestConnectionTestPasswordScope(t *testing.T) {
+	cards, _ := newBiWorkflowTestCases(t)
+	c := cards.biQueryCase.biSourceCase
+	ctx := biCardTestContext(1, 1, -1)
+	item := &models.BiSource{TenantID: 1, Code: "credential_scope", Host: "db.example", Driver: "postgres", Port: 5432, DatabaseName: "demo", Username: "reader", Password: "encrypted"}
+	err := c.sourceRepo.Create(ctx, item)
+	if err != nil {
+		t.Fatal(err)
+	}
+	config := dbconn.Config{Host: item.Host, Driver: item.Driver, Port: item.Port, DatabaseName: item.DatabaseName, Username: item.Username}
+	if _, err = c.ConnectionTestPassword(biCardTestContext(2, 2, -1), item.ID, config); errors.Code(err) != 404 {
+		t.Fatalf("跨租户测试应拒绝复用凭据: %v", err)
+	}
+	config.Host = "other.example"
+	if _, err = c.ConnectionTestPassword(ctx, item.ID, config); errors.Code(err) != 400 {
+		t.Fatalf("连接目标变更时必须重新填写密码: %v", err)
+	}
+}
+
+// TestSourcePasswordRejectsStaleVersion 验证只允许与已读取连接参数同版本的凭据。
+func TestSourcePasswordRejectsStaleVersion(t *testing.T) {
+	cards, _ := newBiWorkflowTestCases(t)
+	c := cards.biQueryCase.biSourceCase
+	ctx := biCardTestContext(1, 1, -1)
+	db := c.GormClients[databaseGorm.DefaultClientName].DB
+	err := db.AutoMigrate(&models.BaseRedactRule{}, &models.BaseRedactStoragePolicy{}, &models.BaseRedactOutputPolicy{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, record := range []any{
+		&models.BaseRedactRule{ID: 11, Code: "encrypt", RuleType: "ENCRYPT", DefaultParams: `{"encrypt":{"algorithm":"AES_GCM"}}`, Status: 1},
+		&models.BaseRedactStoragePolicy{ID: 2010, TenantID: 1, SourceName: databaseGorm.DefaultClientName, TableName_: "bi_source", ColumnName: "password", RuleID: 11, RuleParams: "{}", Status: 1},
+	} {
+		if err = db.Create(record).Error; err != nil {
+			t.Fatal(err)
+		}
+	}
+	originalKey := sdk.Runtime.GetKey()
+	sdk.Runtime.SetKey(biCredentialTestKey{})
+	t.Cleanup(func() { sdk.Runtime.SetKey(originalKey) })
+	c.redactResolver, err = kit.NewRedactPolicyResolver(c.GormClients)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = c.redactResolver.Initialize(ctx); err != nil {
+		t.Fatal(err)
+	}
+	item := &models.BiSource{TenantID: 1, Code: "versioned_credentials", Host: "db.example", Password: "fixture-password", Version: 2}
+	if err = c.sourceRepo.Create(ctx, item); err != nil {
+		t.Fatal(err)
+	}
+	config := dbconn.Config{Host: item.Host}
+	var password string
+	password, err = c.ConnectionTestPassword(ctx, item.ID, config)
+	if err != nil || password != "fixture-password" {
+		t.Fatalf("当前版本应能还原已保存的凭据: %v", err)
+	}
+	item.Version--
+	password, err = c.sourcePassword(ctx, item)
+	if errors.Code(err) != 409 || password != "" {
+		t.Fatalf("版本不匹配时不得返回凭据: %v", err)
+	}
+}
+
+// biCredentialTestKey 提供仅用于本地回归测试的固定密钥。
+type biCredentialTestKey struct{}
+
+// Derive 返回固定长度的测试密钥。
+func (biCredentialTestKey) Derive(context.Context, string) ([]byte, error) {
+	return make([]byte, 32), nil
 }

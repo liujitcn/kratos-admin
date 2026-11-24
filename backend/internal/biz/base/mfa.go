@@ -29,6 +29,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginpolicy"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/dbmeta"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
@@ -848,7 +849,7 @@ func (c *MfaCase) copyLegacyTotpColumn(ctx context.Context) error {
 	db := client.DB.WithContext(ctx)
 	var count int64
 	err := db.Table("information_schema.columns").
-		Where("table_schema = "+CurrentSchemaExpr(client.Driver())).
+		Where("table_schema = "+dbmeta.CurrentSchemaExpr(client.Driver())).
 		Where("table_name = ?", "base_user_mfa_totp").
 		Where("column_name = ?", legacyTotpSecretColumn).
 		Count(&count).Error

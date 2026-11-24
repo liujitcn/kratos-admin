@@ -22,7 +22,6 @@ func RegisterBiSourceServiceMCPTools(mcpServer *server.MCPServer, biSourceServic
 	RegisterBiSourceServiceDeleteBiSourceMCPTool(mcpServer, biSourceServiceServer)
 	RegisterBiSourceServiceSetBiSourceStatusMCPTool(mcpServer, biSourceServiceServer)
 	RegisterBiSourceServiceOptionBiSourceDatabaseMCPTool(mcpServer, biSourceServiceServer)
-	RegisterBiSourceServiceTestBiSourceMCPTool(mcpServer, biSourceServiceServer)
 	RegisterBiSourceServiceListBiSourceTablesMCPTool(mcpServer, biSourceServiceServer)
 	RegisterBiSourceServicePageBiSourceTableDataMCPTool(mcpServer, biSourceServiceServer)
 	RegisterBiSourceServiceSaveBiSourceModelMCPTool(mcpServer, biSourceServiceServer)
@@ -189,30 +188,6 @@ func RegisterBiSourceServiceOptionBiSourceDatabaseMCPTool(mcpServer *server.MCPS
 			}
 			var reply *OptionBiSourceDatabaseResponse
 			reply, err = biSourceServiceServer.OptionBiSourceDatabase(ctx, req)
-			if err != nil {
-				return mcp.NewToolResultError(err.Error()), nil
-			}
-			return mcp.NewToolResultJSON(reply)
-		},
-	)
-}
-
-// RegisterBiSourceServiceTestBiSourceMCPTool 注册测试数据源连接是否可访问的 MCP Tool。
-func RegisterBiSourceServiceTestBiSourceMCPTool(mcpServer *server.MCPServer, biSourceServiceServer BiSourceServiceServer) {
-	mcpServer.AddTool(
-		mcp.NewTool("bi_admin_v1_bi_source_service_test_bi_source",
-			mcp.WithDescription("测试数据源连接是否可访问。"),
-			mcp.WithInputSchema[*TestBiSourceRequest](),
-			mcp.WithOutputSchema[*TestBiSourceResponse](),
-		),
-		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-			req := &TestBiSourceRequest{}
-			err := request.BindArguments(req)
-			if err != nil {
-				return nil, err
-			}
-			var reply *TestBiSourceResponse
-			reply, err = biSourceServiceServer.TestBiSource(ctx, req)
 			if err != nil {
 				return mcp.NewToolResultError(err.Error()), nil
 			}

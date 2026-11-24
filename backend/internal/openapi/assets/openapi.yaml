@@ -5767,37 +5767,6 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/v1/admin/base/table-source/option:
-        get:
-            tags:
-                - BaseTableSourceService
-            description: 查询已初始化的数据源名称。
-            operationId: BaseTableSourceService_OptionBaseTableSource
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/common.v1.StringValues'
-    /api/v1/admin/base/table-source/table/option:
-        get:
-            tags:
-                - BaseTableSourceService
-            description: 查询指定数据源中的数据库表选项。
-            operationId: BaseTableSourceService_OptionBaseTable
-            parameters:
-                - name: source_name
-                  in: query
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/system.admin.v1.OptionBaseTableResponse'
     /api/v1/admin/base/tenant:
         get:
             tags:
@@ -7030,25 +6999,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/bi.admin.v1.OptionBiSourceDatabaseResponse'
-    /api/v1/admin/bi/source/test:
-        post:
-            tags:
-                - BiSourceService
-            description: 测试数据源连接是否可访问。
-            operationId: BiSourceService_TestBiSource
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/bi.admin.v1.BiSourceForm'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/bi.admin.v1.TestBiSourceResponse'
     /api/v1/admin/bi/source/{id}:
         get:
             tags:
@@ -7328,29 +7278,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.ListCodeGenDatabaseTableResponse'
-    /api/v1/admin/code-gen/database/table/{table_name}/column:
-        get:
-            tags:
-                - CodeGenColumnService
-            description: 查询数据库表字段列表
-            operationId: CodeGenColumnService_ListCodeGenDatabaseColumn
-            parameters:
-                - name: table_name
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-                - name: source_name
-                  in: query
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/system.admin.v1.ListCodeGenDatabaseColumnResponse'
     /api/v1/admin/code-gen/restore:
         post:
             tags:
@@ -7629,6 +7556,79 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.CodeGenTask'
+    /api/v1/admin/database/sources:
+        get:
+            tags:
+                - DatabaseService
+            description: 查询已初始化的数据源名称。
+            operationId: DatabaseService_OptionBaseTableSource
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/common.v1.StringValues'
+    /api/v1/admin/database/tables:
+        get:
+            tags:
+                - DatabaseService
+            description: 查询指定数据源中的数据库表选项。
+            operationId: DatabaseService_OptionBaseTable
+            parameters:
+                - name: source_name
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.OptionBaseTableResponse'
+    /api/v1/admin/database/tables/{table_name}/columns:
+        get:
+            tags:
+                - DatabaseService
+            description: 查询指定数据源中单张表的字段。
+            operationId: DatabaseService_ListTableColumns
+            parameters:
+                - name: table_name
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: source_name
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.ListTableColumnsResponse'
+    /api/v1/admin/database/test-connection:
+        post:
+            tags:
+                - DatabaseService
+            description: 测试数据库连接是否可访问。
+            operationId: DatabaseService_TestConnection
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.TestConnectionRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.TestConnectionResponse'
     /api/v1/admin/mqtt-message:
         get:
             tags:
@@ -14478,16 +14478,6 @@ components:
                     description: 状态：1启用，2禁用
                     format: int32
             description: 修改 BI 数据源状态请求。
-        bi.admin.v1.TestBiSourceResponse:
-            type: object
-            properties:
-                success:
-                    type: boolean
-                    description: 是否可访问
-                message:
-                    type: string
-                    description: 测试结果说明
-            description: 测试 BI 数据源响应。
         common.v1.AppTreeOptionResponse_Option:
             type: object
             properties:
@@ -19393,28 +19383,6 @@ components:
                 option:
                     $ref: '#/components/schemas/system.admin.v1.CodeGenColumnOptionConfig'
             description: 代码生成字段查询条件配置
-        system.admin.v1.CodeGenDatabaseColumn:
-            type: object
-            properties:
-                name:
-                    type: string
-                    description: 数据库字段名
-                comment:
-                    type: string
-                    description: 数据库字段注释
-                db_type:
-                    type: string
-                    description: 数据库字段类型
-                column_type:
-                    type: string
-                    description: 数据库完整字段类型
-                is_primary:
-                    type: boolean
-                    description: 是否主键
-                is_nullable:
-                    type: boolean
-                    description: 是否允许为空
-            description: 数据库字段元数据
         system.admin.v1.CodeGenDatabaseTable:
             type: object
             properties:
@@ -19847,6 +19815,28 @@ components:
                     type: string
                     description: 租户管理员初始密码，仅在随机生成时返回
             description: 创建租户响应参数
+        system.admin.v1.DatabaseColumn:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: 数据库字段名
+                comment:
+                    type: string
+                    description: 数据库字段注释
+                db_type:
+                    type: string
+                    description: 数据库字段类型
+                column_type:
+                    type: string
+                    description: 数据库完整字段类型
+                is_primary:
+                    type: boolean
+                    description: 是否主键
+                is_nullable:
+                    type: boolean
+                    description: 是否允许为空
+            description: 数据库字段元数据
         system.admin.v1.DraftBaseI18nItem:
             type: object
             properties:
@@ -19989,15 +19979,6 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.CodeGenColumn'
                     description: 代码生成字段配置列表
             description: 代码生成字段配置查询响应
-        system.admin.v1.ListCodeGenDatabaseColumnResponse:
-            type: object
-            properties:
-                columns:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.CodeGenDatabaseColumn'
-                    description: 数据库字段列表
-            description: 数据库表字段列表响应
         system.admin.v1.ListCodeGenDatabaseTableResponse:
             type: object
             properties:
@@ -20034,6 +20015,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.RuntimeLogFile'
                     description: 历史日志文件列表
             description: 历史日志文件列表响应。
+        system.admin.v1.ListTableColumnsResponse:
+            type: object
+            properties:
+                columns:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.DatabaseColumn'
+                    description: 数据库字段列表
+            description: 数据库表字段列表响应
         system.admin.v1.MqttMessageDetail:
             type: object
             properties:
@@ -22202,6 +22192,47 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.AiProviderModelTestResult'
                     description: 按配置顺序返回的模型测试结果
             description: 测试AI供应商全部模型响应。
+        system.admin.v1.TestConnectionRequest:
+            type: object
+            properties:
+                source_name:
+                    type: string
+                    description: 宿主数据源名称
+                driver:
+                    type: string
+                    description: 独立数据库驱动：mysql、postgres、doris、tidb
+                host:
+                    type: string
+                    description: 独立数据库主机
+                port:
+                    type: integer
+                    description: 独立数据库端口
+                    format: int32
+                database_name:
+                    type: string
+                    description: 独立数据库名称
+                username:
+                    type: string
+                    description: 独立数据库用户名
+                password:
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
+                ssl_mode:
+                    type: string
+                    description: PostgreSQL SSL模式
+                bi_source_id:
+                    type: string
+                    description: 仅在连接参数未变且密码未填写时复用凭据的BI数据源ID
+            description: 数据库连接测试请求；填写主机时测试独立连接，否则按名称测试宿主连接。
+        system.admin.v1.TestConnectionResponse:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                    description: 是否可访问
+                message:
+                    type: string
+                    description: 测试结果说明
+            description: 数据库连接测试结果。
         system.admin.v1.TestRunBaseScriptRequest:
             type: object
             properties:
@@ -23100,8 +23131,6 @@ tags:
       description: Admin数据库备份恢复服务。
     - name: BaseTableBackupService
       description: Admin数据库备份配置服务。
-    - name: BaseTableSourceService
-      description: Admin数据源元数据服务，提供数据备份、数据归档和代码生成共用的数据源信息。
     - name: BaseTenantProjectGrantService
       description: Admin项目授权服务
     - name: BaseTenantProjectService
@@ -23132,6 +23161,8 @@ tags:
       description: Admin代码生成表配置服务
     - name: ConfigService
       description: Base系统配置公共服务
+    - name: DatabaseService
+      description: 管理端数据库服务，提供连接探测和物理元数据。
     - name: FileService
       description: Base文件服务
     - name: LanguageService

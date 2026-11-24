@@ -192,6 +192,7 @@ onMounted(async () => {
 }
 .nav-item strong {
   display: block;
+  align-self: flex-start;
   font-size: 14px;
   font-weight: 600;
 }

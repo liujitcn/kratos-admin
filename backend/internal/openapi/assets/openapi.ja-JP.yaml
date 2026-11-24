@@ -5767,37 +5767,6 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/v1/admin/base/table-source/option:
-        get:
-            tags:
-                - BaseTableSourceService
-            description: 検索已初始化のデータソース名称。
-            operationId: BaseTableSourceService_OptionBaseTableSource
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/common.v1.StringValues'
-    /api/v1/admin/base/table-source/table/option:
-        get:
-            tags:
-                - BaseTableSourceService
-            description: 検索指定データソース中のデータベーステーブルオプション。
-            operationId: BaseTableSourceService_OptionBaseTable
-            parameters:
-                - name: source_name
-                  in: query
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/system.admin.v1.OptionBaseTableResponse'
     /api/v1/admin/base/tenant:
         get:
             tags:
@@ -7030,25 +6999,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/bi.admin.v1.OptionBiSourceDatabaseResponse'
-    /api/v1/admin/bi/source/test:
-        post:
-            tags:
-                - BiSourceService
-            description: 测试データソース连接〜かどうか可能なアクセス。
-            operationId: BiSourceService_TestBiSource
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/bi.admin.v1.BiSourceForm'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/bi.admin.v1.TestBiSourceResponse'
     /api/v1/admin/bi/source/{id}:
         get:
             tags:
@@ -7328,29 +7278,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.ListCodeGenDatabaseTableResponse'
-    /api/v1/admin/code-gen/database/table/{table_name}/column:
-        get:
-            tags:
-                - CodeGenColumnService
-            description: 検索データベーステーブルフィールド一覧
-            operationId: CodeGenColumnService_ListCodeGenDatabaseColumn
-            parameters:
-                - name: table_name
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-                - name: source_name
-                  in: query
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/system.admin.v1.ListCodeGenDatabaseColumnResponse'
     /api/v1/admin/code-gen/restore:
         post:
             tags:
@@ -7629,6 +7556,79 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.CodeGenTask'
+    /api/v1/admin/database/sources:
+        get:
+            tags:
+                - DatabaseService
+            description: 検索已初始化のデータソース名称。
+            operationId: DatabaseService_OptionBaseTableSource
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/common.v1.StringValues'
+    /api/v1/admin/database/tables:
+        get:
+            tags:
+                - DatabaseService
+            description: 検索指定データソース中のデータベーステーブルオプション。
+            operationId: DatabaseService_OptionBaseTable
+            parameters:
+                - name: source_name
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.OptionBaseTableResponse'
+    /api/v1/admin/database/tables/{table_name}/columns:
+        get:
+            tags:
+                - DatabaseService
+            description: 指定したデータソース内のテーブルのカラムを取得します。
+            operationId: DatabaseService_ListTableColumns
+            parameters:
+                - name: table_name
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: source_name
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.ListTableColumnsResponse'
+    /api/v1/admin/database/test-connection:
+        post:
+            tags:
+                - DatabaseService
+            description: データベースに接続できるか確認します。
+            operationId: DatabaseService_TestConnection
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.TestConnectionRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.TestConnectionResponse'
     /api/v1/admin/mqtt-message:
         get:
             tags:
@@ -14478,16 +14478,6 @@ components:
                     description: ステータス：1有効，2無効
                     format: int32
             description: 更新 BI データソースステータスリクエスト。
-        bi.admin.v1.TestBiSourceResponse:
-            type: object
-            properties:
-                success:
-                    type: boolean
-                    description: 〜かどうか可能なアクセス
-                message:
-                    type: string
-                    description: 测试結果説明
-            description: 测试 BI データソースレスポンス。
         common.v1.AppTreeOptionResponse_Option:
             type: object
             properties:
@@ -19393,28 +19383,6 @@ components:
                 option:
                     $ref: '#/components/schemas/system.admin.v1.CodeGenColumnOptionConfig'
             description: コード生成フィールド検索条件設定
-        system.admin.v1.CodeGenDatabaseColumn:
-            type: object
-            properties:
-                name:
-                    type: string
-                    description: データベースフィールド名
-                comment:
-                    type: string
-                    description: データベースフィールドコメント
-                db_type:
-                    type: string
-                    description: データベースフィールド型
-                column_type:
-                    type: string
-                    description: データベース完全なフィールド型
-                is_primary:
-                    type: boolean
-                    description: 主キーかどうか
-                is_nullable:
-                    type: boolean
-                    description: NULL を許可するかどうか
-            description: データベースフィールドメタデータ
         system.admin.v1.CodeGenDatabaseTable:
             type: object
             properties:
@@ -19847,6 +19815,28 @@ components:
                     type: string
                     description: テナント管理者の初期パスワード。ランダム生成時のみ返却
             description: テナント作成レスポンスパラメータ
+        system.admin.v1.DatabaseColumn:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: データベースフィールド名
+                comment:
+                    type: string
+                    description: データベースフィールドコメント
+                db_type:
+                    type: string
+                    description: データベースフィールド型
+                column_type:
+                    type: string
+                    description: データベース完全なフィールド型
+                is_primary:
+                    type: boolean
+                    description: 主キーかどうか
+                is_nullable:
+                    type: boolean
+                    description: NULL を許可するかどうか
+            description: データベースフィールドメタデータ
         system.admin.v1.DraftBaseI18nItem:
             type: object
             properties:
@@ -19989,15 +19979,6 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.CodeGenColumn'
                     description: コード生成フィールド設定一覧
             description: コード生成フィールド設定検索レスポンス
-        system.admin.v1.ListCodeGenDatabaseColumnResponse:
-            type: object
-            properties:
-                columns:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.CodeGenDatabaseColumn'
-                    description: データベースフィールド一覧
-            description: データベーステーブルフィールド一覧レスポンス
         system.admin.v1.ListCodeGenDatabaseTableResponse:
             type: object
             properties:
@@ -20034,6 +20015,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.RuntimeLogFile'
                     description: 履歴ログファイル一覧
             description: 履歴ログファイル一覧レスポンス。
+        system.admin.v1.ListTableColumnsResponse:
+            type: object
+            properties:
+                columns:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.DatabaseColumn'
+                    description: データベースフィールド一覧
+            description: データベーステーブルフィールド一覧レスポンス
         system.admin.v1.MqttMessageDetail:
             type: object
             properties:
@@ -22202,6 +22192,47 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.AiProviderModelTestResult'
                     description: 按設定顺序返却の模型测试結果
             description: 测试AI供应商すべて模型レスポンス。
+        system.admin.v1.TestConnectionRequest:
+            type: object
+            properties:
+                source_name:
+                    type: string
+                    description: サーバーのデータソース名
+                driver:
+                    type: string
+                    description: 外部データベースのドライバー：mysql、postgres、doris、tidb
+                host:
+                    type: string
+                    description: 外部データベースのホスト
+                port:
+                    type: integer
+                    description: 外部データベースのポート
+                    format: int32
+                database_name:
+                    type: string
+                    description: 外部データベース名
+                username:
+                    type: string
+                    description: 外部データベースのユーザー名
+                password:
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
+                ssl_mode:
+                    type: string
+                    description: PostgreSQL SSLモード
+                bi_source_id:
+                    type: string
+                    description: 接続設定が同じでパスワードが未入力の場合に認証情報を再利用するBIデータソースID
+            description: データベース接続テストのリクエスト。ホストを指定すると外部データベースを、未指定の場合は名前でサーバーの接続先をテストします。
+        system.admin.v1.TestConnectionResponse:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                    description: データベースに接続できるかどうか
+                message:
+                    type: string
+                    description: テスト結果の詳細
+            description: データベース接続のテスト結果。
         system.admin.v1.TestRunBaseScriptRequest:
             type: object
             properties:
@@ -23100,8 +23131,6 @@ tags:
       description: Adminデータベースバックアップ復元サービス。
     - name: BaseTableBackupService
       description: Adminデータベースバックアップ設定サービス。
-    - name: BaseTableSourceService
-      description: Adminデータソースメタデータサービス。データベースバックアップ、データアーカイブ、コード生成で共有するデータソース情報を提供します。
     - name: BaseTenantProjectGrantService
       description: Adminプロジェクト認可サービス
     - name: BaseTenantProjectService
@@ -23132,6 +23161,8 @@ tags:
       description: Adminコード生成テーブル設定サービス
     - name: ConfigService
       description: Baseシステム設定共通サービス
+    - name: DatabaseService
+      description: 接続テストと物理メタデータの取得を行う管理用データベースサービス。
     - name: FileService
       description: Baseファイルサービス
     - name: LanguageService

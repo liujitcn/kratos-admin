@@ -97,7 +97,7 @@ import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
 import { t } from "@liujitcn/kratos-admin-core";
-import { defBaseTableSourceService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_table_source";
+import { defDatabaseService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/database";
 import { defBaseRedactRuleService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_redact_rule";
 import { defBaseRedactStoragePolicyService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_redact_storage_policy";
 import type { BaseRedactRule } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_redact_rule";
@@ -243,7 +243,7 @@ async function handleTableChange(tableName: string) { columnsRequestRevision += 
 /** 加载数据源选项。 */
 async function loadSourceOptions() { sourceOptions.value = await requestSourceOptions(); }
 /** 请求数据源选项。 */
-async function requestSourceOptions() { const data = await defBaseTableSourceService.OptionBaseTableSource({}); return (data.value ?? []).map(value => ({ label: value, value })); }
+async function requestSourceOptions() { const data = await defDatabaseService.OptionBaseTableSource({}); return (data.value ?? []).map(value => ({ label: value, value })); }
 /** 加载指定数据源的数据表选项。 */
 async function loadTables(sourceName = form.source_name) { tableOptions.value = await requestTables(sourceName); }
 /** 请求指定数据源的数据表选项。 */

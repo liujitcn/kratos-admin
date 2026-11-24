@@ -13,7 +13,7 @@
             v-if="results.get(item.id)"
             :card="dashboardSnapshotCard(item)"
             :result="results.get(item.id)!"
-            compact
+            thumbnail
           />
           <span v-else class="bi-workbench-preview__empty">{{ t("common.message.no_data") }}</span>
         </div>

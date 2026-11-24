@@ -134,15 +134,16 @@ import type { ColumnProps } from "@liujitcn/kratos-admin-core/components/ProTabl
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { useTabsStore } from "@liujitcn/kratos-admin-core/stores/runtime";
-import { defCodeGenColumnService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/code_gen_column";
 import { defCodeGenProtoService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/code_gen_proto";
+import type { BaseTableOption } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/database";
+import { defDatabaseService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/database";
 import { defCodeGenTableService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/code_gen_table";
 import type {
   CodeGenProto,
   CodeGenProtoCheck,
   CodeGenProtoConfig
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_proto";
-import type { CodeGenDatabaseTable, CodeGenTableForm } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_table";
+import type { CodeGenTableForm } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_table";
 import { createDefaultCodeGenTableForm } from "../config";
 
 defineOptions({
@@ -157,7 +158,7 @@ const { BUTTONS } = useAuthButtons();
 
 const loading = ref(false);
 const protoChecks = ref<CodeGenProtoCheck[]>([]);
-const databaseTables = ref<CodeGenDatabaseTable[]>([]);
+const databaseTables = ref<BaseTableOption[]>([]);
 const targetColumnOptions = reactive<Record<string, ProFormOption[]>>({});
 const loadingTargetColumns = reactive(new Set<string>());
 const formData = reactive<CodeGenTableForm>(createDefaultCodeGenTableForm());
@@ -334,11 +335,11 @@ async function handleQuery() {
     if (!tableId.value) return;
     const table = await defCodeGenTableService.GetCodeGenTable({ id: tableId.value });
     if (requestId !== protoQueryRequestId) return;
-    const tableResponse = await defCodeGenTableService.ListCodeGenDatabaseTable({ source_name: table.source_name });
+    const tableResponse = await defDatabaseService.OptionBaseTable({ source_name: table.source_name });
     if (requestId !== protoQueryRequestId) return;
     Object.assign(formData, table);
     databaseTables.value = tableResponse.tables ?? [];
-    const columnResponse = await defCodeGenColumnService.ListCodeGenDatabaseColumn({ source_name: formData.source_name, table_name: formData.name });
+    const columnResponse = await defDatabaseService.ListTableColumns({ source_name: formData.source_name, table_name: formData.name });
     if (requestId !== protoQueryRequestId) return;
     targetColumnOptions[formData.name] = createColumnOptions(columnResponse.columns ?? []);
     await loadProtoChecks(requestId);
@@ -540,7 +541,7 @@ async function loadTargetColumnOptions(tableName: string) {
   if (!tableName || targetColumnOptions[tableName] || loadingTargetColumns.has(tableName)) return;
   loadingTargetColumns.add(tableName);
   try {
-    const data = await defCodeGenColumnService.ListCodeGenDatabaseColumn({ source_name: formData.source_name, table_name: tableName });
+    const data = await defDatabaseService.ListTableColumns({ source_name: formData.source_name, table_name: tableName });
     targetColumnOptions[tableName] = createColumnOptions(data.columns ?? []);
   } finally {
     loadingTargetColumns.delete(tableName);

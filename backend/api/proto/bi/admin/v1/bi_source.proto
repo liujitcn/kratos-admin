@@ -53,14 +53,6 @@ service BiSourceService {
     option (google.api.http) = {get: "/api/v1/admin/bi/source/options/databases"};
   }
 
-  // 测试数据源连接是否可访问。
-  rpc TestBiSource(TestBiSourceRequest) returns (TestBiSourceResponse) {
-    option (google.api.http) = {
-      post: "/api/v1/admin/bi/source/test"
-      body: "source"
-    };
-  }
-
   // 发现已保存数据源中的表、字段和唯一键。
   rpc ListBiSourceTables(ListBiSourceTablesRequest) returns (ListBiSourceTablesResponse) {
     option (google.api.http) = {get: "/api/v1/admin/bi/source/{id}/tables"};
@@ -171,20 +163,6 @@ message OptionBiSourceDatabaseResponse {
 message BiSourceDatabase {
   string name = 1 [(gnostic.openapi.v3.property) = {description: "客户端名称"}]; // 客户端名称
   string driver = 2 [(gnostic.openapi.v3.property) = {description: "数据库驱动"}]; // 数据库驱动
-}
-
-// 测试 BI 数据源请求。
-message TestBiSourceRequest {
-  BiSourceForm source = 1 [
-    (gnostic.openapi.v3.property) = {description: "待测试数据源"},
-    (buf.validate.field).required = true
-  ]; // 待测试数据源
-}
-
-// 测试 BI 数据源响应。
-message TestBiSourceResponse {
-  bool success = 1 [(gnostic.openapi.v3.property) = {description: "是否可访问"}]; // 是否可访问
-  string message = 2 [(gnostic.openapi.v3.property) = {description: "测试结果说明"}]; // 测试结果说明
 }
 
 // 查询数据源数据库表结构的请求。

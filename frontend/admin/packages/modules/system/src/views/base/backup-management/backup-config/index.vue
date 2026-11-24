@@ -26,7 +26,7 @@ import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
 import { defBaseTableBackupService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_table_backup";
-import { defBaseTableSourceService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_table_source";
+import { defDatabaseService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/database";
 import { BaseTableBackupType, type BaseTableBackupForm, type PageBaseTableBackupRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_table_backup";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 
@@ -92,7 +92,7 @@ async function loadSourceOptions() {
   if (sourceOptions.value.length || loadingSources.value) return;
   loadingSources.value = true;
   try {
-    const data = await defBaseTableSourceService.OptionBaseTableSource({});
+    const data = await defDatabaseService.OptionBaseTableSource({});
     sourceOptions.value = (data.value ?? []).map(value => ({ label: value, value }));
   } finally {
     loadingSources.value = false;

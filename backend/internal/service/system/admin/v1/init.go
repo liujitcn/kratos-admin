@@ -64,7 +64,7 @@ var ProviderSet = wire.NewSet(
 	NewBaseTableBackupService,
 	NewBaseTableBackupRecordService,
 	NewBaseTableBackupRestoreService,
-	NewBaseTableSourceService,
+	NewDatabaseService,
 	NewBaseRedactOutputPolicyService,
 	NewBaseRedactRuleService,
 	NewBaseRedactStoragePolicyService,

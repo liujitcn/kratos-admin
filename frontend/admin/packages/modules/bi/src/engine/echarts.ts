@@ -140,6 +140,8 @@ export function compileEcharts(
 ): BiEChartsOption {
   const enc = chart.encoding ?? {};
   const style = chart.style ?? {};
+  const { thumbnail } = chart;
+  const compact = chart.compact || thumbnail;
   const cols = getColumns(rows);
   const dimensionLabel = createDimensionLabelFormatter(rows.map(row => row[enc.dimension ?? cols[0] ?? ""]), enc.dimension);
   const seriesLabel = createDimensionLabelFormatter(rows.map(row => row[enc.series ?? cols[1] ?? ""]), enc.series);
@@ -150,17 +152,21 @@ export function compileEcharts(
     backgroundColor: "transparent",
     color: palette,
     textStyle: { color: theme.text },
-    tooltip: { ...tooltipStyles(theme), ...fmtTooltip },
+    tooltip: { ...tooltipStyles(theme), ...fmtTooltip, ...(compact && { trigger: "item", confine: true }), ...(thumbnail && { show: false }) },
   };
+  const legendText = { color: theme.subText, ...(compact && { fontSize: 11 }) };
+  const compactLegend = compact ? { type: "scroll" as const, pageIconSize: 10, pageIconColor: theme.subText, pageTextStyle: legendText } : {};
+  const compactAxisLabel = compact ? { fontSize: 10, hideOverlap: true, width: 64, overflow: "truncate" as const } : {};
   // 图例显隐：显式 style.showLegend 优先，否则多系列自动显示
   const multiSeries = !!(enc.series || (enc.measures?.length ?? 0) > 1);
-  const showLegend = style.showLegend ?? multiSeries;
+  const showLegend = !thumbnail && (style.showLegend ?? multiSeries);
   // 引擎原生透传：浅合并每个顶层键（嵌套覆盖用整键替换语义）
   const passthrough = (chart.options ?? {}) as object;
   // y 轴数值格式化
   const yAxisLabel = fmt ? { formatter: (v: number) => formatNumber(v, fmt) } : {};
 
   const labelOption = style.showLabel ? { label: { show: true, color: theme.subText } } : {};
+  const cartesianLabels = new Map<string, { legend: string; tooltip: string }>();
   const cartesian = (seriesIn: any[], categories: string[], area: boolean): BiEChartsOption => {
     const series = seriesIn.map((sr) => ({
       ...labelOption,
@@ -168,22 +174,41 @@ export function compileEcharts(
       ...sr,
     }));
     const hasLegend = showLegend && (multiSeries || seriesIn.length > 1 || enc.series);
+    const tooltip: TooltipComponentOption = {
+      ...base.tooltip,
+      ...(compact && chart.type !== "scatter" && { trigger: "axis" }),
+    };
+    if (!thumbnail && cartesianLabels.size) {
+      tooltip.formatter = params => {
+        const items = Array.isArray(params) ? params : [params];
+        const { encodeHTML, addCommas } = echarts.format;
+        return [
+          encodeHTML(items[0]?.name ?? ""),
+          ...items.map(({ seriesName = "", value, marker }) => {
+            const label = cartesianLabels.get(seriesName)?.tooltip ?? seriesName;
+            const text = value == null ? "-" : fmt ? formatNumber(toNumber(value), fmt) : addCommas(String(value));
+            return `${typeof marker === "string" ? marker : ""}${encodeHTML(label)}: ${encodeHTML(text)}`;
+          }),
+        ].join("<br>");
+      };
+    }
     return ({
     ...base,
+    tooltip,
     legend: hasLegend
-      ? { top: 0, textStyle: { color: theme.subText }, itemWidth: 14, itemHeight: 8, formatter: (name: string) => name.split(" · ").map(seriesLabel).join(" · ") }
+      ? { ...compactLegend, top: 0, textStyle: legendText, itemWidth: 14, itemHeight: 8, formatter: (name: string) => cartesianLabels.get(name)?.legend ?? name.split(" · ").map(seriesLabel).join(" · ") }
       : undefined,
-    grid: { left: 8, right: 16, top: hasLegend ? 32 : 20, bottom: style.dataZoom ? 32 : 8, outerBoundsMode: "same", outerBoundsContain: "axisLabel" },
+    grid: { left: 8, right: 16, top: hasLegend ? (compact ? 24 : 32) : (compact ? 8 : 20), bottom: style.dataZoom ? 32 : 8, outerBoundsMode: "same", outerBoundsContain: "axisLabel" },
     xAxis: {
       ...(chart.type === "scatter" ? { type: "value" } : { type: "category", data: categories }),
       ...axisStyles(theme),
-      ...(chart.type !== "scatter" ? { axisLabel: { color: theme.subText, formatter: dimensionLabel } } : {}),
+      axisLabel: { ...axisStyles(theme).axisLabel, ...compactAxisLabel, ...(chart.type !== "scatter" && { formatter: dimensionLabel }) },
       splitLine: { show: false },
     },
     yAxis: {
       type: "value",
       ...axisStyles(theme),
-      axisLabel: { ...axisStyles(theme).axisLabel, ...yAxisLabel },
+      axisLabel: { ...axisStyles(theme).axisLabel, ...compactAxisLabel, ...yAxisLabel },
       splitLine: { lineStyle: { color: theme.splitLine } },
     },
     ...(style.dataZoom
@@ -223,18 +248,31 @@ export function compileEcharts(
           ? unique(rows.map((r) => String(r[enc.series!]))).map((sn) =>
               group(sn, rows.filter((r) => String(r[enc.series!]) === sn))
             )
-          : [group(chart.title ?? measure, rows)];
+          : [group(chart.measureLabels?.[measure] ?? chart.title ?? measure, rows)];
       } else {
         const seriesNames = enc.series ? unique(rows.map((r) => String(r[enc.series!]))) : [""];
         const measures = enc.measures?.length ? enc.measures : [measure];
-        series = seriesNames.flatMap((sn) => measures.map((m) => ({
-            name: enc.series ? (measures.length > 1 ? `${sn} · ${m}` : sn) : (enc.measures?.length ? m : chart.title ?? m),
+        series = seriesNames.flatMap((sn) => measures.map((m) => {
+          const label = chart.measureLabels?.[m];
+          // ECharts 用 name 切换图例，指标名称和单位只用于展示。
+          const name = enc.series
+            ? (measures.length > 1 || label ? `${sn} · ${m}` : sn)
+            : (enc.measures?.length || label ? m : chart.title ?? m);
+          if (label) {
+            cartesianLabels.set(name, {
+              legend: enc.series ? `${seriesLabel(sn)} · ${label}` : label,
+              tooltip: enc.series ? `${sn} · ${label}` : label,
+            });
+          }
+          return {
+            name,
             type: seriesType,
             data: categories.map((c) => {
               const hit = rows.find((r) => String(r[dim]) === c && (!enc.series || String(r[enc.series]) === sn));
               return hit ? toNumber(hit[m]) : null;
             }),
-          })));
+          };
+        }));
       }
       return {
         ...cartesian(series, categories, chart.type === "area"),
@@ -246,16 +284,19 @@ export function compileEcharts(
     case "donut": {
       const dim = enc.dimension ?? cols[0] ?? "name";
       const measure = enc.measure ?? cols.find((c) => c !== dim) ?? "value";
+      const radius = compact ? "82%" : "68%";
       return {
         ...base,
-        legend: style.showLegend === false
+        legend: thumbnail || (!compact && style.showLegend === false)
           ? undefined
-          : { bottom: 0, textStyle: { color: theme.subText }, itemWidth: 14, itemHeight: 8, formatter: dimensionLabel },
+          : { ...compactLegend, bottom: 0, textStyle: legendText, itemWidth: 14, itemHeight: 8, formatter: dimensionLabel },
         series: [
           {
             type: "pie",
-            radius: chart.type === "donut" ? ["42%", "68%"] : "68%",
-            center: ["50%", "46%"],
+            name: chart.measureLabels?.[measure],
+            radius: chart.type === "donut" ? ["42%", radius] : radius,
+            center: ["50%", compact ? "50%" : "46%"],
+            ...(compact && !thumbnail && { bottom: 24 }),
             itemStyle: { borderColor: "transparent", borderWidth: 2 },
             label: {
               show: style.showLabel ?? true,
@@ -294,7 +335,7 @@ export function compileEcharts(
       }
       return {
         ...base,
-        legend: enc.series
+        legend: !thumbnail && enc.series
           ? { bottom: 0, textStyle: { color: theme.subText }, itemWidth: 14, itemHeight: 8, formatter: seriesLabel }
           : undefined,
         radar: {
@@ -328,8 +369,9 @@ export function compileEcharts(
             axisLine: { lineStyle: { width: 12, color: [[1, theme.splitLine]] } },
             axisTick: { show: false },
             splitLine: { length: 6, lineStyle: { color: theme.axisLine } },
-            axisLabel: { color: theme.subText, distance: 16, fontSize: 10 },
+            axisLabel: { show: !thumbnail, color: theme.subText, distance: 16, fontSize: 10 },
             pointer: { itemStyle: { color: "auto" } },
+            ...(compact && { title: { show: !thumbnail, color: theme.subText, fontSize: 11, offsetCenter: [0, "26%"] } }),
             detail: {
               valueAnimation: true,
               formatter: fmt
@@ -339,7 +381,7 @@ export function compileEcharts(
               fontSize: 22,
               offsetCenter: [0, "62%"],
             },
-            data: [{ value }],
+            data: [{ value, ...(compact && { name: chart.measureLabels?.[measure] }) }],
           },
         ],
         ...passthrough,
@@ -355,7 +397,7 @@ export function compileEcharts(
         .sort((a, b) => b.value - a.value);
       return {
         ...base,
-        tooltip: { ...tooltipStyles(theme), trigger: "item", ...fmtTooltip },
+        tooltip: { ...base.tooltip, trigger: "item" },
         series: [
           {
             type: "funnel",
@@ -490,12 +532,13 @@ export function compileEcharts(
       return {
         ...base,
         // 为横向色阶和坐标标签分别留出空间，避免覆盖最后一行数据。
-        grid: { left: 8, right: 24, top: 12, bottom: 68, outerBoundsMode: "same", outerBoundsContain: "axisLabel" },
-        xAxis: { type: "category", data: xCats, ...axisStyles(theme), axisLabel: { color: theme.subText, formatter: dimensionLabel }, splitArea: { show: true } },
-        yAxis: { type: "category", data: yCats, ...axisStyles(theme), axisLabel: { color: theme.subText, formatter: seriesLabel }, splitArea: { show: true } },
+        grid: { left: 8, right: 24, top: 12, bottom: compact ? 8 : 68, outerBoundsMode: "same", outerBoundsContain: "axisLabel" },
+        xAxis: { type: "category", data: xCats, ...axisStyles(theme), axisLabel: { color: theme.subText, ...compactAxisLabel, formatter: dimensionLabel }, splitArea: { show: true } },
+        yAxis: { type: "category", data: yCats, ...axisStyles(theme), axisLabel: { color: theme.subText, ...compactAxisLabel, formatter: seriesLabel }, splitArea: { show: true } },
         visualMap: {
           min: 0,
           max,
+          show: !compact,
           calculable: true,
           orient: "horizontal",
           left: "center",

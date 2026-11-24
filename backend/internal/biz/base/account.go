@@ -84,7 +84,8 @@ func (c *AccountCase) UpdateUserPassword(ctx context.Context, req *basev1.UserPa
 		return errorsx.ResourceNotFound("用户不存在").WithCause(err)
 	}
 
-	passwordConfig, err := loginpolicy.LoadPasswordConfig(c.Cache, baseUser.TenantID, baseUser.ID)
+	var passwordConfig loginpolicy.PasswordConfig
+	passwordConfig, err = loginpolicy.LoadPasswordConfig(c.Cache, baseUser.TenantID, baseUser.ID)
 	if err != nil {
 		return errorsx.Internal("读取密码策略失败").WithCause(err)
 	}
@@ -118,15 +119,13 @@ func (c *AccountCase) UpdateUserPassword(ctx context.Context, req *basev1.UserPa
 	if err != nil {
 		return errorsx.Internal("记录历史密码失败").WithCause(err)
 	}
-	now := time.Now()
 	_, err = userQuery.WithContext(ctx).
 		Where(userQuery.ID.Eq(authInfo.UserId)).
 		UpdateSimple(
 			userQuery.Password.Value(encrypted),
-			userQuery.PasswordChangedAt.Value(now),
+			userQuery.PasswordChangedAt.Value(time.Now()),
 			userQuery.PasswordHistory.Value(history),
 			userQuery.MustChangePassword.Value(_const.BASE_USER_PASSWORD_CHANGE_STATUS_NOT_REQUIRED),
-			userQuery.UpdatedAt.Value(now),
 		)
 	return err
 }

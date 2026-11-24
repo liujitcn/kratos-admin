@@ -193,6 +193,12 @@
         "description": "",
         "type": "boolean",
         "required": false
+      },
+      {
+        "name": "thumbnail",
+        "description": "工作台的非交互缩略图，自动使用紧凑布局。",
+        "type": "boolean",
+        "required": false
       }
     ],
     "events": [],

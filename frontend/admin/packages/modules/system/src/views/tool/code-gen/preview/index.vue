@@ -98,11 +98,12 @@ import { useTabsStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import { defBaseDictService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_dict";
 import { defCodeGenColumnService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/code_gen_column";
 import { defCodeGenProtoService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/code_gen_proto";
+import type { BaseTableOption } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/database";
+import { defDatabaseService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/database";
 import { defCodeGenTableService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/code_gen_table";
 import type { OptionBaseDictResponse_BaseDict } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_dict";
 import type { CodeGenColumn, CodeGenColumnOptionConfig } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_column";
 import type { CodeGenProtoCheck } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_proto";
-import type { CodeGenDatabaseTable } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_table";
 import { codeGenFormComponentOptions } from "../config";
 import { resolveCodeGenPreviewCapabilities } from "./capabilities";
 import {
@@ -132,7 +133,7 @@ const loading = ref(false);
 const snapshot = ref<CodeGenPagePreviewSnapshot | null>(null);
 const protoChecks = ref<CodeGenProtoCheck[]>([]);
 const dictionaries = ref<OptionBaseDictResponse_BaseDict[]>([]);
-const databaseTables = ref<CodeGenDatabaseTable[]>([]);
+const databaseTables = ref<BaseTableOption[]>([]);
 const mockRows = ref<CodeGenPreviewRow[]>([]);
 const previewFormModel = reactive<Record<string, any>>({});
 const editingRowKey = ref<string | number>();
@@ -438,7 +439,7 @@ async function loadPreview() {
       defCodeGenColumnService.ListCodeGenColumn({ table_id: tableId.value }),
       defCodeGenProtoService.ListCodeGenProto({ table_id: tableId.value }),
       defBaseDictService.OptionBaseDict({}),
-      defCodeGenTableService.ListCodeGenDatabaseTable({ source_name: table.source_name })
+      defDatabaseService.OptionBaseTable({ source_name: table.source_name })
     ]);
     if (requestId !== previewRequestId) return;
     snapshot.value = { table, columns: columnResponse.code_gen_columns ?? [] };

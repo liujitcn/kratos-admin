@@ -3,13 +3,11 @@ package biz
 import (
 	"context"
 	"math"
-	"regexp"
 	"slices"
 	"strings"
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	basebiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/dbmeta"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
@@ -18,8 +16,6 @@ import (
 	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repository"
 )
-
-var codeGenDatabaseTableNamePattern = regexp.MustCompile(`^[a-z][a-z0-9_]*$`)
 
 // CodeGenColumnCase 管理代码生成字段元数据与生成配置。
 type CodeGenColumnCase struct {
@@ -71,36 +67,6 @@ func (c *CodeGenColumnCase) ListCodeGenColumn(ctx context.Context, tableID int64
 	}, nil
 }
 
-// ListCodeGenDatabaseColumn 查询指定数据库表的字段元数据。
-func (c *CodeGenColumnCase) ListCodeGenDatabaseColumn(ctx context.Context, sourceName, tableName string) (*adminv1.ListCodeGenDatabaseColumnResponse, error) {
-	databaseColumns, err := c.listDatabaseColumns(ctx, sourceName, tableName)
-	if err != nil {
-		return nil, err
-	}
-	columns := make([]*adminv1.CodeGenDatabaseColumn, 0, len(databaseColumns))
-	for _, item := range databaseColumns {
-		columnComment := item.Comment
-		// 数据库未配置字段注释时回退显示字段名。
-		if columnComment == "" {
-			columnComment = item.Name
-		}
-		columnType := item.ColumnType
-		// 数据库未返回完整类型时回退到基础数据类型。
-		if columnType == "" {
-			columnType = item.DataType
-		}
-		columns = append(columns, &adminv1.CodeGenDatabaseColumn{
-			Name:       item.Name,
-			Comment:    columnComment,
-			DbType:     item.DataType,
-			ColumnType: columnType,
-			IsPrimary:  item.ColumnKey == "PRI",
-			IsNullable: item.IsNullable == "YES",
-		})
-	}
-	return &adminv1.ListCodeGenDatabaseColumnResponse{Columns: columns}, nil
-}
-
 // DeleteByTableIDs 删除多个代码生成表配置关联的字段配置。
 func (c *CodeGenColumnCase) DeleteByTableIDs(ctx context.Context, tableIDs []int64) error {
 	if len(tableIDs) == 0 {
@@ -116,7 +82,7 @@ func (c *CodeGenColumnCase) SaveCodeGenColumn(ctx context.Context, req *adminv1.
 	if err != nil {
 		return err
 	}
-	var databaseColumns []dto.CodeGenDatabaseColumn
+	var databaseColumns []dbmeta.Column
 	databaseColumns, err = c.listDatabaseColumns(ctx, table.SourceName, table.Name)
 	if err != nil {
 		return err
@@ -222,7 +188,7 @@ func (c *CodeGenColumnCase) listCodeGenColumns(ctx context.Context, tableID int6
 	if err != nil {
 		return nil, err
 	}
-	var databaseColumns []dto.CodeGenDatabaseColumn
+	var databaseColumns []dbmeta.Column
 	databaseColumns, err = c.listDatabaseColumns(ctx, table.SourceName, table.Name)
 	if err != nil {
 		return nil, err
@@ -246,31 +212,12 @@ func (c *CodeGenColumnCase) listCodeGenColumns(ctx context.Context, tableID int6
 }
 
 // listDatabaseColumns 查询数据库字段生成所需的完整元数据。
-func (c *CodeGenColumnCase) listDatabaseColumns(ctx context.Context, sourceName, tableName string) ([]dto.CodeGenDatabaseColumn, error) {
-	if tableName == "" {
-		return nil, errorsx.InvalidArgument("数据库表名不能为空")
-	}
-	if !codeGenDatabaseTableNamePattern.MatchString(tableName) {
-		return nil, errorsx.InvalidArgument("数据库表名格式不正确")
-	}
-	database, err := GormClientBySourceName(c.BaseCase, sourceName)
-	if err != nil {
-		return nil, err
-	}
-	var columns []dto.CodeGenDatabaseColumn
-	// information_schema 没有业务生成模型，表名经白名单校验后使用参数化查询读取字段元数据。
-	err = database.DB.WithContext(ctx).
-		Table("information_schema.columns").
-		Select(basebiz.ColumnMetadataColumns(database.Driver())).
-		Where("table_schema = "+basebiz.CurrentSchemaExpr(database.Driver())).
-		Where("table_name = ?", tableName).
-		Order("ordinal_position").
-		Find(&columns).Error
-	return columns, err
+func (c *CodeGenColumnCase) listDatabaseColumns(ctx context.Context, sourceName, tableName string) ([]dbmeta.Column, error) {
+	return listDatabaseColumnMetadata(ctx, c.BaseCase, sourceName, tableName)
 }
 
 // listCodeGenColumnDefaultSources 查询字段默认选项对应的字典或数据表来源。
-func (c *CodeGenColumnCase) listCodeGenColumnDefaultSources(ctx context.Context, sourceName, tableName string, databaseColumns []dto.CodeGenDatabaseColumn) (map[string]codeGenColumnDefaultSource, error) {
+func (c *CodeGenColumnCase) listCodeGenColumnDefaultSources(ctx context.Context, sourceName, tableName string, databaseColumns []dbmeta.Column) (map[string]codeGenColumnDefaultSource, error) {
 	defaultSources := make(map[string]codeGenColumnDefaultSource, len(databaseColumns))
 	if len(databaseColumns) == 0 {
 		return defaultSources, nil
@@ -331,7 +278,7 @@ func (c *CodeGenColumnCase) listCodeGenColumnDefaultSources(ctx context.Context,
 }
 
 // listCodeGenOptionTables 查询用于匹配字段关联关系的数据库表名。
-func (c *CodeGenColumnCase) listCodeGenOptionTables(ctx context.Context, sourceName string) ([]dto.CodeGenDatabaseTable, error) {
+func (c *CodeGenColumnCase) listCodeGenOptionTables(ctx context.Context, sourceName string) ([]dbmeta.Table, error) {
 	database, err := GormClientBySourceName(c.BaseCase, sourceName)
 	if err != nil {
 		return nil, err
@@ -340,7 +287,7 @@ func (c *CodeGenColumnCase) listCodeGenOptionTables(ctx context.Context, sourceN
 }
 
 // mergeCodeGenColumns 合并数据库字段元数据与已保存配置。
-func (c *CodeGenColumnCase) mergeCodeGenColumns(tableID int64, databaseColumns []dto.CodeGenDatabaseColumn, savedColumns []*models.CodeGenColumn, defaultSources map[string]codeGenColumnDefaultSource) []*adminv1.CodeGenColumn {
+func (c *CodeGenColumnCase) mergeCodeGenColumns(tableID int64, databaseColumns []dbmeta.Column, savedColumns []*models.CodeGenColumn, defaultSources map[string]codeGenColumnDefaultSource) []*adminv1.CodeGenColumn {
 	savedByName := make(map[string]*models.CodeGenColumn, len(savedColumns))
 	for _, column := range savedColumns {
 		savedByName[column.Name] = column
@@ -397,7 +344,7 @@ func filterConfigurableCodeGenColumns(columns []*adminv1.CodeGenColumn) []*admin
 }
 
 // newDefaultCodeGenColumn 根据数据库字段元数据创建默认生成配置。
-func newDefaultCodeGenColumn(tableID int64, item dto.CodeGenDatabaseColumn, sort int32, defaultSource codeGenColumnDefaultSource) *adminv1.CodeGenColumn {
+func newDefaultCodeGenColumn(tableID int64, item dbmeta.Column, sort int32, defaultSource codeGenColumnDefaultSource) *adminv1.CodeGenColumn {
 	columnComment := item.Comment
 	// 数据库未配置字段注释时使用字段名作为展示名称。
 	if columnComment == "" {
@@ -448,7 +395,7 @@ func newDefaultCodeGenColumn(tableID int64, item dto.CodeGenDatabaseColumn, sort
 }
 
 // normalizeCodeGenColumnConfig 补齐缺失的结构化字段配置。
-func normalizeCodeGenColumnConfig(column *adminv1.CodeGenColumn, item dto.CodeGenDatabaseColumn, defaultSource codeGenColumnDefaultSource) {
+func normalizeCodeGenColumnConfig(column *adminv1.CodeGenColumn, item dbmeta.Column, defaultSource codeGenColumnDefaultSource) {
 	// 旧配置没有保存字段描述时，完整沿用数据库原始注释。
 	if column.Comment == "" {
 		column.Comment = item.Comment
@@ -492,7 +439,7 @@ func normalizeCodeGenColumnConfig(column *adminv1.CodeGenColumn, item dto.CodeGe
 }
 
 // validateCodeGenColumnConfig 校验结构化字段配置的业务完整性。
-func validateCodeGenColumnConfig(column *adminv1.CodeGenColumn, databaseColumn dto.CodeGenDatabaseColumn) error {
+func validateCodeGenColumnConfig(column *adminv1.CodeGenColumn, databaseColumn dbmeta.Column) error {
 	err := validateCodeGenOptionConfig(column.GetName(), "查询", column.GetQueryConfig().GetOption())
 	if err != nil {
 		return err
@@ -655,7 +602,7 @@ func defaultCodeGenQueryConfig(columnName string, dbType string, defaultSource c
 }
 
 // defaultCodeGenListConfig 创建默认列表展示配置。
-func defaultCodeGenListConfig(item dto.CodeGenDatabaseColumn, defaultSource codeGenColumnDefaultSource) (string, *adminv1.CodeGenColumnOptionConfig) {
+func defaultCodeGenListConfig(item dbmeta.Column, defaultSource codeGenColumnDefaultSource) (string, *adminv1.CodeGenColumnOptionConfig) {
 	if isCodeGenStatusColumn(item.Name) {
 		return "switch", defaultCodeGenStatusOptionConfig("switch")
 	}
@@ -669,7 +616,7 @@ func defaultCodeGenListConfig(item dto.CodeGenDatabaseColumn, defaultSource code
 }
 
 // defaultCodeGenFormConfig 创建默认表单录入配置。
-func defaultCodeGenFormConfig(item dto.CodeGenDatabaseColumn, defaultSource codeGenColumnDefaultSource) *adminv1.CodeGenColumnFormConfig {
+func defaultCodeGenFormConfig(item dbmeta.Column, defaultSource codeGenColumnDefaultSource) *adminv1.CodeGenColumnFormConfig {
 	isPrimary := item.ColumnKey == "PRI"
 	isAutoIncrement := strings.Contains(strings.ToLower(item.Extra), "auto_increment")
 	enabled := !isPrimary && !isAutoIncrement && !isManagedCodeGenColumn(item.Name)
@@ -811,7 +758,7 @@ func isCodeGenDateTimeType(dbType string) bool {
 }
 
 // findCodeGenOptionTable 按字段去掉_id后的名称唯一匹配数据库表后缀。
-func findCodeGenOptionTable(columnName string, tableInfos []dto.CodeGenDatabaseTable) string {
+func findCodeGenOptionTable(columnName string, tableInfos []dbmeta.Table) string {
 	if !strings.HasSuffix(columnName, "_id") {
 		return ""
 	}

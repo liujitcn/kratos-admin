@@ -2,8 +2,6 @@ import service from "@liujitcn/kratos-admin-core/request";
 import {
   type CodeGenColumn,
   type CodeGenColumnService,
-  type ListCodeGenDatabaseColumnRequest,
-  type ListCodeGenDatabaseColumnResponse,
   type ListCodeGenColumnRequest,
   type ListCodeGenColumnResponse,
   type SaveCodeGenColumnRequest
@@ -15,7 +13,6 @@ import {
   type CodeGenLocaleConfigRecord
 } from "../../../../utils/code_gen_i18n";
 
-const CODE_GEN_DATABASE_TABLE_URL = "/v1/admin/code-gen/database/table";
 const CODE_GEN_TABLE_URL = "/v1/admin/code-gen/table";
 
 /** 代码生成字段的 REST JSON 请求体。 */
@@ -30,15 +27,6 @@ type SaveCodeGenColumnPayload = Omit<SaveCodeGenColumnRequest, "code_gen_columns
 
 /** Admin代码生成字段服务。 */
 export class CodeGenColumnServiceImpl implements CodeGenColumnService {
-  /** 查询数据库表字段列表。 */
-  ListCodeGenDatabaseColumn(request: ListCodeGenDatabaseColumnRequest): Promise<ListCodeGenDatabaseColumnResponse> {
-    return service<ListCodeGenDatabaseColumnRequest, ListCodeGenDatabaseColumnResponse>({
-      url: `${CODE_GEN_DATABASE_TABLE_URL}/${request.table_name}/column`,
-      method: "get",
-      params: { source_name: request.source_name }
-    });
-  }
-
   /** 查询代码生成字段配置。 */
   async ListCodeGenColumn(request: ListCodeGenColumnRequest): Promise<ListCodeGenColumnResponse> {
     const response = await service<ListCodeGenColumnRequest, ListCodeGenColumnResponse>({

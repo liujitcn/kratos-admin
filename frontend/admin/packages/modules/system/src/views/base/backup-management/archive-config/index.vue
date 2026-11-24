@@ -29,7 +29,7 @@ import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
 import { defBaseTableArchiveService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_table_archive";
-import { defBaseTableSourceService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_table_source";
+import { defDatabaseService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/database";
 import { BaseTableArchiveMode, type BaseTableArchiveForm, type PageBaseTableArchiveRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_table_archive";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 
@@ -113,7 +113,7 @@ async function loadSourceOptions() {
   if (sourceOptions.value.length || loadingSources.value) return;
   loadingSources.value = true;
   try {
-    const data = await defBaseTableSourceService.OptionBaseTableSource({});
+    const data = await defDatabaseService.OptionBaseTableSource({});
     sourceOptions.value = (data.value ?? []).map(value => ({ label: value, value }));
   } finally {
     loadingSources.value = false;
@@ -135,7 +135,7 @@ async function requestTableOptions(sourceName: string) {
   if (!sourceName) return [];
   loadingTables.value = true;
   try {
-    const data = await defBaseTableSourceService.OptionBaseTable({ source_name: sourceName });
+    const data = await defDatabaseService.OptionBaseTable({ source_name: sourceName });
     return (data.tables ?? []).map(item => ({ label: tableOptionLabel(item.name, item.comment), value: item.name }));
   } finally {
     loadingTables.value = false;

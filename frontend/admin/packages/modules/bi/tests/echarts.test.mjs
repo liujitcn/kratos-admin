@@ -32,6 +32,109 @@ const { buildCardChart } = await import("../src/card-schema.ts");
 const { dashboardResults, dashboardSnapshotCard } = await import("../src/bi-dashboard-schema.ts");
 echarts.use(SVGRenderer);
 
+test("紧凑卡片保留部门分类和数值提示，不改变放大图配置", () => {
+  const query = { dimensions: ["department"], measures: [{ code: "count" }] };
+  const result = {
+    columns: [{ code: "department", type: "string" }, { code: "count", name: "人员数量", unit: "人", type: "number" }],
+    rows: [{ values: ["A部门", "1200"] }, { values: ["B部门", "300"] }]
+  };
+  const chart_json = JSON.stringify({ encoding: { measures: ["count"] }, style: { showLegend: false, showLabel: true, dataZoom: true } });
+  const engine = createEchartsEngine();
+  for (const chart_type of ["pie", "donut", "bar", "line", "area"]) {
+    const card = { id: 1, chart_type, chart_json, query };
+    const compact = buildCardChart(card, result, true);
+    const option = engine.compile(compact.chart, compact.rows, BI_THEME_LIGHT);
+    const circular = chart_type === "pie" || chart_type === "donut";
+    assert.notEqual(option.tooltip.show, false);
+    assert.equal(option.tooltip.trigger, circular ? "item" : "axis");
+    assert.equal(option.series[0].name, circular ? "人员数量（人）" : "count");
+    if (circular) {
+      assert.equal(option.legend.type, "scroll");
+      assert.deepEqual(option.series[0].data, [{ name: "A部门", value: 1200 }, { name: "B部门", value: 300 }]);
+    } else {
+      assert.deepEqual(option.xAxis.data, ["A部门", "B部门"]);
+      assert.notEqual(option.xAxis.show, false);
+      assert.equal(option.dataZoom, undefined);
+      assert.match(option.tooltip.formatter([{ name: "A部门", seriesName: "count", value: 1200 }]), /人员数量（人）: 1,200/);
+    }
+    const instance = echarts.init(null, null, { renderer: "svg", ssr: true, width: 300, height: 116 });
+    try {
+      instance.setOption(option);
+      const svg = instance.renderToSVGString();
+      assert.match(svg, /A部门/);
+      assert.match(svg, /B部门/);
+    } finally {
+      instance.dispose();
+    }
+    const full = buildCardChart(card, result);
+    assert.equal(full.chart.style.showLegend, false);
+    assert.equal(full.chart.style.showLabel, true);
+    assert.equal(full.chart.style.dataZoom, true);
+    assert.equal(full.chart.compact, undefined);
+  }
+});
+
+test("紧凑图表中同名同单位的指标仍可独立切换", () => {
+  const card = { id: 1, chart_type: "bar", query: { dimensions: ["department"], measures: [{ code: "a" }, { code: "b" }] } };
+  const result = {
+    columns: [
+      { code: "department", type: "string" },
+      { code: "a", name: "金额", unit: "元", type: "number" },
+      { code: "b", name: "金额", unit: "元", type: "number" }
+    ],
+    rows: [{ values: ["A<部门>", "12", "34"] }]
+  };
+  const { chart, rows } = buildCardChart(card, result, true);
+  const engine = createEchartsEngine();
+  const option = engine.compile(chart, rows, BI_THEME_LIGHT);
+  const names = option.series.map(series => series.name);
+  assert.deepEqual(names, ["a", "b"]);
+  assert.deepEqual(names.map(option.legend.formatter), ["金额（元）", "金额（元）"]);
+  assert.equal(option.tooltip.formatter([{ name: "A<部门>", seriesName: "a", value: 12 }]), "A&lt;部门&gt;<br>金额（元）: 12");
+  const handle = engine.mount(null, option);
+  try {
+    const instance = handle.__echartsInstance;
+    instance.dispatchAction({ type: "legendUnSelect", name: names[0] });
+    assert.deepEqual(instance.getModel().getCurrentSeriesIndices(), [1]);
+  } finally {
+    handle.dispose();
+  }
+});
+
+test("工作台缩略图不展示不可操作的图例、仪表内部标题及重叠刻度", () => {
+  createEchartsEngine();
+  const chart = { id: "thumbnail", compact: true, encoding: { dimension: "name", measure: "value" }, measureLabels: { value: "人员数量（人）" } };
+  const rows = Array.from({ length: 8 }, (_, index) => ({ name: `部门 ${index + 1}`, value: 42 }));
+  for (const type of ["pie", "donut", "gauge"]) {
+    const compact = compileEcharts({ ...chart, type }, rows, BI_THEME_LIGHT);
+    const thumbnail = compileEcharts({ ...chart, type, thumbnail: true }, rows, BI_THEME_LIGHT);
+    assert.equal(thumbnail.tooltip.show, false);
+    if (type === "gauge") {
+      assert.equal(compact.series[0].title.show, true);
+      assert.equal(thumbnail.series[0].title.show, false);
+      assert.equal(thumbnail.series[0].axisLabel.show, false);
+      assert.equal(compact.series[0].axisLabel.show, true);
+    } else {
+      assert.equal(compact.legend.type, "scroll");
+      assert.equal(thumbnail.legend, undefined);
+      assert.equal(thumbnail.series[0].bottom, undefined);
+      assert.equal(thumbnail.series[0].data.length, 8);
+    }
+    const instance = echarts.init(null, null, { renderer: "svg", ssr: true, width: 154, height: 70 });
+    try {
+      instance.setOption(thumbnail);
+      const svg = instance.renderToSVGString();
+      assert.doesNotMatch(svg, /1\/8|人员数量/);
+      if (type === "gauge") {
+        assert.match(svg, />42</);
+        assert.doesNotMatch(svg, />100</);
+      }
+    } finally {
+      instance.dispose();
+    }
+  }
+});
+
 test("图表更新移除取消的指标、缩放和旧坐标轴", () => {
   const engine = createEchartsEngine();
   const chart = { id: "test", type: "bar", encoding: { dimension: "city", measures: ["amount", "count"] }, style: { dataZoom: true } };

@@ -21,9 +21,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CodeGenColumnService_ListCodeGenColumn_FullMethodName         = "/system.admin.v1.CodeGenColumnService/ListCodeGenColumn"
-	CodeGenColumnService_ListCodeGenDatabaseColumn_FullMethodName = "/system.admin.v1.CodeGenColumnService/ListCodeGenDatabaseColumn"
-	CodeGenColumnService_SaveCodeGenColumn_FullMethodName         = "/system.admin.v1.CodeGenColumnService/SaveCodeGenColumn"
+	CodeGenColumnService_ListCodeGenColumn_FullMethodName = "/system.admin.v1.CodeGenColumnService/ListCodeGenColumn"
+	CodeGenColumnService_SaveCodeGenColumn_FullMethodName = "/system.admin.v1.CodeGenColumnService/SaveCodeGenColumn"
 )
 
 // CodeGenColumnServiceClient is the client API for CodeGenColumnService service.
@@ -34,8 +33,6 @@ const (
 type CodeGenColumnServiceClient interface {
 	// 查询代码生成字段配置
 	ListCodeGenColumn(ctx context.Context, in *ListCodeGenColumnRequest, opts ...grpc.CallOption) (*ListCodeGenColumnResponse, error)
-	// 查询数据库表字段列表
-	ListCodeGenDatabaseColumn(ctx context.Context, in *ListCodeGenDatabaseColumnRequest, opts ...grpc.CallOption) (*ListCodeGenDatabaseColumnResponse, error)
 	// 保存代码生成字段配置
 	SaveCodeGenColumn(ctx context.Context, in *SaveCodeGenColumnRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -52,16 +49,6 @@ func (c *codeGenColumnServiceClient) ListCodeGenColumn(ctx context.Context, in *
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListCodeGenColumnResponse)
 	err := c.cc.Invoke(ctx, CodeGenColumnService_ListCodeGenColumn_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *codeGenColumnServiceClient) ListCodeGenDatabaseColumn(ctx context.Context, in *ListCodeGenDatabaseColumnRequest, opts ...grpc.CallOption) (*ListCodeGenDatabaseColumnResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListCodeGenDatabaseColumnResponse)
-	err := c.cc.Invoke(ctx, CodeGenColumnService_ListCodeGenDatabaseColumn_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -86,8 +73,6 @@ func (c *codeGenColumnServiceClient) SaveCodeGenColumn(ctx context.Context, in *
 type CodeGenColumnServiceServer interface {
 	// 查询代码生成字段配置
 	ListCodeGenColumn(context.Context, *ListCodeGenColumnRequest) (*ListCodeGenColumnResponse, error)
-	// 查询数据库表字段列表
-	ListCodeGenDatabaseColumn(context.Context, *ListCodeGenDatabaseColumnRequest) (*ListCodeGenDatabaseColumnResponse, error)
 	// 保存代码生成字段配置
 	SaveCodeGenColumn(context.Context, *SaveCodeGenColumnRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedCodeGenColumnServiceServer()
@@ -102,9 +87,6 @@ type UnimplementedCodeGenColumnServiceServer struct{}
 
 func (UnimplementedCodeGenColumnServiceServer) ListCodeGenColumn(context.Context, *ListCodeGenColumnRequest) (*ListCodeGenColumnResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListCodeGenColumn not implemented")
-}
-func (UnimplementedCodeGenColumnServiceServer) ListCodeGenDatabaseColumn(context.Context, *ListCodeGenDatabaseColumnRequest) (*ListCodeGenDatabaseColumnResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListCodeGenDatabaseColumn not implemented")
 }
 func (UnimplementedCodeGenColumnServiceServer) SaveCodeGenColumn(context.Context, *SaveCodeGenColumnRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method SaveCodeGenColumn not implemented")
@@ -148,24 +130,6 @@ func _CodeGenColumnService_ListCodeGenColumn_Handler(srv interface{}, ctx contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CodeGenColumnService_ListCodeGenDatabaseColumn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListCodeGenDatabaseColumnRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CodeGenColumnServiceServer).ListCodeGenDatabaseColumn(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: CodeGenColumnService_ListCodeGenDatabaseColumn_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CodeGenColumnServiceServer).ListCodeGenDatabaseColumn(ctx, req.(*ListCodeGenDatabaseColumnRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _CodeGenColumnService_SaveCodeGenColumn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SaveCodeGenColumnRequest)
 	if err := dec(in); err != nil {
@@ -194,10 +158,6 @@ var CodeGenColumnService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListCodeGenColumn",
 			Handler:    _CodeGenColumnService_ListCodeGenColumn_Handler,
-		},
-		{
-			MethodName: "ListCodeGenDatabaseColumn",
-			Handler:    _CodeGenColumnService_ListCodeGenDatabaseColumn_Handler,
 		},
 		{
 			MethodName: "SaveCodeGenColumn",

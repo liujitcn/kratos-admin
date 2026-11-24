@@ -91,16 +91,6 @@ func (s *BiSourceService) OptionBiSourceDatabase(ctx context.Context, req *admin
 	return result, nil
 }
 
-// TestBiSource 测试 BI 数据源连接和表配置。
-func (s *BiSourceService) TestBiSource(ctx context.Context, req *adminv1.TestBiSourceRequest) (*adminv1.TestBiSourceResponse, error) {
-	result, err := s.biSourceCase.TestBiSource(ctx, req)
-	if err != nil {
-		log.Error(fmt.Sprintf("TestBiSource %v", err))
-		return nil, errorsx.WrapInternal(err, "测试 BI 数据源失败")
-	}
-	return result, nil
-}
-
 // ListBiSourceTables 查询 BI 数据源中的表和字段结构。
 func (s *BiSourceService) ListBiSourceTables(ctx context.Context, req *adminv1.ListBiSourceTablesRequest) (*adminv1.ListBiSourceTablesResponse, error) {
 	result, err := s.biSourceCase.ListBiSourceTables(ctx, req)

@@ -292,7 +292,7 @@ test("缩略图可见后才按发布版本取数，错误可重试，卸载后�
   assert.equal(state.layout.value, previous);
 });
 
-test("缩略图保留真实数据和图表类型，隐藏密集控件且不改变完整卡片", () => {
+test("紧凑展示保留真实数据和图表类型，只收起数值标签和缩放控件", () => {
   const result = {
     columns: [
       { code: "day", type: "string" },
@@ -316,18 +316,20 @@ test("缩略图保留真实数据和图表类型，隐藏密集控件且不改�
     };
     const original = setupComponent("BiCardVisualization", { card, result }, mocks).data.value;
     const preview = setupComponent("BiCardVisualization", { card, result, compact: true }, mocks).data.value;
+    const thumbnail = setupComponent("BiCardVisualization", { card, result, thumbnail: true }, mocks).data.value;
     assert.deepEqual(preview.rows, original.rows);
     assert.deepEqual(preview.metrics, original.metrics);
     assert.equal(preview.chart.type, chart_type);
-    assert.equal(preview.chart.style.showLegend, false);
+    assert.equal(preview.chart.compact, true);
+    assert.equal(preview.chart.thumbnail, undefined);
+    assert.deepEqual(thumbnail, { ...preview, chart: { ...preview.chart, thumbnail: true } });
+    assert.equal(preview.chart.style.showLegend, true);
+    assert.equal(preview.chart.style.showLabel, false);
     assert.equal(preview.chart.style.dataZoom, false);
-    assert.equal(original.chart.options, undefined);
+    assert.equal(preview.chart.options, undefined);
+    assert.equal(original.chart.compact, undefined);
     assert.equal(original.chart.style.showLegend, true);
     assert.equal(original.chart.style.dataZoom, true);
-    if (["bar", "line", "area", "scatter", "heatmap"].includes(chart_type)) {
-      assert.equal(preview.chart.options.xAxis.show, false);
-      assert.equal(preview.chart.options.yAxis.show, false);
-    }
   }
 });
 

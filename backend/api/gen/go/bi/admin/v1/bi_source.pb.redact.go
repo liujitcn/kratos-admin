@@ -130,17 +130,6 @@ func (s *redactedBiSourceServiceServer) OptionBiSourceDatabase(ctx context.Conte
 	return res, err
 }
 
-// TestBiSource is the redacted wrapper for the actual BiSourceServiceServer.TestBiSource method
-// Unary RPC
-func (s *redactedBiSourceServiceServer) TestBiSource(ctx context.Context, in *TestBiSourceRequest) (*TestBiSourceResponse, error) {
-	res, err := s.srv.TestBiSource(ctx, in)
-	if !s.bypass.CheckInternal(ctx) {
-		// Apply redaction to the response
-		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/bi.admin.v1.BiSourceService/TestBiSource"), redact.DirectionResponse), nil, res)
-	}
-	return res, err
-}
-
 // ListBiSourceTables is the redacted wrapper for the actual BiSourceServiceServer.ListBiSourceTables method
 // Unary RPC
 func (s *redactedBiSourceServiceServer) ListBiSourceTables(ctx context.Context, in *ListBiSourceTablesRequest) (*ListBiSourceTablesResponse, error) {
@@ -327,32 +316,6 @@ func (x *BiSourceDatabase) Redact() {
 	// Safe field: Name
 
 	// Safe field: Driver
-}
-
-// Ensure TestBiSourceRequest implements the Redactor interface at compile time.
-var _ redact.Redactor = (*TestBiSourceRequest)(nil)
-
-// Redact method implementation for TestBiSourceRequest
-func (x *TestBiSourceRequest) Redact() {
-	if x == nil {
-		return
-	}
-
-	// Safe field: Source
-}
-
-// Ensure TestBiSourceResponse implements the Redactor interface at compile time.
-var _ redact.Redactor = (*TestBiSourceResponse)(nil)
-
-// Redact method implementation for TestBiSourceResponse
-func (x *TestBiSourceResponse) Redact() {
-	if x == nil {
-		return
-	}
-
-	// Safe field: Success
-
-	// Safe field: Message
 }
 
 // Ensure ListBiSourceTablesRequest implements the Redactor interface at compile time.

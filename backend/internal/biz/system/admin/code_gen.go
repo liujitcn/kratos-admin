@@ -17,8 +17,8 @@ import (
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/dbmeta"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-admin/backend/migration"
@@ -578,7 +578,7 @@ func (c *CodeGenCase) prepareCodeGenBatch(ctx context.Context, tableIDs []int64)
 		if table.Status == codegen.StatusDisabled {
 			return nil, errorsx.StateConflict("停用的代码生成表配置不能生成", "code_gen_table", "disabled", "draft_or_generated")
 		}
-		if !codeGenDatabaseTableNamePattern.MatchString(table.TableName_) {
+		if !databaseTableNamePattern.MatchString(table.TableName_) {
 			return nil, errorsx.InvalidArgument("业务表名只能包含小写字母、数字和下划线，且必须以字母开头")
 		}
 		inputs = append(inputs, codegen.BatchGenerationInput{
@@ -896,7 +896,7 @@ func (c *CodeGenCase) loadCodeGenContext(ctx context.Context, tableID int64) (*c
 		return nil, nil, nil, err
 	}
 	if table.TableComment == "" {
-		var tableInfos []dto.CodeGenDatabaseTable
+		var tableInfos []dbmeta.Table
 		tableInfos, err = c.codeGenTableCase.listDatabaseTables(ctx, tableModel.SourceName, []string{tableModel.Name})
 		if err != nil {
 			return nil, nil, nil, err
@@ -912,7 +912,7 @@ func (c *CodeGenCase) loadCodeGenContext(ctx context.Context, tableID int64) (*c
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	var databaseColumns []dto.CodeGenDatabaseColumn
+	var databaseColumns []dbmeta.Column
 	databaseColumns, err = c.codeGenColumnCase.listDatabaseColumns(ctx, tableModel.SourceName, tableModel.Name)
 	if err != nil {
 		return nil, nil, nil, err
@@ -953,7 +953,7 @@ func (c *CodeGenCase) enrichCodeGenProtoTargetComments(ctx context.Context, tabl
 		seenTableNames[tableName] = struct{}{}
 		tableNames = append(tableNames, tableName)
 	}
-	var tableInfos []dto.CodeGenDatabaseTable
+	var tableInfos []dbmeta.Table
 	var err error
 	if len(tableNames) > 0 {
 		tableInfos, err = c.codeGenTableCase.listDatabaseTables(ctx, table.SourceName, tableNames)
@@ -993,7 +993,7 @@ func (c *CodeGenCase) enrichCodeGenProtoTargetComments(ctx context.Context, tabl
 			if proto.TriggerType == codegen.TriggerLeftTree && leftTreeConfig.SourceValue != "" {
 				tableName = leftTreeConfig.SourceValue
 			}
-			var databaseColumns []dto.CodeGenDatabaseColumn
+			var databaseColumns []dbmeta.Column
 			databaseColumns, err = c.codeGenColumnCase.listDatabaseColumns(ctx, table.SourceName, tableName)
 			if err != nil {
 				return err
@@ -1323,7 +1323,7 @@ func codeGenTableToSnapshot(item *models.CodeGenTable) (*codegen.Table, error) {
 }
 
 // codeGenColumnsToSnapshots 将完整字段配置与数据库元数据合并为生成快照。
-func codeGenColumnsToSnapshots(configs []*adminv1.CodeGenColumn, databaseColumns []dto.CodeGenDatabaseColumn) []*codegen.CodeGenColumn {
+func codeGenColumnsToSnapshots(configs []*adminv1.CodeGenColumn, databaseColumns []dbmeta.Column) []*codegen.CodeGenColumn {
 	configByName := make(map[string]*adminv1.CodeGenColumn, len(configs))
 	for _, config := range configs {
 		configByName[config.GetName()] = config

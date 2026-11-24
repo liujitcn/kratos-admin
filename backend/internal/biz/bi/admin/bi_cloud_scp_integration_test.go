@@ -19,6 +19,7 @@ import (
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/bi/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/bi/admin/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/bi/admin/query"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/dbconn"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-admin/backend/pkg/bi"
 	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
@@ -429,7 +430,7 @@ func newCloudSCPTestCases(t *testing.T, key string) (*BiCardCase, *BiDashboardCa
 		t.Fatal("连接端口无效")
 	}
 	var dsn string
-	_, dsn, err = sourceDSN(&models.BiSource{Driver: entry.Driver, Host: host, Port: int32(port), DatabaseName: entry.Database, Username: entry.Username}, entry.Password)
+	_, dsn, err = dbconn.DSN(dbconn.Config{Driver: entry.Driver, Host: host, Port: int32(port), DatabaseName: entry.Database, Username: entry.Username}, entry.Password)
 	if err != nil {
 		t.Fatal(err)
 	}

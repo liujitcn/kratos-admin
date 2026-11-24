@@ -49,11 +49,12 @@ const (
 	baseTenantDefaultDeptSort    = int32(0)
 	baseTenantInitialCode        = int64(1000)
 	baseTenantMaxCode            = int64(9999)
-	baseTenantNumericCodeExpr    = "^[0-9]+$"
 	baseTenantCreateWorkflowCode = "BASE_TENANT_CREATE"
 	baseTenantCreateBusinessType = "BASE_TENANT_CREATE"
 	baseTenantCreateAction       = "base.tenant.create.complete"
 )
+
+var baseTenantNumericCodePattern = regexp.MustCompile(`^[0-9]+$`)
 
 // BaseTenantCase 租户业务实例。
 type BaseTenantCase struct {
@@ -554,12 +555,13 @@ func (c *BaseTenantCase) revokeTenantUserTokens(ctx context.Context, tenantID in
 	return nil
 }
 
-// getNextBaseTenantCode 获取下一个可用租户编号。
+// getNextBaseTenantCode 根据历史数字编号分配下一个租户编号，软删除的编号也计入。
 func (c *BaseTenantCase) getNextBaseTenantCode(ctx context.Context) (string, error) {
 	query := c.Query(ctx).BaseTenant
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Unscoped())
-	opts = append(opts, repository.Where(query.Code.Regexp(baseTenantNumericCodeExpr)))
+	opts := []repository.QueryOption{
+		repository.Select(query.Code),
+		repository.Unscoped(),
+	}
 	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return "", err
@@ -567,14 +569,15 @@ func (c *BaseTenantCase) getNextBaseTenantCode(ctx context.Context) (string, err
 
 	maxCode := baseTenantInitialCode - 1
 	for _, item := range list {
+		if !baseTenantNumericCodePattern.MatchString(item.Code) {
+			continue
+		}
 		var code int64
 		code, err = strconv.ParseInt(item.Code, 10, 64)
 		if err != nil {
 			return "", errorsx.Internal("解析租户编号失败").WithCause(err)
 		}
-		if code > maxCode {
-			maxCode = code
-		}
+		maxCode = max(maxCode, code)
 	}
 	// 四位自定义租户编号已全部使用时，拒绝继续创建。
 	if maxCode >= baseTenantMaxCode {

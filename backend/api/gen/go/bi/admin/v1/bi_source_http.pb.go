@@ -28,7 +28,6 @@ const OperationBiSourceServicePageBiSourceTableData = "/bi.admin.v1.BiSourceServ
 const OperationBiSourceServicePreviewBiSourceModel = "/bi.admin.v1.BiSourceService/PreviewBiSourceModel"
 const OperationBiSourceServiceSaveBiSourceModel = "/bi.admin.v1.BiSourceService/SaveBiSourceModel"
 const OperationBiSourceServiceSetBiSourceStatus = "/bi.admin.v1.BiSourceService/SetBiSourceStatus"
-const OperationBiSourceServiceTestBiSource = "/bi.admin.v1.BiSourceService/TestBiSource"
 const OperationBiSourceServiceUpdateBiSource = "/bi.admin.v1.BiSourceService/UpdateBiSource"
 
 type BiSourceServiceHTTPServer interface {
@@ -52,8 +51,6 @@ type BiSourceServiceHTTPServer interface {
 	SaveBiSourceModel(context.Context, *SaveBiSourceModelRequest) (*BiSource, error)
 	// SetBiSourceStatus 修改数据源启用状态。
 	SetBiSourceStatus(context.Context, *SetBiSourceStatusRequest) (*BiSource, error)
-	// TestBiSource 测试数据源连接是否可访问。
-	TestBiSource(context.Context, *TestBiSourceRequest) (*TestBiSourceResponse, error)
 	// UpdateBiSource 更新数据源配置。
 	UpdateBiSource(context.Context, *UpdateBiSourceRequest) (*BiSource, error)
 }
@@ -67,7 +64,6 @@ func RegisterBiSourceServiceHTTPServer(s *http.Server, srv BiSourceServiceHTTPSe
 	r.Handle("DELETE", "/api/v1/admin/bi/source/{id}", _BiSourceService_DeleteBiSource0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/bi/source/{id}/status", _BiSourceService_SetBiSourceStatus0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/bi/source/options/databases", _BiSourceService_OptionBiSourceDatabase0_HTTP_Handler(srv))
-	r.Handle("POST", "/api/v1/admin/bi/source/test", _BiSourceService_TestBiSource0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/bi/source/{id}/tables", _BiSourceService_ListBiSourceTables0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/bi/source/{id}/table-data", _BiSourceService_PageBiSourceTableData0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/bi/source/{id}/model", _BiSourceService_SaveBiSourceModel0_HTTP_Handler(srv))
@@ -225,28 +221,6 @@ func _BiSourceService_OptionBiSourceDatabase0_HTTP_Handler(srv BiSourceServiceHT
 	}
 }
 
-func _BiSourceService_TestBiSource0_HTTP_Handler(srv BiSourceServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in TestBiSourceRequest
-		if err := ctx.Bind(&in.Source); err != nil {
-			return err
-		}
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationBiSourceServiceTestBiSource)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.TestBiSource(ctx, req.(*TestBiSourceRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*TestBiSourceResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
 func _BiSourceService_ListBiSourceTables0_HTTP_Handler(srv BiSourceServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in ListBiSourceTablesRequest
@@ -356,8 +330,6 @@ type BiSourceServiceHTTPClient interface {
 	SaveBiSourceModel(ctx context.Context, req *SaveBiSourceModelRequest, opts ...http.CallOption) (rsp *BiSource, err error)
 	// SetBiSourceStatus 修改数据源启用状态。
 	SetBiSourceStatus(ctx context.Context, req *SetBiSourceStatusRequest, opts ...http.CallOption) (rsp *BiSource, err error)
-	// TestBiSource 测试数据源连接是否可访问。
-	TestBiSource(ctx context.Context, req *TestBiSourceRequest, opts ...http.CallOption) (rsp *TestBiSourceResponse, err error)
 	// UpdateBiSource 更新数据源配置。
 	UpdateBiSource(ctx context.Context, req *UpdateBiSourceRequest, opts ...http.CallOption) (rsp *BiSource, err error)
 }
@@ -538,24 +510,6 @@ func (c *BiSourceServiceHTTPClientImpl) SetBiSourceStatus(ctx context.Context, i
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-// TestBiSource 测试数据源连接是否可访问。
-func (c *BiSourceServiceHTTPClientImpl) TestBiSource(ctx context.Context, in *TestBiSourceRequest, opts ...http.CallOption) (*TestBiSourceResponse, error) {
-	var out TestBiSourceResponse
-	pattern := "/api/v1/admin/bi/source/test"
-	path := http.BuildPath(pattern, in, http.WithQueryParams(), http.WithOmitFields("source"))
-	opts = append([]http.CallOption{
-		http.Accept("application/protojson"),
-		http.ContentType("application/protojson"),
-		http.Operation(OperationBiSourceServiceTestBiSource),
-		http.PathTemplate(pattern),
-	}, opts...)
-	err := c.cc.Invoke(ctx, "POST", path, in.Source, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

@@ -78,10 +78,9 @@ import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { defBaseMenuService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_menu";
 import { defBaseDictService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_dict";
 import { defCodeGenService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/code_gen";
-import { defCodeGenColumnService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/code_gen_column";
+import type { DatabaseColumn } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/database";
 import { defCodeGenTableService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/code_gen_table";
-import { defBaseTableSourceService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_table_source";
-import type { CodeGenDatabaseColumn } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_column";
+import { defDatabaseService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/database";
 import type {
   CodeGenDatabaseTable,
   CodeGenTable,
@@ -141,8 +140,8 @@ const sourceOptions = ref<ProFormOption[]>([]);
 const loadingSourceOptions = ref(false);
 const databaseTables = ref<CodeGenDatabaseTable[]>([]);
 const businessModuleItems = ref<OptionBaseDictResponse_BaseDictItem[]>([]);
-const databaseColumns = ref<CodeGenDatabaseColumn[]>([]);
-const leftTreeDatabaseColumns = ref<CodeGenDatabaseColumn[]>([]);
+const databaseColumns = ref<DatabaseColumn[]>([]);
+const leftTreeDatabaseColumns = ref<DatabaseColumn[]>([]);
 const parentMenuOptions = ref<ProFormOption[]>([]);
 const progressTaskId = ref(typeof window === "undefined" ? "" : (window.sessionStorage.getItem(codeGenTaskStorageKey) ?? ""));
 const progressDialogVisible = ref(
@@ -848,7 +847,7 @@ async function loadSourceOptions() {
   if (sourceOptions.value.length || loadingSourceOptions.value) return;
   loadingSourceOptions.value = true;
   try {
-    const data = await defBaseTableSourceService.OptionBaseTableSource({});
+    const data = await defDatabaseService.OptionBaseTableSource({});
     sourceOptions.value = (data.value ?? []).map(value => ({ label: value, value }));
   } finally {
     loadingSourceOptions.value = false;
@@ -993,14 +992,14 @@ async function loadDatabaseTables(sourceName: string) {
 }
 
 /** 查询指定数据源的数据表字段选项。 */
-async function loadDatabaseColumns(target: { value: CodeGenDatabaseColumn[] }, sourceName: string, tableName: string) {
+async function loadDatabaseColumns(target: { value: DatabaseColumn[] }, sourceName: string, tableName: string) {
   target.value = await requestDatabaseColumns(sourceName, tableName);
 }
 
 /** 请求指定数据源和数据表的字段选项。 */
 async function requestDatabaseColumns(sourceName: string, tableName: string) {
   if (!tableName) return [];
-  const data = await defCodeGenColumnService.ListCodeGenDatabaseColumn({ source_name: sourceName, table_name: tableName });
+  const data = await defDatabaseService.ListTableColumns({ source_name: sourceName, table_name: tableName });
   return data.columns ?? [];
 }
 
@@ -1015,7 +1014,7 @@ async function loadLeftTreeDatabaseColumns() {
 }
 
 /** 转换数据库字段为 ProForm 选择项。 */
-function createDatabaseColumnOptions(columns: CodeGenDatabaseColumn[]): ProFormOption[] {
+function createDatabaseColumnOptions(columns: DatabaseColumn[]): ProFormOption[] {
   return columns.map(item => ({
     label: item.comment
       ? `${item.name}（${item.comment} / ${item.column_type || item.db_type}）`
@@ -1025,7 +1024,7 @@ function createDatabaseColumnOptions(columns: CodeGenDatabaseColumn[]): ProFormO
 }
 
 /** 从字段列表中解析存在的约定默认字段。 */
-function resolveDefaultColumn(columns: CodeGenDatabaseColumn[], columnName: string) {
+function resolveDefaultColumn(columns: DatabaseColumn[], columnName: string) {
   return columns.some(item => item.name === columnName) ? columnName : "";
 }
 

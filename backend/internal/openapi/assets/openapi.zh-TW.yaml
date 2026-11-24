@@ -5767,37 +5767,6 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/v1/admin/base/table-source/option:
-        get:
-            tags:
-                - BaseTableSourceService
-            description: 查詢已初始化的資料來源名稱。
-            operationId: BaseTableSourceService_OptionBaseTableSource
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/common.v1.StringValues'
-    /api/v1/admin/base/table-source/table/option:
-        get:
-            tags:
-                - BaseTableSourceService
-            description: 查詢指定資料來源中的資料庫表選項。
-            operationId: BaseTableSourceService_OptionBaseTable
-            parameters:
-                - name: source_name
-                  in: query
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/system.admin.v1.OptionBaseTableResponse'
     /api/v1/admin/base/tenant:
         get:
             tags:
@@ -7030,25 +6999,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/bi.admin.v1.OptionBiSourceDatabaseResponse'
-    /api/v1/admin/bi/source/test:
-        post:
-            tags:
-                - BiSourceService
-            description: 測試數據源連接是否可訪問。
-            operationId: BiSourceService_TestBiSource
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/bi.admin.v1.BiSourceForm'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/bi.admin.v1.TestBiSourceResponse'
     /api/v1/admin/bi/source/{id}:
         get:
             tags:
@@ -7328,29 +7278,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.ListCodeGenDatabaseTableResponse'
-    /api/v1/admin/code-gen/database/table/{table_name}/column:
-        get:
-            tags:
-                - CodeGenColumnService
-            description: 查詢資料庫表欄位列表
-            operationId: CodeGenColumnService_ListCodeGenDatabaseColumn
-            parameters:
-                - name: table_name
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-                - name: source_name
-                  in: query
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/system.admin.v1.ListCodeGenDatabaseColumnResponse'
     /api/v1/admin/code-gen/restore:
         post:
             tags:
@@ -7629,6 +7556,79 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.CodeGenTask'
+    /api/v1/admin/database/sources:
+        get:
+            tags:
+                - DatabaseService
+            description: 查詢已初始化的資料來源名稱。
+            operationId: DatabaseService_OptionBaseTableSource
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/common.v1.StringValues'
+    /api/v1/admin/database/tables:
+        get:
+            tags:
+                - DatabaseService
+            description: 查詢指定資料來源中的資料庫表選項。
+            operationId: DatabaseService_OptionBaseTable
+            parameters:
+                - name: source_name
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.OptionBaseTableResponse'
+    /api/v1/admin/database/tables/{table_name}/columns:
+        get:
+            tags:
+                - DatabaseService
+            description: 查詢指定資料來源中單張表的欄位。
+            operationId: DatabaseService_ListTableColumns
+            parameters:
+                - name: table_name
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: source_name
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.ListTableColumnsResponse'
+    /api/v1/admin/database/test-connection:
+        post:
+            tags:
+                - DatabaseService
+            description: 測試資料庫連線是否可訪問。
+            operationId: DatabaseService_TestConnection
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.TestConnectionRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.TestConnectionResponse'
     /api/v1/admin/mqtt-message:
         get:
             tags:
@@ -14478,16 +14478,6 @@ components:
                     description: 狀態：1啟用，2禁用
                     format: int32
             description: 修改 BI 資料來源狀態請求。
-        bi.admin.v1.TestBiSourceResponse:
-            type: object
-            properties:
-                success:
-                    type: boolean
-                    description: 是否可訪問
-                message:
-                    type: string
-                    description: 測試結果說明
-            description: 測試 BI 數據源響應。
         common.v1.AppTreeOptionResponse_Option:
             type: object
             properties:
@@ -19393,28 +19383,6 @@ components:
                 option:
                     $ref: '#/components/schemas/system.admin.v1.CodeGenColumnOptionConfig'
             description: 程式碼生成欄位查詢條件配置
-        system.admin.v1.CodeGenDatabaseColumn:
-            type: object
-            properties:
-                name:
-                    type: string
-                    description: 資料庫欄位名
-                comment:
-                    type: string
-                    description: 資料庫欄位註釋
-                db_type:
-                    type: string
-                    description: 資料庫欄位型別
-                column_type:
-                    type: string
-                    description: 資料庫完整欄位型別
-                is_primary:
-                    type: boolean
-                    description: 是否主鍵
-                is_nullable:
-                    type: boolean
-                    description: 是否允許為空
-            description: 資料庫欄位後設資料
         system.admin.v1.CodeGenDatabaseTable:
             type: object
             properties:
@@ -19847,6 +19815,28 @@ components:
                     type: string
                     description: 租戶管理員初始密碼，僅在隨機產生時返回
             description: 建立租戶回應參數
+        system.admin.v1.DatabaseColumn:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: 資料庫欄位名
+                comment:
+                    type: string
+                    description: 資料庫欄位註釋
+                db_type:
+                    type: string
+                    description: 資料庫欄位型別
+                column_type:
+                    type: string
+                    description: 資料庫完整欄位型別
+                is_primary:
+                    type: boolean
+                    description: 是否主鍵
+                is_nullable:
+                    type: boolean
+                    description: 是否允許為空
+            description: 資料庫欄位後設資料
         system.admin.v1.DraftBaseI18nItem:
             type: object
             properties:
@@ -19989,15 +19979,6 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.CodeGenColumn'
                     description: 程式碼生成欄位配置列表
             description: 程式碼生成欄位配置查詢響應
-        system.admin.v1.ListCodeGenDatabaseColumnResponse:
-            type: object
-            properties:
-                columns:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.CodeGenDatabaseColumn'
-                    description: 資料庫欄位列表
-            description: 資料庫表欄位列表響應
         system.admin.v1.ListCodeGenDatabaseTableResponse:
             type: object
             properties:
@@ -20034,6 +20015,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.RuntimeLogFile'
                     description: 歷史日誌檔案列表
             description: 歷史日誌檔案列表響應。
+        system.admin.v1.ListTableColumnsResponse:
+            type: object
+            properties:
+                columns:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.DatabaseColumn'
+                    description: 資料庫欄位列表
+            description: 資料庫表欄位列表響應
         system.admin.v1.MqttMessageDetail:
             type: object
             properties:
@@ -22202,6 +22192,47 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.AiProviderModelTestResult'
                     description: 依設定順序返回的模型測試結果
             description: 測試 AI 供應商全部模型回應。
+        system.admin.v1.TestConnectionRequest:
+            type: object
+            properties:
+                source_name:
+                    type: string
+                    description: 宿主資料來源名稱
+                driver:
+                    type: string
+                    description: 獨立資料庫驅動：mysql、postgres、doris、tidb
+                host:
+                    type: string
+                    description: 獨立資料庫主機
+                port:
+                    type: integer
+                    description: 獨立資料庫埠
+                    format: int32
+                database_name:
+                    type: string
+                    description: 獨立資料庫名稱
+                username:
+                    type: string
+                    description: 獨立資料庫使用者名稱
+                password:
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
+                ssl_mode:
+                    type: string
+                    description: PostgreSQL SSL模式
+                bi_source_id:
+                    type: string
+                    description: 僅在連線引數未變且密碼未填寫時複用憑據的BI資料來源ID
+            description: 資料庫連線測試請求；填寫主機時測試獨立連線，否則按名稱測試宿主連線。
+        system.admin.v1.TestConnectionResponse:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                    description: 是否可訪問
+                message:
+                    type: string
+                    description: 測試結果說明
+            description: 資料庫連線測試結果。
         system.admin.v1.TestRunBaseScriptRequest:
             type: object
             properties:
@@ -23100,8 +23131,6 @@ tags:
       description: Admin資料庫備份恢復服務。
     - name: BaseTableBackupService
       description: Admin資料庫備份配置服務。
-    - name: BaseTableSourceService
-      description: Admin資料來源後設資料服務，提供資料備份、資料歸檔和程式碼生成共用的資料來源資訊。
     - name: BaseTenantProjectGrantService
       description: Admin專案授權服務
     - name: BaseTenantProjectService
@@ -23132,6 +23161,8 @@ tags:
       description: Admin 程式碼生成資料表設定服務
     - name: ConfigService
       description: Base 系統設定公共服務
+    - name: DatabaseService
+      description: 管理端資料庫服務，提供連線探測和物理後設資料。
     - name: FileService
       description: Base 檔案服務
     - name: LanguageService

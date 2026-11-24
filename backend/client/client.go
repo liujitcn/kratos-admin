@@ -110,8 +110,8 @@ type SystemAdminClient struct {
 	BaseTableBackupRecord adminv1.BaseTableBackupRecordServiceClient
 	// BaseTableBackupRestore 是管理端数据备份恢复服务客户端。
 	BaseTableBackupRestore adminv1.BaseTableBackupRestoreServiceClient
-	// BaseTableSource 是管理端数据源服务客户端。
-	BaseTableSource adminv1.BaseTableSourceServiceClient
+	// Database 是管理端数据源服务客户端。
+	Database adminv1.DatabaseServiceClient
 	// RuntimeLog 是管理端运行日志服务客户端。
 	RuntimeLog adminv1.RuntimeLogServiceClient
 	// Auth 是管理端认证服务客户端。
@@ -229,7 +229,7 @@ func NewClient(ctx context.Context, clientConfig *configv1.Client, options ...Op
 			BaseTableBackup:         adminv1.NewBaseTableBackupServiceClient(connection),
 			BaseTableBackupRecord:   adminv1.NewBaseTableBackupRecordServiceClient(connection),
 			BaseTableBackupRestore:  adminv1.NewBaseTableBackupRestoreServiceClient(connection),
-			BaseTableSource:         adminv1.NewBaseTableSourceServiceClient(connection),
+			Database:                adminv1.NewDatabaseServiceClient(connection),
 			RuntimeLog:              adminv1.NewRuntimeLogServiceClient(connection),
 			Auth:                    adminv1.NewAuthServiceClient(connection),
 			BaseAPI:                 adminv1.NewBaseApiServiceClient(connection),

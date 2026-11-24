@@ -788,6 +788,9 @@
   "legacy.error.034b0adab4e608e8": {
     "other": "Failed to query language"
   },
+  "legacy.error.03b31b56ce9d209e": {
+    "other": "Only the default tenant can test a server database client"
+  },
   "legacy.error.03be4b2cd229dfde": {
     "other": "The source version has changed. Refresh and preview again."
   },
@@ -1192,6 +1195,9 @@
   },
   "legacy.error.1689611862abe259": {
     "other": "Metric cards cannot use grouping dimensions"
+  },
+  "legacy.error.16e1c1e0e932d67b": {
+    "other": "The database connection test failed"
   },
   "legacy.error.1706c4959e58af6a": {
     "other": "Failed to delete project: project does not exist"
@@ -1862,6 +1868,9 @@
   "legacy.error.38575468bd5f4185": {
     "other": "The outbound redaction policy cannot be empty"
   },
+  "legacy.error.38ad8471ba4c5e69": {
+    "other": "The BI data source has changed. Refresh and try again."
+  },
   "legacy.error.38c29cd72f9c1d82": {
     "other": "Access token service is not initialized"
   },
@@ -2051,6 +2060,9 @@
   "legacy.error.4224023e7217ea64": {
     "other": "The provider of the embedding model does not exist"
   },
+  "legacy.error.422750cd3e796ca0": {
+    "other": "The connection settings changed. Enter the database password again."
+  },
   "legacy.error.424b444c31bcfe1f": {
     "other": "Batch generation definition conflict"
   },
@@ -2143,6 +2155,9 @@
   },
   "legacy.error.44b45b049ae6f2a2": {
     "other": "Failed to query OAuth client credentials"
+  },
+  "legacy.error.44c6a02412d0f1a4": {
+    "other": "Could not open the database. Check the connection settings."
   },
   "legacy.error.44da1869e0376a29": {
     "other": "Invalid forward target user"
@@ -2852,6 +2867,9 @@
   "legacy.error.68166c0df150f899": {
     "other": "AI data query failed"
   },
+  "legacy.error.68395874ff110984": {
+    "other": "Failed to check the BI data source version."
+  },
   "legacy.error.6875490152490a8a": {
     "other": "Failed to query scheduled task dropdown"
   },
@@ -3193,6 +3211,9 @@
   },
   "legacy.error.76e780b7e84d7a14": {
     "other": "Failed to read log directory"
+  },
+  "legacy.error.76eb2e3fa12aa03c": {
+    "other": "Failed to initialize the database metadata reader"
   },
   "legacy.error.771c738a3c8356ae": {
     "other": "Only buttons can be created under a page menu"
@@ -4211,6 +4232,9 @@
   "legacy.error.af8be8010133e43a": {
     "other": "Code generation task ID cannot be empty"
   },
+  "legacy.error.af9672c4e288783f": {
+    "other": "A password is required for a separate database connection"
+  },
   "legacy.error.afac2a2e5bf769d4": {
     "other": "Invalid audit action"
   },
@@ -4900,6 +4924,9 @@
   },
   "legacy.error.d132998d88c706a1": {
     "other": "The installation policy has changed"
+  },
+  "legacy.error.d14c323cacb9c64a": {
+    "other": "Failed to obtain the database connection pool"
   },
   "legacy.error.d1700e2d9ad8a545": {
     "other": "The message tenant cannot be empty"
@@ -7286,13 +7313,13 @@
   "system.admin.code.gen.column.list.table_id.required": {
     "other": "Code generation table configuration ID cannot be empty"
   },
-  "system.admin.code.gen.column.list_gen_database_column.source_name.required": {
+  "system.admin.database.columns.source_name.required": {
     "other": "Data source name cannot be empty"
   },
-  "system.admin.code.gen.column.list_gen_database_column.table_name.pattern": {
+  "system.admin.database.columns.table_name.pattern": {
     "other": "Database table name format is incorrect"
   },
-  "system.admin.code.gen.column.list_gen_database_column.table_name.required": {
+  "system.admin.database.columns.table_name.required": {
     "other": "Database table name cannot be empty"
   },
   "system.admin.code.gen.column.save.table_id.required": {

@@ -293,8 +293,14 @@ func BuildModules(dispatcher *aiautomation.Dispatcher, migrations *migration.Mig
 	baseTableBackupRestoreRepository := data2.NewBaseTableBackupRestoreRepository(dataData)
 	baseTableBackupRestoreCase := biz3.NewBaseTableBackupRestoreCase(baseCase, baseTableBackupRestoreRepository, baseTableBackupRecordRepository)
 	baseTableBackupRestoreService := admin.NewBaseTableBackupRestoreService(baseTableBackupRestoreCase)
-	baseTableSourceCase := biz3.NewBaseTableSourceCase(baseCase)
-	baseTableSourceService := admin.NewBaseTableSourceService(baseTableSourceCase)
+	biSourceRepository := data2.NewBiSourceRepository(dataData)
+	biRegistry := bi.NewRegistry()
+	biCardRepository := data2.NewBiCardRepository(dataData)
+	biDashboardRepository := data2.NewBiDashboardRepository(dataData)
+	biDashboardVersionRepository := data2.NewBiDashboardVersionRepository(dataData)
+	biSourceCase := admin2.NewBiSourceCase(baseCase, transaction, biSourceRepository, biRegistry, redactResolver, biCardRepository, biDashboardRepository, biDashboardVersionRepository, authorizer)
+	databaseCase := biz3.NewDatabaseCase(baseCase, biSourceCase)
+	databaseService := admin.NewDatabaseService(databaseCase)
 	baseRedactOutputPolicyRepository := data2.NewBaseRedactOutputPolicyRepository(dataData)
 	baseRedactRuleRepository := data2.NewBaseRedactRuleRepository(dataData)
 	baseRedactOutputPolicyCase := biz3.NewBaseRedactOutputPolicyCase(baseCase, transaction, baseRedactOutputPolicyRepository, baseAPIRepository, baseAPICase, baseRedactRuleRepository, redactResolver)
@@ -313,12 +319,6 @@ func BuildModules(dispatcher *aiautomation.Dispatcher, migrations *migration.Mig
 	baseApiRateLimitPolicyService := admin.NewBaseApiRateLimitPolicyService(baseApiRateLimitPolicyCase)
 	aiSearchCase := biz2.NewAiSearchCase(baseCase)
 	aiSearchService := base.NewAiSearchService(aiSearchCase)
-	biSourceRepository := data2.NewBiSourceRepository(dataData)
-	biRegistry := bi.NewRegistry()
-	biCardRepository := data2.NewBiCardRepository(dataData)
-	biDashboardRepository := data2.NewBiDashboardRepository(dataData)
-	biDashboardVersionRepository := data2.NewBiDashboardVersionRepository(dataData)
-	biSourceCase := admin2.NewBiSourceCase(baseCase, transaction, biSourceRepository, biRegistry, redactResolver, biCardRepository, biDashboardRepository, biDashboardVersionRepository, authorizer)
 	biQueryRepository := data2.NewBiQueryRepository(dataData)
 	biQueryCase := admin2.NewBiQueryCase(baseCase, biSourceCase, registry, biQueryRepository)
 	biQueryService := admin3.NewBiQueryService(biQueryCase)
@@ -391,7 +391,7 @@ func BuildModules(dispatcher *aiautomation.Dispatcher, migrations *migration.Mig
 		BaseTableBackup:         baseTableBackupService,
 		BaseTableBackupRecord:   baseTableBackupRecordService,
 		BaseTableBackupRestore:  baseTableBackupRestoreService,
-		BaseTableSource:         baseTableSourceService,
+		Database:                databaseService,
 		BaseRedactOutputPolicy:  baseRedactOutputPolicyService,
 		BaseRedactRule:          baseRedactRuleService,
 		BaseRedactStoragePolicy: baseRedactStoragePolicyService,
@@ -579,7 +579,7 @@ func BuildModules(dispatcher *aiautomation.Dispatcher, migrations *migration.Mig
 		BaseTableBackup:         baseTableBackupService,
 		BaseTableBackupRecord:   baseTableBackupRecordService,
 		BaseTableBackupRestore:  baseTableBackupRestoreService,
-		BaseTableSource:         baseTableSourceService,
+		Database:                databaseService,
 		BaseRedactOutputPolicy:  baseRedactOutputPolicyService,
 		BaseRedactRule:          baseRedactRuleService,
 		BaseRedactStoragePolicy: baseRedactStoragePolicyService,

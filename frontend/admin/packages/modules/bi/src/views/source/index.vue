@@ -41,6 +41,7 @@ import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
 import { t } from "@liujitcn/kratos-admin-core";
 import { defBiSourceService } from "../../api/bi/admin/v1/bi_source";
 import BiSourceModelDialog from "../../components/BiSourceModelDialog.vue";
+import { defDatabaseService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/database";
 import type { BiSource, BiSourceForm, PageBiSourceRequest } from "../../rpc/bi/admin/v1/bi_source";
 
 interface BiSourceFormState extends BiSourceForm {
@@ -171,8 +172,10 @@ async function testSource() {
   testing.value = true;
   try {
     const encoded = await encodeSecretFields(fields.value, form);
-    const {password_configured: _passwordConfigured, ...source} = encoded as BiSourceFormState;
-    const result = await defBiSourceService.TestBiSource({source});
+    const {id, source_name, driver, host, port, database_name, username, password, ssl_mode} = encoded as BiSourceFormState;
+    const result = await defDatabaseService.TestConnection({
+      bi_source_id: id, source_name, driver, host, port, database_name, username, password, ssl_mode
+    });
     ElMessage[result.success ? "success" : "warning"](result.message || t(result.success ? "bi.source.message.test_success" : "bi.source.message.test_failed"));
   } finally {
     testing.value = false;

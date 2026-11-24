@@ -1,0 +1,101 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "buf/validate/validate.proto";
+import "common/v1/types.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// 管理端数据库服务，提供连接探测和物理元数据。
+service DatabaseService {
+  // 查询已初始化的数据源名称。
+  rpc OptionBaseTableSource(OptionBaseTableSourceRequest) returns (.common.v1.StringValues) {
+    option (google.api.http) = {get: "/api/v1/admin/database/sources"};
+  }
+
+  // 查询指定数据源中的数据库表选项。
+  rpc OptionBaseTable(OptionBaseTableRequest) returns (OptionBaseTableResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/database/tables"};
+  }
+  // 查询指定数据源中单张表的字段。
+  rpc ListTableColumns(ListTableColumnsRequest) returns (ListTableColumnsResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/database/tables/{table_name}/columns"};
+  }
+
+  // 测试数据库连接是否可访问。
+  rpc TestConnection(TestConnectionRequest) returns (TestConnectionResponse) {
+    option (google.api.http) = {post: "/api/v1/admin/database/test-connection" body: "*"};
+  }
+}
+
+// OptionBaseTableSourceRequest 查询数据源名称请求。
+message OptionBaseTableSourceRequest {}
+
+// OptionBaseTableRequest 查询指定数据源的数据库表名称请求。
+message OptionBaseTableRequest {
+  string source_name = 1 [
+    (gnostic.openapi.v3.property) = {description: "数据源名称"},
+    (buf.validate.field).cel = {
+      id: "system.admin.base.table.source.option.table.source_name.required"
+      message: "数据源名称不能为空"
+      expression: "this.size() > 0"
+    }
+  ]; // 数据源名称
+}
+
+// 数据库表选项。
+message BaseTableOption {
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "数据库表名"}]; // 数据库表名
+  string comment = 2 [(gnostic.openapi.v3.property) = {description: "数据表注释"}]; // 数据表注释
+}
+
+// 数据库表选项响应。
+message OptionBaseTableResponse {
+  repeated BaseTableOption tables = 1 [(gnostic.openapi.v3.property) = {description: "数据库表选项列表"}]; // 数据库表选项列表
+}
+
+// 数据库表字段列表查询条件
+message ListTableColumnsRequest {
+  string table_name = 1 [(gnostic.openapi.v3.property) = {description: "数据库表名"}, (buf.validate.field).cel = {id: "system.admin.database.columns.table_name.required" message: "数据库表名不能为空" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "system.admin.database.columns.table_name.pattern" message: "数据库表名格式不正确" expression: "this.matches('^[a-z][a-z0-9_]*$')"}]; // 数据库表名
+  string source_name = 2 [(gnostic.openapi.v3.property) = {description: "数据源名称"}, (buf.validate.field).cel = {id: "system.admin.database.columns.source_name.required" message: "数据源名称不能为空" expression: "this.size() > 0"}]; // 数据源名称
+}
+
+// 数据库表字段列表响应
+message ListTableColumnsResponse {
+  repeated DatabaseColumn columns = 1 [(gnostic.openapi.v3.property) = {description: "数据库字段列表"}]; // 数据库字段列表
+}
+
+// 数据库字段元数据
+message DatabaseColumn {
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "数据库字段名"}]; // 数据库字段名
+
+  string comment = 2 [(gnostic.openapi.v3.property) = {description: "数据库字段注释"}]; // 数据库字段注释
+
+  string db_type = 3 [(gnostic.openapi.v3.property) = {description: "数据库字段类型"}]; // 数据库字段类型
+
+  string column_type = 4 [(gnostic.openapi.v3.property) = {description: "数据库完整字段类型"}]; // 数据库完整字段类型
+
+  bool is_primary = 5 [(gnostic.openapi.v3.property) = {description: "是否主键"}]; // 是否主键
+
+  bool is_nullable = 6 [(gnostic.openapi.v3.property) = {description: "是否允许为空"}]; // 是否允许为空
+}
+
+// 数据库连接测试请求；填写主机时测试独立连接，否则按名称测试宿主连接。
+message TestConnectionRequest {
+  string source_name = 1 [(gnostic.openapi.v3.property) = {description: "宿主数据源名称"}]; // 宿主数据源名称
+  string driver = 2 [(gnostic.openapi.v3.property) = {description: "独立数据库驱动：mysql、postgres、doris、tidb"}]; // 独立数据库驱动
+  string host = 3 [(gnostic.openapi.v3.property) = {description: "独立数据库主机"}]; // 独立数据库主机
+  int32 port = 4 [(gnostic.openapi.v3.property) = {description: "独立数据库端口"}, (buf.validate.field).int32 = {gte: 0, lte: 65535}]; // 独立数据库端口
+  string database_name = 5 [(gnostic.openapi.v3.property) = {description: "独立数据库名称"}]; // 独立数据库名称
+  string username = 6 [(gnostic.openapi.v3.property) = {description: "独立数据库用户名"}]; // 独立数据库用户名
+  .common.v1.SecretCrypto password = 7 [(gnostic.openapi.v3.property) = {description: "独立数据库密码密文"}]; // 独立数据库密码密文
+  string ssl_mode = 8 [(gnostic.openapi.v3.property) = {description: "PostgreSQL SSL模式"}]; // PostgreSQL SSL模式
+  int64 bi_source_id = 9 [(gnostic.openapi.v3.property) = {description: "仅在连接参数未变且密码未填写时复用凭据的BI数据源ID"}, (buf.validate.field).int64.gte = 0]; // 复用凭据的BI数据源ID
+}
+
+// 数据库连接测试结果。
+message TestConnectionResponse {
+  bool success = 1 [(gnostic.openapi.v3.property) = {description: "是否可访问"}]; // 是否可访问
+  string message = 2 [(gnostic.openapi.v3.property) = {description: "测试结果说明"}]; // 测试结果说明
+}

@@ -788,6 +788,9 @@
   "legacy.error.034b0adab4e608e8": {
     "other": "言語の照会に失敗しました"
   },
+  "legacy.error.03b31b56ce9d209e": {
+    "other": "サーバーのデータベース接続をテストできるのはデフォルトテナントだけです"
+  },
   "legacy.error.03be4b2cd229dfde": {
     "other": "データソースのバージョンが変更されました。再読み込みしてプレビューしてください。"
   },
@@ -1192,6 +1195,9 @@
   },
   "legacy.error.1689611862abe259": {
     "other": "数値カードにはグループ化のディメンションを指定できません"
+  },
+  "legacy.error.16e1c1e0e932d67b": {
+    "other": "データベース接続のテストに失敗しました"
   },
   "legacy.error.1706c4959e58af6a": {
     "other": "プロジェクトの削除に失敗しました（プロジェクトが存在しません）"
@@ -1862,6 +1868,9 @@
   "legacy.error.38575468bd5f4185": {
     "other": "アウトバウンド保護ポリシーを空にすることはできません"
   },
+  "legacy.error.38ad8471ba4c5e69": {
+    "other": "BI データソースが変更されました。再読み込みしてからやり直してください。"
+  },
   "legacy.error.38c29cd72f9c1d82": {
     "other": "アクセストークンサービスが初期化されていません"
   },
@@ -2051,6 +2060,9 @@
   "legacy.error.4224023e7217ea64": {
     "other": "embeddingモデルのプロバイダーが存在しません"
   },
+  "legacy.error.422750cd3e796ca0": {
+    "other": "接続設定が変更されました。データベースのパスワードを再入力してください。"
+  },
   "legacy.error.424b444c31bcfe1f": {
     "other": "バッチ生成定義が競合しています"
   },
@@ -2143,6 +2155,9 @@
   },
   "legacy.error.44b45b049ae6f2a2": {
     "other": "OAuthクライアント資格情報の照会に失敗しました"
+  },
+  "legacy.error.44c6a02412d0f1a4": {
+    "other": "データベースを開けませんでした。接続設定を確認してください。"
   },
   "legacy.error.44da1869e0376a29": {
     "other": "転送先ユーザーが無効です"
@@ -2852,6 +2867,9 @@
   "legacy.error.68166c0df150f899": {
     "other": "AIデータ照会に失敗しました"
   },
+  "legacy.error.68395874ff110984": {
+    "other": "BI データソースのバージョンを確認できませんでした。"
+  },
   "legacy.error.6875490152490a8a": {
     "other": "スケジュールタスクのドロップダウン照会に失敗しました"
   },
@@ -3193,6 +3211,9 @@
   },
   "legacy.error.76e780b7e84d7a14": {
     "other": "ログディレクトリの読み取りに失敗しました"
+  },
+  "legacy.error.76eb2e3fa12aa03c": {
+    "other": "データベースメタデータの取得処理を初期化できませんでした"
   },
   "legacy.error.771c738a3c8356ae": {
     "other": "ページメニューの下にはボタンのみ作成できます"
@@ -4211,6 +4232,9 @@
   "legacy.error.af8be8010133e43a": {
     "other": "コード生成タスクIDを空にすることはできません"
   },
+  "legacy.error.af9672c4e288783f": {
+    "other": "外部データベース接続にはパスワードが必要です"
+  },
   "legacy.error.afac2a2e5bf769d4": {
     "other": "承認操作が無効です"
   },
@@ -4900,6 +4924,9 @@
   },
   "legacy.error.d132998d88c706a1": {
     "other": "インストールポリシーが変更されました"
+  },
+  "legacy.error.d14c323cacb9c64a": {
+    "other": "データベース接続プールの取得に失敗しました"
   },
   "legacy.error.d1700e2d9ad8a545": {
     "other": "メッセージのテナントを空にすることはできません"
@@ -7286,13 +7313,13 @@
   "system.admin.code.gen.column.list.table_id.required": {
     "other": "コード生成テーブル構成 ID を空にすることはできません"
   },
-  "system.admin.code.gen.column.list_gen_database_column.source_name.required": {
+  "system.admin.database.columns.source_name.required": {
     "other": "データソース名を空にすることはできません"
   },
-  "system.admin.code.gen.column.list_gen_database_column.table_name.pattern": {
+  "system.admin.database.columns.table_name.pattern": {
     "other": "データベーステーブル名の形式が正しくありません"
   },
-  "system.admin.code.gen.column.list_gen_database_column.table_name.required": {
+  "system.admin.database.columns.table_name.required": {
     "other": "データベーステーブル名を空にすることはできません"
   },
   "system.admin.code.gen.column.save.table_id.required": {

@@ -5,8 +5,8 @@ import (
 	"regexp"
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/dbmeta"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
@@ -131,7 +131,7 @@ func (c *CodeGenTableCase) ListCodeGenDatabaseTable(ctx context.Context, sourceN
 	for _, item := range list {
 		usedTableNames[sourceTableKey(item.SourceName, item.Name)] = true
 	}
-	var tableInfos []dto.CodeGenDatabaseTable
+	var tableInfos []dbmeta.Table
 	tableInfos, err = c.listDatabaseTables(ctx, sourceName, nil)
 	if err != nil {
 		return nil, err
@@ -252,7 +252,7 @@ func (c *CodeGenTableCase) DeleteCodeGenTable(ctx context.Context, ids string) e
 }
 
 // listDatabaseTables 查询当前数据库的表名与表描述，可按表名缩小范围。
-func (c *CodeGenTableCase) listDatabaseTables(ctx context.Context, sourceName string, tableNames []string) ([]dto.CodeGenDatabaseTable, error) {
+func (c *CodeGenTableCase) listDatabaseTables(ctx context.Context, sourceName string, tableNames []string) ([]dbmeta.Table, error) {
 	database, err := GormClientBySourceName(c.BaseCase, sourceName)
 	if err != nil {
 		return nil, err
@@ -266,7 +266,7 @@ func (c *CodeGenTableCase) codeGenTableFormToModel(ctx context.Context, req *adm
 	if err != nil {
 		return nil, errorsx.InvalidArgument("请选择已初始化的数据源").WithCause(err)
 	}
-	if req.GetName() == "" || !codeGenDatabaseTableNamePattern.MatchString(req.GetName()) {
+	if req.GetName() == "" || !databaseTableNamePattern.MatchString(req.GetName()) {
 		return nil, errorsx.InvalidArgument("业务表名只能包含小写字母、数字和下划线，且必须以字母开头")
 	}
 	if !client.Migrator().HasTable(req.GetName()) {

@@ -1,5 +1,5 @@
 <template>
-  <el-main class="dashboard-page" style="--el-main-padding: 0; flex: 0 1 auto; overflow: visible">
+  <div class="dashboard-page">
     <el-skeleton v-if="loading && !overview" :rows="3" animated />
     <template v-else>
       <section class="metric-grid" :aria-label="t('system.dashboard.overview')">
@@ -47,7 +47,7 @@
         </el-card>
       </section>
     </template>
-  </el-main>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -239,11 +239,11 @@ onBeforeUnmount(() => window.removeEventListener("theme-change", refreshChartThe
 .metric-grid,
 .chart-grid {
   display: grid;
-  gap: 16px;
+  gap: 10px;
 }
 .metric-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 .metric-card {
   position: relative;

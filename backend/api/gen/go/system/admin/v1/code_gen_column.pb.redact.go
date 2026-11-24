@@ -64,17 +64,6 @@ func (s *redactedCodeGenColumnServiceServer) ListCodeGenColumn(ctx context.Conte
 	return res, err
 }
 
-// ListCodeGenDatabaseColumn is the redacted wrapper for the actual CodeGenColumnServiceServer.ListCodeGenDatabaseColumn method
-// Unary RPC
-func (s *redactedCodeGenColumnServiceServer) ListCodeGenDatabaseColumn(ctx context.Context, in *ListCodeGenDatabaseColumnRequest) (*ListCodeGenDatabaseColumnResponse, error) {
-	res, err := s.srv.ListCodeGenDatabaseColumn(ctx, in)
-	if !s.bypass.CheckInternal(ctx) {
-		// Apply redaction to the response
-		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/system.admin.v1.CodeGenColumnService/ListCodeGenDatabaseColumn"), redact.DirectionResponse), nil, res)
-	}
-	return res, err
-}
-
 // SaveCodeGenColumn is the redacted wrapper for the actual CodeGenColumnServiceServer.SaveCodeGenColumn method
 // Unary RPC
 func (s *redactedCodeGenColumnServiceServer) SaveCodeGenColumn(ctx context.Context, in *SaveCodeGenColumnRequest) (*emptypb.Empty, error) {
@@ -110,32 +99,6 @@ func (x *ListCodeGenColumnResponse) Redact() {
 	// Safe field: CodeGenColumns
 }
 
-// Ensure ListCodeGenDatabaseColumnRequest implements the Redactor interface at compile time.
-var _ redact.Redactor = (*ListCodeGenDatabaseColumnRequest)(nil)
-
-// Redact method implementation for ListCodeGenDatabaseColumnRequest
-func (x *ListCodeGenDatabaseColumnRequest) Redact() {
-	if x == nil {
-		return
-	}
-
-	// Safe field: TableName
-
-	// Safe field: SourceName
-}
-
-// Ensure ListCodeGenDatabaseColumnResponse implements the Redactor interface at compile time.
-var _ redact.Redactor = (*ListCodeGenDatabaseColumnResponse)(nil)
-
-// Redact method implementation for ListCodeGenDatabaseColumnResponse
-func (x *ListCodeGenDatabaseColumnResponse) Redact() {
-	if x == nil {
-		return
-	}
-
-	// Safe field: Columns
-}
-
 // Ensure SaveCodeGenColumnRequest implements the Redactor interface at compile time.
 var _ redact.Redactor = (*SaveCodeGenColumnRequest)(nil)
 
@@ -148,28 +111,6 @@ func (x *SaveCodeGenColumnRequest) Redact() {
 	// Safe field: TableId
 
 	// Safe field: CodeGenColumns
-}
-
-// Ensure CodeGenDatabaseColumn implements the Redactor interface at compile time.
-var _ redact.Redactor = (*CodeGenDatabaseColumn)(nil)
-
-// Redact method implementation for CodeGenDatabaseColumn
-func (x *CodeGenDatabaseColumn) Redact() {
-	if x == nil {
-		return
-	}
-
-	// Safe field: Name
-
-	// Safe field: Comment
-
-	// Safe field: DbType
-
-	// Safe field: ColumnType
-
-	// Safe field: IsPrimary
-
-	// Safe field: IsNullable
 }
 
 // Ensure CodeGenColumn implements the Redactor interface at compile time.

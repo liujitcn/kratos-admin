@@ -116,104 +116,6 @@ func (x *ListCodeGenColumnResponse) GetCodeGenColumns() []*CodeGenColumn {
 	return nil
 }
 
-// 数据库表字段列表查询条件
-type ListCodeGenDatabaseColumnRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TableName     string                 `protobuf:"bytes,1,opt,name=table_name,json=tableName,proto3" json:"table_name,omitempty"`    // 数据库表名
-	SourceName    string                 `protobuf:"bytes,2,opt,name=source_name,json=sourceName,proto3" json:"source_name,omitempty"` // 数据源名称
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListCodeGenDatabaseColumnRequest) Reset() {
-	*x = ListCodeGenDatabaseColumnRequest{}
-	mi := &file_system_admin_v1_code_gen_column_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListCodeGenDatabaseColumnRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListCodeGenDatabaseColumnRequest) ProtoMessage() {}
-
-func (x *ListCodeGenDatabaseColumnRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_code_gen_column_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListCodeGenDatabaseColumnRequest.ProtoReflect.Descriptor instead.
-func (*ListCodeGenDatabaseColumnRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_code_gen_column_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *ListCodeGenDatabaseColumnRequest) GetTableName() string {
-	if x != nil {
-		return x.TableName
-	}
-	return ""
-}
-
-func (x *ListCodeGenDatabaseColumnRequest) GetSourceName() string {
-	if x != nil {
-		return x.SourceName
-	}
-	return ""
-}
-
-// 数据库表字段列表响应
-type ListCodeGenDatabaseColumnResponse struct {
-	state         protoimpl.MessageState   `protogen:"open.v1"`
-	Columns       []*CodeGenDatabaseColumn `protobuf:"bytes,1,rep,name=columns,proto3" json:"columns,omitempty"` // 数据库字段列表
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListCodeGenDatabaseColumnResponse) Reset() {
-	*x = ListCodeGenDatabaseColumnResponse{}
-	mi := &file_system_admin_v1_code_gen_column_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListCodeGenDatabaseColumnResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListCodeGenDatabaseColumnResponse) ProtoMessage() {}
-
-func (x *ListCodeGenDatabaseColumnResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_code_gen_column_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListCodeGenDatabaseColumnResponse.ProtoReflect.Descriptor instead.
-func (*ListCodeGenDatabaseColumnResponse) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_code_gen_column_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *ListCodeGenDatabaseColumnResponse) GetColumns() []*CodeGenDatabaseColumn {
-	if x != nil {
-		return x.Columns
-	}
-	return nil
-}
-
 // 代码生成字段配置保存条件
 type SaveCodeGenColumnRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
@@ -225,7 +127,7 @@ type SaveCodeGenColumnRequest struct {
 
 func (x *SaveCodeGenColumnRequest) Reset() {
 	*x = SaveCodeGenColumnRequest{}
-	mi := &file_system_admin_v1_code_gen_column_proto_msgTypes[4]
+	mi := &file_system_admin_v1_code_gen_column_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -237,7 +139,7 @@ func (x *SaveCodeGenColumnRequest) String() string {
 func (*SaveCodeGenColumnRequest) ProtoMessage() {}
 
 func (x *SaveCodeGenColumnRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_code_gen_column_proto_msgTypes[4]
+	mi := &file_system_admin_v1_code_gen_column_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -250,7 +152,7 @@ func (x *SaveCodeGenColumnRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SaveCodeGenColumnRequest.ProtoReflect.Descriptor instead.
 func (*SaveCodeGenColumnRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_code_gen_column_proto_rawDescGZIP(), []int{4}
+	return file_system_admin_v1_code_gen_column_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *SaveCodeGenColumnRequest) GetTableId() int64 {
@@ -265,91 +167,6 @@ func (x *SaveCodeGenColumnRequest) GetCodeGenColumns() []*CodeGenColumn {
 		return x.CodeGenColumns
 	}
 	return nil
-}
-
-// 数据库字段元数据
-type CodeGenDatabaseColumn struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`                                // 数据库字段名
-	Comment       string                 `protobuf:"bytes,2,opt,name=comment,proto3" json:"comment,omitempty"`                          // 数据库字段注释
-	DbType        string                 `protobuf:"bytes,3,opt,name=db_type,json=dbType,proto3" json:"db_type,omitempty"`              // 数据库字段类型
-	ColumnType    string                 `protobuf:"bytes,4,opt,name=column_type,json=columnType,proto3" json:"column_type,omitempty"`  // 数据库完整字段类型
-	IsPrimary     bool                   `protobuf:"varint,5,opt,name=is_primary,json=isPrimary,proto3" json:"is_primary,omitempty"`    // 是否主键
-	IsNullable    bool                   `protobuf:"varint,6,opt,name=is_nullable,json=isNullable,proto3" json:"is_nullable,omitempty"` // 是否允许为空
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CodeGenDatabaseColumn) Reset() {
-	*x = CodeGenDatabaseColumn{}
-	mi := &file_system_admin_v1_code_gen_column_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CodeGenDatabaseColumn) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CodeGenDatabaseColumn) ProtoMessage() {}
-
-func (x *CodeGenDatabaseColumn) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_code_gen_column_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CodeGenDatabaseColumn.ProtoReflect.Descriptor instead.
-func (*CodeGenDatabaseColumn) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_code_gen_column_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *CodeGenDatabaseColumn) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *CodeGenDatabaseColumn) GetComment() string {
-	if x != nil {
-		return x.Comment
-	}
-	return ""
-}
-
-func (x *CodeGenDatabaseColumn) GetDbType() string {
-	if x != nil {
-		return x.DbType
-	}
-	return ""
-}
-
-func (x *CodeGenDatabaseColumn) GetColumnType() string {
-	if x != nil {
-		return x.ColumnType
-	}
-	return ""
-}
-
-func (x *CodeGenDatabaseColumn) GetIsPrimary() bool {
-	if x != nil {
-		return x.IsPrimary
-	}
-	return false
-}
-
-func (x *CodeGenDatabaseColumn) GetIsNullable() bool {
-	if x != nil {
-		return x.IsNullable
-	}
-	return false
 }
 
 // 代码生成字段配置
@@ -379,7 +196,7 @@ type CodeGenColumn struct {
 
 func (x *CodeGenColumn) Reset() {
 	*x = CodeGenColumn{}
-	mi := &file_system_admin_v1_code_gen_column_proto_msgTypes[6]
+	mi := &file_system_admin_v1_code_gen_column_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -391,7 +208,7 @@ func (x *CodeGenColumn) String() string {
 func (*CodeGenColumn) ProtoMessage() {}
 
 func (x *CodeGenColumn) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_code_gen_column_proto_msgTypes[6]
+	mi := &file_system_admin_v1_code_gen_column_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -404,7 +221,7 @@ func (x *CodeGenColumn) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CodeGenColumn.ProtoReflect.Descriptor instead.
 func (*CodeGenColumn) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_code_gen_column_proto_rawDescGZIP(), []int{6}
+	return file_system_admin_v1_code_gen_column_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *CodeGenColumn) GetId() int64 {
@@ -546,7 +363,7 @@ type CodeGenColumnQueryConfig struct {
 
 func (x *CodeGenColumnQueryConfig) Reset() {
 	*x = CodeGenColumnQueryConfig{}
-	mi := &file_system_admin_v1_code_gen_column_proto_msgTypes[7]
+	mi := &file_system_admin_v1_code_gen_column_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -558,7 +375,7 @@ func (x *CodeGenColumnQueryConfig) String() string {
 func (*CodeGenColumnQueryConfig) ProtoMessage() {}
 
 func (x *CodeGenColumnQueryConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_code_gen_column_proto_msgTypes[7]
+	mi := &file_system_admin_v1_code_gen_column_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -571,7 +388,7 @@ func (x *CodeGenColumnQueryConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CodeGenColumnQueryConfig.ProtoReflect.Descriptor instead.
 func (*CodeGenColumnQueryConfig) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_code_gen_column_proto_rawDescGZIP(), []int{7}
+	return file_system_admin_v1_code_gen_column_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *CodeGenColumnQueryConfig) GetEnabled() bool {
@@ -614,7 +431,7 @@ type CodeGenColumnListConfig struct {
 
 func (x *CodeGenColumnListConfig) Reset() {
 	*x = CodeGenColumnListConfig{}
-	mi := &file_system_admin_v1_code_gen_column_proto_msgTypes[8]
+	mi := &file_system_admin_v1_code_gen_column_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -626,7 +443,7 @@ func (x *CodeGenColumnListConfig) String() string {
 func (*CodeGenColumnListConfig) ProtoMessage() {}
 
 func (x *CodeGenColumnListConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_code_gen_column_proto_msgTypes[8]
+	mi := &file_system_admin_v1_code_gen_column_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -639,7 +456,7 @@ func (x *CodeGenColumnListConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CodeGenColumnListConfig.ProtoReflect.Descriptor instead.
 func (*CodeGenColumnListConfig) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_code_gen_column_proto_rawDescGZIP(), []int{8}
+	return file_system_admin_v1_code_gen_column_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *CodeGenColumnListConfig) GetEnabled() bool {
@@ -677,7 +494,7 @@ type CodeGenColumnFormConfig struct {
 
 func (x *CodeGenColumnFormConfig) Reset() {
 	*x = CodeGenColumnFormConfig{}
-	mi := &file_system_admin_v1_code_gen_column_proto_msgTypes[9]
+	mi := &file_system_admin_v1_code_gen_column_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -689,7 +506,7 @@ func (x *CodeGenColumnFormConfig) String() string {
 func (*CodeGenColumnFormConfig) ProtoMessage() {}
 
 func (x *CodeGenColumnFormConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_code_gen_column_proto_msgTypes[9]
+	mi := &file_system_admin_v1_code_gen_column_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -702,7 +519,7 @@ func (x *CodeGenColumnFormConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CodeGenColumnFormConfig.ProtoReflect.Descriptor instead.
 func (*CodeGenColumnFormConfig) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_code_gen_column_proto_rawDescGZIP(), []int{9}
+	return file_system_admin_v1_code_gen_column_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *CodeGenColumnFormConfig) GetEnabled() bool {
@@ -758,7 +575,7 @@ type CodeGenColumnOptionConfig struct {
 
 func (x *CodeGenColumnOptionConfig) Reset() {
 	*x = CodeGenColumnOptionConfig{}
-	mi := &file_system_admin_v1_code_gen_column_proto_msgTypes[10]
+	mi := &file_system_admin_v1_code_gen_column_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -770,7 +587,7 @@ func (x *CodeGenColumnOptionConfig) String() string {
 func (*CodeGenColumnOptionConfig) ProtoMessage() {}
 
 func (x *CodeGenColumnOptionConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_code_gen_column_proto_msgTypes[10]
+	mi := &file_system_admin_v1_code_gen_column_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -783,7 +600,7 @@ func (x *CodeGenColumnOptionConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CodeGenColumnOptionConfig.ProtoReflect.Descriptor instead.
 func (*CodeGenColumnOptionConfig) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_code_gen_column_proto_rawDescGZIP(), []int{10}
+	return file_system_admin_v1_code_gen_column_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *CodeGenColumnOptionConfig) GetKind() string {
@@ -858,31 +675,11 @@ const file_system_admin_v1_code_gen_column_proto_rawDesc = "" +
 	"\btable_id\x18\x01 \x01(\x03B\x87\x01\xbaG\x1a\x92\x02\x17代码生成表配置ID\xbaHg\xba\x01d\n" +
 	"3system.admin.code.gen.column.list.table_id.required\x12#代码生成表配置ID不能为空\x1a\bthis > 0R\atableId\"\x8b\x01\n" +
 	"\x19ListCodeGenColumnResponse\x12n\n" +
-	"\x10code_gen_columns\x18\x01 \x03(\v2\x1e.system.admin.v1.CodeGenColumnB$\xbaG!\x92\x02\x1e代码生成字段配置列表R\x0ecodeGenColumns\"\xa5\x04\n" +
-	" ListCodeGenDatabaseColumnRequest\x12\xc6\x02\n" +
-	"\n" +
-	"table_name\x18\x01 \x01(\tB\xa6\x02\xbaG\x12\x92\x02\x0f数据库表名\xbaH\x8d\x02\xba\x01y\n" +
-	"Isystem.admin.code.gen.column.list_gen_database_column.table_name.required\x12\x1b数据库表名不能为空\x1a\x0fthis.size() > 0\xba\x01\x8d\x01\n" +
-	"Hsystem.admin.code.gen.column.list_gen_database_column.table_name.pattern\x12\x1e数据库表名格式不正确\x1a!this.matches('^[a-z][a-z0-9_]*$')R\ttableName\x12\xb7\x01\n" +
-	"\vsource_name\x18\x02 \x01(\tB\x95\x01\xbaG\x12\x92\x02\x0f数据源名称\xbaH}\xba\x01z\n" +
-	"Jsystem.admin.code.gen.column.list_gen_database_column.source_name.required\x12\x1b数据源名称不能为空\x1a\x0fthis.size() > 0R\n" +
-	"sourceName\"\x82\x01\n" +
-	"!ListCodeGenDatabaseColumnResponse\x12]\n" +
-	"\acolumns\x18\x01 \x03(\v2&.system.admin.v1.CodeGenDatabaseColumnB\x1b\xbaG\x18\x92\x02\x15数据库字段列表R\acolumns\"\xb0\x02\n" +
+	"\x10code_gen_columns\x18\x01 \x03(\v2\x1e.system.admin.v1.CodeGenColumnB$\xbaG!\x92\x02\x1e代码生成字段配置列表R\x0ecodeGenColumns\"\xb0\x02\n" +
 	"\x18SaveCodeGenColumnRequest\x12\xa3\x01\n" +
 	"\btable_id\x18\x01 \x01(\x03B\x87\x01\xbaG\x1a\x92\x02\x17代码生成表配置ID\xbaHg\xba\x01d\n" +
 	"3system.admin.code.gen.column.save.table_id.required\x12#代码生成表配置ID不能为空\x1a\bthis > 0R\atableId\x12n\n" +
-	"\x10code_gen_columns\x18\x02 \x03(\v2\x1e.system.admin.v1.CodeGenColumnB$\xbaG!\x92\x02\x1e代码生成字段配置列表R\x0ecodeGenColumns\"\xe4\x02\n" +
-	"\x15CodeGenDatabaseColumn\x12,\n" +
-	"\x04name\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12数据库字段名R\x04name\x125\n" +
-	"\acomment\x18\x02 \x01(\tB\x1b\xbaG\x18\x92\x02\x15数据库字段注释R\acomment\x124\n" +
-	"\adb_type\x18\x03 \x01(\tB\x1b\xbaG\x18\x92\x02\x15数据库字段类型R\x06dbType\x12B\n" +
-	"\vcolumn_type\x18\x04 \x01(\tB!\xbaG\x1e\x92\x02\x1b数据库完整字段类型R\n" +
-	"columnType\x121\n" +
-	"\n" +
-	"is_primary\x18\x05 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否主键R\tisPrimary\x129\n" +
-	"\vis_nullable\x18\x06 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否允许为空R\n" +
-	"isNullable\"\x85\n" +
+	"\x10code_gen_columns\x18\x02 \x03(\v2\x1e.system.admin.v1.CodeGenColumnB$\xbaG!\x92\x02\x1e代码生成字段配置列表R\x0ecodeGenColumns\"\x85\n" +
 	"\n" +
 	"\rCodeGenColumn\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x128\n" +
@@ -940,10 +737,9 @@ const file_system_admin_v1_code_gen_column_proto_rawDesc = "" +
 	"\fparent_field\x18\x06 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18树形选项父级字段R\vparentField\x128\n" +
 	"\factive_value\x18\a \x01(\tB\x15\xbaG\x12\x92\x02\x0f开关开启值R\vactiveValue\x12<\n" +
 	"\x0einactive_value\x18\b \x01(\tB\x15\xbaG\x12\x92\x02\x0f开关关闭值R\rinactiveValue\x125\n" +
-	"\x04lazy\x18\t \x01(\bB!\xbaG\x1e\x92\x02\x1b树形选项是否懒加载R\x04lazy2\x97\x04\n" +
+	"\x04lazy\x18\t \x01(\bB!\xbaG\x1e\x92\x02\x1b树形选项是否懒加载R\x04lazy2\xcf\x02\n" +
 	"\x14CodeGenColumnService\x12\xa2\x01\n" +
-	"\x11ListCodeGenColumn\x12).system.admin.v1.ListCodeGenColumnRequest\x1a*.system.admin.v1.ListCodeGenColumnResponse\"6\x82\xd3\xe4\x93\x020\x12./api/v1/admin/code-gen/table/{table_id}/column\x12\xc5\x01\n" +
-	"\x19ListCodeGenDatabaseColumn\x121.system.admin.v1.ListCodeGenDatabaseColumnRequest\x1a2.system.admin.v1.ListCodeGenDatabaseColumnResponse\"A\x82\xd3\xe4\x93\x02;\x129/api/v1/admin/code-gen/database/table/{table_name}/column\x12\x91\x01\n" +
+	"\x11ListCodeGenColumn\x12).system.admin.v1.ListCodeGenColumnRequest\x1a*.system.admin.v1.ListCodeGenColumnResponse\"6\x82\xd3\xe4\x93\x020\x12./api/v1/admin/code-gen/table/{table_id}/column\x12\x91\x01\n" +
 	"\x11SaveCodeGenColumn\x12).system.admin.v1.SaveCodeGenColumnRequest\x1a\x16.google.protobuf.Empty\"9\x82\xd3\xe4\x93\x023:\x01*\x1a./api/v1/admin/code-gen/table/{table_id}/columnB\xd4\x01\n" +
 	"\x13com.system.admin.v1B\x12CodeGenColumnProtoP\x01ZKgithub.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1;adminv1\xa2\x02\x03SAX\xaa\x02\x0fSystem.Admin.V1\xca\x02\x0fSystem\\Admin\\V1\xe2\x02\x1bSystem\\Admin\\V1\\GPBMetadata\xea\x02\x11System::Admin::V1b\x06proto3"
 
@@ -959,46 +755,40 @@ func file_system_admin_v1_code_gen_column_proto_rawDescGZIP() []byte {
 	return file_system_admin_v1_code_gen_column_proto_rawDescData
 }
 
-var file_system_admin_v1_code_gen_column_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_system_admin_v1_code_gen_column_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_system_admin_v1_code_gen_column_proto_goTypes = []any{
-	(*ListCodeGenColumnRequest)(nil),          // 0: system.admin.v1.ListCodeGenColumnRequest
-	(*ListCodeGenColumnResponse)(nil),         // 1: system.admin.v1.ListCodeGenColumnResponse
-	(*ListCodeGenDatabaseColumnRequest)(nil),  // 2: system.admin.v1.ListCodeGenDatabaseColumnRequest
-	(*ListCodeGenDatabaseColumnResponse)(nil), // 3: system.admin.v1.ListCodeGenDatabaseColumnResponse
-	(*SaveCodeGenColumnRequest)(nil),          // 4: system.admin.v1.SaveCodeGenColumnRequest
-	(*CodeGenDatabaseColumn)(nil),             // 5: system.admin.v1.CodeGenDatabaseColumn
-	(*CodeGenColumn)(nil),                     // 6: system.admin.v1.CodeGenColumn
-	(*CodeGenColumnQueryConfig)(nil),          // 7: system.admin.v1.CodeGenColumnQueryConfig
-	(*CodeGenColumnListConfig)(nil),           // 8: system.admin.v1.CodeGenColumnListConfig
-	(*CodeGenColumnFormConfig)(nil),           // 9: system.admin.v1.CodeGenColumnFormConfig
-	(*CodeGenColumnOptionConfig)(nil),         // 10: system.admin.v1.CodeGenColumnOptionConfig
-	nil,                                       // 11: system.admin.v1.CodeGenColumn.I18nConfigEntry
-	(*CodeGenLocaleConfig)(nil),               // 12: system.admin.v1.CodeGenLocaleConfig
-	(*emptypb.Empty)(nil),                     // 13: google.protobuf.Empty
+	(*ListCodeGenColumnRequest)(nil),  // 0: system.admin.v1.ListCodeGenColumnRequest
+	(*ListCodeGenColumnResponse)(nil), // 1: system.admin.v1.ListCodeGenColumnResponse
+	(*SaveCodeGenColumnRequest)(nil),  // 2: system.admin.v1.SaveCodeGenColumnRequest
+	(*CodeGenColumn)(nil),             // 3: system.admin.v1.CodeGenColumn
+	(*CodeGenColumnQueryConfig)(nil),  // 4: system.admin.v1.CodeGenColumnQueryConfig
+	(*CodeGenColumnListConfig)(nil),   // 5: system.admin.v1.CodeGenColumnListConfig
+	(*CodeGenColumnFormConfig)(nil),   // 6: system.admin.v1.CodeGenColumnFormConfig
+	(*CodeGenColumnOptionConfig)(nil), // 7: system.admin.v1.CodeGenColumnOptionConfig
+	nil,                               // 8: system.admin.v1.CodeGenColumn.I18nConfigEntry
+	(*CodeGenLocaleConfig)(nil),       // 9: system.admin.v1.CodeGenLocaleConfig
+	(*emptypb.Empty)(nil),             // 10: google.protobuf.Empty
 }
 var file_system_admin_v1_code_gen_column_proto_depIdxs = []int32{
-	6,  // 0: system.admin.v1.ListCodeGenColumnResponse.code_gen_columns:type_name -> system.admin.v1.CodeGenColumn
-	5,  // 1: system.admin.v1.ListCodeGenDatabaseColumnResponse.columns:type_name -> system.admin.v1.CodeGenDatabaseColumn
-	6,  // 2: system.admin.v1.SaveCodeGenColumnRequest.code_gen_columns:type_name -> system.admin.v1.CodeGenColumn
-	7,  // 3: system.admin.v1.CodeGenColumn.query_config:type_name -> system.admin.v1.CodeGenColumnQueryConfig
-	8,  // 4: system.admin.v1.CodeGenColumn.list_config:type_name -> system.admin.v1.CodeGenColumnListConfig
-	9,  // 5: system.admin.v1.CodeGenColumn.form_config:type_name -> system.admin.v1.CodeGenColumnFormConfig
-	11, // 6: system.admin.v1.CodeGenColumn.i18n_config:type_name -> system.admin.v1.CodeGenColumn.I18nConfigEntry
-	10, // 7: system.admin.v1.CodeGenColumnQueryConfig.option:type_name -> system.admin.v1.CodeGenColumnOptionConfig
-	10, // 8: system.admin.v1.CodeGenColumnListConfig.option:type_name -> system.admin.v1.CodeGenColumnOptionConfig
-	10, // 9: system.admin.v1.CodeGenColumnFormConfig.option:type_name -> system.admin.v1.CodeGenColumnOptionConfig
-	12, // 10: system.admin.v1.CodeGenColumn.I18nConfigEntry.value:type_name -> system.admin.v1.CodeGenLocaleConfig
-	0,  // 11: system.admin.v1.CodeGenColumnService.ListCodeGenColumn:input_type -> system.admin.v1.ListCodeGenColumnRequest
-	2,  // 12: system.admin.v1.CodeGenColumnService.ListCodeGenDatabaseColumn:input_type -> system.admin.v1.ListCodeGenDatabaseColumnRequest
-	4,  // 13: system.admin.v1.CodeGenColumnService.SaveCodeGenColumn:input_type -> system.admin.v1.SaveCodeGenColumnRequest
-	1,  // 14: system.admin.v1.CodeGenColumnService.ListCodeGenColumn:output_type -> system.admin.v1.ListCodeGenColumnResponse
-	3,  // 15: system.admin.v1.CodeGenColumnService.ListCodeGenDatabaseColumn:output_type -> system.admin.v1.ListCodeGenDatabaseColumnResponse
-	13, // 16: system.admin.v1.CodeGenColumnService.SaveCodeGenColumn:output_type -> google.protobuf.Empty
-	14, // [14:17] is the sub-list for method output_type
-	11, // [11:14] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	3,  // 0: system.admin.v1.ListCodeGenColumnResponse.code_gen_columns:type_name -> system.admin.v1.CodeGenColumn
+	3,  // 1: system.admin.v1.SaveCodeGenColumnRequest.code_gen_columns:type_name -> system.admin.v1.CodeGenColumn
+	4,  // 2: system.admin.v1.CodeGenColumn.query_config:type_name -> system.admin.v1.CodeGenColumnQueryConfig
+	5,  // 3: system.admin.v1.CodeGenColumn.list_config:type_name -> system.admin.v1.CodeGenColumnListConfig
+	6,  // 4: system.admin.v1.CodeGenColumn.form_config:type_name -> system.admin.v1.CodeGenColumnFormConfig
+	8,  // 5: system.admin.v1.CodeGenColumn.i18n_config:type_name -> system.admin.v1.CodeGenColumn.I18nConfigEntry
+	7,  // 6: system.admin.v1.CodeGenColumnQueryConfig.option:type_name -> system.admin.v1.CodeGenColumnOptionConfig
+	7,  // 7: system.admin.v1.CodeGenColumnListConfig.option:type_name -> system.admin.v1.CodeGenColumnOptionConfig
+	7,  // 8: system.admin.v1.CodeGenColumnFormConfig.option:type_name -> system.admin.v1.CodeGenColumnOptionConfig
+	9,  // 9: system.admin.v1.CodeGenColumn.I18nConfigEntry.value:type_name -> system.admin.v1.CodeGenLocaleConfig
+	0,  // 10: system.admin.v1.CodeGenColumnService.ListCodeGenColumn:input_type -> system.admin.v1.ListCodeGenColumnRequest
+	2,  // 11: system.admin.v1.CodeGenColumnService.SaveCodeGenColumn:input_type -> system.admin.v1.SaveCodeGenColumnRequest
+	1,  // 12: system.admin.v1.CodeGenColumnService.ListCodeGenColumn:output_type -> system.admin.v1.ListCodeGenColumnResponse
+	10, // 13: system.admin.v1.CodeGenColumnService.SaveCodeGenColumn:output_type -> google.protobuf.Empty
+	12, // [12:14] is the sub-list for method output_type
+	10, // [10:12] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_code_gen_column_proto_init() }
@@ -1013,7 +803,7 @@ func file_system_admin_v1_code_gen_column_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_admin_v1_code_gen_column_proto_rawDesc), len(file_system_admin_v1_code_gen_column_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

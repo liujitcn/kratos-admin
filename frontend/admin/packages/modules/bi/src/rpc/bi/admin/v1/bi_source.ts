@@ -87,20 +87,6 @@ export interface BiSourceDatabase {
   driver: string;
 }
 
-/** 测试 BI 数据源请求。 */
-export interface TestBiSourceRequest {
-  /** 待测试数据源 */
-  source: BiSourceForm | undefined;
-}
-
-/** 测试 BI 数据源响应。 */
-export interface TestBiSourceResponse {
-  /** 是否可访问 */
-  success: boolean;
-  /** 测试结果说明 */
-  message: string;
-}
-
 /** 查询数据源数据库表结构的请求。 */
 export interface ListBiSourceTablesRequest {
   /** 数据源ID */
@@ -413,8 +399,6 @@ export interface BiSourceService {
   SetBiSourceStatus(request: SetBiSourceStatusRequest): Promise<BiSource>;
   /** 查询服务端已配置的数据库客户端选项。 */
   OptionBiSourceDatabase(request: OptionBiSourceDatabaseRequest): Promise<OptionBiSourceDatabaseResponse>;
-  /** 测试数据源连接是否可访问。 */
-  TestBiSource(request: TestBiSourceRequest): Promise<TestBiSourceResponse>;
   /** 发现已保存数据源中的表、字段和唯一键。 */
   ListBiSourceTables(request: ListBiSourceTablesRequest): Promise<ListBiSourceTablesResponse>;
   /** 分页查询数据源中指定表的数据。 */

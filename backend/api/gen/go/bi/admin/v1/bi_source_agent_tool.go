@@ -59,12 +59,6 @@ func NewBiSourceServiceAgentTools(biSourceServiceServer BiSourceServiceServer) (
 		return nil, err
 	}
 	ts = append(ts, optionBiSourceDatabaseTool)
-	var testBiSourceTool tool.InvokableTool
-	testBiSourceTool, err = NewBiSourceServiceTestBiSourceAgentTool(biSourceServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, testBiSourceTool)
 	var listBiSourceTablesTool tool.InvokableTool
 	listBiSourceTablesTool, err = NewBiSourceServiceListBiSourceTablesAgentTool(biSourceServiceServer)
 	if err != nil {
@@ -186,20 +180,6 @@ func NewBiSourceServiceOptionBiSourceDatabaseAgentTool(biSourceServiceServer BiS
 				req = &OptionBiSourceDatabaseRequest{}
 			}
 			return biSourceServiceServer.OptionBiSourceDatabase(ctx, req)
-		},
-	)
-}
-
-// NewBiSourceServiceTestBiSourceAgentTool 创建测试数据源连接是否可访问的 Agent Tool。
-func NewBiSourceServiceTestBiSourceAgentTool(biSourceServiceServer BiSourceServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*TestBiSourceRequest, *TestBiSourceResponse](
-		"bi_admin_v1_bi_source_service_test_bi_source",
-		"测试数据源连接是否可访问。",
-		func(ctx context.Context, req *TestBiSourceRequest) (*TestBiSourceResponse, error) {
-			if req == nil {
-				req = &TestBiSourceRequest{}
-			}
-			return biSourceServiceServer.TestBiSource(ctx, req)
 		},
 	)
 }

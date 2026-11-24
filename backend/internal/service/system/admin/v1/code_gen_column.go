@@ -33,16 +33,6 @@ func (s *CodeGenColumnService) ListCodeGenColumn(ctx context.Context, req *admin
 	return res, nil
 }
 
-// ListCodeGenDatabaseColumn 查询数据库表字段列表。
-func (s *CodeGenColumnService) ListCodeGenDatabaseColumn(ctx context.Context, req *adminv1.ListCodeGenDatabaseColumnRequest) (*adminv1.ListCodeGenDatabaseColumnResponse, error) {
-	res, err := s.codeGenColumnCase.ListCodeGenDatabaseColumn(ctx, req.GetSourceName(), req.GetTableName())
-	if err != nil {
-		log.Error(fmt.Sprintf("ListCodeGenDatabaseColumn %v", err))
-		return nil, errorsx.WrapInternal(err, "查询数据库表字段列表失败")
-	}
-	return res, nil
-}
-
 // SaveCodeGenColumn 保存代码生成字段配置。
 func (s *CodeGenColumnService) SaveCodeGenColumn(ctx context.Context, req *adminv1.SaveCodeGenColumnRequest) (*emptypb.Empty, error) {
 	err := s.codeGenColumnCase.SaveCodeGenColumn(ctx, req)

@@ -6,7 +6,7 @@ import (
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/dbmeta"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
@@ -374,7 +374,7 @@ func (c *CodeGenProtoCase) codeGenProtoBusinessNames(ctx context.Context, table 
 	for tableName := range tableNames {
 		commentsByTableName[tableName] = ""
 	}
-	var databaseTables []dto.CodeGenDatabaseTable
+	var databaseTables []dbmeta.Table
 	var err error
 	tableNameList := make([]string, 0, len(tableNames))
 	for tableName := range tableNames {

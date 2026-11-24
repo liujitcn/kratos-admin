@@ -32,6 +32,9 @@ MCP 服务端和生成的工具注册代码统一使用 `github.com/mark3labs/mc
 - 后台工作台提供用户/角色概览、登录趋势、登录结果和操作动作分布统计。
 - 消息分类、租户内定向/全员站内信、收件箱已读/归档、Redis 投递恢复和 Admin/uni-app/Taro 消息中心。
 - Proto 驱动的 HTTP、gRPC、OpenAPI、Agent Tool、MCP Tool 和 TypeScript RPC 生成。
+- 管理端 `system.admin.v1.DatabaseService` 统一提供宿主数据源选项、表和字段元数据，以及宿主/独立连接测试；BI 的模型发现、代码生成的已配置标记和脱敏筛选仍由业务服务负责。
+  - 存量环境升级时，将菜单中的 `BaseTableSourceService` 授权替换为 `DatabaseService` 的同名方法授权，`TestBiSource` 替换为 `DatabaseService/TestConnection`，`ListCodeGenDatabaseColumn` 替换为 `DatabaseService/ListTableColumns`。已执行的 `v0.0.1` 初始化脚本不会自动重放。
+  - 为代码生成的字段配置（`97501000`）、Proto 配置（`97501500`）和页面预览（`97502000`）菜单授予 `/system.admin.v1.DatabaseService/OptionBaseTable`；新增（`97500501`）和编辑（`97500502`）表配置仍需保留 `/system.admin.v1.CodeGenTableService/ListCodeGenDatabaseTable`。完成授权调整后同步权限。
 - AI 会话、流式消息、附件、工具调用、重试、再生成和分支会话。
 - 显式装配可选报告模块后，管理端 AI 助手可生成 HTML/PDF 报告，沿用工具写操作确认；报告登记到文件管理，下载需要登录。
 - AI 供应商与模型管理：供应商弹窗内维护模型子列表、`chat` 到 `audio` 分类枚举、模型连通性测试；AI 知识库使用独立 PostgreSQL 存储，支持文档上传、切片、embedding 入库与检索增强对话。

@@ -20,42 +20,12 @@ export interface ListCodeGenColumnResponse {
   code_gen_columns: CodeGenColumn[];
 }
 
-/** 数据库表字段列表查询条件 */
-export interface ListCodeGenDatabaseColumnRequest {
-  /** 数据库表名 */
-  table_name: string;
-  /** 数据源名称 */
-  source_name: string;
-}
-
-/** 数据库表字段列表响应 */
-export interface ListCodeGenDatabaseColumnResponse {
-  /** 数据库字段列表 */
-  columns: CodeGenDatabaseColumn[];
-}
-
 /** 代码生成字段配置保存条件 */
 export interface SaveCodeGenColumnRequest {
   /** 代码生成表配置ID */
   table_id: number;
   /** 代码生成字段配置列表 */
   code_gen_columns: CodeGenColumn[];
-}
-
-/** 数据库字段元数据 */
-export interface CodeGenDatabaseColumn {
-  /** 数据库字段名 */
-  name: string;
-  /** 数据库字段注释 */
-  comment: string;
-  /** 数据库字段类型 */
-  db_type: string;
-  /** 数据库完整字段类型 */
-  column_type: string;
-  /** 是否主键 */
-  is_primary: boolean;
-  /** 是否允许为空 */
-  is_nullable: boolean;
 }
 
 /** 代码生成字段配置 */
@@ -173,8 +143,6 @@ export interface CodeGenColumnOptionConfig {
 export interface CodeGenColumnService {
   /** 查询代码生成字段配置 */
   ListCodeGenColumn(request: ListCodeGenColumnRequest): Promise<ListCodeGenColumnResponse>;
-  /** 查询数据库表字段列表 */
-  ListCodeGenDatabaseColumn(request: ListCodeGenDatabaseColumnRequest): Promise<ListCodeGenDatabaseColumnResponse>;
   /** 保存代码生成字段配置 */
   SaveCodeGenColumn(request: SaveCodeGenColumnRequest): Promise<Empty>;
 }

@@ -18,8 +18,6 @@ import type {
   PageBiSourceResponse,
   SetBiSourceStatusRequest,
   SaveBiSourceModelRequest,
-  TestBiSourceRequest,
-  TestBiSourceResponse,
   UpdateBiSourceRequest
 } from "../../../../rpc/bi/admin/v1/bi_source";
 
@@ -60,11 +58,6 @@ export class BiSourceServiceImpl implements BiSourceService {
   /** 查询服务端已配置的数据库客户端选项。 */
   OptionBiSourceDatabase(request: OptionBiSourceDatabaseRequest): Promise<OptionBiSourceDatabaseResponse> {
     return service({url: `${BI_SOURCE_URL}/options/databases`, method: "get", params: request});
-  }
-
-  /** 测试数据源连接和表配置。 */
-  TestBiSource(request: TestBiSourceRequest): Promise<TestBiSourceResponse> {
-    return service({url: `${BI_SOURCE_URL}/test`, method: "post", data: request.source});
   }
 
   /** 查询数据源中的表和字段结构。 */

@@ -21,6 +21,7 @@ import (
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/bi/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/bi/admin/dto"
 	queryCompiler "github.com/liujitcn/kratos-admin/backend/internal/biz/bi/admin/query"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/dbconn"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-admin/backend/pkg/bi"
@@ -378,38 +379,21 @@ func (c *BiSourceCase) OptionBiSourceDatabase(ctx context.Context, _ *adminv1.Op
 	return &adminv1.OptionBiSourceDatabaseResponse{Databases: items}, nil
 }
 
-// TestBiSource 测试数据源连接。
-func (c *BiSourceCase) TestBiSource(ctx context.Context, req *adminv1.TestBiSourceRequest) (*adminv1.TestBiSourceResponse, error) {
-	if req.GetSource() == nil {
-		return nil, errorsx.InvalidArgument("BI 数据源配置不能为空")
-	}
+// ConnectionTestPassword 仅为当前租户且原连接参数不变的数据源还原测试凭据。
+func (c *BiSourceCase) ConnectionTestPassword(ctx context.Context, id int64, config dbconn.Config) (string, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	form := req.GetSource()
-	if err = c.validateForm(ctx, form); err != nil {
-		return nil, err
-	}
-	password := form.GetPassword().GetText()
-	if password == "" && form.GetId() > 0 {
-		var item *models.BiSource
-		item, err = c.findSource(ctx, authInfo.TenantId, form.GetId())
-		if err != nil {
-			return nil, err
-		}
-		password, err = c.sourcePassword(ctx, item)
-		if err != nil {
-			return nil, err
-		}
-	}
-	var database *configuredDatabase
-	database, err = openConfiguredSource(ctx, c.GormClients, &models.BiSource{SourceName: sourceName(form), Driver: form.GetDriver(), Host: form.GetHost(), Port: form.GetPort(), DatabaseName: form.GetDatabaseName(), Username: form.GetUsername(), Password: password, SslMode: form.GetSslMode()}, password)
+	var item *models.BiSource
+	item, err = c.findSource(ctx, authInfo.TenantId, id)
 	if err != nil {
-		return &adminv1.TestBiSourceResponse{Success: false, Message: testSourceFailureMessage(err)}, nil
+		return "", err
 	}
-	defer database.Close()
-	return &adminv1.TestBiSourceResponse{Success: true, Message: "数据源连接测试通过"}, nil
+	if item.Host == "" || config != (dbconn.Config{Driver: item.Driver, Host: item.Host, Port: item.Port, DatabaseName: item.DatabaseName, Username: item.Username, SSLMode: item.SslMode}) {
+		return "", errorsx.InvalidArgument("连接参数已变更，请重新输入数据库密码")
+	}
+	return c.sourcePassword(ctx, item)
 }
 
 // ListBiSourceTables 查询当前租户数据源中的表和字段结构。
@@ -871,7 +855,7 @@ func supportedSourceDriver(value string) bool {
 	}
 }
 
-// sourcePassword 从脱敏存储中还原独立连接的密码；密码未配置或复用服务端客户端时无独立密码。
+// sourcePassword 从脱敏存储还原独立连接的密码，并确认它仍对应调用方持有的连接配置版本。
 func (c *BiSourceCase) sourcePassword(ctx context.Context, item *models.BiSource) (string, error) {
 	if item.Password == "" || item.Host == "" {
 		return "", nil
@@ -882,6 +866,16 @@ func (c *BiSourceCase) sourcePassword(ctx context.Context, item *models.BiSource
 	password, err := c.redactResolver.RevealStorageField(ctx, "bi_source", "password", item.ID)
 	if err != nil {
 		return "", errorsx.Internal("读取 BI 数据源密码失败").WithCause(err)
+	}
+	// 原文读取会重新查询存储，返回密码前须确认期间没有提交新的连接版本。
+	query := c.sourceRepo.Query(ctx).BiSource
+	var count int64
+	count, err = c.sourceRepo.Count(ctx, repository.Where(query.ID.Eq(item.ID), query.TenantID.Eq(item.TenantID), query.Version.Eq(item.Version)))
+	if err != nil {
+		return "", errorsx.Internal("校验 BI 数据源版本失败").WithCause(err)
+	}
+	if count == 0 {
+		return "", errorsx.Conflict("BI 数据源已变更，请刷新后重试")
 	}
 	return password, nil
 }
@@ -903,15 +897,6 @@ func configuredSourceTableCount(schemaJSON string) int32 {
 		return 0
 	}
 	return int32(len(model.Tables))
-}
-
-// testSourceFailureMessage 提取连接测试失败的简短原因，避免把完整错误链透出给前端。
-func testSourceFailureMessage(err error) string {
-	var ex *kratosErrors.Error
-	if errors.As(err, &ex) && ex.Message != "" {
-		return ex.Message
-	}
-	return "连接 BI 数据源失败"
 }
 
 // sourceResponse 统一限制连接管理出口中的物理模型信息，普通读权限仅得到配置元数据。

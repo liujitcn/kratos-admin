@@ -1,7 +1,7 @@
 <template>
   <el-main class="bi-query-page" style="--el-main-padding: 0; flex: 0 1 auto; overflow: visible">
     <el-header class="bi-query-page__header" style="--el-header-height: auto; --el-header-padding: 0">
-      <div>
+      <div class="bi-query-page__intro">
         <el-text tag="h2">{{ t("bi.query.subtitle") }}</el-text>
         <el-text tag="p">{{ t("bi.query.guide") }}</el-text>
       </div>
@@ -451,7 +451,7 @@ onBeforeUnmount(() => {
 </script>
 <style scoped>
 .bi-query-page {
-  padding: 20px 22px;
+  padding: 12px 22px 20px;
   background: var(--admin-page-card-bg);
   border: 1px solid var(--el-border-color-lighter);
   border-radius: var(--admin-page-radius);
@@ -461,9 +461,15 @@ onBeforeUnmount(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  gap: 8px 16px;
   flex-wrap: wrap;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
+}
+.bi-query-page__intro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
 }
 .bi-query-page__header h2 {
   margin: 0;
@@ -471,7 +477,7 @@ onBeforeUnmount(() => {
   font-weight: 500;
 }
 .bi-query-page__header p {
-  margin: 8px 0 0;
+  margin: 0;
   font-size: 13px;
   color: var(--el-text-color-secondary);
 }
@@ -639,7 +645,7 @@ onBeforeUnmount(() => {
 }
 @media (max-width: 650px) {
   .bi-query-page {
-    padding: 14px;
+    padding: 12px 14px 14px;
   }
   .bi-query-layout {
     grid-template-columns: 1fr;

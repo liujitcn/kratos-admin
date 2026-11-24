@@ -5767,37 +5767,6 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/v1/admin/base/table-source/option:
-        get:
-            tags:
-                - BaseTableSourceService
-            description: Query initialized data source name.
-            operationId: BaseTableSourceService_OptionBaseTableSource
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/common.v1.StringValues'
-    /api/v1/admin/base/table-source/table/option:
-        get:
-            tags:
-                - BaseTableSourceService
-            description: Query specified data sourceindatabase table option.
-            operationId: BaseTableSourceService_OptionBaseTable
-            parameters:
-                - name: source_name
-                  in: query
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/system.admin.v1.OptionBaseTableResponse'
     /api/v1/admin/base/tenant:
         get:
             tags:
@@ -7030,25 +6999,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/bi.admin.v1.OptionBiSourceDatabaseResponse'
-    /api/v1/admin/bi/source/test:
-        post:
-            tags:
-                - BiSourceService
-            description: Test data source connectivity.
-            operationId: BiSourceService_TestBiSource
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/bi.admin.v1.BiSourceForm'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/bi.admin.v1.TestBiSourceResponse'
     /api/v1/admin/bi/source/{id}:
         get:
             tags:
@@ -7328,29 +7278,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.ListCodeGenDatabaseTableResponse'
-    /api/v1/admin/code-gen/database/table/{table_name}/column:
-        get:
-            tags:
-                - CodeGenColumnService
-            description: Query database table field list
-            operationId: CodeGenColumnService_ListCodeGenDatabaseColumn
-            parameters:
-                - name: table_name
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-                - name: source_name
-                  in: query
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/system.admin.v1.ListCodeGenDatabaseColumnResponse'
     /api/v1/admin/code-gen/restore:
         post:
             tags:
@@ -7629,6 +7556,79 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.CodeGenTask'
+    /api/v1/admin/database/sources:
+        get:
+            tags:
+                - DatabaseService
+            description: Query initialized data source name.
+            operationId: DatabaseService_OptionBaseTableSource
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/common.v1.StringValues'
+    /api/v1/admin/database/tables:
+        get:
+            tags:
+                - DatabaseService
+            description: Query specified data sourceindatabase table option.
+            operationId: DatabaseService_OptionBaseTable
+            parameters:
+                - name: source_name
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.OptionBaseTableResponse'
+    /api/v1/admin/database/tables/{table_name}/columns:
+        get:
+            tags:
+                - DatabaseService
+            description: List the columns of a table in the selected data source.
+            operationId: DatabaseService_ListTableColumns
+            parameters:
+                - name: table_name
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: source_name
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.ListTableColumnsResponse'
+    /api/v1/admin/database/test-connection:
+        post:
+            tags:
+                - DatabaseService
+            description: Test whether a database connection is reachable.
+            operationId: DatabaseService_TestConnection
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.TestConnectionRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.TestConnectionResponse'
     /api/v1/admin/mqtt-message:
         get:
             tags:
@@ -14478,16 +14478,6 @@ components:
                     description: "status: 1enabled, 2disabled"
                     format: int32
             description: Update  BI data source status request.
-        bi.admin.v1.TestBiSourceResponse:
-            type: object
-            properties:
-                success:
-                    type: boolean
-                    description: Whether available access
-                message:
-                    type: string
-                    description: Test result description
-            description: Test BI data source response.
         common.v1.AppTreeOptionResponse_Option:
             type: object
             properties:
@@ -19393,28 +19383,6 @@ components:
                 option:
                     $ref: '#/components/schemas/system.admin.v1.CodeGenColumnOptionConfig'
             description: code-generation field Query condition configuration
-        system.admin.v1.CodeGenDatabaseColumn:
-            type: object
-            properties:
-                name:
-                    type: string
-                    description: database field name
-                comment:
-                    type: string
-                    description: database field comment
-                db_type:
-                    type: string
-                    description: database field type
-                column_type:
-                    type: string
-                    description: complete database field type
-                is_primary:
-                    type: boolean
-                    description: whether primary key
-                is_nullable:
-                    type: boolean
-                    description: whether nullable
-            description: Database field metadata
         system.admin.v1.CodeGenDatabaseTable:
             type: object
             properties:
@@ -19847,6 +19815,28 @@ components:
                     type: string
                     description: Tenant administrator initial password, returned only when generated randomly
             description: Create tenant response parameters
+        system.admin.v1.DatabaseColumn:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: database field name
+                comment:
+                    type: string
+                    description: database field comment
+                db_type:
+                    type: string
+                    description: database field type
+                column_type:
+                    type: string
+                    description: complete database field type
+                is_primary:
+                    type: boolean
+                    description: whether primary key
+                is_nullable:
+                    type: boolean
+                    description: whether nullable
+            description: Database field metadata
         system.admin.v1.DraftBaseI18nItem:
             type: object
             properties:
@@ -19989,15 +19979,6 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.CodeGenColumn'
                     description: code-generation field configuration list
             description: code-generation field configuration Query response
-        system.admin.v1.ListCodeGenDatabaseColumnResponse:
-            type: object
-            properties:
-                columns:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.CodeGenDatabaseColumn'
-                    description: database field list
-            description: database table field list response
         system.admin.v1.ListCodeGenDatabaseTableResponse:
             type: object
             properties:
@@ -20034,6 +20015,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.RuntimeLogFile'
                     description: historical log file list
             description: historical log file list response.
+        system.admin.v1.ListTableColumnsResponse:
+            type: object
+            properties:
+                columns:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.DatabaseColumn'
+                    description: database field list
+            description: database table field list response
         system.admin.v1.MqttMessageDetail:
             type: object
             properties:
@@ -22202,6 +22192,47 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.AiProviderModelTestResult'
                     description: Model test results in configuration order
             description: Response containing test results for all AI provider models.
+        system.admin.v1.TestConnectionRequest:
+            type: object
+            properties:
+                source_name:
+                    type: string
+                    description: Server data source name
+                driver:
+                    type: string
+                    description: "External database driver: mysql, postgres, doris, or tidb"
+                host:
+                    type: string
+                    description: External database host
+                port:
+                    type: integer
+                    description: External database port
+                    format: int32
+                database_name:
+                    type: string
+                    description: External database name
+                username:
+                    type: string
+                    description: External database username
+                password:
+                    $ref: '#/components/schemas/common.v1.SecretCrypto'
+                ssl_mode:
+                    type: string
+                    description: Postgre SQL SSLmode
+                bi_source_id:
+                    type: string
+                    description: BI data source ID for reusing credentials only if connection settings are unchanged and no password is supplied
+            description: Database connection test request. Provide a host to test an external database, or specify a server data source name.
+        system.admin.v1.TestConnectionResponse:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                    description: Whether the database is reachable
+                message:
+                    type: string
+                    description: Test result details
+            description: Database connection test result.
         system.admin.v1.TestRunBaseScriptRequest:
             type: object
             properties:
@@ -23100,8 +23131,6 @@ tags:
       description: Admin database backup recovery service.
     - name: BaseTableBackupService
       description: Admin database backup configuration service.
-    - name: BaseTableSourceService
-      description: Admin data-source metadata service for database backup, data archiving, and code generation.
     - name: BaseTenantProjectGrantService
       description: admin item item authorization service
     - name: BaseTenantProjectService
@@ -23132,6 +23161,8 @@ tags:
       description: admin code-generation table configuration service
     - name: ConfigService
       description: base system configuration shared service
+    - name: DatabaseService
+      description: Admin database service for connection testing and physical metadata.
     - name: FileService
       description: base file service
     - name: LanguageService
