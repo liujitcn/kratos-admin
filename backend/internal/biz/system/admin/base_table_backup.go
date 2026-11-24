@@ -71,7 +71,12 @@ func (c *BaseTableBackupCase) CreateBaseTableBackup(ctx context.Context, req *ad
 	}
 	now := time.Now()
 	entity := &models.BaseTableBackup{SourceName: req.GetSourceName(), BackupType: int32(req.GetBackupType()), OSSPrefix: req.GetOssPrefix(), RetentionCount: req.GetRetentionCount(), Status: status, CreatedBy: authInfo.UserId, UpdatedBy: authInfo.UserId, CreatedAt: now}
-	return c.Create(ctx, entity)
+	err = c.Create(ctx, entity)
+	const constraint = "unique_base_table_backup"
+	if isPostgresUniqueConstraint(err, constraint) {
+		return errorsx.UniqueConflict("同一数据源的备份配置已存在", "base_table_backup", "source_name", constraint).WithCause(err)
+	}
+	return err
 }
 
 // UpdateBaseTableBackup 更新数据库备份配置。

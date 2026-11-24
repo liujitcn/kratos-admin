@@ -151,8 +151,9 @@ func (c *BaseLoginPolicyCase) CreateBaseLoginPolicy(ctx context.Context, req *ad
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		err = c.baseLoginPolicyRepo.Create(txCtx, entity)
 		if err != nil {
-			if errorsx.IsDuplicateKey(err) {
-				return errorsx.UniqueConflict("同一作用域的登录策略已存在", "base_login_policy", "scope_type,tenant_id,user_id", "unique_base_login_policy").WithCause(err)
+			const constraint = "unique_base_login_policy"
+			if errorsx.IsDuplicateKey(err) || isPostgresUniqueConstraint(err, constraint) {
+				return errorsx.UniqueConflict("同一作用域的登录策略已存在", "base_login_policy", "scope_type,tenant_id,user_id", constraint).WithCause(err)
 			}
 			return err
 		}

@@ -3,11 +3,13 @@ package biz
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"regexp"
 	"slices"
 
 	"github.com/go-kratos/kratos/v3/log"
+	"github.com/jackc/pgx/v5/pgconn"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/bi/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/dbconn"
@@ -175,4 +177,10 @@ func GormClientBySourceName(baseCase *biz.BaseCase, sourceName string) (*gorm.Cl
 // sourceTableKey 返回数据源和数据表组成的稳定索引键。
 func sourceTableKey(sourceName, tableName string) string {
 	return sourceName + "\x00" + tableName
+}
+
+// isPostgresUniqueConstraint 判断 PostgreSQL 错误是否命中指定的业务唯一约束。
+func isPostgresUniqueConstraint(err error, constraint string) bool {
+	pgErr, ok := errors.AsType[*pgconn.PgError](err)
+	return ok && pgErr.Code == "23505" && pgErr.ConstraintName == constraint
 }

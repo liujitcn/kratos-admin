@@ -15,6 +15,7 @@
 | `i18n.ja-JP.up.sql` | `ja-JP` 的 `base_i18n` 翻译数据。 |
 | `i18n.zh-TW.up.sql` | `zh-TW` 的 `base_i18n` 翻译数据。 |
 | `i18n_custom.up.sql` | 默认租户管理端项目管理固定文案的 `base_i18n_custom` 四语言覆盖数据。 |
+| `z_sync_sequences.up.sql` | PostgreSQL 专用，按文件名排在所有种子脚本之后，校准固定 ID 对应的自增序列。 |
 | `README.<locale>.md` | 迁移说明的对应语言版本，由迁移框架将文件引用同步到统一翻译表，详情按需读取文件。 |
 
 ## 执行与幂等
@@ -22,6 +23,8 @@
 启动时依次执行自动建表、SQL 迁移、迁移说明翻译同步，以及 OpenAPI、`base_api`、租户菜单和 Casbin 策略同步。`default_data.up.sql`、`base_area.up.sql` 和 `base_redact_rule.up.sql` 在 MySQL 上会临时关闭外键检查并在结束时恢复原值；PostgreSQL 无需会话级调整。
 
 所有初始化记录均使用单行幂等写入（MySQL `INSERT IGNORE`，PostgreSQL `INSERT ... ON CONFLICT DO NOTHING`）：已有唯一键记录会跳过，不覆盖业务数据；脚本不使用批量 `INSERT`、`UPDATE`、`DELETE` 或 `TRUNCATE`。`default_data.up.sql` 中同一表内的记录按 `id` 升序维护，新增默认数据应放在对应的编号位置。
+
+PostgreSQL 脚本显式写入固定 ID 后，会校准相关自增序列。首次新建记录时，分配的 ID 大于表中已有最大 ID。脚本重放只向前推进序列，允许产生编号空洞。
 
 已记录过 `v0.0.1` 的数据库不会因为修改初始化文件而自动重放。验证修改时请使用全新数据库，或按开发环境流程重建数据库。新增功能仍应补齐 `v0.0.1` 的完整初始化状态，不新增更高版本或面向存量库的增量脚本。
 

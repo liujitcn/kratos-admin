@@ -6,72 +6,10 @@
         t("system.ai.workspace.continue_discussion")
       }}</el-button>
     </div>
-    <template v-if="isEmptyState">
-      <div class="agent-chat-empty">
-        <div class="agent-chat-empty__title">{{ welcomeTitle }}</div>
-        <div class="agent-chat-empty__desc">{{ t("system.ai.chat.welcome_description") }}</div>
-        <section v-if="hasShortcutPanel" class="agent-shortcuts">
-          <div class="agent-shortcuts__head">
-            <div>
-              <div class="agent-shortcuts__eyebrow">{{ t("system.ai.chat.shortcut.eyebrow") }}</div>
-              <div class="agent-shortcuts__title">{{ t("system.ai.chat.shortcut.start_title") }}</div>
-            </div>
-            <div class="agent-shortcuts__actions">
-              <span class="agent-shortcuts__count">{{ shortcutBatchLabel }}</span>
-              <el-button
-                v-if="canRefreshShortcutBatch"
-                class="admin-custom-button agent-shortcuts__refresh"
-                native-type="button"
-                :disabled="sending"
-                @click="refreshShortcutBatch"
-              >
-                <span>{{ t("system.ai.chat.action.refresh_shortcuts") }}</span>
-                <el-icon><Refresh /></el-icon>
-              </el-button>
-            </div>
-          </div>
-          <div v-if="loadingShortcuts" class="agent-shortcuts__loading">
-            {{ t("system.ai.chat.message.loading_shortcuts") }}
-          </div>
-          <div v-else class="agent-shortcuts__grid">
-            <el-button
-              v-for="shortcut in shortcutVisibleList"
-              :key="shortcut.key"
-              class="admin-custom-button agent-shortcut"
-              native-type="button"
-              :disabled="sending"
-              @click="handleShortcutClick(shortcut)"
-            >
-              <span class="agent-shortcut__icon">
-                <el-icon><component :is="resolveShortcutIcon(shortcut)" /></el-icon>
-              </span>
-              <span class="agent-shortcut__content">
-                <span class="agent-shortcut__title">{{ shortcut.title || shortcut.prompt }}</span>
-                <span class="agent-shortcut__meta">{{ resolveShortcutMeta(shortcut) }}</span>
-              </span>
-            </el-button>
-          </div>
-        </section>
-        <div class="agent-chat-empty__sender">
-          <XSender
-            v-if="!activeSession?.read_only"
-            :key="senderKey"
-            :draft="draft"
-            @draft-change="emit('draftChange', $event)"
-            :sending="sending"
-            :model-providers="modelProviders"
-            :provider-id="providerId"
-            :model-name="modelName"
-            :knowledge-options="knowledgeOptions"
-            :knowledge-ids="knowledgeIds"
-            @submit="handleSubmit"
-            @model-change="handleModelChange"
-            @knowledge-change="handleKnowledgeChange"
-          />
-        </div>
-      </div>
-    </template>
-
+    <div v-if="isEmptyState" class="agent-chat-empty">
+      <div class="agent-chat-empty__title">{{ welcomeTitle }}</div>
+      <div class="agent-chat-empty__desc">{{ t("system.ai.chat.welcome_description") }}</div>
+    </div>
     <template v-else>
       <div ref="chatContentRef" class="agent-chat-content">
         <BubbleList ref="bubbleRef" class="agent-message-list" :list="bubbleList" max-height="100%" :auto-scroll="true">
@@ -394,94 +332,96 @@
           </template>
         </BubbleList>
       </div>
-
-      <div v-if="!activeSession?.read_only" ref="composerDockRef" class="agent-composer-dock">
-        <XSender
-          :key="senderKey"
-          :draft="draft"
-          @draft-change="emit('draftChange', $event)"
-          :sending="sending"
-          :model-providers="modelProviders"
-          :provider-id="providerId"
-          :model-name="modelName"
-          :knowledge-options="knowledgeOptions"
-          :knowledge-ids="knowledgeIds"
-          @submit="handleSubmit"
-          @model-change="handleModelChange"
-          @knowledge-change="handleKnowledgeChange"
-        >
-          <template v-if="hasShortcutPanel" #before-attachment>
-            <el-popover
-              v-model:visible="shortcutPopoverOpen"
-              :reference-el="composerDockRef ?? undefined"
-              :width="Math.min(composerDockWidth || 420, 420)"
-              :offset="8"
-              :show-arrow="false"
-              :persistent="false"
-              :disabled="sending"
-              :aria-label="t('system.ai.chat.shortcut.label')"
-              placement="top-start"
-              trigger="click"
-              role="dialog"
-              popper-class="agent-shortcut-popper"
-              @after-enter="focusShortcutPopover"
-            >
-              <template #reference>
-                <el-button
-                  ref="shortcutTriggerRef"
-                  class="admin-custom-button agent-shortcut-trigger"
-                  native-type="button"
-                  aria-haspopup="dialog"
-                  :aria-expanded="shortcutPopoverOpen"
-                  :disabled="sending"
-                >
-                  <el-icon><el-icon-lightning /></el-icon>
-                  {{ t("system.ai.chat.shortcut.label") }}
-                  <el-icon :class="{ 'is-open': shortcutPopoverOpen }"><ArrowUp /></el-icon>
-                </el-button>
-              </template>
-              <div ref="shortcutPopoverRef" class="agent-shortcut-picker" tabindex="-1" @keydown.esc.stop.prevent="dismissShortcutPopover">
-                <div class="agent-shortcut-picker__head">
-                  <strong>{{ t("system.ai.chat.shortcut.label") }}</strong>
-                  <span class="agent-shortcut-picker__count" aria-live="polite">{{ shortcutBatchLabel }}</span>
-                  <el-button
-                    v-if="canRefreshShortcutBatch"
-                    class="admin-custom-button agent-shortcuts__refresh"
-                    native-type="button"
-                    :disabled="sending"
-                    @click="refreshShortcutBatch"
-                  >
-                    <el-icon><Refresh /></el-icon>
-                    <span>{{ t("system.ai.chat.action.refresh_shortcuts") }}</span>
-                  </el-button>
-                </div>
-                <div v-if="loadingShortcuts" class="agent-shortcuts__loading" role="status">
-                  {{ t("system.ai.chat.message.loading_shortcuts") }}
-                </div>
-                <div v-else class="agent-shortcut-picker__list">
-                  <el-button
-                    v-for="shortcut in shortcutVisibleList"
-                    :key="shortcut.key"
-                    class="admin-custom-button agent-shortcut"
-                    native-type="button"
-                    :disabled="sending"
-                    @click="handleShortcutClick(shortcut)"
-                  >
-                    <span class="agent-shortcut__icon">
-                      <el-icon><component :is="resolveShortcutIcon(shortcut)" /></el-icon>
-                    </span>
-                    <span class="agent-shortcut__content">
-                      <span class="agent-shortcut__title">{{ shortcut.title || shortcut.prompt }}</span>
-                      <span class="agent-shortcut__meta">{{ resolveShortcutMeta(shortcut) }}</span>
-                    </span>
-                  </el-button>
-                </div>
-              </div>
-            </el-popover>
-          </template>
-        </XSender>
-      </div>
     </template>
+
+    <div v-if="!activeSession?.read_only" ref="composerDockRef" class="agent-composer-dock">
+      <XSender
+        :key="senderKey"
+        :draft="draft"
+        @draft-change="emit('draftChange', $event)"
+        :sending="sending"
+        :model-providers="modelProviders"
+        :provider-id="providerId"
+        :model-name="modelName"
+        :knowledge-options="knowledgeOptions"
+        :knowledge-ids="knowledgeIds"
+        @submit="handleSubmit"
+        @model-change="handleModelChange"
+        @knowledge-change="handleKnowledgeChange"
+      >
+        <template v-if="hasShortcutPanel" #before-attachment>
+          <el-popover
+            v-model:visible="shortcutPopoverOpen"
+            :reference-el="composerDockRef ?? undefined"
+            :width="Math.min(composerDockWidth || 420, 420)"
+            :offset="8"
+            :show-arrow="false"
+            :persistent="false"
+            :disabled="sending"
+            :aria-label="t('system.ai.chat.shortcut.label')"
+            placement="top-start"
+            trigger="click"
+            role="dialog"
+            popper-class="agent-shortcut-popper"
+            @before-enter="updateComposerDockBounds"
+            @after-enter="focusShortcutPopover"
+          >
+            <template #reference>
+              <el-button
+                ref="shortcutTriggerRef"
+                class="admin-custom-button agent-shortcut-trigger"
+                native-type="button"
+                aria-haspopup="dialog"
+                :aria-expanded="shortcutPopoverOpen"
+                :disabled="sending"
+              >
+                <Zap :size="14" aria-hidden="true" />
+                {{ t("system.ai.chat.shortcut.label") }}
+                <ChevronUp :size="14" :class="{ 'is-open': shortcutPopoverOpen }" aria-hidden="true" />
+              </el-button>
+            </template>
+            <div
+              ref="shortcutPopoverRef"
+              class="agent-shortcut-picker"
+              :style="{ maxHeight: `${Math.max(120, composerDockTop - 16)}px` }"
+              tabindex="-1"
+              @keydown.esc.stop.prevent="dismissShortcutPopover"
+            >
+              <div class="agent-shortcut-picker__head">
+                <strong>{{ t("system.ai.chat.shortcut.label") }}</strong>
+                <span class="agent-shortcut-picker__count" aria-live="polite">{{ shortcutBatchLabel }}</span>
+                <el-button
+                  v-if="canRefreshShortcutBatch"
+                  class="admin-custom-button agent-shortcuts__refresh"
+                  native-type="button"
+                  :disabled="sending"
+                  @click="refreshShortcutBatch"
+                >
+                  <el-icon><Refresh /></el-icon>
+                  <span>{{ t("system.ai.chat.action.refresh_shortcuts") }}</span>
+                </el-button>
+              </div>
+              <div v-if="loadingShortcuts" class="agent-shortcuts__loading" role="status">
+                {{ t("system.ai.chat.message.loading_shortcuts") }}
+              </div>
+              <div v-else class="agent-shortcut-picker__list">
+                <el-button
+                  v-for="shortcut in shortcutVisibleList"
+                  :key="shortcut.key"
+                  class="admin-custom-button agent-shortcut"
+                  native-type="button"
+                  :disabled="sending"
+                  @click="handleShortcutClick(shortcut)"
+                >
+                  <span class="agent-shortcut__title">{{ shortcut.title || shortcut.prompt }}</span>
+                  <span class="agent-shortcut__meta">{{ resolveShortcutMeta(shortcut) }}</span>
+                </el-button>
+              </div>
+            </div>
+          </el-popover>
+        </template>
+      </XSender>
+    </div>
     <!-- 问数结果快速建卡：复用 BI 模块的完整创建卡片表单，与卡片库保持一致。 -->
     <component
       v-if="biCardDialog.component"
@@ -496,12 +436,13 @@
 <script setup lang="ts" name="ChatPanel">
 import { computed, defineAsyncComponent, h, nextTick, reactive, ref, watch } from "vue";
 import type { Component, ObjectDirective } from "vue";
-import { useElementSize } from "@vueuse/core";
+import { useElementBounding } from "@vueuse/core";
 import { Attachments, BubbleList } from "vue-element-plus-x";
 import type { FilesCardProps } from "vue-element-plus-x/types/FilesCard";
-import { ArrowDown, Check, CopyDocument, DataAnalysis, Delete, EditPen, Link, Loading, Memo, PieChart, Refresh, User } from "@element-plus/icons-vue";
+import { ArrowDown, Check, CopyDocument, DataAnalysis, Delete, EditPen, Link, Loading, Refresh } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import type { ButtonInstance } from "element-plus";
+import { ChevronUp, Zap } from "@lucide/vue";
 import { getCurrentLocale, t } from "@liujitcn/kratos-admin-core";
 import { getAdminAiExtension } from "@liujitcn/kratos-admin-system";
 import { formatDateTime } from "@liujitcn/kratos-admin-core/format";
@@ -689,7 +630,7 @@ const chatContentRef = ref<HTMLElement | null>(null);
 
 const senderKey = computed(() => props.activeSession?.id || "empty-session");
 const composerDockRef = ref<HTMLElement>();
-const { width: composerDockWidth } = useElementSize(composerDockRef);
+const { top: composerDockTop, width: composerDockWidth, update: updateComposerDockBounds } = useElementBounding(composerDockRef);
 const shortcutTriggerRef = ref<ButtonInstance>();
 const shortcutPopoverRef = ref<HTMLElement>();
 const shortcutPopoverOpen = ref(false);
@@ -883,14 +824,6 @@ function handleShortcutClick(shortcut: AiShortcut) {
 function refreshShortcutBatch() {
   if (!canRefreshShortcutBatch.value) return;
   shortcutBatchIndex.value = (shortcutBatchIndex.value + 1) % shortcutBatchCount.value;
-}
-
-/** 根据快捷入口的通用类型给出稳定的轻量图标。 */
-function resolveShortcutIcon(shortcut: AiShortcut) {
-  const text = `${shortcut.group || ""} ${shortcut.title || ""} ${shortcut.key || ""}`.toLowerCase();
-  if (text.includes("user") || text.includes("用户")) return User;
-  if (text.includes("report") || text.includes("统计") || text.includes("分析")) return PieChart;
-  return Memo;
 }
 
 /** 展示快捷入口的分组和工具依赖摘要，帮助运营判断动作上下文。 */
@@ -1431,13 +1364,7 @@ function formatAttachmentSize(size?: number): string {
   overflow: hidden;
 }
 .agent-chat-empty {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   width: min(1100px, calc(100% - 96px));
-  min-height: 0;
   margin: 0 auto;
 }
 .agent-chat-empty__title {
@@ -1453,57 +1380,6 @@ function formatAttachmentSize(size?: number): string {
   line-height: 28px;
   color: var(--admin-page-text-secondary);
   text-align: center;
-}
-.agent-chat-empty__sender {
-  width: min(980px, 100%);
-  margin-top: 28px;
-}
-.agent-shortcuts {
-  box-sizing: border-box;
-  width: min(760px, 100%);
-  padding: 14px;
-  margin-top: 26px;
-  background: linear-gradient(180deg, rgba(64, 158, 255, 0.06), rgba(255, 255, 255, 0)), var(--admin-page-card-bg);
-  border: 1px solid var(--el-border-color-lighter);
-  border-radius: var(--admin-page-radius);
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
-}
-.agent-shortcuts__head {
-  display: flex;
-  gap: 16px;
-  align-items: flex-start;
-  justify-content: space-between;
-  min-width: 0;
-  margin-bottom: 12px;
-}
-.agent-shortcuts__actions {
-  display: inline-flex;
-  flex: 0 0 auto;
-  gap: 8px;
-  align-items: center;
-}
-.agent-shortcuts__eyebrow {
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 18px;
-  color: var(--el-color-primary);
-}
-.agent-shortcuts__title {
-  margin-top: 2px;
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 22px;
-  color: var(--admin-page-text-primary);
-}
-.agent-shortcuts__count {
-  flex: 0 0 auto;
-  padding: 2px 8px;
-  font-size: 12px;
-  line-height: 20px;
-  color: var(--admin-page-text-secondary);
-  background: var(--el-fill-color-light);
-  border: 1px solid var(--el-border-color-lighter);
-  border-radius: var(--admin-page-radius);
 }
 .agent-shortcuts__refresh {
   display: inline-flex;
@@ -1544,71 +1420,38 @@ function formatAttachmentSize(size?: number): string {
   background: var(--el-fill-color-lighter);
   border-radius: var(--admin-page-radius);
 }
-.agent-shortcuts__grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  min-width: 0;
-}
 .agent-shortcut {
   box-sizing: border-box;
-  display: grid;
-  grid-template-columns: 34px minmax(0, 1fr);
-  gap: 10px;
-  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+  justify-content: center;
   min-width: 0;
-  min-height: 70px;
-  padding: 12px;
-  box-sizing: border-box;
+  min-height: 44px;
+  padding: 5px 8px;
   margin: 0;
   font: inherit;
   line-height: 1.2;
-  justify-content: initial;
   color: var(--admin-page-text-primary);
   text-align: left;
   cursor: pointer;
-  background: var(--admin-page-card-bg);
-  border: 1px solid var(--el-border-color-lighter);
+  background: transparent;
+  border: 0;
   border-radius: var(--admin-page-radius);
-  transition:
-    border-color 0.18s ease,
-    box-shadow 0.18s ease,
-    transform 0.18s ease;
 }
-.agent-shortcut:hover {
-  border-color: var(--el-color-primary-light-5);
-  box-shadow: 0 8px 18px rgba(64, 158, 255, 0.12);
-  transform: translateY(-1px);
+.agent-shortcut:hover,
+.agent-shortcut:focus-visible {
+  background: var(--el-color-primary-light-9);
 }
 .agent-shortcut:disabled {
   cursor: not-allowed;
   opacity: 0.55;
-  transform: none;
-}
-.agent-shortcut__icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1;
-  color: var(--el-color-primary);
-  background: var(--el-color-primary-light-9);
-  border: 1px solid var(--el-color-primary-light-7);
-  border-radius: var(--admin-page-radius);
-}
-.agent-shortcut__content {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
 }
 .agent-shortcut__title {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  line-height: 20px;
+  line-height: 18px;
   overflow-wrap: anywhere;
   white-space: normal;
 }
@@ -2302,6 +2145,10 @@ function formatAttachmentSize(size?: number): string {
   margin: 0 auto;
   background: var(--admin-page-card-bg);
 }
+.agent-chat-panel.is-empty .agent-composer-dock {
+  width: min(980px, calc(100% - 96px));
+  margin-top: 28px;
+}
 .agent-shortcut-trigger {
   display: inline-flex;
   gap: 5px;
@@ -2335,9 +2182,13 @@ function formatAttachmentSize(size?: number): string {
   border-radius: var(--admin-page-radius);
 }
 .agent-shortcut-picker {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
   padding: 8px;
   &__head {
     display: flex;
+    flex: none;
     flex-wrap: wrap;
     gap: 6px 8px;
     align-items: center;
@@ -2351,32 +2202,12 @@ function formatAttachmentSize(size?: number): string {
   }
   &__list {
     display: grid;
+    grid-auto-rows: max-content;
     gap: 2px;
+    min-height: 0;
     max-height: min(360px, 50dvh);
     padding: 4px;
     overflow-y: auto;
-  }
-  .agent-shortcut {
-    grid-template-columns: 28px minmax(0, 1fr);
-    gap: 8px;
-    min-height: 44px;
-    padding: 5px 4px;
-    background: transparent;
-    border: 0;
-    &:hover,
-    &:focus-visible {
-      background: var(--el-color-primary-light-9);
-      box-shadow: none;
-      transform: none;
-    }
-  }
-  .agent-shortcut__icon {
-    width: 28px;
-    height: 28px;
-  }
-  .agent-shortcut__title {
-    font-size: 13px;
-    line-height: 18px;
   }
 }
 
@@ -2389,28 +2220,13 @@ function formatAttachmentSize(size?: number): string {
     padding: 24px 0;
   }
   .agent-chat-content,
-  .agent-composer-dock {
-    width: calc(100% - 36px);
-  }
+  .agent-composer-dock,
+  .agent-chat-panel.is-empty .agent-composer-dock,
   .agent-chat-empty {
     width: calc(100% - 36px);
   }
-  .agent-shortcuts__grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .agent-shortcuts__head {
-    align-items: stretch;
-  }
-  .agent-shortcuts__actions {
-    align-items: flex-end;
-    flex-direction: column;
-    gap: 6px;
-  }
   .agent-chat-empty__title {
     font-size: 30px;
-  }
-  .agent-chat-empty__sender {
-    width: 100%;
   }
 }
 

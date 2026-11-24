@@ -60,7 +60,8 @@ test("AI聊天模型选择器位于输入框操作区，空态和会话态共用
     readSource("src/components/AiModelSelector/styles.scss")
   ]);
 
-  assert.equal((chatPanel.match(/:model-providers="modelProviders"/g) ?? []).length, 2);
+  assert.equal((chatPanel.match(/<XSender\b/g) ?? []).length, 1);
+  assert.match(chatPanel, /<XSender\b[^>]*:model-providers="modelProviders"/);
   assert.doesNotMatch(chatPanel, /<div class="agent-model-selector">/);
   const prefix = sender.match(/<template #prefix>([\s\S]*?)<\/template>/)?.[1] ?? "";
   assert.doesNotMatch(prefix, /agent-model-selector/);

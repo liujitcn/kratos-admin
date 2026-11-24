@@ -686,9 +686,6 @@ INSERT INTO "ai_plugin" ("id", "code", "name", "description", "source", "visibil
 INSERT INTO "ai_plugin" ("id", "code", "name", "description", "source", "visibility", "tenant_id", "owner_user_id", "enabled", "endpoint", "config_json", "revision", "created_by", "updated_by", "created_at", "updated_at", "deleted_at") VALUES (3, 'gotenberg', 'Gotenberg MCP', 'Gotenberg 文档转换工具', 'MCP', 'system', 0, 0, 1, 'http://192.168.60.83:18002/mcp', '{"allowed_hosts":["192.168.60.83"],"allow_private":true}', 1, 0, 0, '2026-11-10 00:00:00', '2026-11-10 00:00:00', 0) ON CONFLICT DO NOTHING;
 INSERT INTO "ai_plugin" ("id", "code", "name", "description", "source", "visibility", "tenant_id", "owner_user_id", "enabled", "endpoint", "config_json", "revision", "created_by", "updated_by", "created_at", "updated_at", "deleted_at") VALUES (4, 'markitdown', 'MarkItDown MCP', 'MarkItDown 文档转 Markdown 工具', 'MCP', 'system', 0, 0, 1, 'http://192.168.60.83:18003/mcp', '{"allowed_hosts":["192.168.60.83"],"allow_private":true}', 1, 0, 0, '2026-11-10 00:00:00', '2026-11-10 00:00:00', 0) ON CONFLICT DO NOTHING;
 
--- 显式种子不会推进自增序列；取当前 nextval 防止重放时倒退，只允许产生序列空洞。
-SELECT setval(pg_get_serial_sequence('ai_plugin', 'id'), GREATEST((SELECT MAX(id) FROM "ai_plugin"), nextval(pg_get_serial_sequence('ai_plugin', 'id'))), true);
-
 -- ai_plugin_installation：仅补齐缺失安装，不覆盖已有启用状态或终端策略。
 INSERT INTO "ai_plugin_installation" ("tenant_id", "plugin_id", "enabled", "terminals", "revision", "created_by", "updated_by", "created_at", "updated_at", "deleted_at") VALUES (1, 1, 1, 'admin,app', 1, 0, 0, '2026-11-10 00:00:00', '2026-11-10 00:00:00', 0) ON CONFLICT DO NOTHING;
 INSERT INTO "ai_plugin_installation" ("tenant_id", "plugin_id", "enabled", "terminals", "revision", "created_by", "updated_by", "created_at", "updated_at", "deleted_at") VALUES (1, 2, 1, 'admin,app', 1, 0, 0, '2026-11-10 00:00:00', '2026-11-10 00:00:00', 0) ON CONFLICT DO NOTHING;
