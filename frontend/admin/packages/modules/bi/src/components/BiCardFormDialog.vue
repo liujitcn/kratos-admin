@@ -1,88 +1,128 @@
 <template>
-  <FormDialog
-    ref="dialogRef"
+  <ProDialog
+    class="bi-card-editor-dialog"
     :model-value="modelValue"
     :title="card ? t('bi.card.edit') : t('bi.card.create')"
-    width="min(1040px, 94vw)"
-    label-width="7em"
-    :model="form"
-    :fields="fields"
-    :rules="rules"
-    :confirm-loading="saving || loadingDetails"
+    width="1160px"
+    align-center
+    destroy-on-close
     :close-on-click-modal="!saving && !pendingSave"
     :close-on-press-escape="!saving && !pendingSave"
     :show-close="!saving && !pendingSave"
-    :form-props="{ disabled: saving || loadingDetails || Boolean(pendingSave) }"
     @update:model-value="value => { if (!saving && !pendingSave) emit('update:modelValue', value); }"
-    @confirm="submit"
-    :destroy-on-close="true"
     @closed="reset"
   >
-    <template #measures>
-      <div class="bi-card-measures">
-        <div v-for="(measure, index) in form.measures" :key="index" class="bi-card-measures__row">
-          <el-select disabled v-model="measure.code" :aria-label="t('bi.card.measure')">
-            <el-option v-for="item in source?.measures ?? []" :key="item.code" :label="item.name" :value="item.code" />
-          </el-select>
-          <span>{{ source?.measures.find(item => item.code === measure.code)?.unit }}</span>
-        </div>
+    <div class="bi-card-editor" :class="{ 'is-narrow': narrow }">
+      <div class="bi-card-editor__settings">
+        <ProForm ref="nameFormRef" :model="form" :fields="nameFields" :rules="rules" label-position="top" :disabled="editingLocked" />
+        <el-tabs v-model="activeTab" class="bi-card-editor__tabs">
+          <el-tab-pane name="query" :label="t('bi.card.query_tab')">
+            <ProForm
+              ref="queryFormRef"
+              class="bi-card-editor__query"
+              :model="form"
+              :fields="queryFields"
+              :rules="rules"
+              :gutter="12"
+              label-position="top"
+              :disabled="editingLocked"
+            >
+              <template #measures>
+                <div class="bi-card-measures">
+                  <div v-for="(measure, index) in form.measures" :key="index" class="bi-card-measures__row">
+                    <el-select disabled v-model="measure.code" :aria-label="t('bi.card.measure')">
+                      <el-option v-for="item in source?.measures ?? []" :key="item.code" :label="item.name" :value="item.code" />
+                    </el-select>
+                    <span>{{ source?.measures.find(item => item.code === measure.code)?.unit }}</span>
+                  </div>
+                </div>
+              </template>
+            </ProForm>
+            <div v-if="querySummary" class="bi-card-query-summary">
+              <el-text>{{ t("bi.card.dimensions") }}：{{ querySummary.dimensions }}</el-text>
+              <el-text>{{ t("bi.refine.period") }}：{{ querySummary.period }}</el-text>
+            </div>
+            <BiQueryRefinement
+              v-if="!card && source && baseQuery && sourceRecordID"
+              :source="source"
+              :query="baseQuery"
+              :record-id="sourceRecordID"
+              :disabled="editingLocked || previewing"
+              @busy="refining = $event"
+              @applied="applyRefinement"
+            />
+          </el-tab-pane>
+          <el-tab-pane name="chart" :label="t('bi.card.chart_tab')">
+            <BiCardChartEditor v-model="chartConfig" v-model:chart-type="form.chart_type" :query="query" :result="previewResult" :disabled="editingLocked" />
+          </el-tab-pane>
+          <el-tab-pane name="sql" :label="t('bi.sql.tab')" lazy>
+            <div v-loading="loadingDetails" class="bi-card-formulas">
+              <el-radio-group v-model="codeView" size="small">
+                <el-radio-button value="formula">{{ t('bi.sql.expression') }}</el-radio-button>
+                <el-radio-button value="sql">{{ t('bi.sql.full_sql') }}</el-radio-button>
+              </el-radio-group>
+              <template v-if="codeView === 'formula'">
+                <el-alert :title="t(canEditMetrics ? 'bi.sql.shared_notice' : 'bi.sql.readonly_notice')" type="info" show-icon :closable="false" />
+                <div v-for="metric in editedMetrics" :key="metric.code" class="bi-card-formulas__metric">
+                  <el-text tag="strong">{{ metric.name }} <el-text tag="small">{{ metric.unit }}</el-text></el-text>
+                  <CodeEditor :key="editingLocked || !canEditMetrics ? 'readonly' : 'editable'" v-model="metric.expression" language="sql" height="80px" :readonly="editingLocked || !canEditMetrics" />
+                </div>
+              </template>
+              <CodeEditor v-else-if="sql" :model-value="sql" language="sql" height="clamp(120px, 32dvh, 320px)" readonly />
+              <el-empty v-else :image-size="36" :description="t('bi.sql.preview_empty')" />
+              <div v-for="change in impact?.changes ?? []" :key="change.after?.code ?? change.before?.code" class="bi-card-formulas__metric">
+                <el-text tag="strong">{{ change.after?.name ?? change.before?.name }}</el-text>
+                <code>{{ change.before?.expression }} → {{ change.after?.expression }}</code>
+              </div>
+              <el-button v-if="card" :disabled="editingLocked || previewing" @click="loadDetails(true)">{{ t('bi.sql.refresh_model') }}</el-button>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane v-if="narrow" name="preview" :label="t('bi.card.preview')" class="bi-card-editor__preview-pane">
+            <div ref="previewTarget" class="bi-card-editor__preview-pane" />
+          </el-tab-pane>
+        </el-tabs>
       </div>
-    </template>
-    <template #refinement>
-      <div v-if="querySummary" class="bi-card-query-summary">
-        <el-text>{{ t("bi.card.dimensions") }}：{{ querySummary.dimensions }}</el-text>
-        <el-text>{{ t("bi.refine.period") }}：{{ querySummary.period }}</el-text>
-      </div>
-      <BiQueryRefinement
-        v-if="!card && source && baseQuery && sourceRecordID"
-        :source="source"
-        :query="baseQuery"
-        :record-id="sourceRecordID"
-        :disabled="saving || previewing || loadingDetails || Boolean(pendingSave)"
-        @busy="refining = $event"
-        @applied="applyRefinement"
-      />
-    </template>
-    <template #formulas>
-      <div v-loading="loadingDetails" class="bi-card-formulas">
-        <el-alert :title="t(canEditMetrics ? 'bi.sql.shared_notice' : 'bi.sql.readonly_notice')" type="info" show-icon :closable="false" />
-        <el-alert v-if="pendingSave && !saving" :title="t('bi.sql.save_pending')" type="warning" show-icon :closable="false" />
-        <div v-for="metric in editedMetrics" :key="metric.code" class="bi-card-formulas__metric">
-          <el-text tag="strong">{{ metric.name }} <el-text tag="small">{{ metric.unit }}</el-text></el-text>
-          <CodeEditor v-model="metric.expression" language="sql" height="120px" :readonly="!canEditMetrics || Boolean(pendingSave)" />
-        </div>
-        <template v-if="sql">
-          <el-text tag="strong">{{ t('bi.sql.full_sql') }}</el-text>
-          <CodeEditor :model-value="sql" language="sql" height="220px" readonly />
-        </template>
-        <el-alert v-if="impact?.changes?.length" :title="t('bi.sql.impact', { cards: impact.affected_cards, dashboards: impact.affected_dashboards })" type="warning" show-icon :closable="false" />
-        <div v-for="change in impact?.changes ?? []" :key="change.after?.code ?? change.before?.code" class="bi-card-formulas__diff">
-          <el-text tag="strong">{{ change.after?.name ?? change.before?.name }}</el-text>
-          <code>{{ change.before?.expression }} → {{ change.after?.expression }}</code>
-        </div>
-        <el-button v-if="card" :disabled="saving || previewing || Boolean(pendingSave)" @click="loadDetails(true)">{{ t('bi.sql.refresh_model') }}</el-button>
-      </div>
-    </template>
-    <template #chart>
-      <BiCardChartEditor v-model="chartConfig" v-model:chart-type="form.chart_type" :query="query" :result="previewResult" />
-    </template>
-    <template #preview>
-      <BiDataCard v-if="previewResult" :card="previewCard" :preview-result="previewResult" :source-name="source?.name" />
-      <el-empty v-else :image-size="36" :description="t('bi.card.preview_empty')" />
-    </template>
+      <Teleport :to="previewTarget ?? 'body'" :disabled="!narrow || !previewTarget">
+        <section class="bi-card-editor__preview" :aria-label="t('bi.card.preview')">
+          <el-text v-if="!narrow" tag="strong">{{ t('bi.card.preview') }}</el-text>
+          <BiDataCard
+            v-if="previewResult"
+            :card="previewCard"
+            :preview-result="previewResult"
+            :source-name="narrow ? undefined : source?.name"
+            :show-category="false"
+          />
+          <el-empty v-else :image-size="36" :description="t('bi.card.preview_empty')" />
+        </section>
+      </Teleport>
+    </div>
     <template #footer>
-      <el-button :disabled="saving || Boolean(pendingSave)" @click="emit('update:modelValue', false)">{{ t("common.action.cancel") }}</el-button>
-      <el-button :loading="previewing" :disabled="saving || refining || loadingDetails || Boolean(pendingSave)" @click="preview">{{ t("bi.card.preview") }}</el-button>
-      <el-button type="primary" :loading="saving" :disabled="loadingDetails || refining" @click="submit">{{ t("bi.card.save") }}</el-button>
+      <div class="bi-card-editor__footer">
+        <el-alert v-if="pendingSave && !saving" :title="t('bi.sql.save_pending')" type="warning" show-icon :closable="false" />
+        <el-alert
+          v-else-if="impact?.changes?.length"
+          :title="t('bi.sql.impact', { cards: impact.affected_cards ?? 0, dashboards: impact.affected_dashboards ?? 0 })"
+          type="warning"
+          show-icon
+          :closable="false"
+        />
+        <div class="bi-card-editor__actions">
+          <el-button :disabled="saving || Boolean(pendingSave)" @click="emit('update:modelValue', false)">{{ t('common.action.cancel') }}</el-button>
+          <el-button :loading="previewing" :disabled="editingLocked || refining" @click="preview(true)">{{ t('bi.card.preview') }}</el-button>
+          <el-button type="primary" :loading="saving" :disabled="loadingDetails || refining" @click="submit">{{ t('bi.card.save') }}</el-button>
+        </div>
+      </div>
     </template>
-  </FormDialog>
+  </ProDialog>
 </template>
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from "vue";
+import { useMediaQuery } from "@vueuse/core";
 import { t } from "@liujitcn/kratos-admin-core";
 import CodeEditor from "@liujitcn/kratos-admin-core/components/CodeEditor/index.vue";
-import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
-import type { ProFormField } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
+import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
+import ProForm from "@liujitcn/kratos-admin-core/components/ProForm/index.vue";
+import type { ProFormField, ProFormInstance } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import type { BiCard, SaveBiCardRequest } from "../rpc/bi/admin/v1/bi_card";
 import type { AskBiQueryResponse, BiMeasureSpec, BiQueryResult, BiQuerySpec, BiSourceDescriptor } from "../rpc/bi/admin/v1/bi_query";
 import { defBiCardService } from "../api/bi/admin/v1/bi_card";
@@ -117,7 +157,12 @@ const props = defineProps<{
   initialChartType?: string;
 }>();
 const emit = defineEmits<{ "update:modelValue": [value: boolean]; saved: [card: BiCard] }>();
-const dialogRef = ref<InstanceType<typeof FormDialog>>();
+const nameFormRef = ref<ProFormInstance>();
+const queryFormRef = ref<ProFormInstance>();
+const previewTarget = ref<HTMLElement>();
+const narrow = useMediaQuery("(max-width: 680px)");
+const activeTab = ref("chart");
+const codeView = ref("formula");
 const form = reactive<BiCardEditState>(defaultForm());
 const baseQuery = ref<BiQuerySpec>();
 const previewResult = ref<BiQueryResult>();
@@ -129,6 +174,7 @@ const previewing = ref(false);
 const refining = ref(false);
 const loadingDetails = ref(false);
 const canEditMetrics = ref(false);
+const editingLocked = computed(() => saving.value || loadingDetails.value || Boolean(pendingSave.value));
 const originalMetrics = ref<BiSourceMeasure[]>([]);
 const editedMetrics = ref<BiSourceMeasure[]>([]);
 const sql = ref("");
@@ -170,8 +216,10 @@ const previewCard = computed<BiCard>(() => ({
   version: 0, validation_query_record_id: 0, execution_kind: "", source_version: 0, can_edit_metrics: false, metric_definitions: [], sql: "", sync_summary: undefined, columns: [],
   can_edit: true
 }));
-const fields = computed<ProFormField[]>(() => [
-  { prop: "name", label: t("bi.card.name"), component: "input", colSpan: 12, props: { maxlength: 128 } },
+const nameFields = computed<ProFormField[]>(() => [
+  { prop: "name", label: t("bi.card.name"), component: "input", props: { maxlength: 128 } }
+]);
+const queryFields = computed<ProFormField[]>(() => [
   {
     prop: "source_code",
     label: t("bi.card.source"),
@@ -193,15 +241,12 @@ const fields = computed<ProFormField[]>(() => [
     }
   },
   { prop: "measures", label: t("bi.card.measure"), component: "slot", slotName: "measures", colSpan: 12 },
-  { prop: "refinement", label: "", component: "slot", slotName: "refinement", colSpan: 24 },
-  { prop: "formulas", label: t("bi.sql.formulas"), component: "slot", slotName: "formulas", colSpan: 24 },
-  { prop: "chart", label: t("bi.card.chart_type"), component: "slot", slotName: "chart", colSpan: 12 },
-  { prop: "preview", label: t("bi.card.preview"), component: "slot", slotName: "preview", colSpan: 12 },
   {
     prop: "refresh_seconds",
     label: t("bi.card.refresh"),
     component: "select",
     colSpan: 12,
+    rowBreakBefore: true,
     options: [0, 300, 86400].map(value => ({ label: t(`bi.card.refresh.${value}`), value }))
   },
   { prop: "is_shared", label: t("bi.card.share"), component: "switch", colSpan: 12 }
@@ -232,6 +277,8 @@ watch(
     session++;
     previewRequest++;
     if (!visible) return;
+    activeTab.value = "chart";
+    codeView.value = "formula";
     saving.value = false;
     previewing.value = false;
     refining.value = false;
@@ -267,6 +314,9 @@ watch(
     else void preview();
   }
 );
+watch(narrow, compact => {
+  if (!compact && activeTab.value === "preview") activeTab.value = "chart";
+});
 watch(
   query,
   () => {
@@ -328,7 +378,7 @@ function applyRefinement(next: AskBiQueryResponse) {
 }
 
 /** 真实预览精确公共公式候选，并忽略编辑前的迟到响应。 */
-async function preview() {
+async function preview(showResult = false) {
   if (previewing.value || refining.value || loadingDetails.value || pendingSave.value) return;
   if (!sourceRecordID.value) {
     ElMessage.warning(t("bi.card.ask_required"));
@@ -357,6 +407,7 @@ async function preview() {
     previewRecordID.value = response.preview_query_record_id;
     sql.value = response.sql;
     impact.value = response.impact;
+    if (showResult && narrow.value && response.result) activeTab.value = "preview";
   } catch (cause) {
     ElMessage.error(cause instanceof Error ? cause.message : t("bi.query.error"));
   } finally {
@@ -366,7 +417,12 @@ async function preview() {
 
 /** 保存精确候选，结果未知时重试冻结请求，避免新预览绕过一次消费。 */
 async function submit() {
-  if ((!pendingSave.value && !(await dialogRef.value?.validate())) || saving.value || previewing.value || refining.value || loadingDetails.value) return;
+  if (!pendingSave.value) {
+    const [nameValid, queryValid] = await Promise.all([nameFormRef.value?.validate(), queryFormRef.value?.validate()]);
+    if (!queryValid) activeTab.value = "query";
+    if (!nameValid || !queryValid) return;
+  }
+  if (saving.value || previewing.value || refining.value || loadingDetails.value) return;
   if (!pendingSave.value && !sourceRecordID.value) {
     ElMessage.warning(t("bi.card.ask_required"));
     return;
@@ -397,7 +453,7 @@ async function submit() {
     pendingSave.value = undefined;
     emit("saved", saved);
     emit("update:modelValue", false);
-    ElMessage.success(saved.sync_summary?.changes?.length ? t("bi.sql.synced", { cards: saved.sync_summary.affected_cards, dashboards: saved.sync_summary.affected_dashboards }) : t("bi.card.saved"));
+    ElMessage.success(saved.sync_summary?.changes?.length ? t("bi.sql.synced", { cards: saved.sync_summary.affected_cards ?? 0, dashboards: saved.sync_summary.affected_dashboards ?? 0 }) : t("bi.card.saved"));
   } catch (cause) {
     const id = appliedCardID(cause);
     if (id) {
@@ -435,15 +491,68 @@ function reset() {
   sql.value = "";
   sourceRecordID.value = 0;
   chartConfig.value = { encoding: {}, style: { showLegend: true, showLabel: false } };
-  dialogRef.value?.clearValidate();
+  nameFormRef.value?.clearValidate();
+  queryFormRef.value?.clearValidate();
 }
 </script>
 
 <style scoped>
-.bi-card-query-summary { display: flex; flex-wrap: wrap; gap: 4px 16px; }
-.bi-card-formulas { display: flex; width: 100%; min-width: 0; flex-direction: column; gap: 12px; }
-.bi-card-formulas__metric, .bi-card-formulas__diff { display: flex; min-width: 0; flex-direction: column; gap: 6px; }
-.bi-card-formulas__diff code { overflow-wrap: anywhere; color: var(--el-text-color-regular); }
+.bi-card-editor {
+  display: grid;
+  grid-template-columns: minmax(0, 60fr) minmax(0, 40fr);
+  grid-template-rows: minmax(0, 1fr);
+  width: 100%;
+}
+.bi-card-editor.is-narrow { grid-template-columns: minmax(0, 1fr); }
+.bi-card-editor.is-narrow > .bi-card-editor__preview { display: none; }
+.bi-card-editor__settings, .bi-card-editor__tabs {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+}
+.bi-card-editor__settings { padding: 12px 16px 0; }
+.bi-card-editor__settings :deep(.el-form-item) { margin-bottom: 12px; }
+.bi-card-editor__settings :deep(.el-form-item--label-top .el-form-item__label) { margin-bottom: 4px; }
+.bi-card-editor__tabs { flex: 1; }
+.bi-card-editor__tabs :deep(.el-tabs__header) { flex: none; margin: 0 0 12px; }
+.bi-card-editor__tabs :deep(.el-tabs__item) { padding-inline: 10px; }
+.bi-card-editor__tabs :deep(.el-tabs__content) {
+  flex: 1;
+  min-height: 0;
+  padding: 0 1px 12px;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+/* 给查询表单 12px 栅格间距两侧的负边距留出空间。 */
+.bi-card-editor__query { padding-inline: 6px; }
+.bi-card-editor__query :deep(.el-col-12) { flex-basis: 50%; max-width: 50%; }
+.bi-card-editor__preview-pane { height: 100%; }
+.bi-card-editor__preview {
+  display: flex;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 16px;
+  border-inline-start: 1px solid var(--el-border-color-lighter);
+  background: var(--admin-page-card-bg-soft);
+}
+.bi-card-editor__preview-pane .bi-card-editor__preview { padding: 0; border: 0; background: transparent; }
+.bi-card-editor__preview :deep(.bi-data-card) { flex: 1; min-height: 0; }
+.bi-card-editor__preview :deep(.bi-data-card__header) { flex: none; }
+.bi-card-editor__preview :deep(.bi-data-card__chart) { flex: 1; height: auto; min-height: 0; }
+.bi-card-editor__preview > .el-empty { flex: 1; min-height: 0; }
+.bi-card-editor__footer { display: grid; gap: 8px; }
+.bi-card-editor__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.bi-card-editor__actions :deep(.el-button) { margin: 0; }
+.bi-card-query-summary { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.bi-card-query-summary :deep(.el-text) { overflow-wrap: anywhere; }
+.bi-card-formulas { display: flex; min-width: 0; flex-direction: column; gap: 10px; }
+.bi-card-formulas__metric { display: flex; min-width: 0; flex-direction: column; gap: 6px; }
+.bi-card-formulas__metric code { overflow-wrap: anywhere; color: var(--el-text-color-regular); }
+.bi-card-formulas :deep(.code-editor) { min-height: 0; }
 
 .bi-card-measures {
   display: flex;
@@ -456,9 +565,33 @@ function reset() {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
 }
-@media (max-width: 480px) {
-  .bi-card-measures__row {
-    grid-template-columns: minmax(0, 1fr) auto;
+@media (max-width: 680px) {
+  .bi-card-editor__settings { padding-inline: 12px; }
+  .bi-card-editor__tabs :deep(.el-tabs__item) { padding-inline: 6px; }
+}
+</style>
+
+<style lang="scss">
+.el-dialog.pro-dialog.bi-card-editor-dialog {
+  display: flex;
+  flex-direction: column;
+  height: min(720px, calc(100dvh - 24px));
+  max-width: calc(100vw - 24px);
+
+  .el-dialog__header,
+  .el-dialog__footer { flex: none; }
+
+  .el-dialog__body {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    padding: 0;
+  }
+
+  .el-dialog__footer {
+    padding: 10px 12px;
+    border-top: 1px solid var(--el-border-color-lighter);
   }
 }
 </style>

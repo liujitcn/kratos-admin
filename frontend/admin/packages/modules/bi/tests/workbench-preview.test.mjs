@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import { runInNewContext } from "node:vm";
 import ts from "typescript";
 import * as vue from "vue";
+import { useMediaQuery } from "@vueuse/core";
 import { buildCardChart, parseCardChart } from "../src/card-schema.ts";
 import * as biResponse from "../src/bi-response.ts";
 import * as metricEdit from "../src/metric-edit.ts";
@@ -32,6 +33,7 @@ function setupComponent(name, props, mocks, emit = () => undefined) {
       require: name => {
         if (name.endsWith(".vue") || name.endsWith(".css")) return {};
         if (name === "../query-summary") return querySummary;
+        if (name === "@vueuse/core" && !Object.hasOwn(mocks, name)) return { useMediaQuery };
         assert.ok(Object.hasOwn(mocks, name), `未配置测试依赖: ${name}`);
         return mocks[name];
       }
@@ -110,7 +112,12 @@ test("建卡弹窗按调整后的分组和时间保存新记录，并更新自�
     time_range: { field: "created_at", start: "2026-01-01", end: "2026-02-01", end_exclusive: true }
   };
   state.applyRefinement({ query, result: { query_record_id: 8, columns: [] }, chart_type: "line" });
-  state.dialogRef.value = { validate: async () => true };
+  state.nameFormRef.value = { validate: async () => true };
+  state.queryFormRef.value = { validate: async () => false };
+  await state.submit();
+  assert.equal(state.activeTab.value, "query");
+  assert.equal(saved, undefined);
+  state.queryFormRef.value = { validate: async () => true };
   await state.submit();
   assert.equal(saved.card.query_record_id, 8);
   assert.deepEqual(JSON.parse(JSON.stringify(saved.card.query)), query);
@@ -340,8 +347,10 @@ test("公式编辑使预览失效，样式编辑保留预览，冲突刷新保�
  let gets=0;
  const card={id:3,version:1,query_record_id:7,query:{source_code:"sales",dimensions:[],measures:[{code:"sales"}],limit:100},chart_type:"metric",chart_json:""};
  const props=vue.reactive({modelValue:false,card,sources:[{code:"sales",version:5}]});
+ const narrow = vue.ref(true);
  const state=setupComponent("BiCardFormDialog",props,{
   vue, errors,"@liujitcn/kratos-admin-core":{t:key=>key},"../metric-edit":metricEdit,"../card-schema":{parseCardChart},"../bi-response":biResponse,
+  "@vueuse/core": { useMediaQuery: () => narrow },
   "../api/bi/admin/v1/bi_card":{defBiCardService:{GetBiCard:async()=>{gets++;return ({...card,source_version:revision,can_edit_metrics:true,metric_definitions:[{...metric,revision}],sql:"SELECT ..."})},PreviewBiCardSql:async()=>({preview_query_record_id:10,source_version:revision,can_edit_metrics:true,result:{columns:[],rows:[]},sql:"SELECT new",impact:{changes:[]}})}}
  });
  props.modelValue=true;
@@ -352,8 +361,13 @@ test("公式编辑使预览失效，样式编辑保留预览，冲突刷新保�
  state.editedMetrics.value[0].expression="SUM(amount-refund)";
  assert.equal(state.previewRecordID.value,0);
  assert.equal(state.sql.value,"");
- await state.preview();
+ assert.equal(state.activeTab.value, "chart");
+ await state.preview(true);
  assert.equal(state.previewRecordID.value,10);
+ assert.equal(state.activeTab.value, "preview");
+ narrow.value = false;
+ await vue.nextTick();
+ assert.equal(state.activeTab.value, "chart");
  state.form.name="净销售额";
  state.chartConfig.value.style.showLabel=true;
  assert.equal(state.previewRecordID.value,10);
@@ -375,7 +389,7 @@ test("保存响应丢失后保留原请求，重试同一预览定位已保存�
   vue,"@liujitcn/kratos-admin-core":{t:key=>key},"../metric-edit":metricEdit,"../card-schema":{parseCardChart},"../bi-response":biResponse,
   "../api/bi/admin/v1/bi_card":{defBiCardService:{PreviewBiCardSql:async()=>({preview_query_record_id:10+previews++,source_version:1,can_edit_metrics:false,result:{columns:[],rows:[]},sql:"SELECT ..."}),SaveBiCard:async req=>{calls.push(JSON.parse(JSON.stringify(req)));if(calls.length===1) throw new Error("Network Error");assert.equal(req.preview_query_record_id,10);throw {response:{status:409,data:{code:409,metadata:{card_id:"42"}}}}},GetBiCard:async req=>{assert.equal(req.id,42);return saved}}}
  },(...args)=>emitted.push(args));
- state.dialogRef.value={validate:async()=>true};
+ state.nameFormRef.value = state.queryFormRef.value = { validate: async () => true };
  props.modelValue=true;
  await vue.nextTick();
  await nextTask();

@@ -236,7 +236,7 @@
 
         <el-alert :title="t('bi.sql.shared_notice')" type="info" show-icon :closable="false" />
         <div v-if="impact" class="source-model__preview">
-          <el-alert :title="t('bi.sql.impact', { cards: impact.affected_cards, dashboards: impact.affected_dashboards })" type="warning" show-icon :closable="false" />
+          <el-alert :title="t('bi.sql.impact', { cards: impact.affected_cards ?? 0, dashboards: impact.affected_dashboards ?? 0 })" type="warning" show-icon :closable="false" />
           <div v-for="change in impact.changes ?? []" :key="change.after?.code ?? change.before?.code">
             <el-text tag="strong">{{ change.after?.name ?? change.before?.name }}</el-text>
             <pre>{{ change.before?.expression ?? '∅' }} → {{ change.after?.expression ?? '∅' }}</pre>

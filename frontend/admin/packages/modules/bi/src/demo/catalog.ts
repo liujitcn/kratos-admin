@@ -217,7 +217,7 @@ const card = computed(() => ({ ...demoCard, chart_type: chartType.value, chart_j
 
 <!-- BI 模块内部从 ../components/BiCardFormDialog.vue 导入。
 query/result 来自成功的智能问数，result.query_record_id 为实际查询记录编号。 -->`,
-    related: ["BiCardChartEditor", "BiDataCard", "FormDialog"]
+    related: ["BiCardChartEditor", "BiDataCard", "ProDialog"]
   },
   {
     id: "BiQueryRefinement",

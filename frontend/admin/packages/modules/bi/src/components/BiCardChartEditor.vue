@@ -1,83 +1,84 @@
 <template>
-  <div class="bi-card-chart-editor">
-    <div class="bi-card-chart-editor__types">
-      <el-button
-        v-for="type in types"
-        :key="type"
-        :type="type === chartType ? 'primary' : 'default'"
-        :plain="type !== chartType"
-        :disabled="Boolean(reason(type))"
-        :title="reason(type)"
-        @click="changeType(type)"
-        >{{ ["metric", "metric_grid"].includes(type) ? t(`bi.card.chart.${type}`) : messages(`types.${type}`) }}</el-button
-      >
+  <el-form class="bi-card-chart-editor" label-position="top">
+    <el-form-item class="bi-card-chart-editor__wide" :label="t('bi.card.chart_type')">
+      <div class="bi-card-chart-editor__types">
+        <el-button
+          v-for="option in chartOptions"
+          :key="option.value"
+          :type="option.value === chartType ? 'primary' : 'default'"
+          :plain="option.value !== chartType"
+          :aria-pressed="option.value === chartType"
+          :disabled="option.reason ? true : undefined"
+          :title="option.reason"
+          @click="option.value !== chartType && changeType(option.value)"
+        >
+          {{ option.label }}
+        </el-button>
+      </div>
+    </el-form-item>
+    <el-form-item v-if="!['metric', 'metric_grid', 'gauge'].includes(chartType)" :label="t('bi.card.dimension_field')">
+      <el-select :model-value="selectedDimension" @change="patchEncoding({ dimension: $event })"
+        ><el-option v-for="field in dimensionFields" :key="field.code" :value="field.code" :label="field.name"
+      /></el-select>
+    </el-form-item>
+    <el-form-item v-if="chartType !== 'metric_grid'" :label="t('bi.card.value_field')"
+      ><el-select :model-value="modelValue.encoding.measure || numbers[chartType === 'scatter' ? 1 : 0]?.code" @change="patchEncoding({ measure: $event })"
+        ><el-option v-for="field in numbers" :key="field.code" :value="field.code" :label="field.name" /></el-select
+    ></el-form-item>
+    <div v-if="chartType === 'metric_grid'" class="bi-card-chart-editor__metric-grid bi-card-chart-editor__wide">
+      <div v-for="(item, index) in metricGridItems" :key="index" class="bi-card-chart-editor__metric-grid-row">
+        <el-select
+          :model-value="item.value"
+          :aria-label="t('bi.card.metric_grid.current')"
+          @change="patchMetricGridItem(index, { value: $event })"
+        >
+          <el-option v-for="field in numbers" :key="field.code" :value="field.code" :label="field.name" />
+        </el-select>
+        <el-select
+          :model-value="item.compare"
+          clearable
+          :placeholder="t('bi.card.metric_grid.compare')"
+          :aria-label="t('bi.card.metric_grid.compare')"
+          @change="patchMetricGridItem(index, { compare: $event || undefined })"
+        >
+          <el-option v-for="field in numbers" :key="field.code" :value="field.code" :label="field.name" :disabled="field.code === item.value" />
+        </el-select>
+        <el-input
+          :model-value="item.compareLabel"
+          :placeholder="t('bi.card.metric_grid.compare_default')"
+          :aria-label="t('bi.card.metric_grid.compare_label')"
+          @update:model-value="patchMetricGridItem(index, { compareLabel: $event || undefined })"
+        />
+      </div>
     </div>
-    <el-text tag="p" class="bi-card-chart-editor__hint">{{ t("bi.card.chart_hint") }}</el-text>
-    <el-form label-position="top">
-      <el-form-item v-if="!['metric', 'metric_grid', 'gauge'].includes(chartType)" :label="t('bi.card.dimension_field')">
-        <el-select :model-value="selectedDimension" @change="patchEncoding({ dimension: $event })"
-          ><el-option v-for="field in dimensionFields" :key="field.code" :value="field.code" :label="field.name"
-        /></el-select>
-      </el-form-item>
-      <el-form-item v-if="chartType !== 'metric_grid'" :label="t('bi.card.value_field')"
-        ><el-select :model-value="modelValue.encoding.measure || numbers[chartType === 'scatter' ? 1 : 0]?.code" @change="patchEncoding({ measure: $event })"
-          ><el-option v-for="field in numbers" :key="field.code" :value="field.code" :label="field.name" /></el-select
-      ></el-form-item>
-      <div v-if="chartType === 'metric_grid'" class="bi-card-chart-editor__metric-grid">
-        <div v-for="(item, index) in metricGridItems" :key="index" class="bi-card-chart-editor__metric-grid-row">
-          <el-select
-            :model-value="item.value"
-            :aria-label="t('bi.card.metric_grid.current')"
-            @change="patchMetricGridItem(index, { value: $event })"
-          >
-            <el-option v-for="field in numbers" :key="field.code" :value="field.code" :label="field.name" />
-          </el-select>
-          <el-select
-            :model-value="item.compare"
-            clearable
-            :placeholder="t('bi.card.metric_grid.compare')"
-            :aria-label="t('bi.card.metric_grid.compare')"
-            @change="patchMetricGridItem(index, { compare: $event || undefined })"
-          >
-            <el-option v-for="field in numbers" :key="field.code" :value="field.code" :label="field.name" :disabled="field.code === item.value" />
-          </el-select>
-          <el-input
-            :model-value="item.compareLabel"
-            :placeholder="t('bi.card.metric_grid.compare_default')"
-            :aria-label="t('bi.card.metric_grid.compare_label')"
-            @update:model-value="patchMetricGridItem(index, { compareLabel: $event || undefined })"
-          />
-        </div>
-      </div>
-      <el-form-item v-if="['bar', 'line', 'area', 'radar', 'sankey', 'heatmap', 'sunburst'].includes(chartType) && categories.length > 1" :label="t('bi.card.series_field')"
-        ><el-select :model-value="selectedSeries" @change="patchEncoding({ series: $event })"
-          ><el-option v-for="field in seriesFields" :key="field.code" :value="field.code" :label="field.name" /></el-select
-      ></el-form-item>
-      <el-form-item v-if="['bar', 'line', 'area'].includes(chartType)" :label="t('bi.card.measure')"
-        ><el-checkbox-group
-          :model-value="modelValue.encoding.measures || []"
-          @change="patchEncoding({ measures: $event as string[] })"
-          ><el-checkbox v-for="field in numbers" :key="field.code" :value="field.code">{{
-            field.name
-          }}</el-checkbox></el-checkbox-group
-        ></el-form-item
-      >
-      <div v-if="chartType !== 'metric_grid'" class="bi-card-chart-editor__style">
-        <el-checkbox :model-value="modelValue.style.showLegend" @change="patchStyle({ showLegend: Boolean($event) })">{{
-          t("bi.card.show_legend")
-        }}</el-checkbox
-        ><el-checkbox :model-value="modelValue.style.showLabel" @change="patchStyle({ showLabel: Boolean($event) })">{{
-          t("bi.card.show_label")
-        }}</el-checkbox
-        ><el-checkbox :model-value="modelValue.style.stack" @change="patchStyle({ stack: Boolean($event) })">{{
-          t("bi.card.stack")
-        }}</el-checkbox
-        ><el-checkbox :model-value="modelValue.style.dataZoom" @change="patchStyle({ dataZoom: Boolean($event) })">{{
-          t("bi.card.data_zoom")
-        }}</el-checkbox>
-      </div>
-    </el-form>
-  </div>
+    <el-form-item v-if="['bar', 'line', 'area', 'radar', 'sankey', 'heatmap', 'sunburst'].includes(chartType) && categories.length > 1" :label="t('bi.card.series_field')"
+      ><el-select :model-value="selectedSeries" @change="patchEncoding({ series: $event })"
+        ><el-option v-for="field in seriesFields" :key="field.code" :value="field.code" :label="field.name" /></el-select
+    ></el-form-item>
+    <el-form-item v-if="['bar', 'line', 'area'].includes(chartType)" class="bi-card-chart-editor__wide" :label="t('bi.card.measure')"
+      ><el-checkbox-group
+        :model-value="modelValue.encoding.measures || []"
+        @change="patchEncoding({ measures: $event as string[] })"
+        ><el-checkbox v-for="field in numbers" :key="field.code" :value="field.code">{{
+          field.name
+        }}</el-checkbox></el-checkbox-group
+      ></el-form-item
+    >
+    <div v-if="chartType !== 'metric_grid'" class="bi-card-chart-editor__style bi-card-chart-editor__wide">
+      <el-checkbox :model-value="modelValue.style.showLegend" @change="patchStyle({ showLegend: Boolean($event) })">{{
+        t("bi.card.show_legend")
+      }}</el-checkbox
+      ><el-checkbox :model-value="modelValue.style.showLabel" @change="patchStyle({ showLabel: Boolean($event) })">{{
+        t("bi.card.show_label")
+      }}</el-checkbox
+      ><el-checkbox :model-value="modelValue.style.stack" @change="patchStyle({ stack: Boolean($event) })">{{
+        t("bi.card.stack")
+      }}</el-checkbox
+      ><el-checkbox :model-value="modelValue.style.dataZoom" @change="patchStyle({ dataZoom: Boolean($event) })">{{
+        t("bi.card.data_zoom")
+      }}</el-checkbox>
+    </div>
+  </el-form>
 </template>
 <script setup lang="ts">
 import { computed } from "vue";
@@ -90,7 +91,11 @@ import { useBiI18n } from "../env";
 const props = defineProps<{ modelValue: CardChartConfig; chartType: string; query: BiQuerySpec; result?: BiQueryResult }>();
 const emit = defineEmits<{ "update:modelValue": [value: CardChartConfig]; "update:chartType": [value: string] }>();
 const { t: messages } = useBiI18n();
-const types = [...getChartTypes(), "metric", "metric_grid"];
+const chartOptions = computed(() => [...getChartTypes(), "metric", "metric_grid"].map(type => ({
+  value: type,
+  label: ["metric", "metric_grid"].includes(type) ? t(`bi.card.chart.${type}`) : messages(`types.${type}`),
+  reason: reason(type)
+})));
 const numbers = computed(
   () =>
     props.result?.columns.filter(field => field.type === "number") ??
@@ -166,20 +171,29 @@ function patchStyle(value: Partial<CardChartConfig["style"]>) {
 }
 </script>
 <style scoped>
+.bi-card-chart-editor {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 12px;
+}
+.bi-card-chart-editor__wide {
+  grid-column: 1 / -1;
+}
 .bi-card-chart-editor__types {
   display: grid;
+  width: 100%;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
 }
 .bi-card-chart-editor__types :deep(.el-button) {
-  margin: 0;
-  padding: 8px;
+  height: auto;
+  min-height: var(--el-component-size);
   min-width: 0;
-}
-.bi-card-chart-editor__hint {
-  color: var(--el-text-color-secondary);
-  font-size: 12px;
-  margin: 10px 0 16px;
+  margin: 0;
+  padding: 6px 8px;
+  line-height: 1.25;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 .bi-card-chart-editor__style {
   display: flex;
