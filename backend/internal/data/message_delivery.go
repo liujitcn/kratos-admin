@@ -51,7 +51,7 @@ func (w *MessageDeliveryWriter) SetReadAt(ctx context.Context, userID int64, ids
 	} else {
 		readAtValue = readAt.UnixMilli()
 	}
-	_, err := dao.UpdateSimple(query.ReadAt.Value(readAtValue), query.UpdatedAt.Value(time.Now()))
+	_, err := dao.UpdateColumnSimple(query.ReadAt.Value(readAtValue), query.UpdatedAt.Value(time.Now()))
 	return err
 }
 
@@ -60,7 +60,7 @@ func (w *MessageDeliveryWriter) SetAllReadAt(ctx context.Context, userID, before
 	query := w.queryProvider.Query(ctx).BaseMessageDelivery
 	_, err := query.WithContext(ctx).
 		Where(query.DeliveryType.Eq(_const.MessageDeliveryTypeInbox), query.UserID.Eq(userID), query.ID.Lte(beforeDeliveryID), query.ReadAt.Eq(0), query.RevokedAt.Eq(0), field.Or(query.ExpiresAt.Eq(0), query.ExpiresAt.Gt(time.Now().UnixMilli()))).
-		UpdateSimple(query.ReadAt.Value(readAt.UnixMilli()), query.UpdatedAt.Value(readAt))
+		UpdateColumnSimple(query.ReadAt.Value(readAt.UnixMilli()), query.UpdatedAt.Value(readAt))
 	return err
 }
 
@@ -78,7 +78,7 @@ func (w *MessageDeliveryWriter) SetArchivedAt(ctx context.Context, userID, id in
 	} else {
 		archivedAtValue = archivedAt.UnixMilli()
 	}
-	_, err := dao.UpdateSimple(query.ArchivedAt.Value(archivedAtValue), query.UpdatedAt.Value(time.Now()))
+	_, err := dao.UpdateColumnSimple(query.ArchivedAt.Value(archivedAtValue), query.UpdatedAt.Value(time.Now()))
 	return err
 }
 
@@ -87,6 +87,6 @@ func (w *MessageDeliveryWriter) RevokeMessage(ctx context.Context, messageID int
 	query := w.queryProvider.Query(ctx).BaseMessageDelivery
 	_, err := query.WithContext(ctx).
 		Where(query.DeliveryType.Eq(_const.MessageDeliveryTypeInbox), query.MessageID.Eq(messageID), query.RevokedAt.Eq(0)).
-		UpdateSimple(query.RevokedAt.Value(revokedAt.UnixMilli()), query.UpdatedAt.Value(revokedAt))
+		UpdateColumnSimple(query.RevokedAt.Value(revokedAt.UnixMilli()), query.UpdatedAt.Value(revokedAt))
 	return err
 }

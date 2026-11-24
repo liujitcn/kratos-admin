@@ -463,7 +463,7 @@ func (c *BaseMessageCase) UpdateBaseMessage(ctx context.Context, req *adminv1.Ba
 		var result gen.ResultInfo
 		result, err = query.WithContext(txCtx).
 			Where(query.ID.Eq(oldEntity.ID), query.Version.Eq(req.GetVersion())).
-			UpdateSimple(
+			UpdateColumnSimple(
 				query.CategoryID.Value(entity.CategoryID),
 				query.Title.Value(entity.Title),
 				query.Content.Value(entity.Content),
@@ -599,7 +599,7 @@ func (c *BaseMessageCase) PublishBaseMessage(ctx context.Context, id int64) erro
 		var result gen.ResultInfo
 		result, err = messageQuery.WithContext(txCtx).
 			Where(messageQuery.ID.Eq(entity.ID), messageQuery.Version.Eq(entity.Version)).
-			UpdateSimple(
+			UpdateColumnSimple(
 				messageQuery.Status.Value(int32(status)),
 				messageQuery.ExpiresAt.Value(entity.ExpiresAt),
 				messageQuery.Version.Value(entity.Version+1),
@@ -625,7 +625,7 @@ func (c *BaseMessageCase) PublishBaseMessage(ctx context.Context, id int64) erro
 			dispatch.Version++
 			result, err = dispatchQuery.WithContext(txCtx).
 				Where(dispatchQuery.ID.Eq(dispatch.ID), dispatchQuery.Version.Eq(oldVersion)).
-				UpdateSimple(
+				UpdateColumnSimple(
 					dispatchQuery.Status.Value(dispatch.Status),
 					dispatchQuery.QueuedAt.Value(dispatch.QueuedAt),
 					dispatchQuery.Version.Value(dispatch.Version),
@@ -670,7 +670,7 @@ func (c *BaseMessageCase) CancelBaseMessageSchedule(ctx context.Context, id int6
 	var result gen.ResultInfo
 	result, err = query.WithContext(ctx).
 		Where(query.ID.Eq(entity.ID), query.Version.Eq(entity.Version), query.Status.Eq(entity.Status)).
-		UpdateSimple(
+		UpdateColumnSimple(
 			query.Status.Value(int32(basev1.MessageStatus_MESSAGE_STATUS_DRAFT)),
 			query.Version.Value(entity.Version+1),
 			query.UpdatedAt.Value(time.Now()),
@@ -772,7 +772,7 @@ func (c *BaseMessageCase) ProcessScheduledMessage(ctx context.Context, task *dto
 				messageQuery.Version.Eq(task.ExpectedVersion),
 				messageQuery.ScheduledAt.Lte(now.UnixMilli()),
 			).
-			UpdateSimple(
+			UpdateColumnSimple(
 				messageQuery.Status.Value(int32(basev1.MessageStatus_MESSAGE_STATUS_PUBLISHING)),
 				messageQuery.Version.Value(task.ExpectedVersion+1),
 				messageQuery.UpdatedAt.Value(now),
@@ -786,7 +786,7 @@ func (c *BaseMessageCase) ProcessScheduledMessage(ctx context.Context, task *dto
 				dispatchQuery.MessageID.Eq(entity.ID),
 				dispatchQuery.Status.Eq(int32(basev1.MessageDispatchStatus_MESSAGE_DISPATCH_STATUS_WAITING)),
 			).
-			UpdateSimple(
+			UpdateColumnSimple(
 				dispatchQuery.Status.Value(int32(basev1.MessageDispatchStatus_MESSAGE_DISPATCH_STATUS_PENDING)),
 				dispatchQuery.QueuedAt.Value(now.UnixMilli()),
 				dispatchQuery.Version.Add(1),
@@ -831,7 +831,7 @@ func (c *BaseMessageCase) RevokeBaseMessage(ctx context.Context, id int64) error
 		var result gen.ResultInfo
 		result, err = messageQuery.WithContext(txCtx).
 			Where(messageQuery.ID.Eq(entity.ID), messageQuery.Version.Eq(entity.Version)).
-			UpdateSimple(
+			UpdateColumnSimple(
 				messageQuery.Status.Value(int32(basev1.MessageStatus_MESSAGE_STATUS_REVOKED)),
 				messageQuery.RevokedAt.Value(now.UnixMilli()),
 				messageQuery.Version.Value(entity.Version+1),
@@ -854,7 +854,7 @@ func (c *BaseMessageCase) RevokeBaseMessage(ctx context.Context, id int64) error
 		dispatchQuery := c.dispatchRepo.Query(txCtx).BaseMessageDispatch
 		_, err = dispatchQuery.WithContext(txCtx).
 			Where(dispatchQuery.MessageID.Eq(entity.ID)).
-			UpdateSimple(
+			UpdateColumnSimple(
 				dispatchQuery.Status.Value(int32(basev1.MessageDispatchStatus_MESSAGE_DISPATCH_STATUS_CANCELLED)),
 				dispatchQuery.LockToken.Value(""),
 				dispatchQuery.LockedUntil.Value(0),
@@ -890,7 +890,7 @@ func (c *BaseMessageCase) RetryBaseMessageDispatch(ctx context.Context, id int64
 	var result gen.ResultInfo
 	result, err = query.WithContext(ctx).
 		Where(query.ID.Eq(dispatch.ID), query.Status.Eq(int32(basev1.MessageDispatchStatus_MESSAGE_DISPATCH_STATUS_FAILED)), query.Version.Eq(dispatch.Version)).
-		UpdateSimple(
+		UpdateColumnSimple(
 			query.Status.Value(int32(basev1.MessageDispatchStatus_MESSAGE_DISPATCH_STATUS_PENDING)),
 			query.AttemptCount.Value(0),
 			query.NextRetryAt.Value(0),
@@ -1119,7 +1119,7 @@ func (c *BaseMessageCase) claimDispatch(ctx context.Context, dispatch *models.Ba
 	lockedUntil := now.Add(messageDispatchLease).UnixMilli()
 	result, err := query.WithContext(ctx).
 		Where(query.ID.Eq(dispatch.ID), query.Version.Eq(dispatch.Version), claimable).
-		UpdateSimple(
+		UpdateColumnSimple(
 			query.Status.Value(int32(basev1.MessageDispatchStatus_MESSAGE_DISPATCH_STATUS_RUNNING)),
 			query.StartedAt.Value(now.UnixMilli()),
 			query.AttemptCount.Value(dispatch.AttemptCount+1),
@@ -1159,7 +1159,7 @@ func (c *BaseMessageCase) updateOwnedDispatch(ctx context.Context, dispatch *mod
 			query.LockToken.Eq(dispatch.LockToken),
 			query.Version.Eq(dispatch.Version),
 		).
-		UpdateSimple(append(values, query.Version.Value(dispatch.Version+1))...)
+		UpdateColumnSimple(append(values, query.Version.Value(dispatch.Version+1))...)
 	if err != nil {
 		return false, err
 	}
@@ -1190,7 +1190,7 @@ func (c *BaseMessageCase) RecoverPendingDispatches(ctx context.Context) (int, er
 				messageQuery.Version.Eq(message.Version),
 				messageQuery.ScheduledAt.Lte(now.UnixMilli()),
 			).
-			UpdateSimple(
+			UpdateColumnSimple(
 				messageQuery.Status.Value(int32(basev1.MessageStatus_MESSAGE_STATUS_PUBLISHING)),
 				messageQuery.Version.Value(message.Version+1),
 				messageQuery.UpdatedAt.Value(now),
@@ -1246,7 +1246,7 @@ func (c *BaseMessageCase) RecoverPendingDispatches(ctx context.Context) (int, er
 					),
 				),
 			).
-			UpdateSimple(
+			UpdateColumnSimple(
 				dispatchQuery.Status.Value(int32(basev1.MessageDispatchStatus_MESSAGE_DISPATCH_STATUS_PENDING)),
 				dispatchQuery.LockToken.Value(""),
 				dispatchQuery.LockedUntil.Value(0),
@@ -1760,7 +1760,7 @@ func (c *BaseMessageCase) failDispatch(ctx context.Context, dispatch *models.Bas
 		messageQuery := c.Query(txCtx).BaseMessage
 		_, err = messageQuery.WithContext(txCtx).
 			Where(messageQuery.ID.Eq(dispatch.MessageID)).
-			UpdateSimple(messageQuery.FailedTotal.Add(failedCount), messageQuery.UpdatedAt.Value(now))
+			UpdateColumnSimple(messageQuery.FailedTotal.Add(failedCount), messageQuery.UpdatedAt.Value(now))
 		return err
 	})
 	if err != nil {

@@ -217,7 +217,7 @@ func (c *BaseMessageProviderCase) SetBaseMessageProviderStatus(ctx context.Conte
 		return err
 	}
 	query := c.Query(ctx).BaseMessageProvider
-	_, err = query.WithContext(ctx).Where(query.ID.Eq(item.ID)).UpdateSimple(query.Status.Value(int32(req.GetStatus())), query.UpdatedAt.Value(time.Now()))
+	_, err = query.WithContext(ctx).Where(query.ID.Eq(item.ID)).UpdateColumnSimple(query.Status.Value(int32(req.GetStatus())), query.UpdatedAt.Value(time.Now()))
 	return err
 }
 

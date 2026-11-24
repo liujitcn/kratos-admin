@@ -239,7 +239,7 @@ func (c *BaseMessageCase) claimProviderDelivery(ctx context.Context, delivery *m
 	token := id.NewGUIDv4NoHyphen()
 	result, err := query.WithContext(ctx).
 		Where(conditions...).
-		UpdateSimple(
+		UpdateColumnSimple(
 			query.Status.Value(_const.MessageDeliveryStatusRunning),
 			query.AttemptCount.Add(1),
 			query.LockToken.Value(token),
@@ -287,7 +287,7 @@ func (c *BaseMessageCase) finishProviderDelivery(ctx context.Context, delivery *
 		var result gen.ResultInfo
 		result, err = query.WithContext(txCtx).
 			Where(conditions...).
-			UpdateSimple(
+			UpdateColumnSimple(
 				query.Status.Value(status),
 				query.NextRetryAt.Value(nextRetryAt),
 				query.ReceiptID.Value(receiptID),
@@ -300,11 +300,11 @@ func (c *BaseMessageCase) finishProviderDelivery(ctx context.Context, delivery *
 			return err
 		}
 		if status == _const.MessageDeliveryStatusSucceeded {
-			_, err = messageQuery.WithContext(txCtx).Where(messageQuery.ID.Eq(message.ID)).UpdateSimple(
+			_, err = messageQuery.WithContext(txCtx).Where(messageQuery.ID.Eq(message.ID)).UpdateColumnSimple(
 				messageQuery.DeliveredTotal.Add(1), messageQuery.UpdatedAt.Value(time.Now()),
 			)
 		} else if status == _const.MessageDeliveryStatusFailed {
-			_, err = messageQuery.WithContext(txCtx).Where(messageQuery.ID.Eq(message.ID)).UpdateSimple(
+			_, err = messageQuery.WithContext(txCtx).Where(messageQuery.ID.Eq(message.ID)).UpdateColumnSimple(
 				messageQuery.FailedTotal.Add(1), messageQuery.UpdatedAt.Value(time.Now()),
 			)
 		}
