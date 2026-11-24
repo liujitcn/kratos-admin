@@ -1,8 +1,5 @@
 <template>
   <div class="bi-designer">
-    <div v-if="$slots.toolbar" class="bi-designer__toolbar">
-      <slot name="toolbar" />
-    </div>
     <el-aside class="bi-designer__library" style="--el-aside-width: auto">
       <el-header class="bi-designer__library-header" style="--el-header-height: auto; --el-header-padding: 0">
         <el-text tag="h3">{{ t("bi.card.library") }}</el-text>
@@ -39,71 +36,76 @@
         <el-button :icon="plusIcon" plain type="primary" @click="emit('create-card')">{{ t("bi.card.create") }}</el-button>
       </el-footer>
     </el-aside>
-    <el-main class="bi-designer__canvas" style="--el-main-padding: 0; flex: 0 1 auto; overflow: visible">
-      <div
-        v-for="(item, index) in modelValue.cards"
-        :key="item.id"
-        class="bi-designer__item"
-        :class="{ 'is-selected': selected === item.id }"
-        :style="{ gridColumn: `${(item.x || 0) + 1} / span ${item.w}`, gridRow: `${(item.y || 0) + 1} / span ${item.h}` }"
-        draggable="true"
-        @dragstart="dragged = index"
-        @dragover.prevent
-        @drop.prevent="move(dragged, index)"
-        @click="selected = item.id"
-      >
-        <BiDataCard
-          v-if="cardByID.get(item.card_id)"
-          :card="cardByID.get(item.card_id)!"
-          previewable
-          footer-actions
-          @preview="previewCard = cardByID.get(item.card_id)"
-        >
-          <template #actions>
-            <div class="bi-data-card__slot-actions bi-designer__card-actions">
-              <el-popover trigger="click" :width="220">
-                <template #reference>
-                  <el-tooltip :content="t('bi.dashboard.layout_settings')" placement="top">
-                    <el-button text circle :icon="layoutIcon" @click.stop="selected = item.id" />
-                  </el-tooltip>
-                </template>
-                <el-form label-position="top" size="small">
-                  <el-form-item :label="t('bi.dashboard.card_width')">
-                    <el-select :model-value="item.w" @change="resize(item.id, { w: $event })">
-                      <el-option :value="3" :label="t('bi.dashboard.width_quarter')" />
-                      <el-option :value="6" :label="t('bi.dashboard.width_half')" />
-                      <el-option :value="12" :label="t('bi.dashboard.width_full')" />
-                    </el-select>
-                  </el-form-item>
-                  <el-form-item :label="t('bi.dashboard.card_height')">
-                    <el-input-number
-                      :model-value="item.h"
-                      :min="3"
-                      :max="12"
-                      :precision="0"
-                      @update:model-value="resize(item.id, { h: $event || 4 })"
-                    />
-                  </el-form-item>
-                </el-form>
-              </el-popover>
-              <el-tooltip :content="t('bi.card.edit')" placement="top">
-                <el-button
-                  v-if="cardByID.get(item.card_id)?.can_edit"
-                  text
-                  circle
-                  :icon="editIcon"
-                  @click.stop="emit('edit-card', cardByID.get(item.card_id)!)"
-                />
-              </el-tooltip>
-              <el-tooltip :content="t('bi.workbench.remove', { name: cardByID.get(item.card_id)?.name || '' })" placement="top">
-                <el-button text circle type="danger" :icon="removeIcon" @click.stop="remove(item.id)" />
-              </el-tooltip>
-            </div>
-          </template>
-        </BiDataCard>
-        <el-alert v-else type="warning" :closable="false" :title="t('bi.dashboard.card_missing')" />
+    <el-main class="bi-designer__canvas">
+      <div v-if="$slots.toolbar" class="bi-designer__toolbar">
+        <slot name="toolbar" />
       </div>
       <el-empty v-if="!modelValue.cards.length" :description="t('bi.dashboard.choose_cards')" />
+      <div v-else class="bi-designer__grid">
+        <div
+          v-for="(item, index) in modelValue.cards"
+          :key="item.id"
+          class="bi-designer__item"
+          :class="{ 'is-selected': selected === item.id }"
+          :style="{ gridColumn: `${(item.x || 0) + 1} / span ${item.w}`, gridRow: `${(item.y || 0) + 1} / span ${item.h}` }"
+          draggable="true"
+          @dragstart="dragged = index"
+          @dragover.prevent
+          @drop.prevent="move(dragged, index)"
+          @click="selected = item.id"
+        >
+          <BiDataCard
+            v-if="cardByID.get(item.card_id)"
+            :card="cardByID.get(item.card_id)!"
+            previewable
+            footer-actions
+            @preview="previewCard = cardByID.get(item.card_id)"
+          >
+            <template #actions>
+              <div class="bi-data-card__slot-actions bi-designer__card-actions">
+                <el-popover trigger="click" :width="220">
+                  <template #reference>
+                    <el-tooltip :content="t('bi.dashboard.layout_settings')" placement="top">
+                      <el-button text circle :icon="layoutIcon" @click.stop="selected = item.id" />
+                    </el-tooltip>
+                  </template>
+                  <el-form label-position="top" size="small">
+                    <el-form-item :label="t('bi.dashboard.card_width')">
+                      <el-select :model-value="item.w" @change="resize(item.id, { w: $event })">
+                        <el-option :value="3" :label="t('bi.dashboard.width_quarter')" />
+                        <el-option :value="6" :label="t('bi.dashboard.width_half')" />
+                        <el-option :value="12" :label="t('bi.dashboard.width_full')" />
+                      </el-select>
+                    </el-form-item>
+                    <el-form-item :label="t('bi.dashboard.card_height')">
+                      <el-input-number
+                        :model-value="item.h"
+                        :min="3"
+                        :max="12"
+                        :precision="0"
+                        @update:model-value="resize(item.id, { h: $event || 4 })"
+                      />
+                    </el-form-item>
+                  </el-form>
+                </el-popover>
+                <el-tooltip :content="t('bi.card.edit')" placement="top">
+                  <el-button
+                    v-if="cardByID.get(item.card_id)?.can_edit"
+                    text
+                    circle
+                    :icon="editIcon"
+                    @click.stop="emit('edit-card', cardByID.get(item.card_id)!)"
+                  />
+                </el-tooltip>
+                <el-tooltip :content="t('bi.workbench.remove', { name: cardByID.get(item.card_id)?.name || '' })" placement="top">
+                  <el-button text circle type="danger" :icon="removeIcon" @click.stop="remove(item.id)" />
+                </el-tooltip>
+              </div>
+            </template>
+          </BiDataCard>
+          <el-alert v-else type="warning" :closable="false" :title="t('bi.dashboard.card_missing')" />
+        </div>
+      </div>
     </el-main>
     <el-dialog
       :model-value="Boolean(previewCard)"
@@ -173,19 +175,21 @@ function resize(id: string, value: Partial<DashboardCardLayout>) {
 .bi-designer {
   display: grid;
   grid-template-columns: 240px minmax(0, 1fr);
-  grid-template-rows: auto minmax(0, 1fr);
-  align-items: start;
-  gap: 16px;
+  grid-template-rows: minmax(0, 1fr);
+  gap: 8px;
   height: 100%;
   min-height: 0;
 }
 .bi-designer__toolbar {
   display: flex;
-  grid-column: 1 / -1;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
   gap: 8px;
-  min-height: 0;
+  margin-bottom: 8px;
+}
+.bi-designer__toolbar :deep(.el-button + .el-button) {
+  margin-left: 0;
 }
 .bi-designer__library {
   position: sticky;
@@ -270,21 +274,20 @@ function resize(id: string, value: Partial<DashboardCardLayout>) {
 }
 .bi-designer__canvas {
   box-sizing: border-box;
-  display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  grid-auto-rows: 80px;
-  align-content: start;
-  gap: 12px;
-  padding: 12px;
+  padding: 8px;
   border: 1px dashed var(--admin-page-card-border-muted);
   background: var(--admin-page-card-bg-soft);
   border-radius: var(--admin-page-radius);
   min-width: 0;
-  height: 100%;
   min-height: 0;
 }
+.bi-designer__grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-auto-rows: 80px;
+  gap: 12px;
+}
 .bi-designer__canvas > .el-empty {
-  grid-column: 1 / -1;
   min-height: 400px;
 }
 .bi-designer__item {
@@ -331,8 +334,8 @@ function resize(id: string, value: Partial<DashboardCardLayout>) {
 }
 @media (max-width: 700px) {
   .bi-designer {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
     height: auto;
   }
   .bi-designer__library {
@@ -340,7 +343,7 @@ function resize(id: string, value: Partial<DashboardCardLayout>) {
     height: 320px;
     min-height: 0;
   }
-  .bi-designer__canvas {
+  .bi-designer__grid {
     grid-template-columns: 1fr;
     grid-auto-rows: auto;
   }

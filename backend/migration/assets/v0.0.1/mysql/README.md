@@ -26,6 +26,8 @@ AI 工具人工确认表 `ai_tool_approval` 由已注册的 `AiToolApproval` Mod
 
 AI 对话沿用管理菜单 `90990000` 与移动菜单 `99101000`，BI 智能问数工作台使用隐藏管理菜单 `90991000`，由顶部 AI 助手入口按 `aiWorkbenchMode` 配置切换，不增加独立插件或自动化菜单。管理端菜单授予 `AiPluginService`、`AiAutomationService` 和 `SetAiSessionPlugins`；移动端仅授予目录/账号/工具查询、本人任务与记录查询、运行一次、停止本次、结果继续讨论及本人审批，不授予插件或计划管理写操作。
 
+`default_data.up.sql` 为 BI 智能问数工作台 `90991000` 授予 Agent 调用的 `/bi.admin.v1.BiQueryService/AskBiQuery`。工作台 `90991000` 和智能问数菜单 `91020000` 均预置 `RefineBiQuery` 权限。
+
 Models 自动创建 AI 插件、自动化和 AI 文件表；`default_data.up.sql` 维护内置、Xberg、Gotenberg、MarkItDown 插件种子及默认租户安装。AI 文件对象存储目录继续复用 `ai/`，不与 `base_file` 双写；当前没有存量 AI 文件，不包含历史数据迁移。三个 MCP 端点使用 `192.168.60.83` 私网白名单和 `allow_private` 配置，Gotenberg Bearer Token 需在连接页面录入。`default_data.up.sql` 登记唯一 `base_job`：ID `1008`、`base.AiAutomationDispatch`、秒级 cron `0 * * * * *`；用户计划不逐条登记系统任务。调度读取持久化计划、租约和状态，浏览器无需保持在线。
 
 消息分类 ID `6`、code `ai_automation` 仅开启站内 inbox，`provider_id=[]`，不创建或启用任何外部 Provider。运行结果提醒由业务发布为 `VIEW_KEY` 到既有 `AI` 页面，携带 `automation_id`、`run_id`、`session_id`；不在初始化 SQL 写入真实运行或消息。分类只控制投递，结果归属与审批权限仍由服务端校验。
@@ -37,4 +39,4 @@ BI 卡片 SQL 改造由生成 Model 维护 `bi_card.execution_json/version/valid
 卡片原入口增加 `GetBiCard`、`PreviewBiCardSql` 权限，数据源新增/编辑按钮增加 `PreviewBiSourceModel`；物理模型、公式和 SQL 由 Biz 再验模型管理权。`base_api` 仍由 Proto/OpenAPI 在启动时同步，HTTP 路径分别为 `GET /api/v1/admin/bi/card/{id}`、`POST /api/v1/admin/bi/card/sql-preview` 和 `POST /api/v1/admin/bi/source/{id}/model/preview`。已运行 v0.0.1 的环境需另行补齐菜单授权，不会自动重放本脚本。
 
 
-AI 执行事件表 `ai_message_event` 由生成的 Models 自动迁移，不添加建表增量脚本。事件按租户、用户、会话、消息隔离，`id` 为补读游标，`run_id` 关联单次执行；内部 `context_summary` / `run_start` 不对外暴露。删除消息或会话清理对应事件，分支不复制旧事件或摘要。`default_data.up.sql` 为管理对话、BI工作台与移动入口授权 `/base.v1.AiMessageService/ListAiMessageEvent`，HTTP 为 `GET /api/v1/base/ai/session/{session_id}/message/{message_id}/event`。初始化脚本本身不会重放；启动时在既有 OpenAPI 资源同步事务中，为启用且保留 SendAiMessage 权限的内置菜单 90990000、90991000、99101000 幂等追加事件读取权限，再由既有流程重建权限快照。保留原 API、自定义授权与角色菜单，不创建已删除入口，不补权已禁用或撤销发送权限的入口；自定义入口仍由管理员显式配置。无需重建或清空业务库。
+AI 执行事件表 `ai_message_event` 由生成的 Models 自动迁移，不添加建表增量脚本。事件按租户、用户、会话、消息隔离，`id` 为补读游标，`run_id` 关联单次执行；内部 `context_summary` / `run_start` 不对外暴露。删除消息或会话清理对应事件，分支不复制旧事件或摘要。`default_data.up.sql` 为管理对话 `90990000`、BI 工作台 `90991000` 和移动入口 `99101000` 授权 `/base.v1.AiMessageService/ListAiMessageEvent`，HTTP 为 `GET /api/v1/base/ai/session/{session_id}/message/{message_id}/event`。已初始化的数据库可通过菜单管理补齐缺失的授权。

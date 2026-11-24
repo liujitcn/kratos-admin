@@ -231,6 +231,8 @@ System 的 API 与 RPC 都按 Proto 完整层级维护，API 文件名与对应 
 
 ## AI 扩展
 
+AI 对话与 BI 智能问数工作台在已有消息时，通过输入框左侧、附件前的「快捷提问」打开上方列表。标题自动换行，点击条目直接提问，可用「换一批」浏览其余入口。新会话在欢迎区展示推荐提问。
+
 AI Provider 在“AI助手 → 模型管理”维护，AI 模型在“AI助手 → AI模型”维护；模型按分类（聊天、向量、重排、图片、视频、语音）挂在供应商下，表单按分类展示个性化配置字段，聊天与向量模型可在保存前测试连通性，结果仅保存在当前页面状态。AI 对话页位于“AI助手 → AI助手”，顶部入口可直接打开该页面；对话页通过独立的聊天模型选项接口选择已启用的聊天模型。模型 API Key 使用存储脱敏策略加密，管理接口只返回是否已配置状态。
 
 System 导出 `ADMIN_AI_EXTENSION`、`AdminAiExtension`、`AdminAiFlowBlockRenderer`、`getAdminAiExtension()` 和 `getAdminAiFlowBlockRenderers()`。其他业务模块可以在 `AdminModule.extensions` 中使用该扩展名提供旧版 `flowBlocks` 组件，或提供带 `key`、`component`、可选 `types` 的 `flowBlockRenderers` 列表；AI 会话页会按模块注册顺序组合渲染器，并把匹配类型的流程块交给对应组件。弹窗通过 `dialogs` 按业务键注册，旧 `biCardDialog` 仅作为兼容字段保留。

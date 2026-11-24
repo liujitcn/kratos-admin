@@ -2,7 +2,6 @@ package core
 
 import (
 	"context"
-	"encoding/json"
 	"path/filepath"
 	"slices"
 	"testing"
@@ -19,14 +18,14 @@ import (
 	"gorm.io/gorm/schema"
 )
 
-// TestSyncAiEventPermissions 验证启动同步幂等补齐三端入口，且保留原授权和租户角色隔离。
-func TestSyncAiEventPermissions(t *testing.T) {
+// TestSyncAPIPreservesMenuPermissions 验证 API 同步后的角色策略沿用菜单现有授权。
+func TestSyncAPIPreservesMenuPermissions(t *testing.T) {
 	client, provider, adapter := newAPISyncTestData(t)
 	ctx := t.Context()
 	menus := []*models.BaseMenu{
-		{ID: 90990000, API: `["/base.v1.AiMessageService/SendAiMessage","/custom/read"]`, Meta: "{}", Status: 1},
-		{ID: 90991000, API: `["/base.v1.AiMessageService/SendAiMessage"]`, Meta: "{}", Status: 1},
-		{ID: 99101000, API: `["/base.v1.AiMessageService/SendAiMessage"]`, Meta: "{}", Status: 1},
+		{ID: 90990000, API: `["/base.v1.AiMessageService/SendAiMessage","/base.v1.AiMessageService/ListAiMessageEvent","/custom/read"]`, Meta: "{}", Status: 1},
+		{ID: 90991000, API: `["/base.v1.AiMessageService/SendAiMessage","/bi.admin.v1.BiQueryRecordService/GetBiQuery"]`, Meta: "{}", Status: 1},
+		{ID: 99101000, API: `["/base.v1.AiMessageService/SendAiMessage","/base.v1.AiMessageService/ListAiMessageEvent"]`, Meta: "{}", Status: 1},
 		{ID: 777, API: `["/base.v1.AiMessageService/SendAiMessage"]`, Meta: "{}", Status: 1},
 	}
 	err := client.DB.Create(menus).Error
@@ -59,6 +58,9 @@ func TestSyncAiEventPermissions(t *testing.T) {
 	items := []*coredata.APIRecord{
 		{Operation: basev1.OperationAiMessageServiceSendAiMessage, Method: "POST"},
 		{Operation: basev1.OperationAiMessageServiceListAiMessageEvent, Method: "GET"},
+		{Operation: adminv1.OperationBiQueryRecordServiceGetBiQuery, Method: "GET"},
+		{Operation: adminv1.OperationBiQueryServiceAskBiQuery, Method: "POST"},
+		{Operation: adminv1.OperationBiQueryServiceRefineBiQuery, Method: "POST"},
 		{Operation: "/custom/read", Method: "GET"},
 	}
 	for range 2 {
@@ -73,31 +75,15 @@ func TestSyncAiEventPermissions(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	var actual []*models.BaseMenu
-	actual, err = provider.Query(ctx).BaseMenu.WithContext(ctx).Order(provider.Query(ctx).BaseMenu.ID).Find()
-	if err != nil {
-		t.Fatal(err)
-	}
-	for _, menu := range actual {
-		var operations []string
-		if err = json.Unmarshal([]byte(menu.API), &operations); err != nil {
+	query := provider.Query(ctx).BaseMenu
+	for _, menu := range menus {
+		var stored *models.BaseMenu
+		stored, err = query.WithContext(ctx).Where(query.ID.Eq(menu.ID)).First()
+		if err != nil {
 			t.Fatal(err)
 		}
-		want := 0
-		if menu.ID != 777 {
-			want = 1
-		}
-		count := 0
-		for _, operation := range operations {
-			if operation == basev1.OperationAiMessageServiceListAiMessageEvent {
-				count++
-			}
-		}
-		if count != want || !slices.Contains(operations, basev1.OperationAiMessageServiceSendAiMessage) {
-			t.Fatalf("菜单 %d 权限错误: %s", menu.ID, menu.API)
-		}
-		if menu.ID == 90990000 && !slices.Contains(operations, "/custom/read") {
-			t.Fatal("覆盖了原有自定义授权")
+		if stored.API != menu.API {
+			t.Fatalf("API 同步改写了菜单 %d 的权限: %s", menu.ID, stored.API)
 		}
 	}
 	var storedRoles []*models.BaseRole
@@ -125,107 +111,8 @@ func TestSyncAiEventPermissions(t *testing.T) {
 		}
 	}
 	slices.Sort(granted)
-	if !slices.Equal(granted, []string{"tenant-1:bi", "tenant-1:chat", "tenant-2:chat"}) {
+	if !slices.Equal(granted, []string{"tenant-1:chat", "tenant-2:chat"}) {
 		t.Fatalf("事件权限越权或缺失: %v", granted)
-	}
-}
-
-// TestSyncBiQueryRefinementPermissions 验证只为具有原有问数能力的 BI 入口幂等补齐调整权限。
-func TestSyncBiQueryRefinementPermissions(t *testing.T) {
-	client, provider, adapter := newAPISyncTestData(t)
-	ctx := t.Context()
-	menus := []*models.BaseMenu{
-		{ID: 90991000, API: `["/base.v1.AiMessageService/SendAiMessage","/bi.admin.v1.BiQueryRecordService/GetBiQuery","/custom/read"]`, Meta: "{}", Status: 1},
-		{ID: 91020000, API: `["/bi.admin.v1.BiQueryService/AskBiQuery","/bi.admin.v1.BiQueryRecordService/GetBiQuery"]`, Meta: "{}", Status: 1},
-		{ID: 777, API: `["/bi.admin.v1.BiQueryService/AskBiQuery","/bi.admin.v1.BiQueryRecordService/GetBiQuery"]`, Meta: "{}", Status: 1},
-	}
-	err := client.DB.Create(menus).Error
-	if err != nil {
-		t.Fatal(err)
-	}
-	items := []*coredata.APIRecord{{Operation: adminv1.OperationBiQueryServiceRefineBiQuery, Method: "POST"}}
-	for range 2 {
-		if err = adapter.ReplaceAll(ctx, items); err != nil {
-			t.Fatal(err)
-		}
-	}
-	query := provider.Query(ctx).BaseMenu
-	for _, menu := range menus {
-		var stored *models.BaseMenu
-		stored, err = query.WithContext(ctx).Where(query.ID.Eq(menu.ID)).First()
-		if err != nil {
-			t.Fatal(err)
-		}
-		var want, actual []string
-		if err = json.Unmarshal([]byte(menu.API), &want); err != nil {
-			t.Fatal(err)
-		}
-		if menu.ID != 777 {
-			want = append(want, adminv1.OperationBiQueryServiceRefineBiQuery)
-		}
-		if err = json.Unmarshal([]byte(stored.API), &actual); err != nil || !slices.Equal(actual, want) {
-			t.Fatalf("菜单 %d 权限错误: %s; %v", menu.ID, stored.API, err)
-		}
-	}
-	// 已撤销原入口的菜单不会因启动同步恢复问数能力。
-	const readOnly = `["/bi.admin.v1.BiQueryRecordService/GetBiQuery"]`
-	if _, err = query.WithContext(ctx).Where(query.ID.Eq(91020000)).UpdateSimple(query.API.Value(readOnly)); err != nil {
-		t.Fatal(err)
-	}
-	if err = adapter.ReplaceAll(ctx, items); err != nil {
-		t.Fatal(err)
-	}
-	var stored *models.BaseMenu
-	stored, err = query.WithContext(ctx).Where(query.ID.Eq(91020000)).First()
-	if err != nil || stored.API != readOnly {
-		t.Fatalf("已撤销问数权限的菜单发生变化: %v, %v", stored, err)
-	}
-}
-
-// TestSyncAiEventPermissionBoundaries 验证不恢复已撤销或禁用的入口，错误数据使整个资源同步回滚。
-func TestSyncAiEventPermissionBoundaries(t *testing.T) {
-	client, provider, adapter := newAPISyncTestData(t)
-	ctx := t.Context()
-	menus := []*models.BaseMenu{
-		{ID: 90990000, API: "[]", Meta: "{}", Status: 1},
-		{ID: 90991000, API: `["/base.v1.AiMessageService/SendAiMessage"]`, Meta: "{}", Status: 2},
-		{ID: 99101000, API: `["/base.v1.AiMessageService/SendAiMessage"]`, Meta: "{}", Status: 1, DeletedAt: 1},
-	}
-	err := client.DB.Create(menus).Error
-	if err != nil {
-		t.Fatal(err)
-	}
-	items := []*coredata.APIRecord{{Operation: basev1.OperationAiMessageServiceListAiMessageEvent, Method: "GET"}}
-	if err = adapter.ReplaceAll(ctx, items); err != nil {
-		t.Fatal(err)
-	}
-	var actual []*models.BaseMenu
-	queryMenu := provider.Query(ctx).BaseMenu
-	actual, err = queryMenu.WithContext(ctx).Unscoped().Order(queryMenu.ID).Find()
-	if err != nil {
-		t.Fatal(err)
-	}
-	for index, menu := range actual {
-		if menu.API != menus[index].API || menu.Status != menus[index].Status || menu.DeletedAt != menus[index].DeletedAt {
-			t.Fatal("已撤销、禁用或删除的入口被重新授权")
-		}
-	}
-	menu := provider.Query(ctx).BaseMenu
-	_, err = menu.WithContext(ctx).Where(menu.ID.Eq(90990000)).UpdateSimple(menu.API.Value("invalid-json"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = provider.Transaction(ctx, func(txCtx context.Context) error {
-		return adapter.ReplaceAll(txCtx, append(items, &coredata.APIRecord{Operation: "/must/rollback", Method: "GET"}))
-	})
-	if err == nil {
-		t.Fatal("无效菜单 JSON 被静默覆盖")
-	}
-	query := provider.Query(ctx).BaseAPI
-	var count int64
-	count, err = query.WithContext(ctx).Where(query.Operation.Eq("/must/rollback")).Count()
-	if err != nil || count != 0 {
-		t.Fatalf("资源同步失败没有回滚: %d, %v", count, err)
 	}
 }
 

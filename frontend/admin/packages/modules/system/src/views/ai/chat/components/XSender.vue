@@ -26,6 +26,7 @@
 
       <template #prefix>
         <div class="agent-prefix-actions">
+          <slot name="before-attachment" />
           <el-popover placement="top-start" :width="236" trigger="click" popper-class="agent-sender-popover">
             <template #reference>
               <el-button
@@ -48,7 +49,9 @@
               </el-button>
             </div>
           </el-popover>
-          <span class="agent-action-text">{{ actionHintText }}</span>
+          <span v-if="!$slots['before-attachment'] || recording || uploading || selectedAttachments.length" class="agent-action-text">{{
+            actionHintText
+          }}</span>
         </div>
       </template>
 
@@ -536,18 +539,15 @@ function resetFileInput() {
     font-weight: 400;
   }
   :deep(.elx-x-sender__updown-action-list) {
+    flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
   }
-  :deep(.elx-x-sender__updown-action-list .elx-x-sender__prefix) {
-    flex: 1 1 auto;
-    width: 100%;
+  :deep(.elx-x-sender__content .elx-x-sender__updown-action-list > :is(.elx-x-sender__prefix, .elx-x-sender__action-list)) {
     min-width: 0;
     height: auto;
-    padding-left: 0;
   }
-  :deep(.elx-x-sender__action-list) {
-    height: auto;
+  :deep(.elx-x-sender__updown-action-list .elx-x-sender__prefix) {
+    padding-left: 0;
   }
 }
 .agent-attachments {
@@ -572,8 +572,15 @@ function resetFileInput() {
 }
 .agent-sender-actions {
   display: inline-flex;
+  flex-wrap: wrap;
   gap: 8px;
   align-items: center;
+  justify-content: flex-end;
+  min-width: 0;
+  :deep(.agent-model-selector.el-button.admin-custom-button) {
+    width: auto;
+    max-width: min(220px, 100%);
+  }
 }
 .agent-icon-button,
 .agent-send-button {

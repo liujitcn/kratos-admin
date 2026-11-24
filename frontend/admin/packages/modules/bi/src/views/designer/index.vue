@@ -1,13 +1,9 @@
 <template>
-  <el-main class="bi-designer-page" style="--el-main-padding: 0; flex: 1 1 auto; height: 100%; min-height: 0; overflow: hidden">
-    <el-skeleton v-if="loading" :rows="6" animated /><el-alert
-      v-else-if="!dashboard"
-      :title="t('bi.dashboard.select_first')"
-      type="info"
-      show-icon
-    /><BiDesigner v-else v-model="layout" :cards="cards" @edit-card="editCard" @create-card="editCard()">
+  <el-main class="bi-designer-page">
+    <el-skeleton v-if="loading" :rows="6" animated />
+    <el-alert v-else-if="!dashboard" :title="t('bi.dashboard.select_first')" type="info" show-icon />
+    <BiDesigner v-else v-model="layout" :cards="cards" @edit-card="editCard" @create-card="editCard()">
       <template #toolbar>
-        <el-button :icon="icons.ArrowLeft" @click="router.push('/bi/manage')">{{ t("common.action.back") }}</el-button>
         <el-button :icon="icons.Document" :loading="saving" :disabled="!dashboard" @click="save(false)">{{
           t("bi.dashboard.save")
         }}</el-button>
@@ -20,12 +16,8 @@
           >{{ t("bi.dashboard.publish") }}</el-button
         >
       </template>
-    </BiDesigner><BiCardFormDialog
-      v-model="cardOpen"
-      :sources="sources"
-      :card="editingCard"
-      @saved="loadCards"
-    />
+    </BiDesigner>
+    <BiCardFormDialog v-model="cardOpen" :sources="sources" :card="editingCard" @saved="loadCards" />
   </el-main>
 </template>
 <script setup lang="ts">
@@ -44,7 +36,7 @@ import { defBiDashboardService } from "../../api/bi/admin/v1/bi_dashboard";
 import { defBiCardService } from "../../api/bi/admin/v1/bi_card";
 import { defBiQueryService } from "../../api/bi/admin/v1/bi_query";
 defineOptions({ name: "BiDesignerPage", inheritAttrs: false });
-const icons = { ArrowLeft, Document, Promotion };
+const icons = { Document, Promotion };
 const route = useRoute(),
   router = useRouter(),
   tabsStore = useTabsStore(),
@@ -134,16 +126,14 @@ async function save(publish: boolean) {
 watch(id, () => void load(), { immediate: true });
 </script>
 <style scoped>
+:global(.el-main:has(> .bi-designer-page)) {
+  padding: 8px;
+}
 .bi-designer-page {
+  flex: 1 1 auto;
   height: 100%;
   min-width: 0;
   min-height: 0;
-  overflow: hidden;
-}
-.bi-designer-page :deep(.bi-designer__toolbar) {
-  padding-bottom: 0;
-}
-.bi-designer-page :deep(.bi-designer__toolbar .el-button + .el-button) {
-  margin-left: 0;
+  padding: 0;
 }
 </style>

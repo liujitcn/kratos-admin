@@ -2,17 +2,10 @@ package core
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
-	"maps"
 	"slices"
 	"strings"
 
-	"gorm.io/gorm/clause"
-
 	"github.com/liujitcn/gorm-kit/repository"
-	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/bi/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	_const "github.com/liujitcn/kratos-core/const"
@@ -28,7 +21,6 @@ import (
 type APIStoreAdapter struct {
 	apiRepository         *data.BaseAPIRepository
 	translationRepository *data.BaseAPII18NRepository
-	menuRepository        *data.BaseMenuRepository
 	openAPI               *openapi.OpenAPI
 }
 
@@ -41,12 +33,11 @@ func NewAPIStoreAdapter(databases map[string]*gorm.Client, openAPI *openapi.Open
 	return &APIStoreAdapter{
 		apiRepository:         data.NewBaseAPIRepository(provider),
 		translationRepository: data.NewBaseAPII18NRepository(provider),
-		menuRepository:        data.NewBaseMenuRepository(provider),
 		openAPI:               openAPI,
 	}, nil
 }
 
-// ReplaceAll 替换 API 快照、保留工具配置，并在权限重建前补齐内置 AI 和 BI 入口的接口权限。
+// ReplaceAll 替换 API 快照并保留已有工具配置。
 func (s *APIStoreAdapter) ReplaceAll(ctx context.Context, items []*coredata.APIRecord) error {
 	var existing []*models.BaseAPI
 	var err error
@@ -68,19 +59,12 @@ func (s *APIStoreAdapter) ReplaceAll(ctx context.Context, items []*coredata.APIR
 	records := make([]*models.BaseAPI, 0, len(items)+1)
 	const sseOperation = "/base.v1.SseService/SubscribeSse"
 	sseIncluded := false
-	eventIncluded := false
-	refinementIncluded := false
 	for _, item := range items {
 		if item == nil {
 			continue
 		}
-		switch item.Operation {
-		case sseOperation:
+		if item.Operation == sseOperation {
 			sseIncluded = true
-		case basev1.OperationAiMessageServiceListAiMessageEvent:
-			eventIncluded = true
-		case adminv1.OperationBiQueryServiceRefineBiQuery:
-			refinementIncluded = true
 		}
 		record := &models.BaseAPI{
 			ID:             item.ID,
@@ -130,59 +114,7 @@ func (s *APIStoreAdapter) ReplaceAll(ctx context.Context, items []*coredata.APIR
 	if err != nil {
 		return err
 	}
-	err = s.apiRepository.BatchCreate(ctx, records)
-	if err != nil {
-		return err
-	}
-	if eventIncluded {
-		err = s.syncBuiltinMenuOperation(ctx, basev1.OperationAiMessageServiceListAiMessageEvent, map[int64][]string{
-			90990000: {basev1.OperationAiMessageServiceSendAiMessage},
-			90991000: {basev1.OperationAiMessageServiceSendAiMessage},
-			99101000: {basev1.OperationAiMessageServiceSendAiMessage},
-		})
-		if err != nil {
-			return err
-		}
-	}
-	if refinementIncluded {
-		return s.syncBuiltinMenuOperation(ctx, adminv1.OperationBiQueryServiceRefineBiQuery, map[int64][]string{
-			90991000: {basev1.OperationAiMessageServiceSendAiMessage, adminv1.OperationBiQueryRecordServiceGetBiQuery},
-			91020000: {adminv1.OperationBiQueryServiceAskBiQuery, adminv1.OperationBiQueryRecordServiceGetBiQuery},
-		})
-	}
-	return nil
-}
-
-// syncBuiltinMenuOperation 仅为仍保留前置授权的内置菜单追加接口，保留现有角色和自定义权限。
-func (s *APIStoreAdapter) syncBuiltinMenuOperation(ctx context.Context, operation string, required map[int64][]string) error {
-	query := s.menuRepository.Query(ctx).BaseMenu
-	menus, err := query.WithContext(ctx).
-		Where(query.ID.In(slices.Sorted(maps.Keys(required))...), query.Status.Eq(int32(_const.STATUS_STATUS_ENABLE))).
-		Clauses(clause.Locking{Strength: "UPDATE"}).Find()
-	if err != nil {
-		return err
-	}
-	for _, menu := range menus {
-		var operations []string
-		if err = json.Unmarshal([]byte(menu.API), &operations); err != nil {
-			return fmt.Errorf("解析内置菜单 %d 权限: %w", menu.ID, err)
-		}
-		if slices.Contains(operations, operation) || slices.ContainsFunc(required[menu.ID], func(prerequisite string) bool {
-			return !slices.Contains(operations, prerequisite)
-		}) {
-			continue
-		}
-		var payload []byte
-		payload, err = json.Marshal(append(operations, operation))
-		if err != nil {
-			return fmt.Errorf("编码内置菜单 %d 权限: %w", menu.ID, err)
-		}
-		_, err = query.WithContext(ctx).Where(query.ID.Eq(menu.ID)).UpdateSimple(query.API.Value(string(payload)))
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+	return s.apiRepository.BatchCreate(ctx, records)
 }
 
 // hasTenantResponse 判断接口响应中是否包含租户字段消息。
