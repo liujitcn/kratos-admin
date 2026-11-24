@@ -623,7 +623,7 @@ github.com/liujitcn/go-scripts v0.0.1 h1:90OTz7ylJLbf4AeC59hwWQA3DAB907WV6GYrSWy
 github.com/liujitcn/go-scripts v0.0.1/go.mod h1:Pugr/TDrJ3zAKePT8OdjpCBVV55gn4qJfcqrbpnAk9A=
 github.com/liujitcn/go-scripts/hostmodule v0.0.1 h1:apxw+y9LZkH9lRZ9gkubbr4FrdEIQvqCCfsJ5k/whRI=
 github.com/liujitcn/go-scripts/hostmodule v0.0.1/go.mod h1:J2DfILhOoqLOarfTJDx+QcbUhnGsMoxxKZ7y8EaPcp4=
-github.com/liujitcn/kratos-admin/backend/api v0.1.19/go.mod h1:Ah9J7JL8b/gw1x4JOI0M2Tb10NnGB+r0idiZQYsHqg4=
+github.com/liujitcn/kratos-admin/backend/api v0.1.20/go.mod h1:Ah9J7JL8b/gw1x4JOI0M2Tb10NnGB+r0idiZQYsHqg4=
 github.com/liujitcn/kratos-kit/auth v0.0.35/go.mod h1:BZpQR8KFGtT9YYa3xknK6wenf9khxTvF0AByr7Ciwnk=
 github.com/liujitcn/kratos-kit/auth/authn v0.0.27/go.mod h1:vR++xTsEtO5kO3qn9Nr0fRV43eDcW7ATrcCaZSCoKrk=
 github.com/liujitcn/kratos-kit/auth/authn/middleware v0.0.24/go.mod h1:HvVfP5d8uvWTD7kvyHzLRIdZGNgsW1BzWNlRq8rBRwI=

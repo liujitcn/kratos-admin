@@ -8323,5 +8323,8 @@
   },
   "legacy.error.bf4cac520fb8e668": {
     "other": "The BI database does not support this report time zone."
+  },
+  "legacy.error.64f0d5d614723356": {
+    "other": "A backup configuration for the same data source already exists."
   }
 }

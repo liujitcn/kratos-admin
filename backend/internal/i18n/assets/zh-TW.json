@@ -8323,5 +8323,8 @@
   },
   "legacy.error.bf4cac520fb8e668": {
     "other": "BI 資料庫不支援此報表時區"
+  },
+  "legacy.error.64f0d5d614723356": {
+    "other": "同一資料來源的備份設定已存在"
   }
 }
