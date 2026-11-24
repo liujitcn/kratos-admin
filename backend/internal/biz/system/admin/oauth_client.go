@@ -174,8 +174,8 @@ func (c *OauthClientCase) RotateOauthClientCredentials(ctx context.Context, idVa
 	}
 	query := c.Query(ctx).OauthClient
 	// 明文交由入库脱敏策略在写库前加密。
-	updated := &models.OauthClient{ID: item.ID, TenantID: item.TenantID, ClientSecret: secret, CryptoKey: cryptoKey, UpdatedBy: authInfo.UserId, UpdatedAt: time.Now()}
-	if err = c.Update(ctx, updated, repository.Where(query.ID.Eq(item.ID)), repository.Select(query.ClientSecret, query.CryptoKey, query.UpdatedBy, query.UpdatedAt)); err != nil {
+	updated := &models.OauthClient{ID: item.ID, TenantID: item.TenantID, ClientSecret: secret, CryptoKey: cryptoKey, UpdatedBy: authInfo.UserId}
+	if err = c.Update(ctx, updated, repository.Where(query.ID.Eq(item.ID)), repository.Select(query.ClientSecret, query.CryptoKey, query.UpdatedBy)); err != nil {
 		return nil, errorsx.Internal("轮换客户端凭据失败").WithCause(err)
 	}
 	if c.userToken != nil {
@@ -218,7 +218,6 @@ func (c *OauthClientCase) CreateOauthClient(ctx context.Context, req *adminv1.Oa
 		CreatedBy:    authInfo.UserId,
 		UpdatedBy:    authInfo.UserId,
 		CreatedAt:    time.Now(),
-		UpdatedAt:    time.Now(),
 	}
 	item.CryptoKey, err = oauthcrypto.GenerateKey(item.CryptoType)
 	if err != nil {
@@ -285,7 +284,6 @@ func (c *OauthClientCase) UpdateOauthClient(ctx context.Context, req *adminv1.Oa
 		API:         _string.ConvertStringArrayToString(req.GetApi()),
 		Status:      int32(req.GetStatus()),
 		UpdatedBy:   authInfo.UserId,
-		UpdatedAt:   time.Now(),
 	}
 	if item.Status == 0 {
 		item.Status = current.Status
@@ -299,7 +297,7 @@ func (c *OauthClientCase) UpdateOauthClient(ctx context.Context, req *adminv1.Oa
 	}
 	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
 		query := c.Query(ctx).OauthClient
-		updateFields := []field.Expr{query.TenantID, query.ClientName, query.CryptoType, query.IPWhitelist, query.API, query.Status, query.UpdatedBy, query.UpdatedAt}
+		updateFields := []field.Expr{query.TenantID, query.ClientName, query.CryptoType, query.IPWhitelist, query.API, query.Status, query.UpdatedBy}
 		if item.CryptoKey != "" {
 			updateFields = append(updateFields, query.CryptoKey)
 		}
@@ -371,7 +369,6 @@ func (c *OauthClientCase) SetOauthClientStatus(ctx context.Context, req *adminv1
 		return errorsx.Internal("查询开放授权客户端失败").WithCause(err)
 	}
 	item.Status = int32(req.GetStatus())
-	item.UpdatedAt = time.Now()
 	err = c.UpdateByID(ctx, item)
 	if err != nil {
 		return err

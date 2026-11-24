@@ -358,7 +358,7 @@ func (c *BaseMessageCase) Publish(ctx context.Context, request notification.Mess
 		Priority: int32(request.Priority), Title: request.Title, Content: content, ContentFormat: int32(request.ContentFormat),
 		ActionType: int32(request.ActionType), ActionTarget: request.ActionTarget, ActionParams: request.ActionParams,
 		Status: int32(basev1.MessageStatus_MESSAGE_STATUS_PUBLISHING), ExpiresAt: request.ExpiresAt,
-		Version: 1, CreatedAt: now, UpdatedAt: now,
+		Version: 1, CreatedAt: now,
 	}
 	entity.PayloadHash = payloadHash
 	persist := func(txCtx context.Context) error {
@@ -463,7 +463,7 @@ func (c *BaseMessageCase) UpdateBaseMessage(ctx context.Context, req *adminv1.Ba
 		var result gen.ResultInfo
 		result, err = query.WithContext(txCtx).
 			Where(query.ID.Eq(oldEntity.ID), query.Version.Eq(req.GetVersion())).
-			UpdateColumnSimple(
+			UpdateSimple(
 				query.CategoryID.Value(entity.CategoryID),
 				query.Title.Value(entity.Title),
 				query.Content.Value(entity.Content),
@@ -476,7 +476,6 @@ func (c *BaseMessageCase) UpdateBaseMessage(ctx context.Context, req *adminv1.Ba
 				query.ExpiresAt.Value(entity.ExpiresAt),
 				query.Version.Value(entity.Version),
 				query.UpdatedBy.Value(entity.UpdatedBy),
-				query.UpdatedAt.Value(entity.UpdatedAt),
 			)
 		if err != nil {
 			return err
@@ -599,12 +598,11 @@ func (c *BaseMessageCase) PublishBaseMessage(ctx context.Context, id int64) erro
 		var result gen.ResultInfo
 		result, err = messageQuery.WithContext(txCtx).
 			Where(messageQuery.ID.Eq(entity.ID), messageQuery.Version.Eq(entity.Version)).
-			UpdateColumnSimple(
+			UpdateSimple(
 				messageQuery.Status.Value(int32(status)),
 				messageQuery.ExpiresAt.Value(entity.ExpiresAt),
 				messageQuery.Version.Value(entity.Version+1),
 				messageQuery.UpdatedBy.Value(authInfo.UserId),
-				messageQuery.UpdatedAt.Value(now),
 			)
 		if err != nil {
 			return err
@@ -614,22 +612,19 @@ func (c *BaseMessageCase) PublishBaseMessage(ctx context.Context, id int64) erro
 		}
 		entity.Status = int32(status)
 		entity.Version++
-		entity.UpdatedAt = now
 		entity.UpdatedBy = authInfo.UserId
 		dispatchQuery := c.dispatchRepo.Query(txCtx).BaseMessageDispatch
 		for _, dispatch := range dispatches {
 			oldVersion := dispatch.Version
 			dispatch.Status = int32(dispatchStatus)
 			dispatch.QueuedAt = now.UnixMilli()
-			dispatch.UpdatedAt = now
 			dispatch.Version++
 			result, err = dispatchQuery.WithContext(txCtx).
 				Where(dispatchQuery.ID.Eq(dispatch.ID), dispatchQuery.Version.Eq(oldVersion)).
-				UpdateColumnSimple(
+				UpdateSimple(
 					dispatchQuery.Status.Value(dispatch.Status),
 					dispatchQuery.QueuedAt.Value(dispatch.QueuedAt),
 					dispatchQuery.Version.Value(dispatch.Version),
-					dispatchQuery.UpdatedAt.Value(dispatch.UpdatedAt),
 				)
 			if err != nil {
 				return err
@@ -670,10 +665,9 @@ func (c *BaseMessageCase) CancelBaseMessageSchedule(ctx context.Context, id int6
 	var result gen.ResultInfo
 	result, err = query.WithContext(ctx).
 		Where(query.ID.Eq(entity.ID), query.Version.Eq(entity.Version), query.Status.Eq(entity.Status)).
-		UpdateColumnSimple(
+		UpdateSimple(
 			query.Status.Value(int32(basev1.MessageStatus_MESSAGE_STATUS_DRAFT)),
 			query.Version.Value(entity.Version+1),
-			query.UpdatedAt.Value(time.Now()),
 		)
 	if err != nil {
 		return err
@@ -772,10 +766,9 @@ func (c *BaseMessageCase) ProcessScheduledMessage(ctx context.Context, task *dto
 				messageQuery.Version.Eq(task.ExpectedVersion),
 				messageQuery.ScheduledAt.Lte(now.UnixMilli()),
 			).
-			UpdateColumnSimple(
+			UpdateSimple(
 				messageQuery.Status.Value(int32(basev1.MessageStatus_MESSAGE_STATUS_PUBLISHING)),
 				messageQuery.Version.Value(task.ExpectedVersion+1),
-				messageQuery.UpdatedAt.Value(now),
 			)
 		if err != nil || result.RowsAffected == 0 {
 			return err
@@ -786,11 +779,10 @@ func (c *BaseMessageCase) ProcessScheduledMessage(ctx context.Context, task *dto
 				dispatchQuery.MessageID.Eq(entity.ID),
 				dispatchQuery.Status.Eq(int32(basev1.MessageDispatchStatus_MESSAGE_DISPATCH_STATUS_WAITING)),
 			).
-			UpdateColumnSimple(
+			UpdateSimple(
 				dispatchQuery.Status.Value(int32(basev1.MessageDispatchStatus_MESSAGE_DISPATCH_STATUS_PENDING)),
 				dispatchQuery.QueuedAt.Value(now.UnixMilli()),
 				dispatchQuery.Version.Add(1),
-				dispatchQuery.UpdatedAt.Value(now),
 			)
 		return err
 	})
@@ -831,11 +823,10 @@ func (c *BaseMessageCase) RevokeBaseMessage(ctx context.Context, id int64) error
 		var result gen.ResultInfo
 		result, err = messageQuery.WithContext(txCtx).
 			Where(messageQuery.ID.Eq(entity.ID), messageQuery.Version.Eq(entity.Version)).
-			UpdateColumnSimple(
+			UpdateSimple(
 				messageQuery.Status.Value(int32(basev1.MessageStatus_MESSAGE_STATUS_REVOKED)),
 				messageQuery.RevokedAt.Value(now.UnixMilli()),
 				messageQuery.Version.Value(entity.Version+1),
-				messageQuery.UpdatedAt.Value(now),
 			)
 		if err != nil {
 			return err
@@ -846,7 +837,6 @@ func (c *BaseMessageCase) RevokeBaseMessage(ctx context.Context, id int64) error
 		entity.Status = int32(basev1.MessageStatus_MESSAGE_STATUS_REVOKED)
 		entity.RevokedAt = now.UnixMilli()
 		entity.Version++
-		entity.UpdatedAt = now
 		err = c.deliveryWriter.RevokeMessage(txCtx, entity.ID, now)
 		if err != nil {
 			return err
@@ -854,12 +844,11 @@ func (c *BaseMessageCase) RevokeBaseMessage(ctx context.Context, id int64) error
 		dispatchQuery := c.dispatchRepo.Query(txCtx).BaseMessageDispatch
 		_, err = dispatchQuery.WithContext(txCtx).
 			Where(dispatchQuery.MessageID.Eq(entity.ID)).
-			UpdateColumnSimple(
+			UpdateSimple(
 				dispatchQuery.Status.Value(int32(basev1.MessageDispatchStatus_MESSAGE_DISPATCH_STATUS_CANCELLED)),
 				dispatchQuery.LockToken.Value(""),
 				dispatchQuery.LockedUntil.Value(0),
 				dispatchQuery.Version.Add(1),
-				dispatchQuery.UpdatedAt.Value(now),
 			)
 		return err
 	})
@@ -890,7 +879,7 @@ func (c *BaseMessageCase) RetryBaseMessageDispatch(ctx context.Context, id int64
 	var result gen.ResultInfo
 	result, err = query.WithContext(ctx).
 		Where(query.ID.Eq(dispatch.ID), query.Status.Eq(int32(basev1.MessageDispatchStatus_MESSAGE_DISPATCH_STATUS_FAILED)), query.Version.Eq(dispatch.Version)).
-		UpdateColumnSimple(
+		UpdateSimple(
 			query.Status.Value(int32(basev1.MessageDispatchStatus_MESSAGE_DISPATCH_STATUS_PENDING)),
 			query.AttemptCount.Value(0),
 			query.NextRetryAt.Value(0),
@@ -899,7 +888,6 @@ func (c *BaseMessageCase) RetryBaseMessageDispatch(ctx context.Context, id int64
 			query.LockedUntil.Value(0),
 			query.QueuedAt.Value(now.UnixMilli()),
 			query.Version.Value(dispatch.Version+1),
-			query.UpdatedAt.Value(now),
 		)
 	if err != nil {
 		return err
@@ -1033,7 +1021,7 @@ func (c *BaseMessageCase) ProcessDispatch(ctx context.Context, task *dto.Message
 					TenantID: dispatch.TenantID, MessageID: dispatch.MessageID,
 					DeliveryType: _const.MessageDeliveryTypeInbox, UserID: user.ID,
 					Status:     _const.MessageDeliveryStatusSucceeded,
-					ReceivedAt: now, ExpiresAt: message.ExpiresAt, CreatedAt: now, UpdatedAt: now,
+					ReceivedAt: now, ExpiresAt: message.ExpiresAt, CreatedAt: now,
 				})
 			}
 			insertedInbox, err = c.deliveryWriter.CreateIgnore(txCtx, inboxDeliveries, int(dispatch.BatchSize))
@@ -1057,11 +1045,11 @@ func (c *BaseMessageCase) ProcessDispatch(ctx context.Context, task *dto.Message
 		}
 		dispatch.MatchedTotal += int64(len(users))
 		dispatch.InsertedTotal += insertedTotal
-		dispatch.UpdatedAt = time.Now()
+		batchFinishedAt := time.Now().UnixMilli()
 		completed = len(users) < int(dispatch.BatchSize)
 		if completed {
 			dispatch.Status = int32(basev1.MessageDispatchStatus_MESSAGE_DISPATCH_STATUS_SUCCEEDED)
-			dispatch.CompletedAt = dispatch.UpdatedAt.UnixMilli()
+			dispatch.CompletedAt = batchFinishedAt
 		} else {
 			dispatch.Status = int32(basev1.MessageDispatchStatus_MESSAGE_DISPATCH_STATUS_PENDING)
 		}
@@ -1076,8 +1064,7 @@ func (c *BaseMessageCase) ProcessDispatch(ctx context.Context, task *dto.Message
 			dispatchQuery.LastError.Value(""),
 			dispatchQuery.LockToken.Value(""),
 			dispatchQuery.LockedUntil.Value(0),
-			dispatchQuery.QueuedAt.Value(dispatch.UpdatedAt.UnixMilli()),
-			dispatchQuery.UpdatedAt.Value(dispatch.UpdatedAt),
+			dispatchQuery.QueuedAt.Value(batchFinishedAt),
 		)
 		return err
 	})
@@ -1119,7 +1106,7 @@ func (c *BaseMessageCase) claimDispatch(ctx context.Context, dispatch *models.Ba
 	lockedUntil := now.Add(messageDispatchLease).UnixMilli()
 	result, err := query.WithContext(ctx).
 		Where(query.ID.Eq(dispatch.ID), query.Version.Eq(dispatch.Version), claimable).
-		UpdateColumnSimple(
+		UpdateSimple(
 			query.Status.Value(int32(basev1.MessageDispatchStatus_MESSAGE_DISPATCH_STATUS_RUNNING)),
 			query.StartedAt.Value(now.UnixMilli()),
 			query.AttemptCount.Value(dispatch.AttemptCount+1),
@@ -1128,7 +1115,6 @@ func (c *BaseMessageCase) claimDispatch(ctx context.Context, dispatch *models.Ba
 			query.LockToken.Value(lockToken),
 			query.LockedUntil.Value(lockedUntil),
 			query.Version.Value(dispatch.Version+1),
-			query.UpdatedAt.Value(now),
 		)
 	if err != nil {
 		return false, err
@@ -1142,7 +1128,6 @@ func (c *BaseMessageCase) claimDispatch(ctx context.Context, dispatch *models.Ba
 	dispatch.LockToken = lockToken
 	dispatch.LockedUntil = lockedUntil
 	dispatch.Version++
-	dispatch.UpdatedAt = now
 	return true, nil
 }
 
@@ -1159,7 +1144,7 @@ func (c *BaseMessageCase) updateOwnedDispatch(ctx context.Context, dispatch *mod
 			query.LockToken.Eq(dispatch.LockToken),
 			query.Version.Eq(dispatch.Version),
 		).
-		UpdateColumnSimple(append(values, query.Version.Value(dispatch.Version+1))...)
+		UpdateSimple(append(values, query.Version.Value(dispatch.Version+1))...)
 	if err != nil {
 		return false, err
 	}
@@ -1190,10 +1175,9 @@ func (c *BaseMessageCase) RecoverPendingDispatches(ctx context.Context) (int, er
 				messageQuery.Version.Eq(message.Version),
 				messageQuery.ScheduledAt.Lte(now.UnixMilli()),
 			).
-			UpdateColumnSimple(
+			UpdateSimple(
 				messageQuery.Status.Value(int32(basev1.MessageStatus_MESSAGE_STATUS_PUBLISHING)),
 				messageQuery.Version.Value(message.Version+1),
-				messageQuery.UpdatedAt.Value(now),
 			)
 		if err != nil {
 			return 0, err
@@ -1246,13 +1230,12 @@ func (c *BaseMessageCase) RecoverPendingDispatches(ctx context.Context) (int, er
 					),
 				),
 			).
-			UpdateColumnSimple(
+			UpdateSimple(
 				dispatchQuery.Status.Value(int32(basev1.MessageDispatchStatus_MESSAGE_DISPATCH_STATUS_PENDING)),
 				dispatchQuery.LockToken.Value(""),
 				dispatchQuery.LockedUntil.Value(0),
 				dispatchQuery.QueuedAt.Value(now.UnixMilli()),
 				dispatchQuery.Version.Value(dispatch.Version+1),
-				dispatchQuery.UpdatedAt.Value(now),
 			)
 		if err != nil {
 			return count, err
@@ -1491,7 +1474,7 @@ func (c *BaseMessageCase) newBaseMessage(ctx context.Context, req *adminv1.BaseM
 		SenderID: senderID, SenderName: senderName, Priority: int32(priority), Title: req.GetTitle(), Content: content,
 		ContentFormat: int32(contentFormat), ActionType: int32(req.GetActionType()), ActionTarget: req.GetActionTarget(), ActionParams: actionParams,
 		Status: int32(basev1.MessageStatus_MESSAGE_STATUS_DRAFT), ScheduledAt: parseMessageTime(req.GetScheduledAt()), ExpiresAt: parseMessageTime(req.GetExpiresAt()),
-		Version: 1, CreatedBy: senderID, UpdatedBy: senderID, CreatedAt: now, UpdatedAt: now,
+		Version: 1, CreatedBy: senderID, UpdatedBy: senderID, CreatedAt: now,
 	}, nil
 }
 
@@ -1638,7 +1621,7 @@ func (c *BaseMessageCase) replaceDispatches(ctx context.Context, message *models
 		list = append(list, &models.BaseMessageDispatch{
 			TenantID: message.TenantID, MessageID: message.ID, AudienceType: int32(audience.GetType()), AudienceID: audience.GetId(),
 			IncludeChildren: audience.GetIncludeChildren(), Status: int32(status), BatchSize: messageDispatchBatchSize,
-			Version: 1, QueuedAt: queuedAt, CreatedBy: message.UpdatedBy, UpdatedBy: message.UpdatedBy, CreatedAt: now, UpdatedAt: now,
+			Version: 1, QueuedAt: queuedAt, CreatedBy: message.UpdatedBy, UpdatedBy: message.UpdatedBy, CreatedAt: now,
 		})
 	}
 	return c.dispatchRepo.BatchCreate(ctx, list)
@@ -1752,7 +1735,6 @@ func (c *BaseMessageCase) failDispatch(ctx context.Context, dispatch *models.Bas
 			query.NextRetryAt.Value(nextRetryAt),
 			query.LockToken.Value(""),
 			query.LockedUntil.Value(0),
-			query.UpdatedAt.Value(now),
 		)
 		if err != nil || !updated || status != int32(basev1.MessageDispatchStatus_MESSAGE_DISPATCH_STATUS_FAILED) || failedCount <= 0 {
 			return err
@@ -1760,7 +1742,7 @@ func (c *BaseMessageCase) failDispatch(ctx context.Context, dispatch *models.Bas
 		messageQuery := c.Query(txCtx).BaseMessage
 		_, err = messageQuery.WithContext(txCtx).
 			Where(messageQuery.ID.Eq(dispatch.MessageID)).
-			UpdateColumnSimple(messageQuery.FailedTotal.Add(failedCount), messageQuery.UpdatedAt.Value(now))
+			UpdateSimple(messageQuery.FailedTotal.Add(failedCount))
 		return err
 	})
 	if err != nil {
@@ -1850,7 +1832,6 @@ func (c *BaseMessageCase) finishMessageIfCompleted(ctx context.Context, message 
 		current.DeliveredTotal = inboxTotal + providerDelivered
 		current.FailedTotal += providerFailed
 		current.Version++
-		current.UpdatedAt = now
 		return c.UpdateByID(txCtx, current)
 	})
 	return err

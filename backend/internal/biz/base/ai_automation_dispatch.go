@@ -48,7 +48,7 @@ func (c *AiAutomationCase) enqueueAutomation(ctx context.Context, id, revision i
 			return err
 		}
 		planQuery := c.Query(txCtx).AiAutomation
-		_, err = planQuery.WithContext(txCtx).Where(planQuery.ID.Eq(id)).UpdateSimple(planQuery.ActiveRunID.Value(run.ID), planQuery.UpdatedAt.Value(now))
+		_, err = planQuery.WithContext(txCtx).Where(planQuery.ID.Eq(id)).UpdateSimple(planQuery.ActiveRunID.Value(run.ID))
 		return err
 	})
 	return run, err
@@ -98,7 +98,7 @@ func (c *AiAutomationCase) dispatchAutomation(ctx context.Context, id int64, now
 			return err
 		}
 		query := c.Query(txCtx).AiAutomation
-		updates := []field.AssignExpr{query.NextFireAt.Value(next), query.LastScheduledAt.Value(slot), query.Status.Value(status), query.UpdatedAt.Value(now)}
+		updates := []field.AssignExpr{query.NextFireAt.Value(next), query.LastScheduledAt.Value(slot), query.Status.Value(status)}
 		if runStatus == "queued" {
 			updates = append(updates, query.ActiveRunID.Value(run.ID))
 			claimed = true
@@ -124,7 +124,7 @@ func (c *AiAutomationCase) newAutomationRun(ctx context.Context, row *models.AiA
 	if slot > 0 {
 		trigger = "scheduled"
 	}
-	run := &models.AiAutomationRun{AutomationID: row.ID, TenantID: row.TenantID, OwnerUserID: row.OwnerUserID, Revision: row.Revision, Configuration: string(configuration), Terminal: terminal, Trigger: trigger, ScheduledFor: slot, RequestKey: key, Status: status, ErrorCode: reason, CreatedAt: now, UpdatedAt: now, CreatedBy: row.OwnerUserID, UpdatedBy: row.OwnerUserID}
+	run := &models.AiAutomationRun{AutomationID: row.ID, TenantID: row.TenantID, OwnerUserID: row.OwnerUserID, Revision: row.Revision, Configuration: string(configuration), Terminal: terminal, Trigger: trigger, ScheduledFor: slot, RequestKey: key, Status: status, ErrorCode: reason, CreatedAt: now, CreatedBy: row.OwnerUserID, UpdatedBy: row.OwnerUserID}
 	if status == "skipped" {
 		run.FinishedAt = now.UnixMilli()
 		run.Summary = "本次时隙已跳过"
@@ -155,7 +155,7 @@ func (c *AiAutomationCase) claimAutomationRun(ctx context.Context, id int64, now
 		}
 		query := c.runRepo.Query(txCtx).AiAutomationRun
 		var result gen.ResultInfo
-		result, err = query.WithContext(txCtx).Where(query.ID.Eq(id), query.Status.Eq("queued"), query.LeaseVersion.Eq(row.LeaseVersion), query.CancelRequested.Eq(0)).UpdateSimple(query.Status.Value("running"), query.LeaseVersion.Value(row.LeaseVersion+1), query.LeaseUntil.Value(now.Add(automationLeaseLifetime).UnixMilli()), query.StartedAt.Value(now.UnixMilli()), query.UpdatedAt.Value(now))
+		result, err = query.WithContext(txCtx).Where(query.ID.Eq(id), query.Status.Eq("queued"), query.LeaseVersion.Eq(row.LeaseVersion), query.CancelRequested.Eq(0)).UpdateSimple(query.Status.Value("running"), query.LeaseVersion.Value(row.LeaseVersion+1), query.LeaseUntil.Value(now.Add(automationLeaseLifetime).UnixMilli()), query.StartedAt.Value(now.UnixMilli()))
 		if err != nil {
 			return err
 		}
@@ -201,7 +201,7 @@ func (c *AiAutomationCase) completeAutomationRun(ctx context.Context, run *model
 			conditions = append(conditions, query.LeaseUntil.Gt(now.UnixMilli()))
 		}
 		if status == "waiting_approval" {
-			result, err = query.WithContext(txCtx).Where(conditions...).UpdateSimple(query.Status.Value(status), query.Summary.Value(summary), query.LeaseUntil.Value(0), query.Notified.Value(0), query.UpdatedAt.Value(now))
+			result, err = query.WithContext(txCtx).Where(conditions...).UpdateSimple(query.Status.Value(status), query.Summary.Value(summary), query.LeaseUntil.Value(0), query.Notified.Value(0))
 			if err != nil {
 				return err
 			}
@@ -210,7 +210,7 @@ func (c *AiAutomationCase) completeAutomationRun(ctx context.Context, run *model
 			}
 			return nil
 		}
-		result, err = query.WithContext(txCtx).Where(conditions...).UpdateSimple(query.Status.Value(status), query.Summary.Value(string([]rune(summary)[:min(len([]rune(summary)), 1000)])), query.ErrorCode.Value(code), query.ResultUnknown.Value(unknownValue), query.FinishedAt.Value(now.UnixMilli()), query.LeaseUntil.Value(0), query.Notified.Value(0), query.UpdatedAt.Value(now))
+		result, err = query.WithContext(txCtx).Where(conditions...).UpdateSimple(query.Status.Value(status), query.Summary.Value(string([]rune(summary)[:min(len([]rune(summary)), 1000)])), query.ErrorCode.Value(code), query.ResultUnknown.Value(unknownValue), query.FinishedAt.Value(now.UnixMilli()), query.LeaseUntil.Value(0), query.Notified.Value(0))
 		if err != nil {
 			return err
 		}
@@ -221,7 +221,7 @@ func (c *AiAutomationCase) completeAutomationRun(ctx context.Context, run *model
 			return err
 		}
 		plan := c.Query(txCtx).AiAutomation
-		_, err = plan.WithContext(txCtx).Where(plan.ID.Eq(run.AutomationID), plan.ActiveRunID.Eq(run.ID)).UpdateSimple(plan.ActiveRunID.Value(0), plan.UpdatedAt.Value(now))
+		_, err = plan.WithContext(txCtx).Where(plan.ID.Eq(run.AutomationID), plan.ActiveRunID.Eq(run.ID)).UpdateSimple(plan.ActiveRunID.Value(0))
 		if err != nil {
 			return err
 		}
@@ -246,7 +246,7 @@ func (c *AiAutomationCase) invalidateAutomationRun(ctx context.Context, row *mod
 			return errorsx.Conflict("执行进行中，请先停止本次并等待结束")
 		}
 		query := c.runRepo.Query(ctx).AiAutomationRun
-		_, err = query.WithContext(ctx).Where(query.ID.Eq(run.ID), query.Status.Eq("running")).UpdateSimple(query.CancelRequested.Value(1), query.UpdatedAt.Value(time.Now()))
+		_, err = query.WithContext(ctx).Where(query.ID.Eq(run.ID), query.Status.Eq("running")).UpdateSimple(query.CancelRequested.Value(1))
 		return err
 	}
 	return c.cancelIdleAutomationRun(ctx, row, run)
@@ -256,7 +256,7 @@ func (c *AiAutomationCase) invalidateAutomationRun(ctx context.Context, row *mod
 func (c *AiAutomationCase) cancelIdleAutomationRun(ctx context.Context, row *models.AiAutomation, run *models.AiAutomationRun) error {
 	now := time.Now()
 	query := c.runRepo.Query(ctx).AiAutomationRun
-	result, err := query.WithContext(ctx).Where(query.ID.Eq(run.ID), query.Status.In("queued", "waiting_approval")).UpdateSimple(query.Status.Value("canceled"), query.CancelRequested.Value(1), query.FinishedAt.Value(now.UnixMilli()), query.LeaseUntil.Value(0), query.Notified.Value(0), query.UpdatedAt.Value(now))
+	result, err := query.WithContext(ctx).Where(query.ID.Eq(run.ID), query.Status.In("queued", "waiting_approval")).UpdateSimple(query.Status.Value("canceled"), query.CancelRequested.Value(1), query.FinishedAt.Value(now.UnixMilli()), query.LeaseUntil.Value(0), query.Notified.Value(0))
 	if err != nil {
 		return err
 	}
@@ -265,18 +265,18 @@ func (c *AiAutomationCase) cancelIdleAutomationRun(ctx context.Context, row *mod
 	}
 	if run.SessionID > 0 {
 		approvals := c.aiMessageCase.aiApprovalRepo.Query(ctx).AiToolApproval
-		_, err = approvals.WithContext(ctx).Where(approvals.SessionID.Eq(run.SessionID), approvals.Status.In(aiRunRunning, aiRunPending)).UpdateSimple(approvals.Status.Value(aiRunRejected), approvals.CheckpointData.Value([]byte{}), approvals.UpdatedAt.Value(now))
+		_, err = approvals.WithContext(ctx).Where(approvals.SessionID.Eq(run.SessionID), approvals.Status.In(aiRunRunning, aiRunPending)).UpdateSimple(approvals.Status.Value(aiRunRejected), approvals.CheckpointData.Value([]byte{}))
 		if err != nil {
 			return err
 		}
 		messages := c.aiMessageCase.aiMessageRepo.Query(ctx).AiMessage
-		_, err = messages.WithContext(ctx).Where(messages.SessionID.Eq(run.SessionID), messages.Status.In(1, 4)).UpdateColumnSimple(messages.Status.Value(3), messages.UpdatedAt.Value(now))
+		_, err = messages.WithContext(ctx).Where(messages.SessionID.Eq(run.SessionID), messages.Status.In(1, 4)).UpdateSimple(messages.Status.Value(3))
 		if err != nil {
 			return err
 		}
 	}
 	plan := c.Query(ctx).AiAutomation
-	_, err = plan.WithContext(ctx).Where(plan.ID.Eq(row.ID), plan.ActiveRunID.Eq(run.ID)).UpdateSimple(plan.ActiveRunID.Value(0), plan.UpdatedAt.Value(now))
+	_, err = plan.WithContext(ctx).Where(plan.ID.Eq(row.ID), plan.ActiveRunID.Eq(run.ID)).UpdateSimple(plan.ActiveRunID.Value(0))
 	return err
 }
 
@@ -285,13 +285,12 @@ func (c *AiAutomationCase) closeAutomationMessages(ctx context.Context, run *mod
 	if run.SessionID <= 0 {
 		return nil
 	}
-	now := time.Now()
 	approvals := c.aiMessageCase.aiApprovalRepo.Query(ctx).AiToolApproval
-	_, err := approvals.WithContext(ctx).Where(approvals.SessionID.Eq(run.SessionID), approvals.Status.In(aiRunRunning, aiRunPending)).UpdateSimple(approvals.Status.Value(aiRunExpired), approvals.CheckpointData.Value([]byte{}), approvals.UpdatedAt.Value(now))
+	_, err := approvals.WithContext(ctx).Where(approvals.SessionID.Eq(run.SessionID), approvals.Status.In(aiRunRunning, aiRunPending)).UpdateSimple(approvals.Status.Value(aiRunExpired), approvals.CheckpointData.Value([]byte{}))
 	if err != nil {
 		return err
 	}
 	messages := c.aiMessageCase.aiMessageRepo.Query(ctx).AiMessage
-	_, err = messages.WithContext(ctx).Where(messages.SessionID.Eq(run.SessionID), messages.Status.In(1, 4)).UpdateColumnSimple(messages.Status.Value(3), messages.OutputContent.Value(ai.MarshalReplyContent(&ai.Response{Content: summary})), messages.UpdatedAt.Value(now))
+	_, err = messages.WithContext(ctx).Where(messages.SessionID.Eq(run.SessionID), messages.Status.In(1, 4)).UpdateSimple(messages.Status.Value(3), messages.OutputContent.Value(ai.MarshalReplyContent(&ai.Response{Content: summary})))
 	return err
 }

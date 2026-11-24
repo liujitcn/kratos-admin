@@ -157,7 +157,7 @@ func (c *BaseMessageCategoryCase) CreateBaseMessageCategory(ctx context.Context,
 		entity.Status = _const.STATUS_STATUS_ENABLE
 	}
 	now := time.Now()
-	entity.CreatedBy, entity.UpdatedBy, entity.CreatedAt, entity.UpdatedAt = authInfo.UserId, authInfo.UserId, now, now
+	entity.CreatedBy, entity.UpdatedBy, entity.CreatedAt = authInfo.UserId, authInfo.UserId, now
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		err = c.Create(txCtx, entity)
 		if err != nil {
@@ -228,7 +228,7 @@ func (c *BaseMessageCategoryCase) UpdateBaseMessageCategory(ctx context.Context,
 		entity.Status = oldEntity.Status
 	}
 	entity.CreatedBy, entity.CreatedAt = oldEntity.CreatedBy, oldEntity.CreatedAt
-	entity.UpdatedBy, entity.UpdatedAt = authInfo.UserId, time.Now()
+	entity.UpdatedBy = authInfo.UserId
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		categoryQuery := c.Query(txCtx).BaseMessageCategory
 		var currentCategory *models.BaseMessageCategory
@@ -450,7 +450,7 @@ func (c *BaseMessageCategoryCase) syncTemplates(ctx context.Context, categoryID 
 	for providerID := range selected {
 		if err = c.templateRepo.Create(ctx, &models.BaseMessageTemplate{
 			CategoryID: categoryID, ProviderID: providerID, ContentFormat: int32(basev1.MessageContentFormat_MESSAGE_CONTENT_FORMAT_PLAIN_TEXT),
-			Config: "{}", CreatedBy: userID, UpdatedBy: userID, CreatedAt: now, UpdatedAt: now,
+			Config: "{}", CreatedBy: userID, UpdatedBy: userID, CreatedAt: now,
 		}); err != nil {
 			return err
 		}

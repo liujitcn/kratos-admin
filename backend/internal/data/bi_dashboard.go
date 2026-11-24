@@ -16,7 +16,7 @@ func CreateBiDashboardDraft(ctx context.Context, repo *data.BiDashboardVersionRe
 // UpdateBiDashboardState 按原草稿版本原子更新状态，防止保存与发布互相覆盖。
 func UpdateBiDashboardState(ctx context.Context, repo *data.BiDashboardRepository, item *models.BiDashboard, previous int64) (int64, error) {
 	query := repo.Query(ctx).BiDashboard
-	result, err := query.WithContext(ctx).Where(query.ID.Eq(item.ID), query.TenantID.Eq(item.TenantID), query.DraftVersion.Eq(previous)).Select(query.Name, query.Description, query.Status, query.DraftVersion, query.PublishedVersion, query.UpdatedBy, query.UpdatedAt).Updates(item)
+	result, err := query.WithContext(ctx).Where(query.ID.Eq(item.ID), query.TenantID.Eq(item.TenantID), query.DraftVersion.Eq(previous)).Select(query.Name, query.Description, query.Status, query.DraftVersion, query.PublishedVersion, query.UpdatedBy).Updates(item)
 	return result.RowsAffected, err
 }
 

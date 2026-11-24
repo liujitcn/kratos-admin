@@ -125,7 +125,7 @@ func (c *AiProviderCase) CreateAiProvider(ctx context.Context, req *adminv1.AiPr
 	}
 	now := time.Now()
 	entity.CreatedBy, entity.UpdatedBy = authInfo.UserId, authInfo.UserId
-	entity.CreatedAt, entity.UpdatedAt = now, now
+	entity.CreatedAt = now
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		if err = c.Create(txCtx, entity); err != nil {
 			if errorsx.IsDuplicateKey(err) {
@@ -162,12 +162,12 @@ func (c *AiProviderCase) UpdateAiProvider(ctx context.Context, req *adminv1.AiPr
 		return err
 	}
 	entity.ID, entity.CreatedBy, entity.CreatedAt = oldProvider.ID, oldProvider.CreatedBy, oldProvider.CreatedAt
-	entity.UpdatedBy, entity.UpdatedAt = authInfo.UserId, time.Now()
+	entity.UpdatedBy = authInfo.UserId
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		query := c.Query(txCtx).AiProvider
 		_, err = query.WithContext(txCtx).
 			Where(query.ID.Eq(entity.ID)).
-			Select(query.Provider, query.Name, query.BaseURL, query.APIKey, query.Config, query.Sort, query.Status, query.UpdatedBy, query.UpdatedAt).
+			Select(query.Provider, query.Name, query.BaseURL, query.APIKey, query.Config, query.Sort, query.Status, query.UpdatedBy).
 			Updates(entity)
 		if err != nil {
 			if errorsx.IsDuplicateKey(err) {
@@ -247,7 +247,7 @@ func (c *AiProviderCase) SetAiProviderStatus(ctx context.Context, req *adminv1.S
 	if provider.Status == int32(req.GetStatus()) {
 		return nil
 	}
-	if err = c.UpdateByID(ctx, &models.AiProvider{ID: provider.ID, Status: int32(req.GetStatus()), UpdatedAt: time.Now()}); err != nil {
+	if err = c.UpdateByID(ctx, &models.AiProvider{ID: provider.ID, Status: int32(req.GetStatus())}); err != nil {
 		return err
 	}
 	return c.aiModelCase.RefreshModels(ctx)

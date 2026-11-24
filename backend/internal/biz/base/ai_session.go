@@ -126,7 +126,6 @@ func (c *AiSessionCase) CreateAiSession(ctx context.Context, req *basev1.CreateA
 		Title:     title,
 		Summary:   summary,
 		CreatedAt: now,
-		UpdatedAt: now,
 	}
 	if err = c.Create(ctx, model); err != nil {
 		return nil, err
@@ -208,7 +207,6 @@ func (c *AiSessionCase) CreateAiSessionBranch(ctx context.Context, req *basev1.C
 		Title:     title,
 		Summary:   sourceSession.Summary,
 		CreatedAt: now,
-		UpdatedAt: now,
 	}
 	branchMessages := make([]*models.AiMessage, 0, len(sourceMessages))
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
@@ -229,7 +227,6 @@ func (c *AiSessionCase) CreateAiSessionBranch(ctx context.Context, req *basev1.C
 				DurationMs:    item.DurationMs,
 				Status:        item.Status,
 				CreatedAt:     item.CreatedAt,
-				UpdatedAt:     now,
 			}
 			normalizeAiMessageJSON(branchMessage)
 			if err = c.aiMessageRepo.Create(txCtx, branchMessage); err != nil {
@@ -264,37 +261,20 @@ func (c *AiSessionCase) UpdateAiSession(ctx context.Context, req *basev1.UpdateA
 		return nil, errorsx.PermissionDenied("自动化结果会话不允许重命名")
 	}
 
-	now := time.Now()
 	query := c.Query(ctx).AiSession
-	_, err = query.WithContext(ctx).
-		Where(query.TenantID.Eq(session.TenantID), query.ID.Eq(session.ID)).
-		UpdateSimple(
-			query.Title.Value(title),
-			query.UpdatedAt.Value(now),
-		)
+	session.Title = title
+	err = c.Update(ctx, session, repository.Where(query.TenantID.Eq(session.TenantID), query.ID.Eq(session.ID)), repository.Select(query.Title))
 	if err != nil {
 		return nil, err
 	}
-	session.Title = title
-	session.UpdatedAt = now
 	return c.ToDTO(session), nil
 }
 
-// UpdateSessionSummary 更新会话摘要与更新时间。
-func (c *AiSessionCase) UpdateSessionSummary(ctx context.Context, session *models.AiSession, summary string, now time.Time) error {
+// UpdateSessionSummary 保存会话摘要，由数据库更新流程回填更新时间。
+func (c *AiSessionCase) UpdateSessionSummary(ctx context.Context, session *models.AiSession, summary string) error {
 	query := c.Query(ctx).AiSession
-	_, err := query.WithContext(ctx).
-		Where(query.TenantID.Eq(session.TenantID), query.ID.Eq(session.ID)).
-		UpdateSimple(
-			query.Summary.Value(summary),
-			query.UpdatedAt.Value(now),
-		)
-	if err != nil {
-		return err
-	}
 	session.Summary = summary
-	session.UpdatedAt = now
-	return nil
+	return c.Update(ctx, session, repository.Where(query.TenantID.Eq(session.TenantID), query.ID.Eq(session.ID)), repository.Select(query.Summary))
 }
 
 // DeleteAiSession 在会话锁内作废未完成运行、清空全部审批快照并删除当前用户的会话。
@@ -388,19 +368,10 @@ func (c *AiSessionCase) FindCurrentUserSessionByRawID(ctx context.Context, rawID
 	return session, nil
 }
 
-// RefreshSessionUpdatedAt 更新会话更新时间。
-func (c *AiSessionCase) RefreshSessionUpdatedAt(ctx context.Context, session *models.AiSession, now time.Time) error {
+// RefreshSessionUpdatedAt 在消息结束时刷新父会话的排序时间。
+func (c *AiSessionCase) RefreshSessionUpdatedAt(ctx context.Context, session *models.AiSession) error {
 	query := c.Query(ctx).AiSession
-	_, err := query.WithContext(ctx).
-		Where(query.TenantID.Eq(session.TenantID), query.ID.Eq(session.ID)).
-		UpdateSimple(
-			query.UpdatedAt.Value(now),
-		)
-	if err != nil {
-		return err
-	}
-	session.UpdatedAt = now
-	return nil
+	return c.Update(ctx, session, repository.Where(query.TenantID.Eq(session.TenantID), query.ID.Eq(session.ID)), repository.Select(query.UpdatedAt))
 }
 
 // ToDTO 转换会话模型到接口对象。
@@ -476,9 +447,8 @@ func (c *AiSessionCase) SetAiSessionPlugins(ctx context.Context, req *basev1.Set
 			return err
 		}
 		session.Plugins = string(raw)
-		session.UpdatedAt = time.Now()
 		sessionQuery := c.Query(txCtx).AiSession
-		return c.Update(txCtx, session, repository.Where(sessionQuery.ID.Eq(session.ID)), repository.Select(sessionQuery.Plugins, sessionQuery.UpdatedAt))
+		return c.Update(txCtx, session, repository.Where(sessionQuery.ID.Eq(session.ID)), repository.Select(sessionQuery.Plugins))
 	})
 	if err != nil {
 		return nil, err

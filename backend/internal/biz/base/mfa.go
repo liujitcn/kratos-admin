@@ -753,7 +753,7 @@ func (c *MfaCase) ConfirmMfaSetup(ctx context.Context, req *basev1.ConfirmMfaSet
 	var mfa *models.BaseUserMFA
 	mfa, err = c.findMFA(ctx, payload.UserID, mfaMethodTOTP)
 	if isRecordNotFound(err) {
-		mfa = &models.BaseUserMFA{TenantID: payload.TenantID, UserID: payload.UserID, Method: mfaMethodTOTP, Status: mfaStatusEnabled, ConfirmedAt: new(now), CreatedBy: payload.UserID, UpdatedBy: payload.UserID, CreatedAt: now, UpdatedAt: now}
+		mfa = &models.BaseUserMFA{TenantID: payload.TenantID, UserID: payload.UserID, Method: mfaMethodTOTP, Status: mfaStatusEnabled, ConfirmedAt: new(now), CreatedBy: payload.UserID, UpdatedBy: payload.UserID, CreatedAt: now}
 		err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 			if err = c.baseUserMFARepo.Create(txCtx, mfa); err != nil {
 				return err
@@ -767,7 +767,6 @@ func (c *MfaCase) ConfirmMfaSetup(ctx context.Context, req *basev1.ConfirmMfaSet
 		mfa.Status = mfaStatusEnabled
 		mfa.ConfirmedAt = new(now)
 		mfa.UpdatedBy = payload.UserID
-		mfa.UpdatedAt = now
 		err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 			if err = c.baseUserMFARepo.UpdateByID(txCtx, mfa); err != nil {
 				return err
@@ -945,7 +944,7 @@ func (c *MfaCase) confirmWebAuthnSetup(ctx context.Context, ticketKey string, pa
 	var mfa *models.BaseUserMFA
 	mfa, err = c.findMFA(ctx, payload.UserID, mfaMethodWebAuthn)
 	if isRecordNotFound(err) {
-		mfa = &models.BaseUserMFA{TenantID: payload.TenantID, UserID: payload.UserID, Method: mfaMethodWebAuthn, Status: mfaStatusEnabled, ConfirmedAt: new(now), CreatedBy: payload.UserID, UpdatedBy: payload.UserID, CreatedAt: now, UpdatedAt: now}
+		mfa = &models.BaseUserMFA{TenantID: payload.TenantID, UserID: payload.UserID, Method: mfaMethodWebAuthn, Status: mfaStatusEnabled, ConfirmedAt: new(now), CreatedBy: payload.UserID, UpdatedBy: payload.UserID, CreatedAt: now}
 		err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 			if err = c.baseUserMFARepo.Create(txCtx, mfa); err != nil {
 				return err
@@ -959,7 +958,6 @@ func (c *MfaCase) confirmWebAuthnSetup(ctx context.Context, ticketKey string, pa
 		mfa.Status = mfaStatusEnabled
 		mfa.ConfirmedAt = new(now)
 		mfa.UpdatedBy = payload.UserID
-		mfa.UpdatedAt = now
 		err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 			if err = c.baseUserMFARepo.UpdateByID(txCtx, mfa); err != nil {
 				return err
@@ -1002,7 +1000,6 @@ func (c *MfaCase) saveWebAuthnCredential(ctx context.Context, mfaID int64, crede
 		BackupEligible: credential.Flags.BackupEligible,
 		BackupState:    credential.Flags.BackupState,
 		CreatedAt:      now,
-		UpdatedAt:      now,
 	})
 }
 
@@ -1196,7 +1193,6 @@ func (c *MfaCase) DisableMfa(ctx context.Context, req *basev1.DisableMfaRequest)
 	}
 	mfa.Status = mfaStatusDisabled
 	mfa.UpdatedBy = authInfo.UserId
-	mfa.UpdatedAt = time.Now()
 	err = c.baseUserMFARepo.UpdateByID(ctx, mfa)
 	if err != nil {
 		return errorsx.Internal("禁用多因素认证失败").WithCause(err)
@@ -1425,7 +1421,7 @@ func (c *MfaCase) verifyRecoveryCode(ctx context.Context, mfa *models.BaseUserMF
 func (c *MfaCase) createRecoveryCodes(ctx context.Context, mfa *models.BaseUserMFA, hashes []string, now time.Time) error {
 	rows := make([]*models.BaseUserMFARecovery, 0, len(hashes))
 	for _, hash := range hashes {
-		rows = append(rows, &models.BaseUserMFARecovery{MFAID: mfa.ID, UserID: mfa.UserID, CodeHash: hash, CreatedAt: now, UpdatedAt: now})
+		rows = append(rows, &models.BaseUserMFARecovery{MFAID: mfa.ID, UserID: mfa.UserID, CodeHash: hash, CreatedAt: now})
 	}
 	// 生成模型将可空时间字段声明为 time.Time，必须省略 used_at 才能让 MySQL 写入 NULL。
 	query := c.baseUserMFARecoveryRepo.Query(ctx).BaseUserMFARecovery

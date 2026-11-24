@@ -139,7 +139,7 @@ func (c *BaseRedactOutputPolicyCase) CreateBaseRedactOutputPolicy(ctx context.Co
 		if err != nil {
 			return err
 		}
-		item := &models.BaseRedactOutputPolicy{TenantID: input.GetTenantId(), Operation: input.GetOperation(), ServiceName: input.GetServiceName(), MessageRef: input.GetMessageRef(), FieldPath: input.GetFieldPath(), Mode: int32(input.GetMode()), RuleParams: input.GetRuleParams(), Status: int32(input.GetStatus()), Remark: input.GetRemark(), CreatedBy: authInfo.UserId, UpdatedBy: authInfo.UserId, CreatedAt: now, UpdatedAt: now}
+		item := &models.BaseRedactOutputPolicy{TenantID: input.GetTenantId(), Operation: input.GetOperation(), ServiceName: input.GetServiceName(), MessageRef: input.GetMessageRef(), FieldPath: input.GetFieldPath(), Mode: int32(input.GetMode()), RuleParams: input.GetRuleParams(), Status: int32(input.GetStatus()), Remark: input.GetRemark(), CreatedBy: authInfo.UserId, UpdatedBy: authInfo.UserId, CreatedAt: now}
 		if rule == nil {
 			item.RuleID = 0
 			item.RuleParams = "{}"
@@ -181,7 +181,6 @@ func (c *BaseRedactOutputPolicyCase) UpdateBaseRedactOutputPolicy(ctx context.Co
 	if err != nil {
 		return err
 	}
-	now := time.Now()
 	items := make([]*models.BaseRedactOutputPolicy, 0, len(inputs))
 	for _, input := range inputs {
 		if input == nil {
@@ -197,7 +196,7 @@ func (c *BaseRedactOutputPolicyCase) UpdateBaseRedactOutputPolicy(ctx context.Co
 		if err != nil {
 			return err
 		}
-		item := &models.BaseRedactOutputPolicy{ID: oldItem.ID, TenantID: oldItem.TenantID, Operation: input.GetOperation(), ServiceName: input.GetServiceName(), MessageRef: input.GetMessageRef(), FieldPath: input.GetFieldPath(), Mode: int32(input.GetMode()), RuleParams: input.GetRuleParams(), Status: int32(input.GetStatus()), Remark: input.GetRemark(), CreatedBy: oldItem.CreatedBy, UpdatedBy: authInfo.UserId, CreatedAt: oldItem.CreatedAt, UpdatedAt: now}
+		item := &models.BaseRedactOutputPolicy{ID: oldItem.ID, TenantID: oldItem.TenantID, Operation: input.GetOperation(), ServiceName: input.GetServiceName(), MessageRef: input.GetMessageRef(), FieldPath: input.GetFieldPath(), Mode: int32(input.GetMode()), RuleParams: input.GetRuleParams(), Status: int32(input.GetStatus()), Remark: input.GetRemark(), CreatedBy: oldItem.CreatedBy, UpdatedBy: authInfo.UserId, CreatedAt: oldItem.CreatedAt}
 		if rule == nil {
 			item.RuleID = 0
 			item.RuleParams = "{}"

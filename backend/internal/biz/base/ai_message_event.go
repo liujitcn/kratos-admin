@@ -168,25 +168,20 @@ func (c *AiMessageCase) createAiMessageEvent(ctx context.Context, session *model
 }
 
 // finishAiMessageEvent 将终态与消息放入同一事务，客户端断开后仍可用只读接口恢复。
-func (c *AiMessageCase) finishAiMessageEvent(ctx context.Context, session *models.AiSession, messageID int64, status int32) error {
+func (c *AiMessageCase) finishAiMessageEvent(ctx context.Context, session *models.AiSession, message *models.AiMessage) error {
 	execution, _ := ctx.Value(aiExecutionContextKey{}).(*dto.AiExecution)
 	if execution == nil {
 		return nil
 	}
-	message, err := c.aiMessageRepo.FindByID(ctx, messageID)
-	if err != nil {
-		return err
-	}
 	event := dto.AiStreamEventFinish
-	if status == int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_FAILED) {
+	if message.Status == int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_FAILED) {
 		event = dto.AiStreamEventError
 	}
-	if status == int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_WAITING_APPROVAL) {
+	if message.Status == int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_WAITING_APPROVAL) {
 		event = dto.AiStreamEventApprovalRequired
 	}
-	payload := dto.AiStreamPayload{SessionID: strconv.FormatInt(session.ID, 10), MessageID: strconv.FormatInt(messageID, 10), RunID: execution.RunID, Messages: []*basev1.AiMessage{c.ToDTO(message)}, Session: c.aiSessionCase.ToDTO(session)}
-	var item *models.AiMessageEvent
-	item, err = c.createAiMessageEvent(ctx, session, messageID, execution.RunID, string(event), payload)
+	payload := dto.AiStreamPayload{SessionID: strconv.FormatInt(session.ID, 10), MessageID: strconv.FormatInt(message.ID, 10), RunID: execution.RunID, Messages: []*basev1.AiMessage{c.ToDTO(message)}, Session: c.aiSessionCase.ToDTO(session)}
+	item, err := c.createAiMessageEvent(ctx, session, message.ID, execution.RunID, string(event), payload)
 	if err != nil {
 		return err
 	}

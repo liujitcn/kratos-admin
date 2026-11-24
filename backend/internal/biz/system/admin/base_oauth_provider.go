@@ -129,7 +129,7 @@ func (c *BaseOauthProviderCase) CreateBaseOauthProvider(ctx context.Context, req
 		return err
 	}
 	item.CreatedBy, item.UpdatedBy = authInfo.UserId, authInfo.UserId
-	item.CreatedAt, item.UpdatedAt = time.Now(), time.Now()
+	item.CreatedAt = time.Now()
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		if err = c.Create(txCtx, item); err != nil {
 			if errorsx.IsDuplicateKey(err) {
@@ -163,7 +163,7 @@ func (c *BaseOauthProviderCase) UpdateBaseOauthProvider(ctx context.Context, req
 		return err
 	}
 	item.ID, item.CreatedBy, item.CreatedAt = oldItem.ID, oldItem.CreatedBy, oldItem.CreatedAt
-	item.UpdatedBy, item.UpdatedAt = authInfo.UserId, time.Now()
+	item.UpdatedBy = authInfo.UserId
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		if err = c.UpdateByID(txCtx, item); err != nil {
 			return err
@@ -214,7 +214,7 @@ func (c *BaseOauthProviderCase) SetBaseOauthProviderStatus(ctx context.Context, 
 		return nil
 	}
 	query := c.Query(ctx).BaseOauthProvider
-	if _, err = query.WithContext(ctx).Where(query.ID.Eq(item.ID)).UpdateSimple(query.Status.Value(int32(req.GetStatus())), query.UpdatedAt.Value(time.Now())); err != nil {
+	if _, err = query.WithContext(ctx).Where(query.ID.Eq(item.ID)).UpdateSimple(query.Status.Value(int32(req.GetStatus()))); err != nil {
 		return err
 	}
 	return c.RefreshBaseOauthProvider(ctx)

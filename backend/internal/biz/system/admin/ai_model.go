@@ -185,7 +185,7 @@ func (c *AiModelCase) SyncProviderModels(ctx context.Context, provider *models.A
 		entity.ProviderID = provider.ID
 		if old, exists := existingByID[form.GetId()]; exists && form.GetId() > 0 {
 			entity.ID, entity.CreatedBy, entity.CreatedAt = old.ID, old.CreatedBy, old.CreatedAt
-			entity.UpdatedBy, entity.UpdatedAt = authInfo.UserId, now
+			entity.UpdatedBy = authInfo.UserId
 			if err = c.updateModel(ctx, entity); err != nil {
 				return err
 			}
@@ -193,7 +193,7 @@ func (c *AiModelCase) SyncProviderModels(ctx context.Context, provider *models.A
 			continue
 		}
 		entity.CreatedBy, entity.UpdatedBy = authInfo.UserId, authInfo.UserId
-		entity.CreatedAt, entity.UpdatedAt = now, now
+		entity.CreatedAt = now
 		if err = c.Create(ctx, entity); err != nil {
 			if errorsx.IsDuplicateKey(err) {
 				return errorsx.UniqueConflict("AI模型名称重复", "ai_model", "model_name", "unique_ai_model").WithCause(err)
@@ -218,7 +218,7 @@ func (c *AiModelCase) updateModel(ctx context.Context, entity *models.AiModel) e
 	query := c.Query(ctx).AiModel
 	_, err := query.WithContext(ctx).
 		Where(query.ID.Eq(entity.ID)).
-		Select(query.ProviderID, query.ModelName, query.DisplayName, query.Category, query.Config, query.Sort, query.Status, query.UpdatedBy, query.UpdatedAt).
+		Select(query.ProviderID, query.ModelName, query.DisplayName, query.Category, query.Config, query.Sort, query.Status, query.UpdatedBy).
 		Updates(entity)
 	if err != nil {
 		if errorsx.IsDuplicateKey(err) {

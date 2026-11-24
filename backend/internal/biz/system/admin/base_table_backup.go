@@ -70,7 +70,7 @@ func (c *BaseTableBackupCase) CreateBaseTableBackup(ctx context.Context, req *ad
 		status = _const.STATUS_STATUS_DISABLE
 	}
 	now := time.Now()
-	entity := &models.BaseTableBackup{SourceName: req.GetSourceName(), BackupType: int32(req.GetBackupType()), OSSPrefix: req.GetOssPrefix(), RetentionCount: req.GetRetentionCount(), Status: status, CreatedBy: authInfo.UserId, UpdatedBy: authInfo.UserId, CreatedAt: now, UpdatedAt: now}
+	entity := &models.BaseTableBackup{SourceName: req.GetSourceName(), BackupType: int32(req.GetBackupType()), OSSPrefix: req.GetOssPrefix(), RetentionCount: req.GetRetentionCount(), Status: status, CreatedBy: authInfo.UserId, UpdatedBy: authInfo.UserId, CreatedAt: now}
 	return c.Create(ctx, entity)
 }
 
@@ -91,7 +91,7 @@ func (c *BaseTableBackupCase) UpdateBaseTableBackup(ctx context.Context, req *ad
 	if status == 0 {
 		status = old.Status
 	}
-	entity := &models.BaseTableBackup{ID: req.GetId(), SourceName: req.GetSourceName(), BackupType: int32(req.GetBackupType()), OSSPrefix: req.GetOssPrefix(), RetentionCount: req.GetRetentionCount(), Status: status, UpdatedBy: authInfo.UserId, UpdatedAt: time.Now()}
+	entity := &models.BaseTableBackup{ID: req.GetId(), SourceName: req.GetSourceName(), BackupType: int32(req.GetBackupType()), OSSPrefix: req.GetOssPrefix(), RetentionCount: req.GetRetentionCount(), Status: status, UpdatedBy: authInfo.UserId}
 	return c.UpdateByID(ctx, entity)
 }
 

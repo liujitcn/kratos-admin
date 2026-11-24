@@ -106,19 +106,18 @@ func (c *AiFileCase) RenameAiFile(ctx context.Context, req *basev1.RenameAiFileR
 	if err != nil {
 		return nil, err
 	}
-	row, err := c.ownedAiFile(ctx, req.GetId(), aiFileStatusActive)
+	var row *models.AiFile
+	row, err = c.ownedAiFile(ctx, req.GetId(), aiFileStatusActive)
 	if err != nil {
 		return nil, err
 	}
-	updatedAt := time.Now()
 	query := c.Query(ctx).AiFile
-	_, err = query.WithContext(ctx).Where(query.ID.Eq(row.ID)).UpdateSimple(query.FileName.Value(req.GetFileName()), query.UpdatedBy.Value(authInfo.UserId), query.UpdatedAt.Value(updatedAt))
-	if err != nil {
-		return nil, err
-	}
 	row.FileName = req.GetFileName()
 	row.UpdatedBy = authInfo.UserId
-	row.UpdatedAt = updatedAt
+	err = c.Update(ctx, row, repository.Where(query.ID.Eq(row.ID)), repository.Select(query.FileName, query.UpdatedBy))
+	if err != nil {
+		return nil, err
+	}
 	return aiFileDTO(row), nil
 }
 
@@ -181,9 +180,6 @@ func (c *AiFileCase) RegisterGeneratedFile(ctx context.Context, file *models.AiF
 	if file.CreatedAt.IsZero() {
 		file.CreatedAt = time.Now()
 	}
-	if file.UpdatedAt.IsZero() {
-		file.UpdatedAt = file.CreatedAt
-	}
 	return c.Create(ctx, file)
 }
 
@@ -214,19 +210,18 @@ func (c *AiFileCase) updateAiFileStatus(ctx context.Context, id int64, from, to 
 	if err != nil {
 		return nil, err
 	}
-	row, err := c.ownedAiFile(ctx, id, from)
+	var row *models.AiFile
+	row, err = c.ownedAiFile(ctx, id, from)
 	if err != nil {
 		return nil, err
 	}
-	updatedAt := time.Now()
 	query := c.Query(ctx).AiFile
-	_, err = query.WithContext(ctx).Where(query.ID.Eq(row.ID), query.Status.Eq(from)).UpdateSimple(query.Status.Value(to), query.UpdatedBy.Value(authInfo.UserId), query.UpdatedAt.Value(updatedAt))
-	if err != nil {
-		return nil, err
-	}
 	row.Status = to
 	row.UpdatedBy = authInfo.UserId
-	row.UpdatedAt = updatedAt
+	err = c.Update(ctx, row, repository.Where(query.ID.Eq(row.ID), query.Status.Eq(from)), repository.Select(query.Status, query.UpdatedBy))
+	if err != nil {
+		return nil, err
+	}
 	return aiFileDTO(row), nil
 }
 

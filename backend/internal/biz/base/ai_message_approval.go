@@ -106,7 +106,7 @@ func (c *AiMessageCase) DecideAiToolApproval(ctx context.Context, req *basev1.De
 			status = aiRunExpired
 		}
 		var result gen.ResultInfo
-		result, txErr = query.WithContext(txCtx).Where(query.ID.Eq(run.ID), query.Status.Eq(aiRunPending), query.ApprovalID.Eq(req.GetApprovalId())).UpdateSimple(query.Status.Value(status), query.ExpiresAt.Value(now.Add(aiApprovalLifetime)), query.UpdatedAt.Value(now))
+		result, txErr = query.WithContext(txCtx).Where(query.ID.Eq(run.ID), query.Status.Eq(aiRunPending), query.ApprovalID.Eq(req.GetApprovalId())).UpdateSimple(query.Status.Value(status), query.ExpiresAt.Value(now.Add(aiApprovalLifetime)))
 		if txErr != nil {
 			return txErr
 		}
@@ -114,20 +114,20 @@ func (c *AiMessageCase) DecideAiToolApproval(ctx context.Context, req *basev1.De
 			return errorsx.Conflict("审批已失效或已处理")
 		}
 		messageQuery := c.aiMessageRepo.Query(txCtx).AiMessage
-		result, txErr = messageQuery.WithContext(txCtx).Where(messageQuery.ID.Eq(message.ID), messageQuery.Status.Eq(int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_WAITING_APPROVAL))).UpdateColumnSimple(messageQuery.Status.Value(int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_GENERATING)), messageQuery.UpdatedAt.Value(now))
+		result, txErr = messageQuery.WithContext(txCtx).Where(messageQuery.ID.Eq(message.ID), messageQuery.Status.Eq(int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_WAITING_APPROVAL))).UpdateSimple(messageQuery.Status.Value(int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_GENERATING)))
 		if txErr != nil {
 			return txErr
 		}
 		if result.RowsAffected != 1 {
 			return errorsx.Conflict("消息状态已变化，请刷新后重试")
 		}
-		return nil
+		// 使用落库时间作为生成版本，兼容数据库时间列的精度。
+		message, txErr = c.aiMessageRepo.FindByID(txCtx, message.ID)
+		return txErr
 	})
 	if err != nil {
 		return nil, err
 	}
-	message.Status = int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_GENERATING)
-	message.UpdatedAt = now
 	if automationRun != nil {
 		var stopApproval context.CancelFunc
 		ctx, stopApproval = c.automationCase.bindAutomationApproval(ctx, automationRun)
@@ -176,7 +176,7 @@ func (c *AiMessageCase) DecideAiToolApproval(ctx context.Context, req *basev1.De
 			}
 		}
 	}
-	err = c.finishAiMessage(ctx, session, message, reply, time.Now(), message.FirstTokenMs, message.DurationMs+durationMilliseconds(startAt, time.Now()), status)
+	err = c.finishAiMessage(ctx, session, message, reply, message.FirstTokenMs, message.DurationMs+durationMilliseconds(startAt, time.Now()), status)
 	if err != nil {
 		return nil, err
 	}
@@ -209,7 +209,7 @@ func (c *AiMessageCase) runAiRuntime(ctx context.Context, session *models.AiSess
 			return err
 		}
 		now := time.Now()
-		run = &models.AiToolApproval{ApprovalID: uuid.NewString(), TenantID: session.TenantID, SessionID: session.ID, MessageID: messageID, UserID: session.UserID, CheckpointData: []byte{}, RuntimeState: "{}", PendingCalls: "[]", Status: aiRunRunning, ExpiresAt: now.Add(aiApprovalLifetime), CreatedAt: now, UpdatedAt: now}
+		run = &models.AiToolApproval{ApprovalID: uuid.NewString(), TenantID: session.TenantID, SessionID: session.ID, MessageID: messageID, UserID: session.UserID, CheckpointData: []byte{}, RuntimeState: "{}", PendingCalls: "[]", Status: aiRunRunning, ExpiresAt: now.Add(aiApprovalLifetime), CreatedAt: now}
 		return c.aiApprovalRepo.Create(txCtx, run)
 	})
 	if err != nil {
@@ -245,7 +245,7 @@ func (c *AiMessageCase) saveAiRuntime(ctx context.Context, run *models.AiToolApp
 
 		query := c.aiApprovalRepo.Query(ctx).AiToolApproval
 		now := time.Now()
-		updates := []field.AssignExpr{query.Status.Value(status), query.CheckpointData.Value([]byte{}), query.UpdatedAt.Value(now)}
+		updates := []field.AssignExpr{query.Status.Value(status), query.CheckpointData.Value([]byte{})}
 		var err error
 		if reply != nil && reply.Pending != nil {
 			var state []byte
@@ -260,7 +260,7 @@ func (c *AiMessageCase) saveAiRuntime(ctx context.Context, run *models.AiToolApp
 			}
 			run.ApprovalID = uuid.NewString()
 			run.ExpiresAt = now.Add(aiApprovalLifetime)
-			updates = []field.AssignExpr{query.Status.Value(aiRunPending), query.ApprovalID.Value(run.ApprovalID), query.RuntimeState.Value(string(state)), query.PendingCalls.Value(string(calls)), query.ExpiresAt.Value(run.ExpiresAt), query.UpdatedAt.Value(now)}
+			updates = []field.AssignExpr{query.Status.Value(aiRunPending), query.ApprovalID.Value(run.ApprovalID), query.RuntimeState.Value(string(state)), query.PendingCalls.Value(string(calls)), query.ExpiresAt.Value(run.ExpiresAt)}
 			reply.Approval = &ai.Approval{ID: run.ApprovalID, ExpiresAt: run.ExpiresAt}
 			for _, call := range reply.Pending.Calls {
 				reply.Approval.Calls = append(reply.Approval.Calls, call.ApprovalInfo)

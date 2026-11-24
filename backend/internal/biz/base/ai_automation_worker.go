@@ -19,7 +19,6 @@ import (
 	"github.com/liujitcn/kratos-kit/auth/authn/engine"
 	"github.com/liujitcn/kratos-kit/auth/data"
 	"gorm.io/gen"
-	"gorm.io/gen/field"
 )
 
 // Dispatch 扫描持久化计划并并行执行有限批次，任务记录决定跨实例领取权。
@@ -177,7 +176,7 @@ func (c *AiAutomationCase) createAutomationSession(ctx context.Context, run *mod
 		if plugins == "" {
 			plugins = "[]"
 		}
-		session = &models.AiSession{TenantID: run.TenantID, UserID: run.OwnerUserID, Terminal: ai.TerminalAdmin, Title: "自动化 · " + form.Name, Summary: form.Prompt, Plugins: plugins, AutomationID: plan.ID, AutomationRunID: run.ID, CreatedAt: time.Now(), UpdatedAt: time.Now()}
+		session = &models.AiSession{TenantID: run.TenantID, UserID: run.OwnerUserID, Terminal: ai.TerminalAdmin, Title: "自动化 · " + form.Name, Summary: form.Prompt, Plugins: plugins, AutomationID: plan.ID, AutomationRunID: run.ID, CreatedAt: time.Now()}
 		if run.Terminal == "app" {
 			session.Terminal = ai.TerminalApp
 		}
@@ -208,12 +207,8 @@ func (c *AiAutomationCase) checkAutomationExecution(ctx context.Context, run *mo
 		_, err = query.WithContext(ctx).Where(query.ID.Eq(run.ID), query.Status.Eq("running"), query.LeaseVersion.Eq(run.LeaseVersion), query.LeaseUntil.Gt(time.Now().UnixMilli()), query.CancelRequested.Eq(0)).First()
 		return err
 	}
-	updates := []field.AssignExpr{query.UpdatedAt.Value(time.Now())}
-	if markTool {
-		updates = append(updates, query.ToolStarted.Add(1))
-	}
 	var result gen.ResultInfo
-	result, err = query.WithContext(ctx).Where(query.ID.Eq(run.ID), query.Status.Eq("running"), query.LeaseVersion.Eq(run.LeaseVersion), query.LeaseUntil.Gt(time.Now().UnixMilli()), query.CancelRequested.Eq(0)).UpdateSimple(updates...)
+	result, err = query.WithContext(ctx).Where(query.ID.Eq(run.ID), query.Status.Eq("running"), query.LeaseVersion.Eq(run.LeaseVersion), query.LeaseUntil.Gt(time.Now().UnixMilli()), query.CancelRequested.Eq(0)).UpdateSimple(query.ToolStarted.Add(1))
 	if err != nil {
 		return err
 	}
@@ -381,13 +376,13 @@ func (c *AiAutomationCase) recoverAutomationRuns(ctx context.Context, now time.T
 				code = "TOOL_RESULT_UNKNOWN"
 			}
 			runQuery := c.runRepo.Query(txCtx).AiAutomationRun
-			_, err = runQuery.WithContext(txCtx).Where(runQuery.ID.Eq(run.ID)).UpdateSimple(runQuery.Status.Value(status), runQuery.ResultUnknown.Value(unknown), runQuery.ErrorCode.Value(code), runQuery.Summary.Value(summary), runQuery.LeaseVersion.Value(current.LeaseVersion+1), runQuery.LeaseUntil.Value(0), runQuery.FinishedAt.Value(now.UnixMilli()), runQuery.Notified.Value(0), runQuery.UpdatedAt.Value(now))
+			_, err = runQuery.WithContext(txCtx).Where(runQuery.ID.Eq(run.ID)).UpdateSimple(runQuery.Status.Value(status), runQuery.ResultUnknown.Value(unknown), runQuery.ErrorCode.Value(code), runQuery.Summary.Value(summary), runQuery.LeaseVersion.Value(current.LeaseVersion+1), runQuery.LeaseUntil.Value(0), runQuery.FinishedAt.Value(now.UnixMilli()), runQuery.Notified.Value(0))
 			if err != nil {
 				return err
 			}
 			if run.SessionID > 0 {
 				approval := c.aiMessageCase.aiApprovalRepo.Query(txCtx).AiToolApproval
-				_, err = approval.WithContext(txCtx).Where(approval.SessionID.Eq(run.SessionID), approval.Status.In(aiRunPending, aiRunRunning)).UpdateSimple(approval.Status.Value(aiRunExpired), approval.CheckpointData.Value([]byte{}), approval.UpdatedAt.Value(now))
+				_, err = approval.WithContext(txCtx).Where(approval.SessionID.Eq(run.SessionID), approval.Status.In(aiRunPending, aiRunRunning)).UpdateSimple(approval.Status.Value(aiRunExpired), approval.CheckpointData.Value([]byte{}))
 				if err != nil {
 					return err
 				}
@@ -396,7 +391,7 @@ func (c *AiAutomationCase) recoverAutomationRuns(ctx context.Context, now time.T
 				return err
 			}
 			planQuery := c.Query(txCtx).AiAutomation
-			_, err = planQuery.WithContext(txCtx).Where(planQuery.ID.Eq(plan.ID), planQuery.ActiveRunID.Eq(run.ID)).UpdateSimple(planQuery.ActiveRunID.Value(0), planQuery.UpdatedAt.Value(now))
+			_, err = planQuery.WithContext(txCtx).Where(planQuery.ID.Eq(plan.ID), planQuery.ActiveRunID.Eq(run.ID)).UpdateSimple(planQuery.ActiveRunID.Value(0))
 			return err
 		})
 		if err != nil {

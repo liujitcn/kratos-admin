@@ -13,6 +13,6 @@ func SaveBiWorkbench(ctx context.Context, repo *data.BiWorkbenchRepository, item
 	query := repo.Query(ctx).BiWorkbench
 	return query.WithContext(ctx).Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "tenant_id"}, {Name: "user_id"}},
-		DoUpdates: clause.AssignmentColumns([]string{"config_json", "updated_at"}),
+		UpdateAll: true,
 	}).Create(item)
 }

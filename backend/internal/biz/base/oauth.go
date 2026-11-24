@@ -588,7 +588,6 @@ func (c *OauthCase) createWechatMiniUser(ctx context.Context, openID string) (*m
 		Status:             coreconst.STATUS_STATUS_ENABLE,
 		Remark:             "自动注册用户",
 		CreatedAt:          now,
-		UpdatedAt:          now,
 	}
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		err = c.baseUserCase.Create(txCtx, user)

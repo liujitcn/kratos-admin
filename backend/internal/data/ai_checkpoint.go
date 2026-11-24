@@ -82,7 +82,7 @@ func (s *AiCheckPointStore) Set(ctx context.Context, key string, value []byte) e
 	}
 	query := s.repo.Query(ctx).AiToolApproval
 	var result gen.ResultInfo
-	result, err = query.WithContext(ctx).Where(query.ID.Eq(id), query.Status.Eq(0), query.ExpiresAt.Gt(time.Now())).UpdateSimple(query.CheckpointData.Value(compressed), query.UpdatedAt.Value(time.Now()))
+	result, err = query.WithContext(ctx).Where(query.ID.Eq(id), query.Status.Eq(0), query.ExpiresAt.Gt(time.Now())).UpdateSimple(query.CheckpointData.Value(compressed))
 	if err != nil {
 		return err
 	}

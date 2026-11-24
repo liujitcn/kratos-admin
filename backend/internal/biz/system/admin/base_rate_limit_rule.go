@@ -145,7 +145,6 @@ func (c *BaseRateLimitRuleCase) CreateBaseRateLimitRule(ctx context.Context, inp
 		CreatedBy:     authInfo.UserId,
 		UpdatedBy:     authInfo.UserId,
 		CreatedAt:     now,
-		UpdatedAt:     now,
 	}
 	err = c.Create(ctx, item)
 	if err != nil {

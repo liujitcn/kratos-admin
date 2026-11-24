@@ -152,7 +152,6 @@ func (c *AiAutomationCase) CreateAiAutomation(ctx context.Context, req *basev1.C
 	row.Revision = 1
 	row.NextFireAt = times[0].UnixMilli()
 	row.CreatedAt = now
-	row.UpdatedAt = now
 	row.CreatedBy = auth.UserId
 	row.UpdatedBy = auth.UserId
 	if err = c.Create(ctx, row); err != nil {
@@ -193,7 +192,7 @@ func (c *AiAutomationCase) UpdateAiAutomation(ctx context.Context, req *basev1.U
 			return err
 		}
 		query := c.Query(txCtx).AiAutomation
-		_, err = query.WithContext(txCtx).Where(query.ID.Eq(row.ID)).UpdateSimple(query.Name.Value(updated.Name), query.Prompt.Value(updated.Prompt), query.Schedule.Value(updated.Schedule), query.ProviderID.Value(updated.ProviderID), query.ModelName.Value(updated.ModelName), query.KnowledgeBaseIds.Value(updated.KnowledgeBaseIds), query.Plugins.Value(updated.Plugins), query.Revision.Value(locked.Revision+1), query.NextFireAt.Value(times[0].UnixMilli()), query.Problem.Value(""), query.UpdatedBy.Value(row.OwnerUserID), query.UpdatedAt.Value(time.Now()))
+		_, err = query.WithContext(txCtx).Where(query.ID.Eq(row.ID)).UpdateSimple(query.Name.Value(updated.Name), query.Prompt.Value(updated.Prompt), query.Schedule.Value(updated.Schedule), query.ProviderID.Value(updated.ProviderID), query.ModelName.Value(updated.ModelName), query.KnowledgeBaseIds.Value(updated.KnowledgeBaseIds), query.Plugins.Value(updated.Plugins), query.Revision.Value(locked.Revision+1), query.NextFireAt.Value(times[0].UnixMilli()), query.Problem.Value(""), query.UpdatedBy.Value(row.OwnerUserID))
 		return err
 	})
 	if err != nil {
@@ -246,7 +245,7 @@ func (c *AiAutomationCase) SetAiAutomationStatus(ctx context.Context, req *basev
 			}
 		}
 		query := c.Query(txCtx).AiAutomation
-		_, err = query.WithContext(txCtx).Where(query.ID.Eq(row.ID)).UpdateSimple(query.Status.Value(req.Status), query.Revision.Value(locked.Revision+1), query.NextFireAt.Value(next), query.Problem.Value(""), query.UpdatedBy.Value(row.OwnerUserID), query.UpdatedAt.Value(time.Now()))
+		_, err = query.WithContext(txCtx).Where(query.ID.Eq(row.ID)).UpdateSimple(query.Status.Value(req.Status), query.Revision.Value(locked.Revision+1), query.NextFireAt.Value(next), query.Problem.Value(""), query.UpdatedBy.Value(row.OwnerUserID))
 		return err
 	})
 	if err != nil {
@@ -348,7 +347,7 @@ func (c *AiAutomationCase) StopAiAutomationRun(ctx context.Context, req *basev1.
 			return nil
 		}
 		query := c.runRepo.Query(txCtx).AiAutomationRun
-		_, err = query.WithContext(txCtx).Where(query.ID.Eq(run.ID), query.Status.Eq("running")).UpdateSimple(query.CancelRequested.Value(1), query.UpdatedAt.Value(time.Now()))
+		_, err = query.WithContext(txCtx).Where(query.ID.Eq(run.ID), query.Status.Eq("running")).UpdateSimple(query.CancelRequested.Value(1))
 		return err
 	})
 	if err != nil {
@@ -403,7 +402,7 @@ func (c *AiAutomationCase) ContinueAiAutomationRun(ctx context.Context, req *bas
 			if output.Content == "" {
 				continue
 			}
-			model := &models.AiMessage{TenantID: source.TenantID, SessionID: id, UserID: source.UserID, InputContent: ai.MarshalInputContentPayload(ai.InputContentPayload{Kind: ai.KindText, Content: "继续讨论自动化结果"}), OutputContent: ai.MarshalReplyContent(&ai.Response{Content: output.Content}), Attachments: "[]", Tools: "[]", Token: "{}", Status: int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_SUCCESS), CreatedAt: now, UpdatedAt: now}
+			model := &models.AiMessage{TenantID: source.TenantID, SessionID: id, UserID: source.UserID, InputContent: ai.MarshalInputContentPayload(ai.InputContentPayload{Kind: ai.KindText, Content: "继续讨论自动化结果"}), OutputContent: ai.MarshalReplyContent(&ai.Response{Content: output.Content}), Attachments: "[]", Tools: "[]", Token: "{}", Status: int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_SUCCESS), CreatedAt: now}
 			if err = c.aiMessageCase.aiMessageRepo.Create(txCtx, model); err != nil {
 				return err
 			}
@@ -588,7 +587,7 @@ func (c *AiAutomationCase) claimAutomationApproval(ctx context.Context, session 
 	query := c.runRepo.Query(ctx).AiAutomationRun
 	now := time.Now()
 	var result gen.ResultInfo
-	result, err = query.WithContext(ctx).Where(query.ID.Eq(run.ID), query.Status.Eq("waiting_approval"), query.LeaseVersion.Eq(run.LeaseVersion), query.CancelRequested.Eq(0)).UpdateSimple(query.Status.Value("running"), query.LeaseVersion.Value(run.LeaseVersion+1), query.LeaseUntil.Value(now.Add(automationLeaseLifetime).UnixMilli()), query.UpdatedAt.Value(now))
+	result, err = query.WithContext(ctx).Where(query.ID.Eq(run.ID), query.Status.Eq("waiting_approval"), query.LeaseVersion.Eq(run.LeaseVersion), query.CancelRequested.Eq(0)).UpdateSimple(query.Status.Value("running"), query.LeaseVersion.Value(run.LeaseVersion+1), query.LeaseUntil.Value(now.Add(automationLeaseLifetime).UnixMilli()))
 	if err != nil {
 		return nil, err
 	}

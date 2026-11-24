@@ -338,7 +338,6 @@ func (c *BiCardCase) SaveBiCard(ctx context.Context, req *adminv1.SaveBiCardRequ
 			source.SchemaJSON = string(payload)
 			source.Version++
 			source.UpdatedBy = scope.UserID
-			source.UpdatedAt = time.Now()
 			if err = sourceCase.sourceRepo.UpdateByID(txCtx, source); err != nil {
 				return err
 			}
@@ -361,11 +360,10 @@ func (c *BiCardCase) SaveBiCard(ctx context.Context, req *adminv1.SaveBiCardRequ
 		}
 		item.Version++
 		item.UpdatedBy = scope.UserID
-		item.UpdatedAt = time.Now()
 		if item.ID == 0 {
 			err = c.cardRepo.Create(txCtx, item)
 		} else {
-			err = c.cardRepo.Update(txCtx, item, repository.Where(query.ID.Eq(item.ID), query.TenantID.Eq(scope.TenantID), query.OwnerID.Eq(scope.UserID)), repository.Select(query.Name, query.SourceCode, query.QueryJSON, query.ExecutionJSON, query.Version, query.ValidationQueryRecordID, query.ChartType, query.ChartJSON, query.RefreshSeconds, query.IsShared, query.UpdatedBy, query.UpdatedAt))
+			err = c.cardRepo.Update(txCtx, item, repository.Where(query.ID.Eq(item.ID), query.TenantID.Eq(scope.TenantID), query.OwnerID.Eq(scope.UserID)), repository.Select(query.Name, query.SourceCode, query.QueryJSON, query.ExecutionJSON, query.Version, query.ValidationQueryRecordID, query.ChartType, query.ChartJSON, query.RefreshSeconds, query.IsShared, query.UpdatedBy))
 		}
 		if err != nil {
 			return err
@@ -563,7 +561,7 @@ func (c *BiCardCase) SaveBiWorkbench(ctx context.Context, req *adminv1.SaveBiWor
 		return nil, errorsx.Internal("保存个人工作台失败").WithCause(err)
 	}
 	now := time.Now()
-	item := &models.BiWorkbench{TenantID: authInfo.TenantId, UserID: authInfo.UserId, ConfigJSON: string(configJSON), CreatedAt: now, UpdatedAt: now}
+	item := &models.BiWorkbench{TenantID: authInfo.TenantId, UserID: authInfo.UserId, ConfigJSON: string(configJSON), CreatedAt: now}
 	if err = dataAccess.SaveBiWorkbench(ctx, c.workbenchRepo, item); err != nil {
 		return nil, err
 	}

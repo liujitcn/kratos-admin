@@ -161,7 +161,6 @@ func (c *BiDashboardCase) SaveBiDashboard(ctx context.Context, req *adminv1.Save
 		result.Status = biDashboardStatusDraft
 		result.DraftVersion++
 		result.UpdatedBy = authInfo.UserId
-		result.UpdatedAt = time.Now()
 		if result.ID == 0 {
 			err = c.dashboardRepo.Create(txCtx, result)
 		} else {
@@ -254,7 +253,6 @@ func (c *BiDashboardCase) PublishBiDashboard(ctx context.Context, req *adminv1.P
 		}
 		result.Status = biDashboardStatusPublished
 		result.PublishedVersion = result.DraftVersion
-		result.UpdatedAt = time.Now()
 		result.UpdatedBy = authInfo.UserId
 		affected, err = dataAccess.UpdateBiDashboardState(txCtx, c.dashboardRepo, result, req.GetVersion())
 		if err != nil {

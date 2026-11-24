@@ -82,7 +82,7 @@ func (c *BaseTableArchiveCase) CreateBaseTableArchive(ctx context.Context, req *
 		SourceName: req.GetSourceName(), TableName_: req.GetTableName(), ArchiveMode: int32(req.GetArchiveMode()),
 		OnlineRetentionDays: req.GetOnlineRetentionDays(), ArchiveRetentionDays: req.GetArchiveRetentionDays(), BatchSize: req.GetBatchSize(),
 		DeleteAfterVerify: boolToTinyint(req.GetDeleteAfterVerify()), OSSPrefix: req.GetOssPrefix(), Status: status,
-		CreatedBy: authInfo.UserId, UpdatedBy: authInfo.UserId, CreatedAt: time.Now(), UpdatedAt: time.Now(),
+		CreatedBy: authInfo.UserId, UpdatedBy: authInfo.UserId, CreatedAt: time.Now(),
 	}
 	return c.Create(ctx, entity)
 }
@@ -108,7 +108,7 @@ func (c *BaseTableArchiveCase) UpdateBaseTableArchive(ctx context.Context, req *
 		ID: req.GetId(), SourceName: req.GetSourceName(), TableName_: req.GetTableName(), ArchiveMode: int32(req.GetArchiveMode()),
 		OnlineRetentionDays: req.GetOnlineRetentionDays(), ArchiveRetentionDays: req.GetArchiveRetentionDays(), BatchSize: req.GetBatchSize(),
 		DeleteAfterVerify: boolToTinyint(req.GetDeleteAfterVerify()), OSSPrefix: req.GetOssPrefix(), Status: status,
-		UpdatedBy: authInfo.UserId, UpdatedAt: time.Now(),
+		UpdatedBy: authInfo.UserId,
 	}
 	return c.UpdateByID(ctx, entity)
 }

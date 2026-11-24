@@ -109,7 +109,6 @@ func (c *BaseI18nCustomCase) CreateBaseI18nCustom(ctx context.Context, req *admi
 	item.CreatedBy = authInfo.UserId
 	item.UpdatedBy = authInfo.UserId
 	item.CreatedAt = now
-	item.UpdatedAt = now
 	err = c.Create(ctx, item)
 	if err != nil {
 		if errorsx.IsDuplicateKey(err) {
@@ -146,7 +145,6 @@ func (c *BaseI18nCustomCase) UpdateBaseI18nCustom(ctx context.Context, req *admi
 	}
 	item.Site = current.Site
 	item.UpdatedBy = authInfo.UserId
-	item.UpdatedAt = time.Now()
 	err = c.UpdateByID(ctx, item)
 	if err != nil {
 		if errorsx.IsDuplicateKey(err) {
@@ -197,7 +195,6 @@ func (c *BaseI18nCustomCase) SetBaseI18nCustomStatus(ctx context.Context, req *a
 	}
 	item.Status = int32(req.GetStatus())
 	item.UpdatedBy = authInfo.UserId
-	item.UpdatedAt = time.Now()
 	return c.UpdateByID(ctx, item)
 }
 

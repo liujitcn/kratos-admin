@@ -141,7 +141,6 @@ func (c *BaseRedactRuleCase) CreateBaseRedactRule(ctx context.Context, input *ad
 		CreatedBy:     authInfo.UserId,
 		UpdatedBy:     authInfo.UserId,
 		CreatedAt:     now,
-		UpdatedAt:     now,
 	}
 	err = c.Create(ctx, item)
 	if err != nil {

@@ -170,7 +170,7 @@ func (c *AiMessageCase) DeleteAiMessage(ctx context.Context, req *basev1.DeleteA
 			return txErr
 		}
 		approval := c.aiApprovalRepo.Query(txCtx).AiToolApproval
-		_, txErr = approval.WithContext(txCtx).Where(approval.MessageID.Eq(message.ID), approval.Status.Eq(aiRunPending)).UpdateSimple(approval.Status.Value(aiRunRejected), approval.CheckpointData.Value([]byte{}), approval.UpdatedAt.Value(time.Now()))
+		_, txErr = approval.WithContext(txCtx).Where(approval.MessageID.Eq(message.ID), approval.Status.Eq(aiRunPending)).UpdateSimple(approval.Status.Value(aiRunRejected), approval.CheckpointData.Value([]byte{}))
 		return txErr
 	})
 }
@@ -197,7 +197,7 @@ func (c *AiMessageCase) SendAiMessage(ctx context.Context, req *basev1.SendAiMes
 	if err != nil {
 		log.Error(fmt.Sprintf("AI message generation failed: %v", err))
 		failedReply := c.buildAiFailedReply(ctx, reply, err, input.ProviderName, input.ModelName)
-		err = c.finishAiMessage(ctx, session, message, failedReply, finishAt, firstTokenMs, durationMs, int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_FAILED))
+		err = c.finishAiMessage(ctx, session, message, failedReply, firstTokenMs, durationMs, int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_FAILED))
 		if err != nil {
 			return nil, err
 		}
@@ -207,7 +207,7 @@ func (c *AiMessageCase) SendAiMessage(ctx context.Context, req *basev1.SendAiMes
 		}, nil
 	}
 
-	if err = c.finishAiMessage(ctx, session, message, reply, finishAt, firstTokenMs, durationMs, int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_SUCCESS)); err != nil {
+	if err = c.finishAiMessage(ctx, session, message, reply, firstTokenMs, durationMs, int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_SUCCESS)); err != nil {
 		return nil, err
 	}
 	return &basev1.SendAiMessageResponse{
@@ -269,7 +269,7 @@ func (c *AiMessageCase) StreamAiMessage(ctx context.Context, req *basev1.SendAiM
 		status = int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_FAILED)
 	}
 
-	saveErr := c.finishAiMessage(ctx, session, message, reply, finishAt, firstTokenMs, durationMs, status)
+	saveErr := c.finishAiMessage(ctx, session, message, reply, firstTokenMs, durationMs, status)
 	if saveErr != nil {
 		log.Error(fmt.Sprintf("StreamAiMessage SaveReply %v", saveErr))
 		_ = emitter.EmitAiStream(dto.AiStreamEventError, dto.AiStreamPayload{
@@ -378,7 +378,6 @@ func (c *AiMessageCase) prepareNewAiMessage(ctx context.Context, req *basev1.Sen
 		return nil, nil, "", nil, nil, nil, "", errorsx.InvalidArgument("AI供应商或模型选择无效")
 	}
 
-	now := time.Now()
 	inputContent := ai.InputContentPayload{
 		Kind:             ai.KindText,
 		Content:          ai.BuildUserContent(content, attachments, c.localizedAttachmentPrompt(ctx)),
@@ -399,8 +398,6 @@ func (c *AiMessageCase) prepareNewAiMessage(ctx context.Context, req *basev1.Sen
 		FirstTokenMs:  0,
 		DurationMs:    0,
 		Status:        int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_GENERATING),
-		CreatedAt:     now,
-		UpdatedAt:     now,
 	}
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		var txErr error
@@ -410,17 +407,19 @@ func (c *AiMessageCase) prepareNewAiMessage(ctx context.Context, req *basev1.Sen
 		if txErr = c.ensureAiSessionIdle(txCtx, session.TenantID, session.ID); txErr != nil {
 			return txErr
 		}
-		// 与数据库 datetime(3) 精度一致，更新时间同时用于阻止旧请求回填。
-		now = time.Now().Truncate(time.Millisecond)
-		message.CreatedAt = now
-		message.UpdatedAt = now
+		message.CreatedAt = time.Now().Truncate(time.Millisecond)
 		if txErr = c.aiMessageRepo.Create(txCtx, message); txErr != nil {
+			return txErr
+		}
+		// 以实际落库的时间为生成版本，避免数据库精度转换造成失配。
+		message, txErr = c.aiMessageRepo.FindByID(txCtx, message.ID)
+		if txErr != nil {
 			return txErr
 		}
 		defaultSummary := c.aiRuntime.LocalizeMessage(ctx, "base.ai.session.default_summary", nil, "New conversation")
 		attachmentSummary := c.aiRuntime.LocalizeMessage(ctx, "base.ai.session.attachment_summary", map[string]any{"Count": len(attachments)}, fmt.Sprintf("%d attachment(s)", len(attachments)))
 		summary := ai.BuildDynamicSummary(content, attachments, defaultSummary, attachmentSummary)
-		return c.aiSessionCase.UpdateSessionSummary(txCtx, session, summary, now)
+		return c.aiSessionCase.UpdateSessionSummary(txCtx, session, summary)
 	})
 	if err != nil {
 		return nil, nil, "", nil, nil, nil, "", err
@@ -490,9 +489,8 @@ func (c *AiMessageCase) regenerateAiMessageWithContent(ctx context.Context, sess
 		return nil, err
 	}
 
-	now := time.Now()
 	input.Content = ai.BuildUserContent(content, attachments, c.localizedAttachmentPrompt(ctx))
-	if err = c.markAiMessageGenerating(ctx, session, message, input, now); err != nil {
+	if err = c.markAiMessageGenerating(ctx, session, message, input); err != nil {
 		return nil, err
 	}
 	ctx, _, err = c.startAiMessageEvents(ctx, session, message, nil)
@@ -511,7 +509,7 @@ func (c *AiMessageCase) regenerateAiMessageWithContent(ctx context.Context, sess
 		reply = c.buildAiFailedReply(ctx, reply, err, input.ProviderName, input.ModelName)
 		status = int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_FAILED)
 	}
-	err = c.finishAiMessage(ctx, session, message, reply, finishAt, firstTokenMs, durationMs, status)
+	err = c.finishAiMessage(ctx, session, message, reply, firstTokenMs, durationMs, status)
 	if err != nil {
 		return nil, err
 	}
@@ -749,7 +747,6 @@ func (c *AiMessageCase) finishAiMessage(
 	session *models.AiSession,
 	message *models.AiMessage,
 	reply *ai.Response,
-	now time.Time,
 	firstTokenMs int32,
 	durationMs int32,
 	status int32,
@@ -762,7 +759,6 @@ func (c *AiMessageCase) finishAiMessage(
 		defer execution.Mutex.Unlock()
 		defer execution.Cancel(nil)
 	}
-	now = now.Truncate(time.Millisecond)
 	if reply != nil && reply.Approval != nil {
 		status = int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_WAITING_APPROVAL)
 	}
@@ -780,6 +776,7 @@ func (c *AiMessageCase) finishAiMessage(
 			attachmentsJSON = ai.MarshalAttachments(slices.Concat(ai.ParseAttachments(message.Attachments), reply.Attachments))
 		}
 	}
+	var updated *models.AiMessage
 	err := c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		var updateErr error
 		if execution := automation.ExecutionFromContext(txCtx); execution.RunID > 0 {
@@ -799,7 +796,6 @@ func (c *AiMessageCase) finishAiMessage(
 			query.FirstTokenMs.Value(firstTokenMs),
 			query.DurationMs.Value(durationMs),
 			query.Status.Value(status),
-			query.UpdatedAt.Value(now),
 		}
 		if attachmentsJSON != "" {
 			columns = append(columns, query.Attachments.Value(attachmentsJSON))
@@ -807,31 +803,26 @@ func (c *AiMessageCase) finishAiMessage(
 		var result gen.ResultInfo
 		result, updateErr = query.WithContext(txCtx).
 			Where(query.TenantID.Eq(message.TenantID), query.ID.Eq(message.ID), query.Status.Eq(int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_GENERATING)), query.UpdatedAt.Eq(message.UpdatedAt)).
-			UpdateColumnSimple(columns...)
+			UpdateSimple(columns...)
 		if updateErr != nil {
 			return updateErr
 		}
 		if result.RowsAffected != 1 {
 			return errorsx.Conflict("消息状态已变化，请刷新后重试")
 		}
-		if updateErr = c.aiSessionCase.RefreshSessionUpdatedAt(txCtx, session, now); updateErr != nil {
+		if updateErr = c.aiSessionCase.RefreshSessionUpdatedAt(txCtx, session); updateErr != nil {
 			return updateErr
 		}
-		return c.finishAiMessageEvent(txCtx, session, message.ID, status)
+		updated, updateErr = c.aiMessageRepo.FindByID(txCtx, message.ID)
+		if updateErr != nil {
+			return updateErr
+		}
+		return c.finishAiMessageEvent(txCtx, session, updated)
 	})
 	if err != nil {
 		return err
 	}
-	message.OutputContent = outputContent
-	message.Tools = tools
-	message.Token = token
-	message.FirstTokenMs = firstTokenMs
-	message.DurationMs = durationMs
-	message.Status = status
-	message.UpdatedAt = now
-	if attachmentsJSON != "" {
-		message.Attachments = attachmentsJSON
-	}
+	*message = *updated
 	return nil
 }
 
@@ -1052,9 +1043,9 @@ func (c *AiMessageCase) findLatestAiMessage(ctx context.Context, tenantID int64,
 }
 
 // markAiMessageGenerating 在会话锁内领取最新消息的新一轮生成版本。
-func (c *AiMessageCase) markAiMessageGenerating(ctx context.Context, session *models.AiSession, message *models.AiMessage, input ai.InputContentPayload, now time.Time) error {
-	now = now.Truncate(time.Millisecond)
+func (c *AiMessageCase) markAiMessageGenerating(ctx context.Context, session *models.AiSession, message *models.AiMessage, input ai.InputContentPayload) error {
 	inputContent := ai.MarshalInputContentPayload(input)
+	var updated *models.AiMessage
 	err := c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		var txErr error
 		if txErr = c.aiSessionCase.lockAiSession(txCtx, session); txErr != nil {
@@ -1070,7 +1061,7 @@ func (c *AiMessageCase) markAiMessageGenerating(ctx context.Context, session *mo
 		var result gen.ResultInfo
 		result, txErr = query.WithContext(txCtx).
 			Where(query.TenantID.Eq(message.TenantID), query.ID.Eq(message.ID), query.Status.Eq(message.Status)).
-			UpdateColumnSimple(
+			UpdateSimple(
 				query.InputContent.Value(inputContent),
 				query.OutputContent.Value(ai.MarshalEmptyOutputContent()),
 				query.Tools.Value("[]"),
@@ -1078,7 +1069,6 @@ func (c *AiMessageCase) markAiMessageGenerating(ctx context.Context, session *mo
 				query.FirstTokenMs.Value(0),
 				query.DurationMs.Value(0),
 				query.Status.Value(int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_GENERATING)),
-				query.UpdatedAt.Value(now),
 			)
 		if txErr != nil {
 			return txErr
@@ -1086,19 +1076,13 @@ func (c *AiMessageCase) markAiMessageGenerating(ctx context.Context, session *mo
 		if result.RowsAffected != 1 {
 			return errorsx.Conflict("消息状态已变化，请刷新后重试")
 		}
-		return nil
+		updated, txErr = c.aiMessageRepo.FindByID(txCtx, message.ID)
+		return txErr
 	})
 	if err != nil {
 		return err
 	}
-	message.InputContent = inputContent
-	message.OutputContent = ai.MarshalEmptyOutputContent()
-	message.Tools = "[]"
-	message.Token = ai.MarshalTokenUsage(ai.TokenUsage{})
-	message.FirstTokenMs = 0
-	message.DurationMs = 0
-	message.Status = int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_GENERATING)
-	message.UpdatedAt = now
+	*message = *updated
 	return nil
 }
 
@@ -1487,12 +1471,12 @@ func (c *AiMessageCase) expireAiGeneratingMessages(ctx context.Context, session 
 			if active > 0 {
 				continue
 			}
-			_, err = runs.WithContext(txCtx).Where(approval.ExpiresAt.Lte(now)).UpdateColumnSimple(approval.Status.Value(aiRunExpired), approval.CheckpointData.Value([]byte{}), approval.UpdatedAt.Value(now))
+			_, err = runs.WithContext(txCtx).Where(approval.ExpiresAt.Lte(now)).UpdateSimple(approval.Status.Value(aiRunExpired), approval.CheckpointData.Value([]byte{}))
 			if err != nil {
 				return err
 			}
 			output := ai.MarshalReplyContent(&ai.Response{Content: c.aiRuntime.LocalizeMessage(ctx, "system.ai.chat.error.run_expired", nil, "Generation expired. This request will not resume automatically. Check the business result before retrying."), Fallback: true})
-			_, err = query.WithContext(txCtx).Where(query.ID.Eq(item.ID), query.Status.Eq(int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_GENERATING))).UpdateColumnSimple(query.Status.Value(int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_FAILED)), query.OutputContent.Value(output), query.UpdatedAt.Value(now))
+			_, err = query.WithContext(txCtx).Where(query.ID.Eq(item.ID), query.Status.Eq(int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_GENERATING))).UpdateSimple(query.Status.Value(int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_FAILED)), query.OutputContent.Value(output))
 			if err != nil {
 				return err
 			}

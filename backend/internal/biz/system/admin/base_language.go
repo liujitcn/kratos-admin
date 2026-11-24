@@ -113,7 +113,6 @@ func (c *BaseLanguageCase) CreateBaseLanguage(ctx context.Context, req *adminv1.
 	item.CreatedBy = authInfo.UserId
 	item.UpdatedBy = authInfo.UserId
 	item.CreatedAt = now
-	item.UpdatedAt = now
 	err = c.Create(ctx, item)
 	if err != nil {
 		if errorsx.IsDuplicateKey(err) {

@@ -61,7 +61,7 @@ func TestAiEventIsolationAndCancellation(t *testing.T) {
 	}
 	cancel()
 	callback.EmitActivity(runCtx, callback.Activity{ID: "call-1", Phase: "tool", Status: "failed", ToolName: "read"})
-	if err = c.finishAiMessage(runCtx, session, message, &ai.Response{Content: "请求已取消，已发出的外部操作结果未知，不能自动重试"}, time.Now(), 0, 1, int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_FAILED)); err != nil {
+	if err = c.finishAiMessage(runCtx, session, message, &ai.Response{Content: "请求已取消，已发出的外部操作结果未知，不能自动重试"}, 0, 1, int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_FAILED)); err != nil {
 		t.Fatal(err)
 	}
 	req := &basev1.ListAiMessageEventRequest{SessionId: strconv.FormatInt(session.ID, 10), MessageId: strconv.FormatInt(message.ID, 10)}
@@ -93,14 +93,9 @@ func TestAiEventIsolationAndCancellation(t *testing.T) {
 	if err = c.recordAiMessageEvent(ctx, execution, "activity", dto.AiStreamPayload{}); err == nil {
 		t.Fatal("已结束运行仍能追加事件")
 	}
-	query := c.aiMessageRepo.Query(ctx).AiMessage
-	generation := message.UpdatedAt.Add(time.Millisecond)
-	_, err = query.WithContext(ctx).Where(query.ID.Eq(message.ID)).UpdateColumnSimple(query.Status.Value(1), query.UpdatedAt.Value(generation))
-	if err != nil {
+	if err = c.markAiMessageGenerating(ctx, session, message, ai.InputContentPayload{}); err != nil {
 		t.Fatal(err)
 	}
-	message.Status = 1
-	message.UpdatedAt = generation
 	var newCtx context.Context
 	newCtx, _, err = c.startAiMessageEvents(ctx, session, message, nil)
 	if err != nil {
@@ -132,7 +127,7 @@ func TestAiEventTerminalRequiresCommit(t *testing.T) {
 	if err = emitter.EmitAiStream(dto.AiStreamEventError, dto.AiStreamPayload{}); err == nil || sent != 0 {
 		t.Fatal("尚未持久化的错误被当作权威终态发送")
 	}
-	if err = c.finishAiMessage(runCtx, session, message, &ai.Response{Content: "done"}, time.Now(), 0, 1, int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_SUCCESS)); err != nil {
+	if err = c.finishAiMessage(runCtx, session, message, &ai.Response{Content: "done"}, 0, 1, int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_SUCCESS)); err != nil {
 		t.Fatal(err)
 	}
 	if err = emitter.EmitAiStream(dto.AiStreamEventFinish, dto.AiStreamPayload{}); err != nil || sent != 1 {
@@ -152,7 +147,7 @@ func TestAiEventPaginationAndDeletion(t *testing.T) {
 			for i := range 102 {
 				callback.EmitActivity(runCtx, callback.Activity{ID: strconv.Itoa(i), Phase: "tool", Status: "completed"})
 			}
-			if err = c.finishAiMessage(runCtx, session, message, &ai.Response{Content: "done"}, time.Now(), 0, 1, int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_SUCCESS)); err != nil {
+			if err = c.finishAiMessage(runCtx, session, message, &ai.Response{Content: "done"}, 0, 1, int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_SUCCESS)); err != nil {
 				t.Fatal(err)
 			}
 			req := &basev1.ListAiMessageEventRequest{SessionId: "101", MessageId: "201"}

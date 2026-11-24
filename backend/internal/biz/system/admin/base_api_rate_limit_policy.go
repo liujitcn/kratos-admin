@@ -190,7 +190,6 @@ func (c *BaseApiRateLimitPolicyCase) CreateBaseApiRateLimitPolicy(ctx context.Co
 		CreatedBy:  authInfo.UserId,
 		UpdatedBy:  authInfo.UserId,
 		CreatedAt:  now,
-		UpdatedAt:  now,
 	}
 	err = c.Create(ctx, item)
 	if err != nil {

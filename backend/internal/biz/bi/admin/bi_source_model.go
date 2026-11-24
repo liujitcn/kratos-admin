@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"slices"
-	"time"
 
 	"github.com/liujitcn/gorm-kit/repository"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/bi/admin/v1"
@@ -147,7 +146,6 @@ func (c *BiSourceCase) synchronizeModel(ctx context.Context, source *models.BiSo
 		}
 		card.ExecutionJSON = string(payload)
 		card.Version++
-		card.UpdatedAt = time.Now()
 		updates = append(updates, card)
 	}
 	impact.AffectedDashboards, err = c.affectedPublishedDashboards(ctx, source, candidate)
@@ -156,7 +154,7 @@ func (c *BiSourceCase) synchronizeModel(ctx context.Context, source *models.BiSo
 	}
 	if write {
 		for _, card := range updates {
-			err = c.cardRepo.Update(ctx, card, repository.Where(query.ID.Eq(card.ID), query.TenantID.Eq(source.TenantID)), repository.Select(query.ExecutionJSON, query.Version, query.UpdatedAt))
+			err = c.cardRepo.Update(ctx, card, repository.Where(query.ID.Eq(card.ID), query.TenantID.Eq(source.TenantID)), repository.Select(query.ExecutionJSON, query.Version))
 			if err != nil {
 				return nil, err
 			}

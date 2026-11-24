@@ -121,7 +121,7 @@ func (c *BaseMessageTemplateCase) CreateBaseMessageTemplate(ctx context.Context,
 		return err
 	}
 	now := time.Now()
-	item.CreatedBy, item.UpdatedBy, item.CreatedAt, item.UpdatedAt = authInfo.UserId, authInfo.UserId, now, now
+	item.CreatedBy, item.UpdatedBy, item.CreatedAt = authInfo.UserId, authInfo.UserId, now
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		if err = c.Create(txCtx, item); err != nil && errorsx.IsDuplicateKey(err) {
 			return errorsx.UniqueConflict("消息分类与 Provider 模板已存在", "base_message_template", "category_id,provider_id", "unique_base_message_template").WithCause(err)
@@ -149,7 +149,7 @@ func (c *BaseMessageTemplateCase) UpdateBaseMessageTemplate(ctx context.Context,
 		return err
 	}
 	item.ID, item.CreatedBy, item.CreatedAt = oldItem.ID, oldItem.CreatedBy, oldItem.CreatedAt
-	item.UpdatedBy, item.UpdatedAt = authInfo.UserId, time.Now()
+	item.UpdatedBy = authInfo.UserId
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		if err = c.UpdateByID(txCtx, item); err != nil && errorsx.IsDuplicateKey(err) {
 			return errorsx.UniqueConflict("消息分类与 Provider 模板已存在", "base_message_template", "category_id,provider_id", "unique_base_message_template").WithCause(err)

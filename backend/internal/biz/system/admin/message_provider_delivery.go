@@ -239,12 +239,11 @@ func (c *BaseMessageCase) claimProviderDelivery(ctx context.Context, delivery *m
 	token := id.NewGUIDv4NoHyphen()
 	result, err := query.WithContext(ctx).
 		Where(conditions...).
-		UpdateColumnSimple(
+		UpdateSimple(
 			query.Status.Value(_const.MessageDeliveryStatusRunning),
 			query.AttemptCount.Add(1),
 			query.LockToken.Value(token),
 			query.LockedUntil.Value(now.Add(messageDispatchLease).UnixMilli()),
-			query.UpdatedAt.Value(now),
 		)
 	if err != nil {
 		return false, err
@@ -287,25 +286,24 @@ func (c *BaseMessageCase) finishProviderDelivery(ctx context.Context, delivery *
 		var result gen.ResultInfo
 		result, err = query.WithContext(txCtx).
 			Where(conditions...).
-			UpdateColumnSimple(
+			UpdateSimple(
 				query.Status.Value(status),
 				query.NextRetryAt.Value(nextRetryAt),
 				query.ReceiptID.Value(receiptID),
 				query.LastError.Value(lastError),
 				query.LockToken.Value(""),
 				query.LockedUntil.Value(0),
-				query.UpdatedAt.Value(time.Now()),
 			)
 		if err != nil || result.RowsAffected == 0 || message.Status != int32(basev1.MessageStatus_MESSAGE_STATUS_PUBLISHED) {
 			return err
 		}
 		if status == _const.MessageDeliveryStatusSucceeded {
-			_, err = messageQuery.WithContext(txCtx).Where(messageQuery.ID.Eq(message.ID)).UpdateColumnSimple(
-				messageQuery.DeliveredTotal.Add(1), messageQuery.UpdatedAt.Value(time.Now()),
+			_, err = messageQuery.WithContext(txCtx).Where(messageQuery.ID.Eq(message.ID)).UpdateSimple(
+				messageQuery.DeliveredTotal.Add(1),
 			)
 		} else if status == _const.MessageDeliveryStatusFailed {
-			_, err = messageQuery.WithContext(txCtx).Where(messageQuery.ID.Eq(message.ID)).UpdateColumnSimple(
-				messageQuery.FailedTotal.Add(1), messageQuery.UpdatedAt.Value(time.Now()),
+			_, err = messageQuery.WithContext(txCtx).Where(messageQuery.ID.Eq(message.ID)).UpdateSimple(
+				messageQuery.FailedTotal.Add(1),
 			)
 		}
 		return err
@@ -496,7 +494,7 @@ func newProviderDeliveryRecord(message *models.BaseMessage, providerID, userID i
 	return &models.BaseMessageDelivery{
 		TenantID: message.TenantID, MessageID: message.ID,
 		DeliveryType: _const.MessageDeliveryTypeProvider, ProviderID: providerID, UserID: userID,
-		Status: status, LastError: lastError, ReceivedAt: now, CreatedAt: now, UpdatedAt: now,
+		Status: status, LastError: lastError, ReceivedAt: now, CreatedAt: now,
 	}
 }
 

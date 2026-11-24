@@ -203,7 +203,7 @@ func (c *BiSourceCase) CreateBiSource(ctx context.Context, req *adminv1.CreateBi
 		TenantID: authInfo.TenantId, Code: form.GetCode(), Name: form.GetName(), Description: form.GetDescription(),
 		SourceName: sourceName(form), Driver: form.GetDriver(), Host: form.GetHost(), Port: form.GetPort(), DatabaseName: form.GetDatabaseName(), Username: form.GetUsername(), Password: form.GetPassword().GetText(), SslMode: form.GetSslMode(), SchemaName: form.GetSchemaName(),
 		SchemaJSON: "{}", Status: _const.STATUS_STATUS_DISABLE, Version: 1, MaxRows: normalizeMaxRows(form.GetMaxRows()),
-		CreatedBy: authInfo.UserId, UpdatedBy: authInfo.UserId, CreatedAt: now, UpdatedAt: now,
+		CreatedBy: authInfo.UserId, UpdatedBy: authInfo.UserId, CreatedAt: now,
 	}
 	if err = c.sourceRepo.Create(ctx, item); err != nil {
 		if errorsx.IsDuplicateKey(err) {
@@ -290,7 +290,6 @@ func (c *BiSourceCase) UpdateBiSource(ctx context.Context, req *adminv1.UpdateBi
 		}
 		item.Version++
 		item.UpdatedBy = authInfo.UserId
-		item.UpdatedAt = time.Now()
 		return c.sourceRepo.UpdateByID(txCtx, item)
 	})
 	if err != nil {
@@ -353,7 +352,6 @@ func (c *BiSourceCase) SetBiSourceStatus(ctx context.Context, req *adminv1.SetBi
 		item.Status = req.GetStatus()
 		item.Version++
 		item.UpdatedBy = authInfo.UserId
-		item.UpdatedAt = time.Now()
 		return c.sourceRepo.UpdateByID(txCtx, item)
 	})
 	if err != nil {
@@ -491,7 +489,6 @@ func (c *BiSourceCase) SaveBiSourceModel(ctx context.Context, req *adminv1.SaveB
 		item.SchemaJSON = string(payload)
 		item.Version++
 		item.Status = _const.STATUS_STATUS_ENABLE
-		item.UpdatedAt = time.Now()
 		var authInfo *authData.UserTokenPayload
 		authInfo, err = c.GetAuthInfo(txCtx)
 		if err != nil {

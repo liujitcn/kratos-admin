@@ -176,7 +176,7 @@ func (c *BaseRedactStoragePolicyCase) CreateBaseRedactStoragePolicy(ctx context.
 		if err != nil {
 			return err
 		}
-		item := &models.BaseRedactStoragePolicy{TenantID: input.GetTenantId(), SourceName: input.GetSourceName(), TableName_: input.GetTableName(), ColumnName: input.GetColumnName(), RuleID: rule.ID, RuleParams: input.GetRuleParams(), Status: int32(input.GetStatus()), Remark: input.GetRemark(), CreatedBy: authInfo.UserId, UpdatedBy: authInfo.UserId, CreatedAt: now, UpdatedAt: now}
+		item := &models.BaseRedactStoragePolicy{TenantID: input.GetTenantId(), SourceName: input.GetSourceName(), TableName_: input.GetTableName(), ColumnName: input.GetColumnName(), RuleID: rule.ID, RuleParams: input.GetRuleParams(), Status: int32(input.GetStatus()), Remark: input.GetRemark(), CreatedBy: authInfo.UserId, UpdatedBy: authInfo.UserId, CreatedAt: now}
 		if item.Status == 0 {
 			item.Status = _const.STATUS_STATUS_ENABLE
 		}
@@ -229,7 +229,6 @@ func (c *BaseRedactStoragePolicyCase) UpdateBaseRedactStoragePolicy(ctx context.
 	if err != nil {
 		return err
 	}
-	now := time.Now()
 	items := make([]*models.BaseRedactStoragePolicy, 0, len(inputs))
 	for _, input := range inputs {
 		if input == nil {
@@ -268,7 +267,7 @@ func (c *BaseRedactStoragePolicyCase) UpdateBaseRedactStoragePolicy(ctx context.
 				return errorsx.ProtectedResourceConflict("已有密文的字段加密算法不允许直接修改", "base_redact_storage_policy")
 			}
 		}
-		item := &models.BaseRedactStoragePolicy{ID: oldItem.ID, TenantID: oldItem.TenantID, SourceName: input.GetSourceName(), TableName_: input.GetTableName(), ColumnName: input.GetColumnName(), RuleID: rule.ID, RuleParams: input.GetRuleParams(), Status: int32(input.GetStatus()), Remark: input.GetRemark(), CreatedBy: oldItem.CreatedBy, UpdatedBy: authInfo.UserId, CreatedAt: oldItem.CreatedAt, UpdatedAt: now}
+		item := &models.BaseRedactStoragePolicy{ID: oldItem.ID, TenantID: oldItem.TenantID, SourceName: input.GetSourceName(), TableName_: input.GetTableName(), ColumnName: input.GetColumnName(), RuleID: rule.ID, RuleParams: input.GetRuleParams(), Status: int32(input.GetStatus()), Remark: input.GetRemark(), CreatedBy: oldItem.CreatedBy, UpdatedBy: authInfo.UserId, CreatedAt: oldItem.CreatedAt}
 		if item.Status == 0 {
 			item.Status = oldItem.Status
 		}

@@ -120,16 +120,16 @@ func TestAiMessageRecoveryIntegration(t *testing.T) {
 					t.Fatal("过期运行仍可保存状态")
 				}
 			}
-			if err = c.finishAiMessage(ctx, session, item, &ai.Response{Content: "late result"}, time.Now(), 0, 0, int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_SUCCESS)); err == nil {
+			if err = c.finishAiMessage(ctx, session, item, &ai.Response{Content: "late result"}, 0, 0, int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_SUCCESS)); err == nil {
 				t.Fatal("过期请求覆盖了恢复后的消息")
 			}
-			if err = c.markAiMessageGenerating(ctx, session, current, ai.InputContentPayload{}, time.Now()); err != nil {
+			if err = c.markAiMessageGenerating(ctx, session, current, ai.InputContentPayload{}); err != nil {
 				t.Fatal(err)
 			}
-			if err = c.finishAiMessage(ctx, session, item, &ai.Response{Content: "late result"}, time.Now(), 0, 0, int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_SUCCESS)); err == nil {
+			if err = c.finishAiMessage(ctx, session, item, &ai.Response{Content: "late result"}, 0, 0, int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_SUCCESS)); err == nil {
 				t.Fatal("过期请求覆盖了新一轮生成")
 			}
-			if err = c.finishAiMessage(ctx, session, current, &ai.Response{Content: "new result"}, time.Now(), 0, 0, int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_SUCCESS)); err != nil {
+			if err = c.finishAiMessage(ctx, session, current, &ai.Response{Content: "new result"}, 0, 0, int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_SUCCESS)); err != nil {
 				t.Fatalf("当前轮结果未正常保存: %v", err)
 			}
 		})

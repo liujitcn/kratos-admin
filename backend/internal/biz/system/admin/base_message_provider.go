@@ -116,7 +116,7 @@ func (c *BaseMessageProviderCase) CreateBaseMessageProvider(ctx context.Context,
 		return err
 	}
 	now := time.Now()
-	item.CreatedBy, item.UpdatedBy, item.CreatedAt, item.UpdatedAt = authInfo.UserId, authInfo.UserId, now, now
+	item.CreatedBy, item.UpdatedBy, item.CreatedAt = authInfo.UserId, authInfo.UserId, now
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		if err = c.Create(txCtx, item); err != nil {
 			if errorsx.IsDuplicateKey(err) {
@@ -150,7 +150,7 @@ func (c *BaseMessageProviderCase) UpdateBaseMessageProvider(ctx context.Context,
 		return err
 	}
 	item.ID, item.CreatedBy, item.CreatedAt = oldItem.ID, oldItem.CreatedBy, oldItem.CreatedAt
-	item.UpdatedBy, item.UpdatedAt = authInfo.UserId, time.Now()
+	item.UpdatedBy = authInfo.UserId
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		if err = c.UpdateByID(txCtx, item); err != nil {
 			if errorsx.IsDuplicateKey(err) {
@@ -217,7 +217,7 @@ func (c *BaseMessageProviderCase) SetBaseMessageProviderStatus(ctx context.Conte
 		return err
 	}
 	query := c.Query(ctx).BaseMessageProvider
-	_, err = query.WithContext(ctx).Where(query.ID.Eq(item.ID)).UpdateColumnSimple(query.Status.Value(int32(req.GetStatus())), query.UpdatedAt.Value(time.Now()))
+	_, err = query.WithContext(ctx).Where(query.ID.Eq(item.ID)).UpdateSimple(query.Status.Value(int32(req.GetStatus())))
 	return err
 }
 

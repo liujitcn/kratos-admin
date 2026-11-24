@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"strings"
-	"time"
 
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -66,7 +65,7 @@ func (c *BaseThirdAccountCase) UpdateUnionID(ctx context.Context, tenantID, user
 	query := c.Query(ctx).BaseThirdAccount
 	result, err := query.WithContext(ctx).
 		Where(query.TenantID.Eq(tenantID), query.UserID.Eq(userID), query.Provider.Eq(provider)).
-		UpdateSimple(query.UnionID.Value(unionID), query.UpdatedAt.Value(time.Now()))
+		UpdateSimple(query.UnionID.Value(unionID))
 	if err != nil {
 		return err
 	}
