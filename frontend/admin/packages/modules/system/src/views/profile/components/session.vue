@@ -103,7 +103,7 @@ async function revokeAll() {
   await ElMessageBox.confirm(t("system.profile.session.confirm.revoke_all"), t("system.profile.session.confirm.title"), {
     type: "warning"
   });
-  await defBaseSessionService.RevokeAllBaseSessions({});
+  await defBaseSessionService.RevokeAllBaseSessions({ confirm: true });
   userStore.clearAuthData();
   ElMessage.success(t("system.profile.session.message.revoked"));
   hasSessions.value = false;

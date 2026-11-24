@@ -21533,7 +21533,10 @@ components:
             description: 重试工作流脚本请求
         system.admin.v1.RevokeAllBaseSessionsRequest:
             type: object
-            properties: {}
+            properties:
+                confirm:
+                    type: boolean
+                    description: 确认吊销，必须显式传 true
             description: 撤销全部会话请求参数。
         system.admin.v1.RevokeBaseMessageRequest:
             type: object

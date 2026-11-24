@@ -8326,5 +8326,11 @@
   },
   "legacy.error.64f0d5d614723356": {
     "other": "同じデータソースのバックアップ設定は既に存在します。"
+  },
+  "legacy.error.2a12d629705961c7": {
+    "other": "すべてのセッションの失効操作を確認してください"
+  },
+  "system.admin.session.revoke_all.confirm.required": {
+    "other": "すべてのセッションの失効操作を確認してください"
   }
 }

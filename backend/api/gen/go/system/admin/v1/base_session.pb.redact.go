@@ -148,6 +148,8 @@ func (x *RevokeAllBaseSessionsRequest) Redact() {
 	if x == nil {
 		return
 	}
+
+	// Safe field: Confirm
 }
 
 // Ensure PageOnlineBaseSessionsRequest implements the Redactor interface at compile time.

@@ -8326,5 +8326,11 @@
   },
   "legacy.error.64f0d5d614723356": {
     "other": "同一資料來源的備份設定已存在"
+  },
+  "legacy.error.2a12d629705961c7": {
+    "other": "請確認吊銷全部會話操作"
+  },
+  "system.admin.session.revoke_all.confirm.required": {
+    "other": "請確認吊銷全部會話操作"
   }
 }

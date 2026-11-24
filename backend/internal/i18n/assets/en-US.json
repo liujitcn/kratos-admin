@@ -8326,5 +8326,11 @@
   },
   "legacy.error.64f0d5d614723356": {
     "other": "A backup configuration for the same data source already exists."
+  },
+  "legacy.error.2a12d629705961c7": {
+    "other": "Please confirm the revoke-all-sessions action"
+  },
+  "system.admin.session.revoke_all.confirm.required": {
+    "other": "Please confirm the revoke-all-sessions action"
   }
 }

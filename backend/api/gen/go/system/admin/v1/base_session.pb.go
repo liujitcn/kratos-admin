@@ -148,6 +148,7 @@ func (*GetCurrentBaseSessionRequest) Descriptor() ([]byte, []int) {
 // 撤销全部会话请求参数。
 type RevokeAllBaseSessionsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Confirm       bool                   `protobuf:"varint,1,opt,name=confirm,proto3" json:"confirm,omitempty"` // 确认吊销
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -180,6 +181,13 @@ func (x *RevokeAllBaseSessionsRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use RevokeAllBaseSessionsRequest.ProtoReflect.Descriptor instead.
 func (*RevokeAllBaseSessionsRequest) Descriptor() ([]byte, []int) {
 	return file_system_admin_v1_base_session_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *RevokeAllBaseSessionsRequest) GetConfirm() bool {
+	if x != nil {
+		return x.Confirm
+	}
+	return false
 }
 
 // 在线会话分页查询请求。
@@ -474,8 +482,10 @@ const file_system_admin_v1_base_session_proto_rawDesc = "" +
 	"\x1eListCurrentBaseSessionsRequest\"{\n" +
 	"\x1fListCurrentBaseSessionsResponse\x12X\n" +
 	"\bsessions\x18\x01 \x03(\v2\x1c.system.admin.v1.BaseSessionB\x1e\xbaG\x1b\x92\x02\x18本人有效会话列表R\bsessions\"\x1e\n" +
-	"\x1cGetCurrentBaseSessionRequest\"\x1e\n" +
-	"\x1cRevokeAllBaseSessionsRequest\"\xa8\x02\n" +
+	"\x1cGetCurrentBaseSessionRequest\"\xc6\x01\n" +
+	"\x1cRevokeAllBaseSessionsRequest\x12\xa5\x01\n" +
+	"\aconfirm\x18\x01 \x01(\bB\x8a\x01\xbaG&\x92\x02#确认吊销，必须显式传 true\xbaH^\xba\x01[\n" +
+	"0system.admin.session.revoke_all.confirm.required\x12!请确认吊销全部会话操作\x1a\x04thisR\aconfirm\"\xa8\x02\n" +
 	"\x1dPageOnlineBaseSessionsRequest\x12F\n" +
 	"\akeyword\x18\x01 \x01(\tB,\xbaG)\x92\x02&账号、租户、IP或设备关键字R\akeyword\x123\n" +
 	"\vtenant_code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f租户编码R\n" +

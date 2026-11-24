@@ -23,6 +23,8 @@ export interface GetCurrentBaseSessionRequest {
 
 /** 撤销全部会话请求参数。 */
 export interface RevokeAllBaseSessionsRequest {
+  /** 确认吊销 */
+  confirm: boolean;
 }
 
 /** 在线会话分页查询请求。 */

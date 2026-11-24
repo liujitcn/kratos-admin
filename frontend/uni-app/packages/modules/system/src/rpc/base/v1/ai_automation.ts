@@ -137,6 +137,18 @@ export interface ListAiAutomationResponse {
   pending_count: number;
 }
 
+/** 自动化任务数量统计条件（按当前租户与用户计算）。 */
+export interface CountAiAutomationRequest {
+}
+
+/** 自动化任务数量统计结果。 */
+export interface CountAiAutomationResponse {
+  /** 非归档任务总数 */
+  total: number;
+  /** 待确认执行数 */
+  pending_count: number;
+}
+
 /** 任务查询。 */
 export interface GetAiAutomationRequest {
   /** 编号 */
@@ -229,6 +241,8 @@ export interface ListAiAutomationRunResponse {
 export interface AiAutomationService {
   /** 查询本人自动化计划。 */
   ListAiAutomation(request: ListAiAutomationRequest): Promise<ListAiAutomationResponse>;
+  /** 统计本人自动化任务数量。 */
+  CountAiAutomation(request: CountAiAutomationRequest): Promise<CountAiAutomationResponse>;
   /** 查询本人自动化详情。 */
   GetAiAutomation(request: GetAiAutomationRequest): Promise<AiAutomation>;
   /** 预览未来三次触发时间。 */

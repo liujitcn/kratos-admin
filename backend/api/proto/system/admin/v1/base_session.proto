@@ -50,7 +50,14 @@ message ListCurrentBaseSessionsResponse {
 message GetCurrentBaseSessionRequest {}
 
 // 撤销全部会话请求参数。
-message RevokeAllBaseSessionsRequest {}
+message RevokeAllBaseSessionsRequest {
+  bool confirm = 1 [(gnostic.openapi.v3.property) = {description: "确认吊销，必须显式传 true"},
+    (buf.validate.field).cel = {
+      id: "system.admin.session.revoke_all.confirm.required"
+      message: "请确认吊销全部会话操作"
+      expression: "this"
+    }]; // 确认吊销
+}
 
 // 在线会话分页查询请求。
 message PageOnlineBaseSessionsRequest {

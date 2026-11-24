@@ -44,6 +44,10 @@ func (s *BaseSessionService) GetCurrentBaseSession(ctx context.Context, req *adm
 
 // RevokeAllBaseSessions 撤销当前用户的全部会话。
 func (s *BaseSessionService) RevokeAllBaseSessions(ctx context.Context, req *adminv1.RevokeAllBaseSessionsRequest) (*emptypb.Empty, error) {
+	// 破坏性操作：必须显式携带确认标志，防止空载荷直接吊销全部会话。
+	if !req.GetConfirm() {
+		return nil, errorsx.InvalidArgument("请确认吊销全部会话操作")
+	}
 	err := s.baseSessionCase.RevokeAllBaseSessions(ctx)
 	if err != nil {
 		log.Error(fmt.Sprintf("RevokeAllBaseSessions %v", err))

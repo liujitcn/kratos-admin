@@ -8326,5 +8326,11 @@
   },
   "legacy.error.64f0d5d614723356": {
     "other": "同一数据源的备份配置已存在"
+  },
+  "legacy.error.2a12d629705961c7": {
+    "other": "请确认吊销全部会话操作"
+  },
+  "system.admin.session.revoke_all.confirm.required": {
+    "other": "请确认吊销全部会话操作"
   }
 }
