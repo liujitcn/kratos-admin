@@ -8332,5 +8332,248 @@
   },
   "system.admin.session.revoke_all.confirm.required": {
     "other": "すべてのセッションの失効操作を確認してください"
+  },
+  "base.ai.shortcut.completed": {
+    "other": "フローが完了しました"
+  },
+  "base.ai.shortcut.continue": {
+    "other": "フローを続ける"
+  },
+  "legacy.error.1ecd54b6121bec6b": {
+    "other": "このテナントとクライアントでは同じキーが既に使われています。"
+  },
+  "legacy.error.c290a0effc8ba3a9": {
+    "other": "ショートカットが更新されました。再読み込みしてやり直してください。"
+  },
+  "legacy.error.ee364f6d9f164b71": {
+    "other": "この確認ステップは無効になりました。"
+  },
+  "legacy.error.488e45766f75aa6f": {
+    "other": "元のショートカット操作が見つかりません。ショートカットから再実行してください。"
+  },
+  "legacy.error.5669c7d8e297f112": {
+    "other": "フローの続行に必要な結果がありません。ショートカットから再実行してください。"
+  },
+  "legacy.error.b2f8c3f1c5e7dfc5": {
+    "other": "フロー設定を読み込めませんでした。"
+  },
+  "legacy.error.934db8fc486d4c8d": {
+    "other": "API ショートカットではツールを選択し、カスタムではフローにツールを追加してください。"
+  },
+  "legacy.error.655def0eefa91cf9": {
+    "other": "ショートカット名とプロンプトは必須です。"
+  },
+  "legacy.error.04238bfe28ee93a0": {
+    "other": "API ツールはツールノードでのみ選択できます。"
+  },
+  "legacy.error.bdf49df8925dfd63": {
+    "other": "アプリのショートカットはプロンプトの送信のみ対応します。"
+  },
+  "legacy.error.afa35625ac74cf73": {
+    "other": "開始・終了・分岐ノードにはアクション引数を指定できません。"
+  },
+  "legacy.error.19b2e8b3b3da207e": {
+    "other": "分岐条件はフィールドパス == JSON 値の形式で一意に指定してください。"
+  },
+  "legacy.error.48ff1a2ac1a0937c": {
+    "other": "分岐には条件付きの接続と、既定の接続が 1 つ必要です。"
+  },
+  "legacy.error.585c5ef929030ff4": {
+    "other": "このショートカットには利用できない API ツールが含まれています。"
+  },
+  "legacy.error.452014ededf71361": {
+    "other": "作成後にショートカットキーを変更することはできません。"
+  },
+  "legacy.error.00faa95825eaf216": {
+    "other": "ショートカットのフローでは読み取り専用 API ツールのみ利用できます。"
+  },
+  "legacy.error.40048e41cb7cfaf1": {
+    "other": "このフローのアクションは無効です。"
+  },
+  "legacy.error.353d9b382fb462d9": {
+    "other": "フローに無効な接続があります。"
+  },
+  "legacy.error.f8f876cb3688e9f7": {
+    "other": "フローに未対応のノード種別があります。"
+  },
+  "legacy.error.e423e48e8e7a0dcf": {
+    "other": "フローに循環または到達できないノードがあります。"
+  },
+  "legacy.error.05c72b714ddf2237": {
+    "other": "フローに重複した接続があります。"
+  },
+  "legacy.error.da654fdd9abb37d2": {
+    "other": "フローの開始ノードと終了ノードを保持してください。"
+  },
+  "legacy.error.3d68f78e2a4710a0": {
+    "other": "フローのステップは必須です。"
+  },
+  "legacy.error.fe4d45c160f2c72e": {
+    "other": "フローのノード数または接続数が範囲外です。"
+  },
+  "legacy.error.d91e5b5172618d38": {
+    "other": "ノード ID とステップキーをそれぞれ一意にしてください。"
+  },
+  "legacy.error.dfd763f47f64c401": {
+    "other": "フローに実行できる次のステップがありません。"
+  },
+  "legacy.error.17731b0fbc0aab9f": {
+    "other": "フローには開始ノードと終了ノードが必要です。"
+  },
+  "legacy.error.c98d5723c7d0836c": {
+    "other": "フロー設定を保存できませんでした。"
+  },
+  "legacy.error.962218aa47a1e617": {
+    "other": "フロー設定が大きすぎます。"
+  },
+  "legacy.error.78bb63c9c5e777c7": {
+    "other": "ノードの引数には JSON オブジェクトを指定してください。"
+  },
+  "legacy.error.ed4b81db77e580d6": {
+    "other": "プロンプトと確認ノードでは text 引数のみ指定できます。"
+  },
+  "legacy.error.b7a7471fb1c7eeb5": {
+    "other": "通常のノードには条件なしの接続が 1 つ必要です。"
+  },
+  "legacy.error.7d5f72aebe944f57": {
+    "other": "有効なショートカットを 1 件から 100 件選択してください。"
+  },
+  "legacy.error.fb7808ae1c2e050e": {
+    "other": "この会話では必要なツールを利用できません。"
+  },
+  "legacy.error.41df2db798705d37": {
+    "other": "ショートカットが見つかりません。"
+  },
+  "legacy.error.c30b0088c1db61ff": {
+    "other": "ショートカットの状態を変更できませんでした。"
+  },
+  "legacy.error.2a2d64d1e45bb14a": {
+    "other": "ショートカットを作成できませんでした。"
+  },
+  "legacy.error.cddfd2504bdad972": {
+    "other": "ショートカットを削除できませんでした。"
+  },
+  "legacy.error.55458822164b238c": {
+    "other": "ショートカットを更新できませんでした。"
+  },
+  "legacy.error.ddbc0c6896ddb8a9": {
+    "other": "ショートカット一覧を読み込めませんでした。"
+  },
+  "legacy.error.c1fae1942770326e": {
+    "other": "ショートカットを読み込めませんでした。"
+  },
+  "legacy.error.cb14ee153e678d0f": {
+    "other": "ショートカットのツールを読み込めませんでした。"
+  },
+  "openapi.admin.ai_shortcut.01": {
+    "other": "管理画面の AI ショートカットサービス。"
+  },
+  "openapi.admin.ai_shortcut.02": {
+    "other": "ショートカットをページ単位で取得します。"
+  },
+  "openapi.admin.ai_shortcut.03": {
+    "other": "ショートカットとフロー設定を取得します。"
+  },
+  "openapi.admin.ai_shortcut.04": {
+    "other": "対象クライアントで利用できる API ツールを取得します。"
+  },
+  "openapi.admin.ai_shortcut.05": {
+    "other": "ショートカットを作成します。"
+  },
+  "openapi.admin.ai_shortcut.06": {
+    "other": "ショートカットを更新します。"
+  },
+  "openapi.admin.ai_shortcut.07": {
+    "other": "選択したショートカットを削除します。"
+  },
+  "openapi.admin.ai_shortcut.08": {
+    "other": "ショートカットの状態を設定します。"
+  },
+  "openapi.admin.ai_shortcut.09": {
+    "other": "ショートカット名"
+  },
+  "openapi.admin.ai_shortcut.10": {
+    "other": "ショートカットキー"
+  },
+  "openapi.admin.ai_shortcut.11": {
+    "other": "ショートカットの種類"
+  },
+  "openapi.admin.ai_shortcut.12": {
+    "other": "対象クライアント"
+  },
+  "openapi.admin.ai_shortcut.13": {
+    "other": "ショートカット一覧"
+  },
+  "openapi.admin.ai_shortcut.14": {
+    "other": "ショートカット ID"
+  },
+  "openapi.admin.ai_shortcut.15": {
+    "other": "利用可能なツール"
+  },
+  "openapi.admin.ai_shortcut.16": {
+    "other": "API 名"
+  },
+  "openapi.admin.ai_shortcut.17": {
+    "other": "API ツール名"
+  },
+  "openapi.admin.ai_shortcut.18": {
+    "other": "プロンプト"
+  },
+  "openapi.admin.ai_shortcut.19": {
+    "other": "グループ名"
+  },
+  "openapi.admin.ai_shortcut.20": {
+    "other": "任意のフロー図"
+  },
+  "openapi.admin.ai_shortcut.21": {
+    "other": "設定のリビジョン"
+  },
+  "openapi.admin.ai_shortcut.22": {
+    "other": "ショートカット設定"
+  },
+  "openapi.admin.ai_shortcut.23": {
+    "other": "カンマ区切りのショートカット ID"
+  },
+  "openapi.admin.ai_shortcut.24": {
+    "other": "フローのノード"
+  },
+  "openapi.admin.ai_shortcut.25": {
+    "other": "フローの接続"
+  },
+  "openapi.admin.ai_shortcut.26": {
+    "other": "ノード ID"
+  },
+  "openapi.admin.ai_shortcut.27": {
+    "other": "ノードの種類"
+  },
+  "openapi.admin.ai_shortcut.28": {
+    "other": "ステップキー"
+  },
+  "openapi.admin.ai_shortcut.29": {
+    "other": "キャンバスの X 座標"
+  },
+  "openapi.admin.ai_shortcut.30": {
+    "other": "キャンバスの Y 座標"
+  },
+  "openapi.admin.ai_shortcut.31": {
+    "other": "アクション引数の JSON"
+  },
+  "openapi.admin.ai_shortcut.32": {
+    "other": "接続元ノード"
+  },
+  "openapi.admin.ai_shortcut.33": {
+    "other": "接続先ノード"
+  },
+  "openapi.admin.ai_shortcut.34": {
+    "other": "条件または既定の接続"
+  },
+  "openapi.admin.ai_shortcut.graph_edge": {
+    "other": "ショートカットフローの接続。"
+  },
+  "openapi.admin.ai_shortcut.graph": {
+    "other": "ショートカットのフロー図。"
+  },
+  "openapi.admin.base_session.confirm_revoke": {
+    "other": "失効を確定するには明示的に true を指定します"
   }
 }

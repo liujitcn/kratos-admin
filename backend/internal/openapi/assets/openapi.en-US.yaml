@@ -6,6 +6,183 @@ info:
     title: ""
     version: 0.0.1
 paths:
+    /api/v1/admin/ai/shortcut:
+        get:
+            tags:
+                - AiShortcutService
+            description: Paginated query for shortcut.
+            operationId: AiShortcutService_PageAiShortcut
+            parameters:
+                - name: title
+                  in: query
+                  schema:
+                    type: string
+                - name: shortcut_key
+                  in: query
+                  schema:
+                    type: string
+                - name: source_type
+                  in: query
+                  schema:
+                    enum:
+                        - AI_SHORTCUT_SOURCE_TYPE_UNSPECIFIED
+                        - AI_SHORTCUT_SOURCE_TYPE_API
+                        - AI_SHORTCUT_SOURCE_TYPE_CUSTOM
+                    type: string
+                    format: enum
+                - name: terminal
+                  in: query
+                  schema:
+                    enum:
+                        - TERMINAL_UNSPECIFIED
+                        - TERMINAL_APP
+                        - TERMINAL_ADMIN
+                    type: string
+                    format: enum
+                - name: tool_name
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageAiShortcutResponse'
+        post:
+            tags:
+                - AiShortcutService
+            description: Create shortcut.
+            operationId: AiShortcutService_CreateAiShortcut
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.AiShortcutForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/ai/shortcut/tool/option:
+        get:
+            tags:
+                - AiShortcutService
+            description: List API tools available for this client.
+            operationId: AiShortcutService_OptionAiShortcutTool
+            parameters:
+                - name: terminal
+                  in: query
+                  schema:
+                    enum:
+                        - TERMINAL_UNSPECIFIED
+                        - TERMINAL_APP
+                        - TERMINAL_ADMIN
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.OptionAiShortcutToolResponse'
+    /api/v1/admin/ai/shortcut/{id}:
+        get:
+            tags:
+                - AiShortcutService
+            description: Get a shortcut and its workflow configuration.
+            operationId: AiShortcutService_GetAiShortcut
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.AiShortcutForm'
+        delete:
+            tags:
+                - AiShortcutService
+            description: batch Delete shortcut.
+            operationId: AiShortcutService_DeleteAiShortcut
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/ai/shortcut/{id}/status:
+        put:
+            tags:
+                - AiShortcutService
+            description: Set shortcut enabled status.
+            operationId: AiShortcutService_SetAiShortcutStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetAiShortcutStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/ai/shortcut/{shortcut.id}:
+        put:
+            tags:
+                - AiShortcutService
+            description: Update shortcut.
+            operationId: AiShortcutService_UpdateAiShortcut
+            parameters:
+                - name: shortcut.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.AiShortcutForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/auth/buttons:
         get:
             tags:
@@ -14094,11 +14271,11 @@ components:
                     description: Tenant isolation field; empty for connection isolation or shared tables
                 x:
                     type: integer
-                    description: Canvas horizontal position
+                    description: Canvas X coordinate
                     format: int32
                 y:
                     type: integer
-                    description: Canvas vertical position
+                    description: Canvas Y coordinate
                     format: int32
             description: Table node in the semantic model.
         bi.admin.v1.BiSourceRelation:
@@ -15097,6 +15274,128 @@ components:
                     type: string
                     description: Update time
             description: AI session pagination record.
+        system.admin.v1.AiShortcutEdge:
+            type: object
+            properties:
+                from:
+                    type: string
+                    description: Source node
+                to:
+                    type: string
+                    description: Target node
+                condition:
+                    type: string
+                    description: Condition or default path
+            description: Shortcut workflow connection.
+        system.admin.v1.AiShortcutForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Shortcut ID
+                shortcut_key:
+                    type: string
+                    description: Shortcut key
+                title:
+                    type: string
+                    description: Shortcut name
+                source_type:
+                    enum:
+                        - AI_SHORTCUT_SOURCE_TYPE_UNSPECIFIED
+                        - AI_SHORTCUT_SOURCE_TYPE_API
+                        - AI_SHORTCUT_SOURCE_TYPE_CUSTOM
+                    type: string
+                    description: Shortcut source
+                    format: enum
+                terminal:
+                    enum:
+                        - TERMINAL_UNSPECIFIED
+                        - TERMINAL_APP
+                        - TERMINAL_ADMIN
+                    type: string
+                    description: Target client
+                    format: enum
+                tool_name:
+                    type: string
+                    description: api tool name
+                prompt:
+                    type: string
+                    description: Prompt
+                group_name:
+                    type: string
+                    description: Group name
+                sort:
+                    type: integer
+                    description: sort
+                    format: int32
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: enabled status
+                    format: enum
+                graph:
+                    $ref: '#/components/schemas/system.admin.v1.AiShortcutGraph'
+                revision:
+                    type: string
+                    description: Configuration revision number
+                updated_at:
+                    type: string
+                    description: Update time
+            description: shortcut form and list record.
+        system.admin.v1.AiShortcutGraph:
+            type: object
+            properties:
+                nodes:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiShortcutNode'
+                    description: flow node
+                edges:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiShortcutEdge'
+                    description: Workflow connections
+            description: Shortcut workflow graph.
+        system.admin.v1.AiShortcutNode:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: node number
+                type:
+                    type: string
+                    description: node type
+                step:
+                    type: string
+                    description: step identifier
+                x:
+                    type: number
+                    description: Canvas X coordinate
+                    format: double
+                y:
+                    type: number
+                    description: Canvas Y coordinate
+                    format: double
+                tool_name:
+                    type: string
+                    description: Tool name
+                payload_json:
+                    type: string
+                    description: json action parameter
+            description: shortcut flow node.
+        system.admin.v1.AiShortcutToolOption:
+            type: object
+            properties:
+                tool_name:
+                    type: string
+                    description: Tool name
+                title:
+                    type: string
+                    description: api name
+            description: API tool option.
         system.admin.v1.AuditWorkflowTaskRequest:
             type: object
             properties:
@@ -20663,6 +20962,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.OpsTrafficPoint'
                     description: request traffic trend
             description: traffic response.
+        system.admin.v1.OptionAiShortcutToolResponse:
+            type: object
+            properties:
+                tools:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiShortcutToolOption'
+                    description: Available tools
+            description: API tool option query result.
         system.admin.v1.OptionBaseApiResponse:
             type: object
             properties:
@@ -20793,6 +21101,19 @@ components:
                     description: total count
                     format: int32
             description: AI session pagination response.
+        system.admin.v1.PageAiShortcutResponse:
+            type: object
+            properties:
+                shortcuts:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiShortcutForm'
+                    description: shortcut list
+                total:
+                    type: integer
+                    description: total count
+                    format: int32
+            description: shortcut pagination result.
         system.admin.v1.PageBaseApiLogResponse:
             type: object
             properties:
@@ -21533,7 +21854,10 @@ components:
             description: Workflow script retry request
         system.admin.v1.RevokeAllBaseSessionsRequest:
             type: object
-            properties: {}
+            properties:
+                confirm:
+                    type: boolean
+                    description: Confirm revocation by explicitly passing true
             description: revoke all session request parameters.
         system.admin.v1.RevokeBaseMessageRequest:
             type: object
@@ -21708,6 +22032,24 @@ components:
                     description: status
                     format: enum
             description: Set AI provider status request.
+        system.admin.v1.SetAiShortcutStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Shortcut ID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: enabled status
+                    format: enum
+                revision:
+                    type: string
+                    description: Configuration revision number
+            description: Set enabled status parameter.
         system.admin.v1.SetBaseApiAgentStatusRequest:
             type: object
             properties:
@@ -23014,9 +23356,9 @@ tags:
     - name: AiKnowledgeDocService
       description: AI knowledge base document management service.
     - name: AiKnowledgeService
-      description: AI knowledge base options service.
-    - name: AiKnowledgeService
       description: AI knowledge base management service.
+    - name: AiKnowledgeService
+      description: AI knowledge base options service.
     - name: AiMessageService
       description: Base AI assistant message service
     - name: AiModelService
@@ -23028,9 +23370,11 @@ tags:
     - name: AiSearchService
       description: Base AI assistant web search service
     - name: AiSessionService
-      description: AI session management service.
-    - name: AiSessionService
       description: Base AI assistant session service
+    - name: AiSessionService
+      description: AI session management service.
+    - name: AiShortcutService
+      description: Admin AI shortcut service.
     - name: AiToolService
       description: Base AI assistant tool service
     - name: AuthService
@@ -23044,9 +23388,9 @@ tags:
     - name: BaseApiService
       description: Admin api service
     - name: BaseAreaService
-      description: app administrative region service
-    - name: BaseAreaService
       description: admin administrative region service
+    - name: BaseAreaService
+      description: app administrative region service
     - name: BaseConfigService
       description: admin system configuration service
     - name: BaseDashboardService

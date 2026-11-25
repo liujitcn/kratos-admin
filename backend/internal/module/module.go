@@ -26,6 +26,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/liujitcn/kratos-admin/backend/adapter/kit"
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	basemfa "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/runtimeconfig"
@@ -47,6 +48,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/server/rag/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/system/app/v1"
+	adminservice "github.com/liujitcn/kratos-admin/backend/internal/service/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/pkg/agent"
 	"github.com/liujitcn/kratos-admin/backend/pkg/aiautomation"
 	pkgbi "github.com/liujitcn/kratos-admin/backend/pkg/bi"
@@ -59,6 +61,7 @@ type Module struct {
 	redactResolver *kit.RedactPolicyResolver
 	baseServices   *base.Services
 	adminServices  *admin.Services
+	aiShortcut     *adminservice.AiShortcutService
 	appServices    *app.Services
 	ragServices    *rag.Services
 	biServices     *bi.Services
@@ -77,6 +80,7 @@ func NewModules(
 	aiAutomationCase *basemfa.AiAutomationCase,
 	baseServices *base.Services,
 	adminServices *admin.Services,
+	aiShortcut *adminservice.AiShortcutService,
 	appServices *app.Services,
 	ragServices *rag.Services,
 	biServices *bi.Services,
@@ -165,6 +169,7 @@ func NewModules(
 		secretCrypto:   secretCryptoService,
 		baseServices:   baseServices,
 		adminServices:  adminServices,
+		aiShortcut:     aiShortcut,
 		appServices:    appServices,
 		ragServices:    ragServices,
 		biServices:     biServices,
@@ -298,6 +303,7 @@ func (m *Module) RegisterGRPC(registrar grpc.ServiceRegistrar) {
 	}
 	m.baseServices.RegisterGRPC(registrar)
 	m.adminServices.RegisterGRPC(registrar)
+	adminv1.RegisterAiShortcutServiceServer(registrar, adminv1.RedactedAiShortcutServiceServer(m.aiShortcut))
 	m.appServices.RegisterGRPC(registrar)
 	m.ragServices.RegisterGRPC(registrar)
 	m.biServices.RegisterGRPC(registrar)
@@ -309,6 +315,7 @@ func (m *Module) RegisterHTTP(server *http.Server) {
 	server.Handle("/", nethttp.RedirectHandler("/admin", nethttp.StatusFound))
 	m.baseServices.RegisterHTTP(server)
 	m.adminServices.RegisterHTTP(server)
+	adminv1.RegisterAiShortcutServiceHTTPServer(server, adminv1.RedactedAiShortcutServiceServer(m.aiShortcut))
 	m.appServices.RegisterHTTP(server)
 	m.ragServices.RegisterHTTP(server)
 	m.biServices.RegisterHTTP(server)

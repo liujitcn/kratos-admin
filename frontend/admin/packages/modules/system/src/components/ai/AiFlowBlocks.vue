@@ -1,4 +1,16 @@
 <template>
+  <el-button
+    v-for="block in shortcutActions"
+    :key="block.action.action_id"
+    class="shortcut-confirm-action"
+    type="primary"
+    plain
+    size="small"
+    :disabled="block.disabled || !isFlowActionFromMessage(block.action, activeFlowMessageId)"
+    @click="forwardFlowAction(block.action, block.label || t('system.ai.shortcut.action.continue'))"
+  >
+    {{ block.label || t("system.ai.shortcut.action.continue") }}
+  </el-button>
   <template v-for="renderer in renderedBlocks" :key="renderer.key">
     <component
       :is="renderer.component"
@@ -11,8 +23,10 @@
 
 <script setup lang="ts">
 import { computed, type Component } from "vue";
+import { t } from "@liujitcn/kratos-admin-core";
 import type { AiAction } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_message";
 import type { AdminAiFlowBlockRenderer } from "../../ai";
+import { isFlowActionFromMessage } from "../../views/ai/chat/message";
 import type { AIFlowBlock, ChatMessageItem } from "../../views/ai/chat/types";
 
 const props = defineProps<{
@@ -28,6 +42,12 @@ const emit = defineEmits<{
   /** 将业务组件触发的流程动作交回聊天页面。 */
   "flow-action": [action: AiAction, label?: string];
 }>();
+
+const shortcutActions = computed(() =>
+  (props.message.blocks ?? []).filter(
+    (block): block is AIFlowBlock & { action: AiAction } => block.type === "shortcut_confirm" && Boolean(block.action)
+  )
+);
 
 const renderedBlocks = computed(() =>
   props.renderers.flatMap(renderer => {
@@ -50,3 +70,9 @@ function forwardFlowAction(action: AiAction, label?: string) {
   emit("flow-action", action, label);
 }
 </script>
+
+<style scoped>
+.shortcut-confirm-action {
+  margin: 8px 0;
+}
+</style>

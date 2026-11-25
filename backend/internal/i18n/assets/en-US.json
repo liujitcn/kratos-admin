@@ -8332,5 +8332,248 @@
   },
   "system.admin.session.revoke_all.confirm.required": {
     "other": "Please confirm the revoke-all-sessions action"
+  },
+  "base.ai.shortcut.completed": {
+    "other": "Workflow completed"
+  },
+  "base.ai.shortcut.continue": {
+    "other": "Continue workflow"
+  },
+  "legacy.error.1ecd54b6121bec6b": {
+    "other": "This shortcut key is already used for this tenant and client."
+  },
+  "legacy.error.c290a0effc8ba3a9": {
+    "other": "The shortcut has changed. Refresh and try again."
+  },
+  "legacy.error.ee364f6d9f164b71": {
+    "other": "This confirmation step has expired."
+  },
+  "legacy.error.488e45766f75aa6f": {
+    "other": "The original shortcut action is missing. Start again from the shortcut."
+  },
+  "legacy.error.5669c7d8e297f112": {
+    "other": "The result needed to continue this workflow is missing. Start again from the shortcut."
+  },
+  "legacy.error.b2f8c3f1c5e7dfc5": {
+    "other": "The workflow configuration could not be read."
+  },
+  "legacy.error.934db8fc486d4c8d": {
+    "other": "Select a tool for an API shortcut. For a custom shortcut, add tools to the workflow."
+  },
+  "legacy.error.655def0eefa91cf9": {
+    "other": "A shortcut name and prompt are required."
+  },
+  "legacy.error.04238bfe28ee93a0": {
+    "other": "Select API tools for tool nodes only."
+  },
+  "legacy.error.bdf49df8925dfd63": {
+    "other": "App shortcuts can send prompts only."
+  },
+  "legacy.error.afa35625ac74cf73": {
+    "other": "Start, end, and branch nodes do not take action parameters."
+  },
+  "legacy.error.19b2e8b3b3da207e": {
+    "other": "Each branch condition must be a unique field path == JSON value comparison."
+  },
+  "legacy.error.48ff1a2ac1a0937c": {
+    "other": "A branch needs a conditional path and exactly one default path."
+  },
+  "legacy.error.585c5ef929030ff4": {
+    "other": "This shortcut uses an unavailable API tool."
+  },
+  "legacy.error.452014ededf71361": {
+    "other": "The shortcut key cannot be changed after creation."
+  },
+  "legacy.error.00faa95825eaf216": {
+    "other": "Shortcut workflows support read-only API tools only."
+  },
+  "legacy.error.40048e41cb7cfaf1": {
+    "other": "This workflow action is invalid."
+  },
+  "legacy.error.353d9b382fb462d9": {
+    "other": "The workflow contains an invalid connection."
+  },
+  "legacy.error.f8f876cb3688e9f7": {
+    "other": "The workflow contains an unknown node type."
+  },
+  "legacy.error.e423e48e8e7a0dcf": {
+    "other": "The workflow contains a cycle or an unreachable node."
+  },
+  "legacy.error.05c72b714ddf2237": {
+    "other": "The workflow contains duplicate connections."
+  },
+  "legacy.error.da654fdd9abb37d2": {
+    "other": "Preserve the workflow's start and end nodes."
+  },
+  "legacy.error.3d68f78e2a4710a0": {
+    "other": "A workflow step is required."
+  },
+  "legacy.error.fe4d45c160f2c72e": {
+    "other": "The number of workflow nodes or connections is out of range."
+  },
+  "legacy.error.d91e5b5172618d38": {
+    "other": "Use unique node IDs and unique step keys."
+  },
+  "legacy.error.dfd763f47f64c401": {
+    "other": "The workflow has no valid next step."
+  },
+  "legacy.error.17731b0fbc0aab9f": {
+    "other": "The workflow needs a start and an end node."
+  },
+  "legacy.error.c98d5723c7d0836c": {
+    "other": "The workflow configuration could not be saved."
+  },
+  "legacy.error.962218aa47a1e617": {
+    "other": "The workflow configuration is too large."
+  },
+  "legacy.error.78bb63c9c5e777c7": {
+    "other": "Node parameters must be a JSON object."
+  },
+  "legacy.error.ed4b81db77e580d6": {
+    "other": "Prompt and confirmation nodes accept only a text parameter."
+  },
+  "legacy.error.b7a7471fb1c7eeb5": {
+    "other": "A regular node needs exactly one unconditional path."
+  },
+  "legacy.error.7d5f72aebe944f57": {
+    "other": "Select between 1 and 100 valid shortcuts."
+  },
+  "legacy.error.fb7808ae1c2e050e": {
+    "other": "A required tool is unavailable in this conversation."
+  },
+  "legacy.error.41df2db798705d37": {
+    "other": "Shortcut not found."
+  },
+  "legacy.error.c30b0088c1db61ff": {
+    "other": "Could not change the shortcut status."
+  },
+  "legacy.error.2a2d64d1e45bb14a": {
+    "other": "Could not create the shortcut."
+  },
+  "legacy.error.cddfd2504bdad972": {
+    "other": "Could not delete the shortcut."
+  },
+  "legacy.error.55458822164b238c": {
+    "other": "Could not update the shortcut."
+  },
+  "legacy.error.ddbc0c6896ddb8a9": {
+    "other": "Could not load the shortcuts."
+  },
+  "legacy.error.c1fae1942770326e": {
+    "other": "Could not load the shortcut."
+  },
+  "legacy.error.cb14ee153e678d0f": {
+    "other": "Could not load the shortcut tools."
+  },
+  "openapi.admin.ai_shortcut.01": {
+    "other": "Admin AI shortcut service."
+  },
+  "openapi.admin.ai_shortcut.02": {
+    "other": "List shortcuts with pagination."
+  },
+  "openapi.admin.ai_shortcut.03": {
+    "other": "Get a shortcut and its workflow configuration."
+  },
+  "openapi.admin.ai_shortcut.04": {
+    "other": "List API tools available for this client."
+  },
+  "openapi.admin.ai_shortcut.05": {
+    "other": "Create a shortcut."
+  },
+  "openapi.admin.ai_shortcut.06": {
+    "other": "Update a shortcut."
+  },
+  "openapi.admin.ai_shortcut.07": {
+    "other": "Delete selected shortcuts."
+  },
+  "openapi.admin.ai_shortcut.08": {
+    "other": "Set the shortcut status."
+  },
+  "openapi.admin.ai_shortcut.09": {
+    "other": "Shortcut name"
+  },
+  "openapi.admin.ai_shortcut.10": {
+    "other": "Shortcut key"
+  },
+  "openapi.admin.ai_shortcut.11": {
+    "other": "Shortcut source"
+  },
+  "openapi.admin.ai_shortcut.12": {
+    "other": "Target client"
+  },
+  "openapi.admin.ai_shortcut.13": {
+    "other": "Shortcuts"
+  },
+  "openapi.admin.ai_shortcut.14": {
+    "other": "Shortcut ID"
+  },
+  "openapi.admin.ai_shortcut.15": {
+    "other": "Available tools"
+  },
+  "openapi.admin.ai_shortcut.16": {
+    "other": "API name"
+  },
+  "openapi.admin.ai_shortcut.17": {
+    "other": "API tool name"
+  },
+  "openapi.admin.ai_shortcut.18": {
+    "other": "Prompt"
+  },
+  "openapi.admin.ai_shortcut.19": {
+    "other": "Group name"
+  },
+  "openapi.admin.ai_shortcut.20": {
+    "other": "Optional workflow graph"
+  },
+  "openapi.admin.ai_shortcut.21": {
+    "other": "Configuration revision"
+  },
+  "openapi.admin.ai_shortcut.22": {
+    "other": "Shortcut form"
+  },
+  "openapi.admin.ai_shortcut.23": {
+    "other": "Comma-separated shortcut IDs"
+  },
+  "openapi.admin.ai_shortcut.24": {
+    "other": "Workflow nodes"
+  },
+  "openapi.admin.ai_shortcut.25": {
+    "other": "Workflow connections"
+  },
+  "openapi.admin.ai_shortcut.26": {
+    "other": "Node ID"
+  },
+  "openapi.admin.ai_shortcut.27": {
+    "other": "Node type"
+  },
+  "openapi.admin.ai_shortcut.28": {
+    "other": "Step key"
+  },
+  "openapi.admin.ai_shortcut.29": {
+    "other": "Canvas X coordinate"
+  },
+  "openapi.admin.ai_shortcut.30": {
+    "other": "Canvas Y coordinate"
+  },
+  "openapi.admin.ai_shortcut.31": {
+    "other": "JSON action parameters"
+  },
+  "openapi.admin.ai_shortcut.32": {
+    "other": "Source node"
+  },
+  "openapi.admin.ai_shortcut.33": {
+    "other": "Target node"
+  },
+  "openapi.admin.ai_shortcut.34": {
+    "other": "Condition or default path"
+  },
+  "openapi.admin.ai_shortcut.graph_edge": {
+    "other": "Shortcut workflow connection."
+  },
+  "openapi.admin.ai_shortcut.graph": {
+    "other": "Shortcut workflow graph."
+  },
+  "openapi.admin.base_session.confirm_revoke": {
+    "other": "Confirm revocation by explicitly passing true"
   }
 }

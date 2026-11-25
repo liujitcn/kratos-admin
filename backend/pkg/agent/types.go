@@ -128,6 +128,8 @@ type Response struct {
 	Step string `json:"step"`
 	// BlocksJSON 记录模块定义的结构化内容 JSON。
 	BlocksJSON string `json:"blocksJson"`
+	// FlowResult 是等待用户继续时保存的上一步结果，仅供服务端恢复。
+	FlowResult *string `json:"-"`
 	// Attachments 是本轮回复产出的文件附件，来源于工具生成的持久化文件。
 	Attachments []*basev1.AiAttachment `json:"attachments,omitempty"`
 }

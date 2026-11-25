@@ -22,6 +22,10 @@ type InputContentPayload struct {
 	ModelName string `json:"model_name,omitempty"`
 	// KnowledgeBaseIDs 本轮选择的知识库编号，检索注入上下文使用。
 	KnowledgeBaseIDs []int64 `json:"knowledge_base_ids,omitempty"`
+	// ShortcutAction 保存本轮校验通过的快捷入口动作，供重试使用。
+	ShortcutAction *basev1.AiAction `json:"shortcut_action,omitempty"`
+	// ShortcutResult 保存继续执行时从来源消息读取的结果。
+	ShortcutResult string `json:"shortcut_result,omitempty"`
 }
 
 // OutputContentPayload 表示 AI 助手输出内容 JSON 结构。
@@ -46,6 +50,8 @@ type OutputContentPayload struct {
 	Step string `json:"step"`
 	// BlocksJSON 结构化内容 JSON。
 	BlocksJSON string `json:"blocks_json"`
+	// FlowResult 保存确认节点之前的结果，空指针表示没有可恢复的状态。
+	FlowResult *string `json:"flow_result,omitempty"`
 }
 
 // BuildUserContent 生成用户消息落库正文。
@@ -191,6 +197,7 @@ func MarshalReplyContent(response *Response) string {
 		Flow:           response.Flow,
 		Step:           response.Step,
 		BlocksJSON:     response.BlocksJSON,
+		FlowResult:     response.FlowResult,
 	}
 	raw, err := json.Marshal(payload)
 	// 极端情况下只保留正文重试序列化，避免把非 JSON 文本写入 JSON 列。

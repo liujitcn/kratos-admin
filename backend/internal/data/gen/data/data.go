@@ -27,6 +27,7 @@ func Models() []any {
 		new(models.AiPluginToolPolicy),
 		new(models.AiProvider),
 		new(models.AiSession),
+		new(models.AiShortcut),
 		new(models.AiToolApproval),
 		new(models.BaseAPI),
 		new(models.BaseAPII18N),

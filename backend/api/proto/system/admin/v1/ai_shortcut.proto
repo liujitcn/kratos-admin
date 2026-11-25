@@ -1,0 +1,160 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "base/v1/ai_tool.proto";
+import "buf/validate/validate.proto";
+import "common/v1/enum.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// 管理端 AI 快捷入口服务。
+service AiShortcutService {
+  // 分页查询快捷入口。
+  rpc PageAiShortcut(PageAiShortcutRequest) returns (PageAiShortcutResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/ai/shortcut"};
+  }
+
+  // 查看快捷入口及流程配置。
+  rpc GetAiShortcut(GetAiShortcutRequest) returns (AiShortcutForm) {
+    option (google.api.http) = {get: "/api/v1/admin/ai/shortcut/{id}"};
+  }
+
+  // 查询当前终端可选的 API 工具。
+  rpc OptionAiShortcutTool(OptionAiShortcutToolRequest) returns (OptionAiShortcutToolResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/ai/shortcut/tool/option"};
+  }
+
+  // 创建快捷入口。
+  rpc CreateAiShortcut(CreateAiShortcutRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {post: "/api/v1/admin/ai/shortcut" body: "shortcut"};
+  }
+
+  // 更新快捷入口。
+  rpc UpdateAiShortcut(UpdateAiShortcutRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {put: "/api/v1/admin/ai/shortcut/{shortcut.id}" body: "shortcut"};
+  }
+
+  // 批量删除快捷入口。
+  rpc DeleteAiShortcut(DeleteAiShortcutRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/api/v1/admin/ai/shortcut/{id}"};
+  }
+
+  // 设置快捷入口启用状态。
+  rpc SetAiShortcutStatus(SetAiShortcutStatusRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {put: "/api/v1/admin/ai/shortcut/{id}/status" body: "*"};
+  }
+}
+
+// 快捷入口来源。
+enum AiShortcutSourceType {
+  // 未指定。
+  AI_SHORTCUT_SOURCE_TYPE_UNSPECIFIED = 0;
+  // API 工具入口。
+  AI_SHORTCUT_SOURCE_TYPE_API = 1;
+  // 自定义入口。
+  AI_SHORTCUT_SOURCE_TYPE_CUSTOM = 2;
+}
+
+// 快捷入口分页查询条件。
+message PageAiShortcutRequest {
+  string title = 1 [(gnostic.openapi.v3.property) = {description: "入口名称"}]; // 入口名称
+  string shortcut_key = 2 [(gnostic.openapi.v3.property) = {description: "入口标识"}]; // 入口标识
+  optional AiShortcutSourceType source_type = 3 [(gnostic.openapi.v3.property) = {description: "入口来源"}, (buf.validate.field).enum = {in: [1, 2]}]; // 入口来源
+  optional .base.v1.Terminal terminal = 4 [(gnostic.openapi.v3.property) = {description: "适用终端"}, (buf.validate.field).enum = {in: [1, 2]}]; // 适用终端
+  string tool_name = 5 [(gnostic.openapi.v3.property) = {description: "工具名"}]; // 工具名
+  optional .common.v1.Status status = 6 [(gnostic.openapi.v3.property) = {description: "启用状态"}, (buf.validate.field).enum = {in: [1, 2]}]; // 启用状态
+  int64 page_num = 7 [(gnostic.openapi.v3.property) = {description: "页码"}, (buf.validate.field).int64 = {gte: 1, lte: 1000000}]; // 页码
+  int64 page_size = 8 [(gnostic.openapi.v3.property) = {description: "每页数量"}, (buf.validate.field).int64 = {gte: 1, lte: 100}]; // 每页数量
+}
+
+// 快捷入口分页结果。
+message PageAiShortcutResponse {
+  repeated AiShortcutForm shortcuts = 1 [(gnostic.openapi.v3.property) = {description: "快捷入口列表"}]; // 快捷入口列表
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 快捷入口详情查询条件。
+message GetAiShortcutRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "入口ID"}, (buf.validate.field).int64.gt = 0]; // 入口ID
+}
+
+// API 工具选项查询条件。
+message OptionAiShortcutToolRequest {
+  .base.v1.Terminal terminal = 1 [(gnostic.openapi.v3.property) = {description: "适用终端"}, (buf.validate.field).enum = {in: [1, 2]}]; // 适用终端
+}
+
+// API 工具选项查询结果。
+message OptionAiShortcutToolResponse {
+  repeated AiShortcutToolOption tools = 1 [(gnostic.openapi.v3.property) = {description: "可用工具选项"}]; // 可用工具选项
+}
+
+// API 工具选项。
+message AiShortcutToolOption {
+  string tool_name = 1 [(gnostic.openapi.v3.property) = {description: "工具名"}]; // 工具名
+  string title = 2 [(gnostic.openapi.v3.property) = {description: "接口名称"}]; // 接口名称
+}
+
+// 快捷入口表单和列表记录。
+message AiShortcutForm {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "入口ID"}]; // 入口ID
+  string shortcut_key = 2 [(gnostic.openapi.v3.property) = {description: "入口标识"}, (buf.validate.field).string = {max_len: 100, pattern: "^[a-z][a-z0-9_]*$"}]; // 入口标识
+  string title = 3 [(gnostic.openapi.v3.property) = {description: "入口名称"}, (buf.validate.field).string = {min_len: 1, max_len: 200}]; // 入口名称
+  AiShortcutSourceType source_type = 4 [(gnostic.openapi.v3.property) = {description: "入口来源"}, (buf.validate.field).enum = {in: [1, 2]}]; // 入口来源
+  .base.v1.Terminal terminal = 5 [(gnostic.openapi.v3.property) = {description: "适用终端"}, (buf.validate.field).enum = {in: [1, 2]}]; // 适用终端
+  string tool_name = 6 [(gnostic.openapi.v3.property) = {description: "API工具名"}, (buf.validate.field).string.max_len = 150]; // API工具名
+  string prompt = 7 [(gnostic.openapi.v3.property) = {description: "提问内容"}, (buf.validate.field).string = {min_len: 1, max_len: 2000}]; // 提问内容
+  string group_name = 8 [(gnostic.openapi.v3.property) = {description: "分组名称"}, (buf.validate.field).string.max_len = 100]; // 分组名称
+  int32 sort = 9 [(gnostic.openapi.v3.property) = {description: "排序"}, (buf.validate.field).int32 = {gte: 0, lte: 99999}]; // 排序
+  .common.v1.Status status = 10 [(gnostic.openapi.v3.property) = {description: "启用状态"}, (buf.validate.field).enum = {in: [1, 2]}]; // 启用状态
+  AiShortcutGraph graph = 11 [(gnostic.openapi.v3.property) = {description: "可选流程图"}]; // 可选流程图
+  int64 revision = 12 [(gnostic.openapi.v3.property) = {description: "配置修订号"}]; // 配置修订号
+  string updated_at = 13 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+}
+
+// 创建快捷入口参数。
+message CreateAiShortcutRequest {
+  AiShortcutForm shortcut = 1 [(gnostic.openapi.v3.property) = {description: "快捷入口表单"}, (buf.validate.field).required = true]; // 快捷入口表单
+}
+
+// 更新快捷入口参数。
+message UpdateAiShortcutRequest {
+  AiShortcutForm shortcut = 1 [(gnostic.openapi.v3.property) = {description: "快捷入口表单"}, (buf.validate.field).required = true]; // 快捷入口表单
+}
+
+// 删除快捷入口参数。
+message DeleteAiShortcutRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "逗号分隔的入口ID"}, (buf.validate.field).string = {max_len: 2100, pattern: "^[1-9][0-9]*(,[1-9][0-9]*)*$"}]; // 逗号分隔的入口ID
+}
+
+// 设置启用状态参数。
+message SetAiShortcutStatusRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "入口ID"}, (buf.validate.field).int64.gt = 0]; // 入口ID
+  .common.v1.Status status = 2 [(gnostic.openapi.v3.property) = {description: "启用状态"}, (buf.validate.field).enum = {in: [1, 2]}]; // 启用状态
+  int64 revision = 3 [(gnostic.openapi.v3.property) = {description: "配置修订号"}, (buf.validate.field).int64.gt = 0]; // 配置修订号
+}
+
+// 快捷入口流程图。
+message AiShortcutGraph {
+  repeated AiShortcutNode nodes = 1 [(gnostic.openapi.v3.property) = {description: "流程节点"}, (buf.validate.field).repeated = {min_items: 2, max_items: 24}]; // 流程节点
+  repeated AiShortcutEdge edges = 2 [(gnostic.openapi.v3.property) = {description: "流程连线"}, (buf.validate.field).repeated = {min_items: 1, max_items: 48}]; // 流程连线
+}
+
+// 快捷入口流程节点。
+message AiShortcutNode {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "节点编号"}, (buf.validate.field).string = {max_len: 100, pattern: "^[a-z][a-z0-9_]*$"}]; // 节点编号
+  string type = 2 [(gnostic.openapi.v3.property) = {description: "节点类型"}, (buf.validate.field).string = {in: ["START", "END", "PROMPT", "TOOL", "BRANCH", "CONFIRM"]}]; // 节点类型
+  string step = 3 [(gnostic.openapi.v3.property) = {description: "步骤标识"}, (buf.validate.field).string = {max_len: 100, pattern: "^[a-z][a-z0-9_]*$"}]; // 步骤标识
+  double x = 4 [(gnostic.openapi.v3.property) = {description: "画布横坐标"}, (buf.validate.field).double = {gte: -50000, lte: 50000, finite: true}]; // 画布横坐标
+  double y = 5 [(gnostic.openapi.v3.property) = {description: "画布纵坐标"}, (buf.validate.field).double = {gte: -50000, lte: 50000, finite: true}]; // 画布纵坐标
+  string tool_name = 6 [(gnostic.openapi.v3.property) = {description: "工具名"}, (buf.validate.field).string.max_len = 150]; // 工具名
+  string payload_json = 7 [(gnostic.openapi.v3.property) = {description: "JSON动作参数"}, (buf.validate.field).string.max_bytes = 8192]; // JSON动作参数
+}
+
+// 快捷入口流程连线。
+message AiShortcutEdge {
+  string from = 1 [(gnostic.openapi.v3.property) = {description: "起点节点"}, (buf.validate.field).string = {min_len: 1, max_len: 100}]; // 起点节点
+  string to = 2 [(gnostic.openapi.v3.property) = {description: "终点节点"}, (buf.validate.field).string = {min_len: 1, max_len: 100}]; // 终点节点
+  string condition = 3 [(gnostic.openapi.v3.property) = {description: "条件表达式或默认出口"}, (buf.validate.field).string.max_bytes = 256]; // 条件表达式或默认出口
+}

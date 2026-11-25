@@ -244,14 +244,15 @@ func TestAiFileTenantBoundary(t *testing.T) {
 	}
 }
 
-// newAiEventTestCase 用独立内存数据库构造消息链路，不读取或改动开发库记录。
-func newAiEventTestCase(t *testing.T) (*AiMessageCase, context.Context, *models.AiSession, *models.AiMessage) {
+// newAiEventTestCase 用独立内存数据库构造消息链路，按需创建测试所需的附加表。
+func newAiEventTestCase(t *testing.T, additionalModels ...any) (*AiMessageCase, context.Context, *models.AiSession, *models.AiMessage) {
 	t.Helper()
 	db, err := gorm.Open(sqlite.Open("file:"+t.Name()+"?mode=memory&cache=shared"), &gorm.Config{Logger: logger.Default.LogMode(logger.Silent)})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err = db.AutoMigrate(&models.AiSession{}, &models.AiMessage{}, &models.AiToolApproval{}, &models.AiMessageEvent{}, &models.AiFile{}); err != nil {
+	tables := []any{&models.AiSession{}, &models.AiMessage{}, &models.AiToolApproval{}, &models.AiMessageEvent{}, &models.AiFile{}}
+	if err = db.AutoMigrate(append(tables, additionalModels...)...); err != nil {
 		t.Fatal(err)
 	}
 	installTestTenantScope(t, db)

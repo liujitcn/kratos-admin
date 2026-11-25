@@ -21,6 +21,7 @@ var ProviderSet = wire.NewSet(
 	NewAiPluginToolPolicyRepository,
 	NewAiProviderRepository,
 	NewAiSessionRepository,
+	NewAiShortcutRepository,
 	NewAiToolApprovalRepository,
 	NewBaseAPIRepository,
 	NewBaseAPII18NRepository,

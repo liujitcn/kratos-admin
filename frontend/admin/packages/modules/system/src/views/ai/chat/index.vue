@@ -475,7 +475,8 @@ function resolveLocalRetryPayload(item: ChatMessageItem): SubmitPayload | undefi
   if (item.role === "user") {
     return {
       text: String(item.content ?? ""),
-      attachments: item.attachments ?? []
+      attachments: item.attachments ?? [],
+      action: item.localAction
     };
   }
 
@@ -487,7 +488,8 @@ function resolveLocalRetryPayload(item: ChatMessageItem): SubmitPayload | undefi
     if (message.localOnly && message.role === "user") {
       return {
         text: String(message.content ?? ""),
-        attachments: message.attachments ?? []
+        attachments: message.attachments ?? [],
+        action: message.localAction
       };
     }
   }

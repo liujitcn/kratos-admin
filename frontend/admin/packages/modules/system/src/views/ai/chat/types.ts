@@ -116,6 +116,8 @@ export type ChatMessageItem = AiMessage & {
   progressState?: MessageProgressState;
   /** 是否为前端临时消息，收到服务端最终消息后会被替换。 */
   localOnly?: boolean;
+  /** 前端本地发送失败后，重发时使用的原始流程动作。 */
+  localAction?: AiAction;
   /** 回复来源标签。 */
   replySourceTag?: ReplySourceTag;
   /** 本地流式消息键，按会话和单轮消息拆分。 */

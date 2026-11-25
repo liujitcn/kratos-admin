@@ -1,5 +1,4 @@
 import {
-  type AiAttachment,
   type AiInputContent,
   type AiMessage,
   type AiOutputContent,
@@ -10,7 +9,7 @@ import type { AiAction } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_mess
 import { AiMessageStatus } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import { Terminal } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
 import { t } from "@liujitcn/kratos-admin-core";
-import type { AiActivityItem, AiStreamPayload, AIFlowBlock, ChatMessageItem, ReplySourceTag } from "./types";
+import type { AiActivityItem, AiStreamPayload, AIFlowBlock, ChatMessageItem, ReplySourceTag, SubmitPayload } from "./types";
 
 const THINKING_MESSAGE_ID_PREFIX = "ai-thinking";
 const LOCAL_USER_MESSAGE_ID_PREFIX = "ai-user-local";
@@ -213,7 +212,7 @@ export function normalizeMessageList(list?: AiMessage[] | null) {
 }
 
 /** 创建本地用户回显消息。 */
-export function createLocalUserMessage(payload: { text: string; attachments: AiAttachment[] }) {
+export function createLocalUserMessage(payload: SubmitPayload) {
   const now = new Date();
   const message = mapMessageItem(
     {
@@ -239,6 +238,7 @@ export function createLocalUserMessage(payload: { text: string; attachments: AiA
   );
   // 本地回显消息只用于等待服务端响应，收到正式消息后需要被替换掉，避免同一问题展示两遍。
   message.localOnly = true;
+  message.localAction = payload.action;
   // 用户消息只是本地回显，不参与助手流式动画，避免用户气泡出现思考中的省略点。
   message.progressState = "idle";
   return message;

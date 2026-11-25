@@ -444,7 +444,9 @@ func BuildModules(dispatcher *aiautomation.Dispatcher, migrations *migration.Mig
 	}
 	knowledgeEngine := ai.NewKnowledgeEngine(databases, data5, aiProviderRepository, aiModelRepository)
 	aiFileCase := biz2.NewAiFileCase(baseCase, aiFileRepository)
-	aiMessageCase := biz2.NewAiMessageCase(baseCase, transaction, aiMessageRepository, aiToolApprovalRepository, bizAiSessionCase, baseUserCase2, aiRuntime, knowledgeEngine, aiPluginCase, aiFileCase)
+	aiShortcutRepository := data2.NewAiShortcutRepository(dataData)
+	aiToolCase := biz2.NewAiToolCase(baseCase, aiRuntime, aiShortcutRepository, mcpCase)
+	aiMessageCase := biz2.NewAiMessageCase(baseCase, transaction, aiMessageRepository, aiToolApprovalRepository, bizAiSessionCase, baseUserCase2, aiRuntime, knowledgeEngine, aiPluginCase, aiFileCase, aiToolCase)
 	bizBaseDeptCase := biz2.NewBaseDeptCase(baseCase, baseDeptRepository)
 	configCase := biz2.NewConfigCase(baseCase, baseConfigRepository, baseI18NRepository, baseI18NCustomRepository, baseLanguageRepository, baseTenantRepository, modelTranslator)
 	mfa := config.ParseMfaConfig(config2)
@@ -462,7 +464,6 @@ func BuildModules(dispatcher *aiautomation.Dispatcher, migrations *migration.Mig
 	bizAiModelCase := biz2.NewAiModelCase(baseCase, aiRuntime)
 	aiModelService := base.NewAiModelService(bizAiModelCase)
 	aiPluginService := base.NewAiPluginService(aiPluginCase)
-	aiToolCase := biz2.NewAiToolCase(baseCase, aiRuntime)
 	aiToolService := base.NewAiToolService(aiToolCase)
 	aiMessageService := base.NewAiMessageService(aiMessageCase)
 	aiKnowledgeCase := biz2.NewAiKnowledgeCase(baseCase, knowledgeEngine)
@@ -588,6 +589,8 @@ func BuildModules(dispatcher *aiautomation.Dispatcher, migrations *migration.Mig
 		AiSearch:                aiSearchService,
 		BiQuery:                 biQueryService,
 	}
+	aiShortcutCase := biz3.NewAiShortcutCase(baseCase, aiShortcutRepository, transaction, aiToolCase)
+	aiShortcutService := admin.NewAiShortcutService(aiShortcutCase)
 	services2 := &app2.Services{
 		Auth:     appAuthService,
 		BaseArea: appBaseAreaService,
@@ -622,7 +625,7 @@ func BuildModules(dispatcher *aiautomation.Dispatcher, migrations *migration.Mig
 		BiQueryRecord: biQueryRecordService,
 		BiDashboard:   biDashboardService,
 	}
-	modules, err := NewModules(dispatcher, aiAutomationCase, baseServices, adminServices, services2, ragServices, biServices, biRegistry, aiRuntime, catalog, baseConfigCase, aiProviderCase, aiModelCase, baseLoginPolicyCase, baseUserCase, baseTenantProjectGrantCase, baseOauthProviderCase, aiFileRepository, redactResolver, rateLimitResolver, secretFieldRuntime, mfaCase, aiPluginCase)
+	modules, err := NewModules(dispatcher, aiAutomationCase, baseServices, adminServices, aiShortcutService, services2, ragServices, biServices, biRegistry, aiRuntime, catalog, baseConfigCase, aiProviderCase, aiModelCase, baseLoginPolicyCase, baseUserCase, baseTenantProjectGrantCase, baseOauthProviderCase, aiFileRepository, redactResolver, rateLimitResolver, secretFieldRuntime, mfaCase, aiPluginCase)
 	if err != nil {
 		cleanup2()
 		cleanup()

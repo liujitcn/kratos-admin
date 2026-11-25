@@ -11,7 +11,7 @@ import (
 	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 	"github.com/liujitcn/kratos-kit/auth/authn/engine"
 	"github.com/liujitcn/kratos-kit/auth/data"
-	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/database/gorm"
 	_ "github.com/liujitcn/kratos-kit/database/gorm/driver/postgres"
 )
 
@@ -21,7 +21,7 @@ func TestPostgresReadOnlyMetadata(t *testing.T) {
 	if dsn == "" {
 		t.Skip("设置 KRATOS_DBMETA_TEST_POSTGRES_DSN 指向支持建角色和模式的独立 PostgreSQL 测试库")
 	}
-	client, cleanup, err := kitgorm.NewGormClient(&configv1.Data_Database{Driver: "postgres", Source: dsn})
+	client, cleanup, err := gorm.NewGormClient(&configv1.Data_Database{Driver: "postgres", Source: dsn})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -95,7 +95,7 @@ func TestPostgresReadOnlyMetadata(t *testing.T) {
 		storage[5].DataType != "varchar" || storage[5].ColumnType != "character varying(60)" {
 		t.Fatalf("脱敏字段类型、注释或顺序错误: %v", storage)
 	}
-	if err = tx.WithContext(ctx).Exec("SELECT * FROM sales").Error; !errors.Is(err, kitgorm.ErrRawDataIsolationUnsupported) { //nolint:forbidigo // 断言业务表原生 SQL 未被放行。
+	if err = tx.WithContext(ctx).Exec("SELECT * FROM sales").Error; !errors.Is(err, gorm.ErrRawDataIsolationUnsupported) { //nolint:forbidigo // 断言业务表原生 SQL 未被放行。
 		t.Fatalf("业务表的原生 SQL 应继续被隔离钩子拒绝，实际: %v", err)
 	}
 }

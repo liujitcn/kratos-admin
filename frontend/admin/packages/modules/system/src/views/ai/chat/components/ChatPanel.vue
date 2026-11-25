@@ -678,11 +678,9 @@ const lastEditableUserMessageKey = computed(() => {
 });
 
 const activeFlowMessageID = computed(() => {
-  for (let index = props.messages.length - 1; index >= 0; index--) {
-    const item = props.messages[index];
-    if (item.role !== "user" && item.blocks?.length) return String(item.id ?? "");
-  }
-  return "";
+  const latest = props.messages.at(-1);
+  if (props.sending || latest?.role !== "ai" || latest.status !== AiMessageStatus.AI_MESSAGE_STATUS_SUCCESS) return "";
+  return String(latest.id ?? "");
 });
 
 const welcomeTitle = computed(() => {

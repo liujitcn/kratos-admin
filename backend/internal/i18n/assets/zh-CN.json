@@ -8332,5 +8332,248 @@
   },
   "system.admin.session.revoke_all.confirm.required": {
     "other": "请确认吊销全部会话操作"
+  },
+  "base.ai.shortcut.completed": {
+    "other": "流程已完成"
+  },
+  "base.ai.shortcut.continue": {
+    "other": "继续流程"
+  },
+  "legacy.error.1ecd54b6121bec6b": {
+    "other": "同一租户和终端的快捷入口标识已存在"
+  },
+  "legacy.error.c290a0effc8ba3a9": {
+    "other": "快捷入口已修改，请刷新后重试"
+  },
+  "legacy.error.ee364f6d9f164b71": {
+    "other": "快捷入口流程的确认步骤已失效"
+  },
+  "legacy.error.488e45766f75aa6f": {
+    "other": "快捷入口缺少原始动作，请从快捷入口重新运行"
+  },
+  "legacy.error.5669c7d8e297f112": {
+    "other": "该快捷流程缺少继续所需的结果，请从快捷入口重新运行"
+  },
+  "legacy.error.b2f8c3f1c5e7dfc5": {
+    "other": "快捷入口流程配置无法读取"
+  },
+  "legacy.error.934db8fc486d4c8d": {
+    "other": "API 来源需要选择工具，自定义入口使用流程配置工具"
+  },
+  "legacy.error.655def0eefa91cf9": {
+    "other": "入口名称和提问内容不能为空"
+  },
+  "legacy.error.04238bfe28ee93a0": {
+    "other": "只有工具节点需要选择 API 工具"
+  },
+  "legacy.error.bdf49df8925dfd63": {
+    "other": "应用端快捷入口仅支持直接发送提示词"
+  },
+  "legacy.error.afa35625ac74cf73": {
+    "other": "开始、结束和分支节点不接收动作参数"
+  },
+  "legacy.error.19b2e8b3b3da207e": {
+    "other": "快捷入口分支条件应为字段路径 == JSON 值，且不能重复"
+  },
+  "legacy.error.48ff1a2ac1a0937c": {
+    "other": "快捷入口分支至少需要一个条件出口和一个默认出口"
+  },
+  "legacy.error.585c5ef929030ff4": {
+    "other": "快捷入口包含不可用的 API 工具"
+  },
+  "legacy.error.452014ededf71361": {
+    "other": "快捷入口标识创建后不可修改"
+  },
+  "legacy.error.00faa95825eaf216": {
+    "other": "快捷入口流程仅支持只读 API 工具"
+  },
+  "legacy.error.40048e41cb7cfaf1": {
+    "other": "快捷入口流程动作无效"
+  },
+  "legacy.error.353d9b382fb462d9": {
+    "other": "快捷入口流程包含无效连线"
+  },
+  "legacy.error.f8f876cb3688e9f7": {
+    "other": "快捷入口流程包含未知节点类型"
+  },
+  "legacy.error.e423e48e8e7a0dcf": {
+    "other": "快捷入口流程包含环或不可达节点"
+  },
+  "legacy.error.05c72b714ddf2237": {
+    "other": "快捷入口流程包含重复连线"
+  },
+  "legacy.error.da654fdd9abb37d2": {
+    "other": "快捷入口流程必须使用固定的开始和结束节点"
+  },
+  "legacy.error.3d68f78e2a4710a0": {
+    "other": "快捷入口流程步骤不能为空"
+  },
+  "legacy.error.fe4d45c160f2c72e": {
+    "other": "快捷入口流程的节点或连线数量不合法"
+  },
+  "legacy.error.d91e5b5172618d38": {
+    "other": "快捷入口流程的节点编号与步骤标识必须分别唯一"
+  },
+  "legacy.error.dfd763f47f64c401": {
+    "other": "快捷入口流程缺少可执行的下一步"
+  },
+  "legacy.error.17731b0fbc0aab9f": {
+    "other": "快捷入口流程缺少开始或结束节点"
+  },
+  "legacy.error.c98d5723c7d0836c": {
+    "other": "快捷入口流程配置无法保存"
+  },
+  "legacy.error.962218aa47a1e617": {
+    "other": "快捷入口流程配置过大"
+  },
+  "legacy.error.78bb63c9c5e777c7": {
+    "other": "快捷入口节点的动作参数必须是 JSON 对象"
+  },
+  "legacy.error.ed4b81db77e580d6": {
+    "other": "提示词与确认节点的动作参数只能配置 text"
+  },
+  "legacy.error.b7a7471fb1c7eeb5": {
+    "other": "普通快捷入口节点必须有一条无条件出口"
+  },
+  "legacy.error.7d5f72aebe944f57": {
+    "other": "请选择一到一百条有效快捷入口"
+  },
+  "legacy.error.fb7808ae1c2e050e": {
+    "other": "快捷入口依赖的工具在当前会话中不可用"
+  },
+  "legacy.error.41df2db798705d37": {
+    "other": "快捷入口不存在"
+  },
+  "legacy.error.c30b0088c1db61ff": {
+    "other": "修改快捷入口状态失败"
+  },
+  "legacy.error.2a2d64d1e45bb14a": {
+    "other": "创建快捷入口失败"
+  },
+  "legacy.error.cddfd2504bdad972": {
+    "other": "删除快捷入口失败"
+  },
+  "legacy.error.55458822164b238c": {
+    "other": "更新快捷入口失败"
+  },
+  "legacy.error.ddbc0c6896ddb8a9": {
+    "other": "查询快捷入口列表失败"
+  },
+  "legacy.error.c1fae1942770326e": {
+    "other": "查询快捷入口失败"
+  },
+  "legacy.error.cb14ee153e678d0f": {
+    "other": "查询快捷入口工具失败"
+  },
+  "openapi.admin.ai_shortcut.01": {
+    "other": "管理端 AI 快捷入口服务。"
+  },
+  "openapi.admin.ai_shortcut.02": {
+    "other": "分页查询快捷入口。"
+  },
+  "openapi.admin.ai_shortcut.03": {
+    "other": "查看快捷入口及流程配置。"
+  },
+  "openapi.admin.ai_shortcut.04": {
+    "other": "查询当前终端可选的 API 工具。"
+  },
+  "openapi.admin.ai_shortcut.05": {
+    "other": "创建快捷入口。"
+  },
+  "openapi.admin.ai_shortcut.06": {
+    "other": "更新快捷入口。"
+  },
+  "openapi.admin.ai_shortcut.07": {
+    "other": "批量删除快捷入口。"
+  },
+  "openapi.admin.ai_shortcut.08": {
+    "other": "设置快捷入口启用状态。"
+  },
+  "openapi.admin.ai_shortcut.09": {
+    "other": "入口名称"
+  },
+  "openapi.admin.ai_shortcut.10": {
+    "other": "入口标识"
+  },
+  "openapi.admin.ai_shortcut.11": {
+    "other": "入口来源"
+  },
+  "openapi.admin.ai_shortcut.12": {
+    "other": "适用终端"
+  },
+  "openapi.admin.ai_shortcut.13": {
+    "other": "快捷入口列表"
+  },
+  "openapi.admin.ai_shortcut.14": {
+    "other": "入口ID"
+  },
+  "openapi.admin.ai_shortcut.15": {
+    "other": "可用工具选项"
+  },
+  "openapi.admin.ai_shortcut.16": {
+    "other": "接口名称"
+  },
+  "openapi.admin.ai_shortcut.17": {
+    "other": "API工具名"
+  },
+  "openapi.admin.ai_shortcut.18": {
+    "other": "提问内容"
+  },
+  "openapi.admin.ai_shortcut.19": {
+    "other": "分组名称"
+  },
+  "openapi.admin.ai_shortcut.20": {
+    "other": "可选流程图"
+  },
+  "openapi.admin.ai_shortcut.21": {
+    "other": "配置修订号"
+  },
+  "openapi.admin.ai_shortcut.22": {
+    "other": "快捷入口表单"
+  },
+  "openapi.admin.ai_shortcut.23": {
+    "other": "逗号分隔的入口ID"
+  },
+  "openapi.admin.ai_shortcut.24": {
+    "other": "流程节点"
+  },
+  "openapi.admin.ai_shortcut.25": {
+    "other": "流程连线"
+  },
+  "openapi.admin.ai_shortcut.26": {
+    "other": "节点编号"
+  },
+  "openapi.admin.ai_shortcut.27": {
+    "other": "节点类型"
+  },
+  "openapi.admin.ai_shortcut.28": {
+    "other": "步骤标识"
+  },
+  "openapi.admin.ai_shortcut.29": {
+    "other": "画布横坐标"
+  },
+  "openapi.admin.ai_shortcut.30": {
+    "other": "画布纵坐标"
+  },
+  "openapi.admin.ai_shortcut.31": {
+    "other": "JSON动作参数"
+  },
+  "openapi.admin.ai_shortcut.32": {
+    "other": "起点节点"
+  },
+  "openapi.admin.ai_shortcut.33": {
+    "other": "终点节点"
+  },
+  "openapi.admin.ai_shortcut.34": {
+    "other": "条件表达式或默认出口"
+  },
+  "openapi.admin.ai_shortcut.graph_edge": {
+    "other": "快捷入口流程连线。"
+  },
+  "openapi.admin.ai_shortcut.graph": {
+    "other": "快捷入口流程图。"
+  },
+  "openapi.admin.base_session.confirm_revoke": {
+    "other": "确认吊销，必须显式传 true"
   }
 }

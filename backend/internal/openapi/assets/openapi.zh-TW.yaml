@@ -6,6 +6,183 @@ info:
     title: ""
     version: 0.0.1
 paths:
+    /api/v1/admin/ai/shortcut:
+        get:
+            tags:
+                - AiShortcutService
+            description: 分页查詢快捷入口。
+            operationId: AiShortcutService_PageAiShortcut
+            parameters:
+                - name: title
+                  in: query
+                  schema:
+                    type: string
+                - name: shortcut_key
+                  in: query
+                  schema:
+                    type: string
+                - name: source_type
+                  in: query
+                  schema:
+                    enum:
+                        - AI_SHORTCUT_SOURCE_TYPE_UNSPECIFIED
+                        - AI_SHORTCUT_SOURCE_TYPE_API
+                        - AI_SHORTCUT_SOURCE_TYPE_CUSTOM
+                    type: string
+                    format: enum
+                - name: terminal
+                  in: query
+                  schema:
+                    enum:
+                        - TERMINAL_UNSPECIFIED
+                        - TERMINAL_APP
+                        - TERMINAL_ADMIN
+                    type: string
+                    format: enum
+                - name: tool_name
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageAiShortcutResponse'
+        post:
+            tags:
+                - AiShortcutService
+            description: 創建快捷入口。
+            operationId: AiShortcutService_CreateAiShortcut
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.AiShortcutForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/ai/shortcut/tool/option:
+        get:
+            tags:
+                - AiShortcutService
+            description: 查詢当前终端可選的 API 工具。
+            operationId: AiShortcutService_OptionAiShortcutTool
+            parameters:
+                - name: terminal
+                  in: query
+                  schema:
+                    enum:
+                        - TERMINAL_UNSPECIFIED
+                        - TERMINAL_APP
+                        - TERMINAL_ADMIN
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.OptionAiShortcutToolResponse'
+    /api/v1/admin/ai/shortcut/{id}:
+        get:
+            tags:
+                - AiShortcutService
+            description: 檢視快捷入口及流程配置。
+            operationId: AiShortcutService_GetAiShortcut
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.AiShortcutForm'
+        delete:
+            tags:
+                - AiShortcutService
+            description: 批次刪除快捷入口。
+            operationId: AiShortcutService_DeleteAiShortcut
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/ai/shortcut/{id}/status:
+        put:
+            tags:
+                - AiShortcutService
+            description: 設置快捷入口启用状态。
+            operationId: AiShortcutService_SetAiShortcutStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetAiShortcutStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/ai/shortcut/{shortcut.id}:
+        put:
+            tags:
+                - AiShortcutService
+            description: 更新快捷入口。
+            operationId: AiShortcutService_UpdateAiShortcut
+            parameters:
+                - name: shortcut.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.AiShortcutForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/auth/buttons:
         get:
             tags:
@@ -11322,7 +11499,7 @@ components:
                     description: MCP HTTPS地址
                 revision:
                     type: string
-                    description: 配置修訂號
+                    description: 配置修订號
                 assembled:
                     type: boolean
                     description: 本地元件是否已裝配
@@ -11372,7 +11549,7 @@ components:
                     description: 授權過期Unix秒
                 revision:
                     type: string
-                    description: 配置修訂號
+                    description: 配置修订號
                 last_error:
                     type: string
                     description: 可展示的連線問題
@@ -11582,7 +11759,7 @@ components:
                     format: int32
                 group:
                     type: string
-                    description: 分組名稱
+                    description: 分組名称
             description: AI 助手快捷入口
         base.v1.AiShortcutAction:
             type: object
@@ -14094,11 +14271,11 @@ components:
                     description: 租戶隔離字段，爲空表示連接級隔離或共享表
                 x:
                     type: integer
-                    description: 畫布橫座標
+                    description: 画布橫坐標
                     format: int32
                 y:
                     type: integer
-                    description: 畫布縱座標
+                    description: 画布縱坐標
                     format: int32
             description: 語義模型中的表節點。
         bi.admin.v1.BiSourceRelation:
@@ -15097,6 +15274,128 @@ components:
                     type: string
                     description: 更新時間
             description: AI會話分頁記錄。
+        system.admin.v1.AiShortcutEdge:
+            type: object
+            properties:
+                from:
+                    type: string
+                    description: 起点節点
+                to:
+                    type: string
+                    description: 终点節点
+                condition:
+                    type: string
+                    description: 條件表达式或默認出口
+            description: 快捷入口流程連線。
+        system.admin.v1.AiShortcutForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 入口ID
+                shortcut_key:
+                    type: string
+                    description: 入口標識
+                title:
+                    type: string
+                    description: 入口名稱
+                source_type:
+                    enum:
+                        - AI_SHORTCUT_SOURCE_TYPE_UNSPECIFIED
+                        - AI_SHORTCUT_SOURCE_TYPE_API
+                        - AI_SHORTCUT_SOURCE_TYPE_CUSTOM
+                    type: string
+                    description: 入口來源
+                    format: enum
+                terminal:
+                    enum:
+                        - TERMINAL_UNSPECIFIED
+                        - TERMINAL_APP
+                        - TERMINAL_ADMIN
+                    type: string
+                    description: 適用终端
+                    format: enum
+                tool_name:
+                    type: string
+                    description: API工具名
+                prompt:
+                    type: string
+                    description: 提問內容
+                group_name:
+                    type: string
+                    description: 分組名称
+                sort:
+                    type: integer
+                    description: 排序
+                    format: int32
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 啟用狀態
+                    format: enum
+                graph:
+                    $ref: '#/components/schemas/system.admin.v1.AiShortcutGraph'
+                revision:
+                    type: string
+                    description: 配置修订號
+                updated_at:
+                    type: string
+                    description: 更新時間
+            description: 快捷入口表單和列表記錄。
+        system.admin.v1.AiShortcutGraph:
+            type: object
+            properties:
+                nodes:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiShortcutNode'
+                    description: 流程節点
+                edges:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiShortcutEdge'
+                    description: 流程連线
+            description: 快捷入口流程圖。
+        system.admin.v1.AiShortcutNode:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 節点編號
+                type:
+                    type: string
+                    description: 節点类型
+                step:
+                    type: string
+                    description: 步骤標識
+                x:
+                    type: number
+                    description: 画布橫坐標
+                    format: double
+                y:
+                    type: number
+                    description: 画布縱坐標
+                    format: double
+                tool_name:
+                    type: string
+                    description: 工具名
+                payload_json:
+                    type: string
+                    description: JSON動作參數
+            description: 快捷入口流程節點。
+        system.admin.v1.AiShortcutToolOption:
+            type: object
+            properties:
+                tool_name:
+                    type: string
+                    description: 工具名
+                title:
+                    type: string
+                    description: 介面名稱
+            description: API 工具選項。
         system.admin.v1.AuditWorkflowTaskRequest:
             type: object
             properties:
@@ -20663,6 +20962,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.OpsTrafficPoint'
                     description: 請求流量趨勢
             description: 流量響應。
+        system.admin.v1.OptionAiShortcutToolResponse:
+            type: object
+            properties:
+                tools:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiShortcutToolOption'
+                    description: 可用工具選项
+            description: API 工具選項查詢結果。
         system.admin.v1.OptionBaseApiResponse:
             type: object
             properties:
@@ -20793,6 +21101,19 @@ components:
                     description: 總數
                     format: int32
             description: AI會話分頁響應。
+        system.admin.v1.PageAiShortcutResponse:
+            type: object
+            properties:
+                shortcuts:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiShortcutForm'
+                    description: 快捷入口列表
+                total:
+                    type: integer
+                    description: 總數
+                    format: int32
+            description: 快捷入口分頁結果。
         system.admin.v1.PageBaseApiLogResponse:
             type: object
             properties:
@@ -21533,7 +21854,10 @@ components:
             description: 重試工作流腳本請求
         system.admin.v1.RevokeAllBaseSessionsRequest:
             type: object
-            properties: {}
+            properties:
+                confirm:
+                    type: boolean
+                    description: 確認撤銷，必須明確傳入 true
             description: 撤銷全部會話請求引數。
         system.admin.v1.RevokeBaseMessageRequest:
             type: object
@@ -21708,6 +22032,24 @@ components:
                     description: 狀態
                     format: enum
             description: 設定AI供應商狀態請求。
+        system.admin.v1.SetAiShortcutStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 入口ID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 啟用狀態
+                    format: enum
+                revision:
+                    type: string
+                    description: 配置修订號
+            description: 設定啟用狀態引數。
         system.admin.v1.SetBaseApiAgentStatusRequest:
             type: object
             properties:
@@ -23014,9 +23356,9 @@ tags:
     - name: AiKnowledgeDocService
       description: AI知識庫文件管理服務。
     - name: AiKnowledgeService
-      description: AI 知識庫選項查詢服務。
-    - name: AiKnowledgeService
       description: AI知識庫管理服務。
+    - name: AiKnowledgeService
+      description: AI 知識庫選項查詢服務。
     - name: AiMessageService
       description: Base AI 助手訊息服務
     - name: AiModelService
@@ -23028,9 +23370,11 @@ tags:
     - name: AiSearchService
       description: Base AI 助手聯網搜尋服務
     - name: AiSessionService
-      description: AI會話管理服務。
-    - name: AiSessionService
       description: Base AI 助手會話服務
+    - name: AiSessionService
+      description: AI會話管理服務。
+    - name: AiShortcutService
+      description: 管理端 AI 快捷入口服務。
     - name: AiToolService
       description: Base AI 助手工具服務
     - name: AuthService
@@ -23044,9 +23388,9 @@ tags:
     - name: BaseApiService
       description: Admin API 服務
     - name: BaseAreaService
-      description: App 行政區域服務
-    - name: BaseAreaService
       description: Admin 行政區域服務
+    - name: BaseAreaService
+      description: App 行政區域服務
     - name: BaseConfigService
       description: Admin 系統設定服務
     - name: BaseDashboardService

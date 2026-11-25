@@ -454,5 +454,6 @@ func agentToolReadOnly(api *models.BaseAPI) bool {
 func agentToolBlocked(api *models.BaseAPI) bool {
 	return strings.HasPrefix(api.ToolName, "base_v1_ai_message_service_") ||
 		strings.HasPrefix(api.ToolName, "base_v1_ai_session_service_") ||
+		strings.Contains(api.Operation, ".AiShortcutService/") ||
 		(!agentToolReadOnly(api) && (strings.Contains(api.Operation, ".BaseScriptService/") || strings.Contains(api.Operation, ".CodeGenService/") || strings.Contains(api.Operation, ".BaseJobService/") || strings.Contains(api.Operation, ".BaseApiService/") || strings.Contains(api.Operation, ".AiPluginService/") || strings.Contains(api.Operation, ".AiAutomationService/") || strings.Contains(api.Operation, ".Workflow")))
 }

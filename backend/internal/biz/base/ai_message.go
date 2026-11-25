@@ -57,6 +57,7 @@ type AiMessageCase struct {
 	baseUserCase      *BaseUserCase
 	aiRuntime         *ai.Runtime
 	aiPluginCase      *AiPluginCase
+	aiToolCase        *AiToolCase
 	aiFileCase        *AiFileCase
 	automationCase    *AiAutomationCase
 	aiKnowledgeEngine *ai.KnowledgeEngine
@@ -74,6 +75,7 @@ func NewAiMessageCase(
 	aiKnowledgeEngine *ai.KnowledgeEngine,
 	aiPluginCase *AiPluginCase,
 	aiFileCase *AiFileCase,
+	aiToolCase *AiToolCase,
 ) *AiMessageCase {
 	c := &AiMessageCase{
 		BaseCase:          baseCase,
@@ -86,6 +88,7 @@ func NewAiMessageCase(
 		aiKnowledgeEngine: aiKnowledgeEngine,
 		aiPluginCase:      aiPluginCase,
 		aiFileCase:        aiFileCase,
+		aiToolCase:        aiToolCase,
 	}
 	return c
 }
@@ -190,7 +193,7 @@ func (c *AiMessageCase) SendAiMessage(ctx context.Context, req *basev1.SendAiMes
 	startAt := time.Now()
 	input := ai.ParseInputContent(message.InputContent)
 	var reply *ai.Response
-	reply, err = c.generateAiReply(ctx, session, message.ID, userName, content, input.ProviderID, input.ProviderName, input.ModelName, req.GetAction(), attachments, aiAttachments, history, req.GetKnowledgeBaseIds(), nil)
+	reply, err = c.generateAiReply(ctx, session, message.ID, userName, content, input, req.GetAction(), attachments, aiAttachments, history, nil)
 	finishAt := time.Now()
 	durationMs := durationMilliseconds(startAt, finishAt)
 	firstTokenMs := durationMs
@@ -236,7 +239,7 @@ func (c *AiMessageCase) StreamAiMessage(ctx context.Context, req *basev1.SendAiM
 	input := ai.ParseInputContent(message.InputContent)
 	answerStarted := false
 	var firstTokenMs int32
-	reply, runErr := c.generateAiReply(ctx, session, message.ID, userName, content, input.ProviderID, input.ProviderName, input.ModelName, req.GetAction(), attachments, aiAttachments, history, req.GetKnowledgeBaseIds(), func(delta string) {
+	reply, runErr := c.generateAiReply(ctx, session, message.ID, userName, content, input, req.GetAction(), attachments, aiAttachments, history, func(delta string) {
 		if delta == "" {
 			return
 		}
@@ -345,11 +348,12 @@ func (c *AiMessageCase) prepareNewAiMessage(ctx context.Context, req *basev1.Sen
 	}
 
 	content := req.GetContent()
+	action := req.GetAction()
 	attachments := ai.NormalizeAttachments(req.GetAttachments())
-	if content == "" && len(attachments) == 0 && req.GetAction() == nil {
+	if content == "" && len(attachments) == 0 && action == nil {
 		return nil, nil, "", nil, nil, nil, "", errorsx.InvalidArgument("消息内容不能为空")
 	}
-	err = c.ensureAiActionCurrent(ctx, session, req.GetAction())
+	_, err = c.ensureAiActionCurrent(ctx, session, action)
 	if err != nil {
 		return nil, nil, "", nil, nil, nil, "", err
 	}
@@ -390,7 +394,6 @@ func (c *AiMessageCase) prepareNewAiMessage(ctx context.Context, req *basev1.Sen
 		TenantID:      session.TenantID,
 		SessionID:     session.ID,
 		UserID:        session.UserID,
-		InputContent:  ai.MarshalInputContentPayload(inputContent),
 		OutputContent: ai.MarshalEmptyOutputContent(),
 		Attachments:   ai.MarshalAttachments(attachments),
 		Tools:         "[]",
@@ -407,6 +410,14 @@ func (c *AiMessageCase) prepareNewAiMessage(ctx context.Context, req *basev1.Sen
 		if txErr = c.ensureAiSessionIdle(txCtx, session.TenantID, session.ID); txErr != nil {
 			return txErr
 		}
+		if strings.HasPrefix(action.GetFlow(), ai.ManagedShortcutFlowPrefix) {
+			inputContent.ShortcutResult, txErr = c.ensureAiActionCurrent(txCtx, session, action)
+			if txErr != nil {
+				return txErr
+			}
+			inputContent.ShortcutAction = &basev1.AiAction{Flow: action.GetFlow(), Step: action.GetStep(), Type: action.GetType()}
+		}
+		message.InputContent = ai.MarshalInputContentPayload(inputContent)
 		message.CreatedAt = time.Now().Truncate(time.Millisecond)
 		if txErr = c.aiMessageRepo.Create(txCtx, message); txErr != nil {
 			return txErr
@@ -464,13 +475,24 @@ func (c *AiMessageCase) regenerateAiMessage(ctx context.Context, session *models
 	return c.regenerateAiMessageWithContent(ctx, session, message, content)
 }
 
-// regenerateAiMessageWithContent 使用指定输入内容重新生成当前轮次输出。
+// regenerateAiMessageWithContent 使用指定输入和已保存的快捷入口动作重新生成当前轮次输出。
 func (c *AiMessageCase) regenerateAiMessageWithContent(ctx context.Context, session *models.AiSession, message *models.AiMessage, content string) (*basev1.SendAiMessageResponse, error) {
 	if session.AutomationRunID > 0 {
 		return nil, errorsx.PermissionDenied("自动化结果只读，请使用运行一次")
 	}
 	attachments := ai.ParseAttachments(message.Attachments)
 	input := ai.ParseInputContent(message.InputContent)
+	if input.ShortcutAction == nil {
+		legacyShortcut := strings.HasPrefix(ai.ParseOutputContent(message.OutputContent).Flow, ai.ManagedShortcutFlowPrefix)
+		if !legacyShortcut && message.Status == int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_FAILED) {
+			legacyShortcut = slices.ContainsFunc(ai.ParseTools(message.Tools), func(tool ai.ToolUsage) bool {
+				return strings.HasPrefix(tool.CallID, ai.ShortcutToolCallPrefix)
+			})
+		}
+		if legacyShortcut {
+			return nil, errorsx.Conflict("快捷入口缺少原始动作，请从快捷入口重新运行")
+		}
+	}
 
 	var err error
 	var aiAttachments []ai.Attachment
@@ -500,7 +522,7 @@ func (c *AiMessageCase) regenerateAiMessageWithContent(ctx context.Context, sess
 	callback.EmitActivity(ctx, callback.Activity{ID: "reasoning:0", Phase: "reasoning", Status: "running"})
 	startAt := time.Now()
 	var reply *ai.Response
-	reply, err = c.generateAiReply(ctx, session, message.ID, userName, content, input.ProviderID, input.ProviderName, input.ModelName, nil, attachments, aiAttachments, history, input.KnowledgeBaseIDs, nil)
+	reply, err = c.generateAiReply(ctx, session, message.ID, userName, content, input, nil, attachments, aiAttachments, history, nil)
 	finishAt := time.Now()
 	durationMs := durationMilliseconds(startAt, finishAt)
 	firstTokenMs := durationMs
@@ -587,26 +609,42 @@ func (c *AiMessageCase) buildHistoryBeforeMessage(ctx context.Context, tenantID 
 	return history, nil
 }
 
-// generateAiReply 生成当前消息的 AI 助手回复。
+// generateAiReply 根据已保存的输入与当前动作生成 AI 助手回复。
 func (c *AiMessageCase) generateAiReply(
 	ctx context.Context,
 	session *models.AiSession,
 	messageID int64,
 	userName string,
 	content string,
-	providerID int64,
-	providerName string,
-	modelName string,
+	storedInput ai.InputContentPayload,
 	action *basev1.AiAction,
 	attachments []*basev1.AiAttachment,
 	aiAttachments []ai.Attachment,
 	history []ai.Message,
-	knowledgeBaseIDs []int64,
 	onDelta func(string),
 ) (*ai.Response, error) {
+	providerID, providerName, modelName := storedInput.ProviderID, storedInput.ProviderName, storedInput.ModelName
+	knowledgeBaseIDs := storedInput.KnowledgeBaseIDs
+	var err error
+	if storedInput.ShortcutAction != nil {
+		input := ai.RuntimeInput{
+			Terminal: ai.NormalizeTerminalString(session.Terminal), UserName: userName,
+			SessionTitle: session.Title, SessionID: strconv.FormatInt(session.ID, 10),
+			ProviderID: providerID, ModelName: modelName, Content: content,
+			History: history, Attachments: aiAttachments,
+		}
+		var reply *ai.Response
+		reply, err = c.runManagedShortcut(ctx, session, input, storedInput.ShortcutAction, storedInput.ShortcutResult)
+		if err != nil {
+			return c.buildAiFailedReply(ctx, reply, err, providerName, modelName), err
+		}
+		if onDelta != nil && reply.Content != "" {
+			onDelta(reply.Content)
+		}
+		return reply, nil
+	}
 	var flowReply *ai.Response
 	var handled bool
-	var err error
 	if c.aiRuntime != nil {
 		flowReply, handled, err = c.aiRuntime.GenerateFixedFlowReply(ctx, session.Terminal, content, action)
 	}
@@ -987,40 +1025,57 @@ func fetchGeneratedFile(ctx context.Context, rawURL string) ([]byte, error) {
 	return content, nil
 }
 
-// ensureAiActionCurrent 确认流程动作来自当前会话最新消息。
-func (c *AiMessageCase) ensureAiActionCurrent(ctx context.Context, session *models.AiSession, action *basev1.AiAction) error {
-	if action == nil || action.GetType() == "" {
-		return nil
+// ensureAiActionCurrent 校验流程动作的来源，并返回快捷流程在服务端保存的上一步结果。
+func (c *AiMessageCase) ensureAiActionCurrent(ctx context.Context, session *models.AiSession, action *basev1.AiAction) (string, error) {
+	managed := strings.HasPrefix(action.GetFlow(), ai.ManagedShortcutFlowPrefix)
+	if action.GetType() == "" && !managed {
+		return "", nil
+	}
+	var err error
+	if managed {
+		if _, err = c.aiToolCase.findManagedShortcut(ctx, session, action); err != nil {
+			return "", err
+		}
 	}
 	if action.GetSourceMessageId() == "" && action.GetActionId() == "" && action.GetFlowVersion() == 0 {
-		if c.aiRuntime != nil && c.aiRuntime.IsFixedFlowEntryAction(session.Terminal, action.GetFlow(), action.GetType()) {
-			return nil
+		if managed && action.GetType() == "shortcut_start" && action.GetStep() == "start" {
+			return "", nil
 		}
-		return aiExpiredActionError("", "")
+		if c.aiRuntime != nil && c.aiRuntime.IsFixedFlowEntryAction(session.Terminal, action.GetFlow(), action.GetType()) {
+			return "", nil
+		}
+		return "", aiExpiredActionError("", "")
 	}
-	sourceMessageID, err := strconv.ParseInt(action.GetSourceMessageId(), 10, 64)
+	var sourceMessageID int64
+	sourceMessageID, err = strconv.ParseInt(action.GetSourceMessageId(), 10, 64)
 	if err != nil || sourceMessageID <= 0 {
-		return aiExpiredActionError(action.GetSourceMessageId(), "")
+		return "", aiExpiredActionError(action.GetSourceMessageId(), "")
 	}
 	if action.GetActionId() == "" || action.GetFlowVersion() != sourceMessageID {
-		return aiExpiredActionError(action.GetSourceMessageId(), strconv.FormatInt(sourceMessageID, 10))
+		return "", aiExpiredActionError(action.GetSourceMessageId(), strconv.FormatInt(sourceMessageID, 10))
 	}
 	var message *models.AiMessage
 	message, err = c.findLatestAiMessage(ctx, session.TenantID, session.ID, session.UserID)
 	if err != nil {
-		return err
+		return "", err
 	}
 	if message.ID != sourceMessageID {
-		return aiExpiredActionError(action.GetSourceMessageId(), strconv.FormatInt(message.ID, 10))
+		return "", aiExpiredActionError(action.GetSourceMessageId(), strconv.FormatInt(message.ID, 10))
 	}
 	if message.Status != int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_SUCCESS) {
-		return aiExpiredActionError(action.GetSourceMessageId(), strconv.Itoa(int(message.Status)))
+		return "", aiExpiredActionError(action.GetSourceMessageId(), strconv.Itoa(int(message.Status)))
 	}
 	outputContent := ai.ParseOutputContent(message.OutputContent)
 	if !aiBlocksContainAction(outputContent.BlocksJSON, action) {
-		return aiExpiredActionError(action.GetActionId(), "latest")
+		return "", aiExpiredActionError(action.GetActionId(), "latest")
 	}
-	return nil
+	if managed {
+		if outputContent.FlowResult == nil {
+			return "", errorsx.Conflict("该快捷流程缺少继续所需的结果，请从快捷入口重新运行")
+		}
+		return *outputContent.FlowResult, nil
+	}
+	return "", nil
 }
 
 // findLatestAiMessage 查询会话中最后一轮消息。

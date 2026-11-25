@@ -29,6 +29,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		AiPluginToolPolicy:      newAiPluginToolPolicy(db, opts...),
 		AiProvider:              newAiProvider(db, opts...),
 		AiSession:               newAiSession(db, opts...),
+		AiShortcut:              newAiShortcut(db, opts...),
 		AiToolApproval:          newAiToolApproval(db, opts...),
 		BaseAPI:                 newBaseAPI(db, opts...),
 		BaseAPII18N:             newBaseAPII18N(db, opts...),
@@ -123,6 +124,7 @@ type Query struct {
 	AiPluginToolPolicy      aiPluginToolPolicy
 	AiProvider              aiProvider
 	AiSession               aiSession
+	AiShortcut              aiShortcut
 	AiToolApproval          aiToolApproval
 	BaseAPI                 baseAPI
 	BaseAPII18N             baseAPII18N
@@ -219,6 +221,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		AiPluginToolPolicy:      q.AiPluginToolPolicy.clone(db),
 		AiProvider:              q.AiProvider.clone(db),
 		AiSession:               q.AiSession.clone(db),
+		AiShortcut:              q.AiShortcut.clone(db),
 		AiToolApproval:          q.AiToolApproval.clone(db),
 		BaseAPI:                 q.BaseAPI.clone(db),
 		BaseAPII18N:             q.BaseAPII18N.clone(db),
@@ -322,6 +325,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		AiPluginToolPolicy:      q.AiPluginToolPolicy.replaceDB(db),
 		AiProvider:              q.AiProvider.replaceDB(db),
 		AiSession:               q.AiSession.replaceDB(db),
+		AiShortcut:              q.AiShortcut.replaceDB(db),
 		AiToolApproval:          q.AiToolApproval.replaceDB(db),
 		BaseAPI:                 q.BaseAPI.replaceDB(db),
 		BaseAPII18N:             q.BaseAPII18N.replaceDB(db),
@@ -415,6 +419,7 @@ type queryCtx struct {
 	AiPluginToolPolicy      *aiPluginToolPolicyDo
 	AiProvider              *aiProviderDo
 	AiSession               *aiSessionDo
+	AiShortcut              *aiShortcutDo
 	AiToolApproval          *aiToolApprovalDo
 	BaseAPI                 *baseAPIDo
 	BaseAPII18N             *baseAPII18NDo
@@ -508,6 +513,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		AiPluginToolPolicy:      q.AiPluginToolPolicy.WithContext(ctx),
 		AiProvider:              q.AiProvider.WithContext(ctx),
 		AiSession:               q.AiSession.WithContext(ctx),
+		AiShortcut:              q.AiShortcut.WithContext(ctx),
 		AiToolApproval:          q.AiToolApproval.WithContext(ctx),
 		BaseAPI:                 q.BaseAPI.WithContext(ctx),
 		BaseAPII18N:             q.BaseAPII18N.WithContext(ctx),

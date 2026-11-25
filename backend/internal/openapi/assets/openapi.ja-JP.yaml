@@ -6,6 +6,183 @@ info:
     title: ""
     version: 0.0.1
 paths:
+    /api/v1/admin/ai/shortcut:
+        get:
+            tags:
+                - AiShortcutService
+            description: ページネーション検索快捷入口。
+            operationId: AiShortcutService_PageAiShortcut
+            parameters:
+                - name: title
+                  in: query
+                  schema:
+                    type: string
+                - name: shortcut_key
+                  in: query
+                  schema:
+                    type: string
+                - name: source_type
+                  in: query
+                  schema:
+                    enum:
+                        - AI_SHORTCUT_SOURCE_TYPE_UNSPECIFIED
+                        - AI_SHORTCUT_SOURCE_TYPE_API
+                        - AI_SHORTCUT_SOURCE_TYPE_CUSTOM
+                    type: string
+                    format: enum
+                - name: terminal
+                  in: query
+                  schema:
+                    enum:
+                        - TERMINAL_UNSPECIFIED
+                        - TERMINAL_APP
+                        - TERMINAL_ADMIN
+                    type: string
+                    format: enum
+                - name: tool_name
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageAiShortcutResponse'
+        post:
+            tags:
+                - AiShortcutService
+            description: 作成快捷入口。
+            operationId: AiShortcutService_CreateAiShortcut
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.AiShortcutForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/ai/shortcut/tool/option:
+        get:
+            tags:
+                - AiShortcutService
+            description: 検索現在の端末可能な选の API 工具。
+            operationId: AiShortcutService_OptionAiShortcutTool
+            parameters:
+                - name: terminal
+                  in: query
+                  schema:
+                    enum:
+                        - TERMINAL_UNSPECIFIED
+                        - TERMINAL_APP
+                        - TERMINAL_ADMIN
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.OptionAiShortcutToolResponse'
+    /api/v1/admin/ai/shortcut/{id}:
+        get:
+            tags:
+                - AiShortcutService
+            description: 查看快捷入口および流程設定。
+            operationId: AiShortcutService_GetAiShortcut
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.AiShortcutForm'
+        delete:
+            tags:
+                - AiShortcutService
+            description: 一括削除快捷入口。
+            operationId: AiShortcutService_DeleteAiShortcut
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/ai/shortcut/{id}/status:
+        put:
+            tags:
+                - AiShortcutService
+            description: 設定快捷入口有効ステータス。
+            operationId: AiShortcutService_SetAiShortcutStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetAiShortcutStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/ai/shortcut/{shortcut.id}:
+        put:
+            tags:
+                - AiShortcutService
+            description: ショートカットを更新します。
+            operationId: AiShortcutService_UpdateAiShortcut
+            parameters:
+                - name: shortcut.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.AiShortcutForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/auth/buttons:
         get:
             tags:
@@ -14094,11 +14271,11 @@ components:
                     description: テナント隔离フィールド，NULL 可表示连接级隔离または共享表
                 x:
                     type: integer
-                    description: キャンバスの横位置
+                    description: キャンバスの X 座標
                     format: int32
                 y:
                     type: integer
-                    description: キャンバスの縦位置
+                    description: キャンバスの Y 座標
                     format: int32
             description: 语义模型中の表ノード。
         bi.admin.v1.BiSourceRelation:
@@ -15097,6 +15274,128 @@ components:
                     type: string
                     description: 更新時刻
             description: AIセッションのページネーションレコード。
+        system.admin.v1.AiShortcutEdge:
+            type: object
+            properties:
+                from:
+                    type: string
+                    description: 起点ノード
+                to:
+                    type: string
+                    description: 终点ノード
+                condition:
+                    type: string
+                    description: 条件表达式またはデフォルト出口
+            description: ショートカットフローの接続。
+        system.admin.v1.AiShortcutForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: ショートカット ID
+                shortcut_key:
+                    type: string
+                    description: 入口識別子
+                title:
+                    type: string
+                    description: ショートカット名
+                source_type:
+                    enum:
+                        - AI_SHORTCUT_SOURCE_TYPE_UNSPECIFIED
+                        - AI_SHORTCUT_SOURCE_TYPE_API
+                        - AI_SHORTCUT_SOURCE_TYPE_CUSTOM
+                    type: string
+                    description: 入口ソース
+                    format: enum
+                terminal:
+                    enum:
+                        - TERMINAL_UNSPECIFIED
+                        - TERMINAL_APP
+                        - TERMINAL_ADMIN
+                    type: string
+                    description: 适用端末
+                    format: enum
+                tool_name:
+                    type: string
+                    description: API ツール名
+                prompt:
+                    type: string
+                    description: プロンプト
+                group_name:
+                    type: string
+                    description: グループ名
+                sort:
+                    type: integer
+                    description: 並び順
+                    format: int32
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 有効ステータス
+                    format: enum
+                graph:
+                    $ref: '#/components/schemas/system.admin.v1.AiShortcutGraph'
+                revision:
+                    type: string
+                    description: 設定のリビジョン番号
+                updated_at:
+                    type: string
+                    description: 更新時刻
+            description: 快捷入口フォーム和一覧記録。
+        system.admin.v1.AiShortcutGraph:
+            type: object
+            properties:
+                nodes:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiShortcutNode'
+                    description: 流程ノード
+                edges:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiShortcutEdge'
+                    description: フローの接続
+            description: ショートカットのフロー図。
+        system.admin.v1.AiShortcutNode:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: ノード编号
+                type:
+                    type: string
+                    description: ノード種類
+                step:
+                    type: string
+                    description: ステップ識別子
+                x:
+                    type: number
+                    description: キャンバスの X 座標
+                    format: double
+                y:
+                    type: number
+                    description: キャンバスの Y 座標
+                    format: double
+                tool_name:
+                    type: string
+                    description: ツール名
+                payload_json:
+                    type: string
+                    description: JSON动作パラメータ
+            description: 快捷入口流程ノード。
+        system.admin.v1.AiShortcutToolOption:
+            type: object
+            properties:
+                tool_name:
+                    type: string
+                    description: ツール名
+                title:
+                    type: string
+                    description: API名称
+            description: API 工具オプション。
         system.admin.v1.AuditWorkflowTaskRequest:
             type: object
             properties:
@@ -20663,6 +20962,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.OpsTrafficPoint'
                     description: リクエストトラフィック推移
             description: トラフィックレスポンス。
+        system.admin.v1.OptionAiShortcutToolResponse:
+            type: object
+            properties:
+                tools:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiShortcutToolOption'
+                    description: 可能な用工具オプション
+            description: API 工具オプション検索結果。
         system.admin.v1.OptionBaseApiResponse:
             type: object
             properties:
@@ -20793,6 +21101,19 @@ components:
                     description: 合計件数
                     format: int32
             description: AIセッションのページネーション応答。
+        system.admin.v1.PageAiShortcutResponse:
+            type: object
+            properties:
+                shortcuts:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.AiShortcutForm'
+                    description: 快捷入口一覧
+                total:
+                    type: integer
+                    description: 合計件数
+                    format: int32
+            description: 快捷入口ページネーション結果。
         system.admin.v1.PageBaseApiLogResponse:
             type: object
             properties:
@@ -21533,7 +21854,10 @@ components:
             description: 再試行工作流脚本リクエスト
         system.admin.v1.RevokeAllBaseSessionsRequest:
             type: object
-            properties: {}
+            properties:
+                confirm:
+                    type: boolean
+                    description: 失効を確定するには明示的に true を指定します
             description: 撤销すべてセッションリクエストパラメータ。
         system.admin.v1.RevokeBaseMessageRequest:
             type: object
@@ -21708,6 +22032,24 @@ components:
                     description: ステータス
                     format: enum
             description: AIプロバイダーの状態を設定するリクエスト。
+        system.admin.v1.SetAiShortcutStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: ショートカット ID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 有効ステータス
+                    format: enum
+                revision:
+                    type: string
+                    description: 設定のリビジョン番号
+            description: 設定有効ステータスパラメータ。
         system.admin.v1.SetBaseApiAgentStatusRequest:
             type: object
             properties:
@@ -23014,9 +23356,9 @@ tags:
     - name: AiKnowledgeDocService
       description: AIナレッジベースドキュメント管理サービス。
     - name: AiKnowledgeService
-      description: AIナレッジベースオプション検索サービス。
-    - name: AiKnowledgeService
       description: AIナレッジベース管理サービス。
+    - name: AiKnowledgeService
+      description: AIナレッジベースオプション検索サービス。
     - name: AiMessageService
       description: Base AI アシスタントメッセージサービス
     - name: AiModelService
@@ -23028,9 +23370,11 @@ tags:
     - name: AiSearchService
       description: Base AI アシスタントWeb検索サービス
     - name: AiSessionService
-      description: AIセッション管理サービス。
-    - name: AiSessionService
       description: Base AI アシスタントセッションサービス
+    - name: AiSessionService
+      description: AIセッション管理サービス。
+    - name: AiShortcutService
+      description: 管理端 AI 快捷入口サービス。
     - name: AiToolService
       description: Base AI アシスタントツールサービス
     - name: AuthService
@@ -23044,9 +23388,9 @@ tags:
     - name: BaseApiService
       description: AdminAPIサービス
     - name: BaseAreaService
-      description: App行政地域サービス
-    - name: BaseAreaService
       description: Admin行政地域サービス
+    - name: BaseAreaService
+      description: App行政地域サービス
     - name: BaseConfigService
       description: Adminシステム設定サービス
     - name: BaseDashboardService

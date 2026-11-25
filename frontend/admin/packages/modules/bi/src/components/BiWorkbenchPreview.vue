@@ -7,7 +7,9 @@
     </div>
     <template v-else>
       <div v-for="item in layout.cards.slice(0, 2)" :key="item.id" class="bi-workbench-preview__card">
-        <el-text tag="h4" :title="item.name">{{ item.name }}</el-text>
+        <BiCardTitleTooltip :title="item.name">
+          <el-text tag="h4">{{ item.name }}</el-text>
+        </BiCardTitleTooltip>
         <div class="bi-workbench-preview__chart">
           <BiCardVisualization
             v-if="results.get(item.id)"
@@ -33,6 +35,7 @@ import type { BiQueryResult } from "../rpc/bi/admin/v1/bi_query";
 import type { DashboardLayout } from "../bi-dashboard-schema";
 import { dashboardResults, dashboardSnapshotCard, parseDashboardLayout } from "../bi-dashboard-schema";
 import { defBiDashboardService } from "../api/bi/admin/v1/bi_dashboard";
+import BiCardTitleTooltip from "./BiCardTitleTooltip.vue";
 import BiCardVisualization from "./BiCardVisualization.vue";
 
 const props = defineProps<{ dashboard: BiDashboard }>();
@@ -107,6 +110,7 @@ onBeforeUnmount(() => {
   line-height: 16px;
   text-overflow: ellipsis;
   white-space: nowrap;
+  pointer-events: auto;
 }
 .bi-workbench-preview__chart {
   flex: 1;

@@ -4,7 +4,9 @@
       <div class="bi-data-card__heading">
         <el-text tag="h3" class="bi-data-card__title">
           <el-icon class="bi-data-card__icon"><component :is="icon" /></el-icon>
-          <span class="bi-data-card__name">{{ card.name }}</span>
+          <BiCardTitleTooltip :title="card.name">
+            <span class="bi-data-card__name">{{ card.name }}</span>
+          </BiCardTitleTooltip>
           <el-tag v-if="card.chart_type === 'metric_grid'" size="small" effect="light" type="success">{{
             t("bi.card.ai_generated")
           }}</el-tag>
@@ -79,6 +81,7 @@ import { computed, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, 
 import { ElMessage } from "element-plus";
 import { Download, ZoomIn } from "@element-plus/icons-vue";
 import { t } from "@liujitcn/kratos-admin-core";
+import BiCardTitleTooltip from "./BiCardTitleTooltip.vue";
 import BiCardVisualization from "./BiCardVisualization.vue";
 import { cardRefreshDelay } from "../card-schema";
 import { describeBiTimeRange } from "../query-summary";

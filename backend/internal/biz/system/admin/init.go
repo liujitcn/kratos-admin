@@ -14,6 +14,7 @@ var ProviderSet = wire.NewSet(
 	NewAiProviderCase,
 	NewAiModelCase,
 	NewAiSessionCase,
+	NewAiShortcutCase,
 	NewBaseAreaCase,
 	NewBaseConfigCase,
 	NewBaseDeptCase,

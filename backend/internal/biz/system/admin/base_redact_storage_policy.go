@@ -24,7 +24,7 @@ import (
 
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
-	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/database/gorm"
 )
 
 // BaseRedactStoragePolicyCase 提供入库脱敏策略管理能力。
@@ -119,7 +119,7 @@ func (c *BaseRedactStoragePolicyCase) listTableComments(ctx context.Context, row
 	comments := make(map[string]string)
 	var err error
 	for sourceName, tableNames := range tablesBySource {
-		var client *kitgorm.Client
+		var client *gorm.Client
 		client, err = GormClientBySourceName(c.BaseCase, sourceName)
 		if err != nil {
 			// 数据源已下线的策略回退展示裸表名，不阻塞整个列表。
