@@ -11,65 +11,26 @@
             : 'system.ai.shortcut.dialog.create'
       )
     "
-    width="min(1400px, calc(100vw - 48px))"
-    top="4vh"
+    class="ai-shortcut-dialog"
+    body-class="ai-shortcut-dialog__body"
+    width="960px"
+    align-center
     destroy-on-close
     :close-on-click-modal="false"
     :close-on-press-escape="!saving"
     @closed="reset"
   >
-    <el-steps :active="activeStep" finish-status="success" class="shortcut-steps">
-      <el-step :title="t('system.workflow.definition.wizard.basic')" />
-      <el-step :title="t('system.workflow.definition.wizard.graph')" />
-      <el-step :title="t('common.action.confirm')" />
+    <el-steps :active="activeStep" finish-status="success" align-center class="shortcut-steps">
+      <el-step
+        v-for="(key, index) in stepKeys"
+        :key="key"
+        :title="t(key)"
+        :aria-current="activeStep === index ? 'step' : undefined"
+      />
     </el-steps>
     <div class="shortcut-step-content">
       <section v-show="activeStep === 0" class="shortcut-step-panel">
-        <el-form ref="basicForm" :model="form" :rules="rules" :disabled="viewOnly" class="shortcut-basic" label-position="top">
-          <el-form-item :label="t('system.ai.shortcut.field.title')" prop="title">
-            <el-input v-model="form.title" maxlength="200" :placeholder="t('common.placeholder.input')" />
-          </el-form-item>
-          <el-row :gutter="24">
-            <el-col :xs="24" :sm="12">
-              <el-form-item :label="t('system.ai.shortcut.field.key')" prop="shortcut_key">
-                <el-input v-model="form.shortcut_key" :disabled="Boolean(form.id)" maxlength="100" />
-              </el-form-item>
-            </el-col>
-            <el-col :xs="24" :sm="12">
-              <el-form-item :label="t('system.ai.shortcut.field.terminal')">
-                <el-select v-model="form.terminal" @change="handleTerminalChange">
-                  <el-option v-for="option in terminalOptions" :key="option.value" v-bind="option" />
-                </el-select>
-              </el-form-item>
-            </el-col>
-          </el-row>
-          <el-form-item :label="t('system.ai.shortcut.field.source')">
-            <el-radio-group v-model="form.source_type" @change="handleSourceChange">
-              <el-radio v-for="option in sourceOptions" :key="option.value" :value="option.value">{{ option.label }}</el-radio>
-            </el-radio-group>
-          </el-form-item>
-          <el-form-item v-if="isApi" :label="t('system.ai.shortcut.field.api')" prop="tool_name">
-            <el-input v-if="viewOnly" :model-value="form.tool_name" />
-            <el-select
-              v-else
-              v-model="form.tool_name"
-              filterable
-              :loading="loadingTools"
-              :placeholder="t('common.placeholder.select')"
-            >
-              <el-option v-for="tool in toolOptions" :key="tool.value" v-bind="tool" />
-            </el-select>
-          </el-form-item>
-          <el-form-item :label="t('system.ai.shortcut.field.prompt')" prop="prompt">
-            <el-input
-              v-model="form.prompt"
-              type="textarea"
-              :rows="4"
-              maxlength="2000"
-              :placeholder="t('common.placeholder.input')"
-            />
-          </el-form-item>
-        </el-form>
+        <ProForm ref="basicForm" :model="form" :fields="basicFields" :rules="rules" :disabled="viewOnly" label-width="8em" />
       </section>
 
       <section v-show="activeStep === 1" class="shortcut-step-panel">
@@ -122,44 +83,12 @@
                     )
                   }}
                 </el-text>
-                <el-form v-if="selectedNode" :disabled="viewOnly" label-position="top">
-                  <el-form-item :label="t('system.workflow.definition.field.node_type')">
-                    <el-tag effect="plain">{{ t(nodeTypeI18nKey(selectedNode.type)) }}</el-tag>
-                  </el-form-item>
-                  <el-form-item :label="t('system.ai.shortcut.field.step')">
-                    <el-input v-model="selectedNode.step" maxlength="100" />
-                  </el-form-item>
-                  <el-form-item v-if="selectedNode.type === 'TOOL'" :label="t('system.ai.shortcut.field.api')">
-                    <el-input v-if="viewOnly" :model-value="selectedNode.tool_name" />
-                    <el-select
-                      v-else
-                      v-model="selectedNode.tool_name"
-                      filterable
-                      :loading="loadingTools"
-                      :placeholder="t('common.placeholder.select')"
-                    >
-                      <el-option v-for="tool in toolOptions" :key="tool.value" v-bind="tool" />
-                    </el-select>
-                  </el-form-item>
-                  <el-form-item
-                    v-if="selectedNode.type === 'PROMPT' || selectedNode.type === 'TOOL' || selectedNode.type === 'CONFIRM'"
-                    :label="t('system.ai.shortcut.field.payload')"
-                  >
-                    <el-input
-                      v-model="selectedNode.payload_json"
-                      type="textarea"
-                      :rows="4"
-                      maxlength="8192"
-                      :placeholder="
-                        t(
-                          selectedNode.type === 'TOOL'
-                            ? 'system.ai.shortcut.placeholder.arguments'
-                            : 'system.ai.shortcut.placeholder.text',
-                          { example: textExample }
-                        )
-                      "
-                    />
-                  </el-form-item>
+                <template v-if="selectedNode">
+                  <ProForm :model="selectedNode" :fields="nodeFields" :disabled="viewOnly" label-width="auto">
+                    <template #type="{ model }">
+                      <el-tag effect="plain">{{ t(nodeTypeI18nKey(model.type)) }}</el-tag>
+                    </template>
+                  </ProForm>
                   <el-button
                     v-if="!viewOnly && selectedNode.id !== 'start' && selectedNode.id !== 'end'"
                     type="danger"
@@ -168,95 +97,37 @@
                   >
                     {{ t("system.workflow.definition.action.remove_node") }}
                   </el-button>
-                </el-form>
-                <el-form v-else-if="selectedEdge" :disabled="viewOnly" label-position="top">
-                  <el-form-item :label="t('system.workflow.definition.section.edges')">
-                    <el-text>{{ selectedEdge.from }} → {{ selectedEdge.to }}</el-text>
-                  </el-form-item>
-                  <el-form-item
-                    v-if="nodeGraph.nodes.some(node => node.id === selectedEdge?.from && node.type === 'BRANCH')"
-                    :label="t('system.workflow.definition.field.edge_condition')"
-                  >
-                    <el-input
-                      v-model="selectedEdge.condition"
-                      maxlength="256"
-                      :placeholder="t('system.ai.shortcut.placeholder.condition')"
-                    />
-                  </el-form-item>
+                </template>
+                <template v-else-if="selectedEdge">
+                  <ProForm :model="selectedEdge" :fields="edgeFields" :disabled="viewOnly" label-width="auto">
+                    <template #from="{ model }">
+                      <el-text>{{ model.from }} → {{ model.to }}</el-text>
+                    </template>
+                  </ProForm>
                   <el-button v-if="!viewOnly" type="danger" plain @click="removeEdge">{{
                     t("system.workflow.definition.action.remove_edge")
                   }}</el-button>
-                </el-form>
+                </template>
                 <el-empty v-else :image-size="64" :description="t('system.workflow.definition.placeholder.select_object')" />
               </el-aside>
             </div>
           </template>
-          <el-empty v-else :image-size="64" :description="t('system.ai.shortcut.message.prompt_only')" />
-        </div>
-      </section>
-
-      <section v-show="activeStep === 2" class="shortcut-step-panel">
-        <div class="shortcut-basic">
-          <el-descriptions :column="2" border>
-            <el-descriptions-item :label="t('system.ai.shortcut.field.title')">{{ form.title }}</el-descriptions-item>
-            <el-descriptions-item :label="t('system.ai.shortcut.field.key')">{{ form.shortcut_key }}</el-descriptions-item>
-            <el-descriptions-item :label="t('system.ai.shortcut.field.source')">{{
-              sourceOptions.find(option => option.value === form.source_type)?.label
-            }}</el-descriptions-item>
-            <el-descriptions-item :label="t('system.ai.shortcut.field.terminal')">{{
-              terminalOptions.find(option => option.value === form.terminal)?.label
-            }}</el-descriptions-item>
-            <el-descriptions-item :label="t('system.ai.shortcut.field.prompt')" :span="2">{{ form.prompt }}</el-descriptions-item>
-            <el-descriptions-item :label="t('system.workflow.definition.wizard.graph')" :span="2">
-              {{
-                useFlow
-                  ? t("system.ai.shortcut.message.node_count", { count: nodeGraph.nodes.length })
-                  : t("system.ai.shortcut.mode.prompt")
-              }}
-            </el-descriptions-item>
-            <el-descriptions-item v-if="requiredTools.length" :label="t('system.ai.shortcut.field.dependencies')" :span="2">
-              <div v-for="tool in requiredTools" :key="tool">{{ tool }}</div>
-            </el-descriptions-item>
-          </el-descriptions>
-          <el-form class="shortcut-display-settings" :disabled="viewOnly" label-position="top">
-            <el-row :gutter="24">
-              <el-col :xs="24" :sm="12">
-                <el-form-item :label="t('system.ai.shortcut.field.group')"
-                  ><el-input v-model="form.group_name" maxlength="100"
-                /></el-form-item>
-              </el-col>
-              <el-col :xs="12" :sm="6">
-                <el-form-item :label="t('common.field.sort')">
-                  <el-input-number v-model="form.sort" :min="0" :max="99999" :precision="0" controls-position="right" />
-                </el-form-item>
-              </el-col>
-              <el-col :xs="12" :sm="6">
-                <el-form-item :label="t('common.field.status')">
-                  <el-switch
-                    v-model="form.status"
-                    :disabled="Boolean(form.id)"
-                    :active-value="Status.STATUS_ENABLE"
-                    :inactive-value="Status.STATUS_DISABLE"
-                    inline-prompt
-                    :active-text="t('common.status.enabled')"
-                    :inactive-text="t('common.status.disabled')"
-                  />
-                </el-form-item>
-              </el-col>
-            </el-row>
-          </el-form>
+          <el-alert v-else :title="t('system.ai.shortcut.message.prompt_only')" type="info" show-icon :closable="false" />
+          <el-text v-if="requiredTools.length" size="small" class="shortcut-tool-dependencies">
+            {{ t("system.ai.shortcut.field.dependencies") }} · {{ requiredTools.join(", ") }}
+          </el-text>
         </div>
       </section>
     </div>
     <template #footer>
-      <div class="shortcut-footer">
+      <div class="dialog-footer">
         <el-button :disabled="saving" @click="visible = false">{{
           t(viewOnly ? "common.action.close" : "common.action.cancel")
         }}</el-button>
         <el-button v-if="activeStep > 0" :disabled="saving" @click="activeStep--">{{
           t("system.workflow.definition.wizard.previous")
         }}</el-button>
-        <el-button v-if="activeStep < 2" type="primary" @click="nextStep">{{
+        <el-button v-if="activeStep === 0" type="primary" @click="nextStep">{{
           t("system.workflow.definition.wizard.next")
         }}</el-button>
         <el-button v-else-if="!viewOnly" type="primary" :loading="saving" @click="save">{{ t("common.action.save") }}</el-button>
@@ -267,9 +138,11 @@
 
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from "vue";
-import type { FormInstance, FormRules } from "element-plus";
+import type { FormRules } from "element-plus";
 import { t } from "@liujitcn/kratos-admin-core";
 import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
+import ProForm from "@liujitcn/kratos-admin-core/components/ProForm/index.vue";
+import type { ProFormField, ProFormInstance } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import { defAiShortcutService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/ai_shortcut";
 import { Terminal } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
@@ -286,7 +159,7 @@ import { sources, terminals } from "./shortcut-options";
 const emit = defineEmits<{ saved: [] }>();
 const dialog = ref<InstanceType<typeof ProDialog>>();
 const graphRef = ref<InstanceType<typeof WorkflowGraph>>();
-const basicForm = ref<FormInstance>();
+const basicForm = ref<ProFormInstance>();
 const visible = ref(false);
 const viewOnly = ref(false);
 const saving = ref(false);
@@ -298,10 +171,11 @@ const selectedNodeId = ref("");
 const selectedEdgeIndex = ref(-1);
 const loadingTools = ref(false);
 const tools = ref<AiShortcutToolOption[]>([]);
+const stepKeys = ["system.workflow.definition.wizard.basic", "system.workflow.definition.wizard.graph"];
 const actionTypes = ["PROMPT", "TOOL", "BRANCH", "CONFIRM"] as const;
 const textExample = JSON.stringify({ text: "…" });
-const sourceOptions = computed(sources);
-const terminalOptions = computed(terminals);
+// 提示词和流程参数保留原始内容，标识在校验时拒绝空白。
+const untrimmedInput = { modelModifiers: { trim: false } };
 const isApi = computed(() => form.value.source_type === AiShortcutSourceType.AI_SHORTCUT_SOURCE_TYPE_API);
 const selectedNode = computed(() => nodeGraph.value.nodes.find(node => node.id === selectedNodeId.value));
 const selectedEdge = computed(() => nodeGraph.value.edges[selectedEdgeIndex.value]);
@@ -343,6 +217,119 @@ const rules = computed<FormRules<AiShortcutForm>>(() => ({
     }
   ]
 }));
+const toolField = computed<ProFormField>(() => ({
+  prop: "tool_name",
+  label: t("system.ai.shortcut.field.api"),
+  component: viewOnly.value ? "input" : "select",
+  options: toolOptions.value,
+  props: viewOnly.value
+    ? undefined
+    : { filterable: true, loading: loadingTools.value, placeholder: t("common.placeholder.select") }
+}));
+const basicFields = computed<ProFormField[]>(() => [
+  {
+    prop: "title",
+    label: t("system.ai.shortcut.field.title"),
+    component: "input",
+    props: { ...untrimmedInput, maxlength: 200, placeholder: t("system.ai.shortcut.placeholder.title") }
+  },
+  {
+    prop: "shortcut_key",
+    label: t("system.ai.shortcut.field.key"),
+    component: "input",
+    colSpan: 12,
+    props: {
+      ...untrimmedInput,
+      disabled: Boolean(form.value.id),
+      maxlength: 100,
+      placeholder: t("system.ai.shortcut.placeholder.key")
+    }
+  },
+  {
+    prop: "terminal",
+    label: t("system.ai.shortcut.field.terminal"),
+    component: "radio-group",
+    colSpan: 12,
+    options: terminals(),
+    props: { onChange: handleTerminalChange }
+  },
+  {
+    prop: "source_type",
+    label: t("system.ai.shortcut.field.source"),
+    component: "radio-group",
+    options: sources(),
+    props: { onChange: handleSourceChange }
+  },
+  { ...toolField.value, visible: () => isApi.value },
+  {
+    prop: "prompt",
+    label: t("system.ai.shortcut.field.prompt"),
+    component: "textarea",
+    props: {
+      ...untrimmedInput,
+      rows: 3,
+      maxlength: 2000,
+      showWordLimit: true,
+      resize: "none",
+      placeholder: t("system.ai.shortcut.placeholder.prompt")
+    }
+  },
+  {
+    prop: "sort",
+    label: t("common.field.sort"),
+    component: "input-number",
+    colSpan: 12,
+    props: { min: 0, max: 99999, precision: 0, controlsPosition: "right", style: { maxWidth: "100%" } }
+  },
+  {
+    prop: "status",
+    label: t("common.field.status"),
+    component: "switch",
+    colSpan: 12,
+    props: {
+      disabled: Boolean(form.value.id),
+      activeValue: Status.STATUS_ENABLE,
+      inactiveValue: Status.STATUS_DISABLE,
+      inlinePrompt: true,
+      activeText: t("common.status.enabled"),
+      inactiveText: t("common.status.disabled")
+    }
+  }
+]);
+const nodeFields = computed<ProFormField[]>(() => [
+  { prop: "type", label: t("system.workflow.definition.field.node_type"), component: "slot" },
+  {
+    prop: "step",
+    label: t("system.ai.shortcut.field.step"),
+    component: "input",
+    props: { ...untrimmedInput, maxlength: 100 }
+  },
+  { ...toolField.value, visible: node => node.type === "TOOL" },
+  {
+    prop: "payload_json",
+    label: t("system.ai.shortcut.field.payload"),
+    component: "textarea",
+    visible: node => ["PROMPT", "TOOL", "CONFIRM"].includes(node.type),
+    props: node => ({
+      ...untrimmedInput,
+      rows: 4,
+      maxlength: 8192,
+      placeholder: t(node.type === "TOOL" ? "system.ai.shortcut.placeholder.arguments" : "system.ai.shortcut.placeholder.text", {
+        example: textExample
+      })
+    })
+  }
+]);
+const edgeFields = computed<ProFormField[]>(() => [
+  { prop: "from", label: t("system.workflow.definition.section.edges"), component: "slot" },
+  {
+    prop: "condition",
+    label: t("system.workflow.definition.field.edge_condition"),
+    component: "input",
+    visible: edge => nodeGraph.value.nodes.some(node => node.id === edge.from && node.type === "BRANCH"),
+    props: { ...untrimmedInput, maxlength: 256, placeholder: t("system.ai.shortcut.placeholder.condition") }
+  }
+]);
 
 watch(
   () => (visible.value && !viewOnly.value && (isApi.value || useFlow.value) ? form.value.terminal : undefined),
@@ -448,16 +435,22 @@ function handleSourceChange() {
   if (!isApi.value) form.value.tool_name = "";
 }
 
-/** 校验当前步骤并保留返回时的草稿。 */
+/** 校验基本信息后进入流程设计。 */
 async function nextStep() {
-  if (!viewOnly.value && activeStep.value === 0) {
-    if (!(await basicForm.value?.validate().catch(() => false))) return;
+  if (!viewOnly.value) {
+    if (!(await basicForm.value?.validate())) return;
     if (isApi.value && !tools.value.some(tool => tool.tool_name === form.value.tool_name)) {
       ElMessage.warning(t("system.ai.shortcut.validation.tool"));
       return;
     }
   }
-  if (!viewOnly.value && activeStep.value === 1 && useFlow.value) {
+  activeStep.value = 1;
+}
+
+/** 校验流程并保存当前入口。 */
+async function save() {
+  if (saving.value) return;
+  if (useFlow.value) {
     const steps = new Set(nodeGraph.value.nodes.map(node => node.step));
     if (steps.size !== nodeGraph.value.nodes.length || [...steps].some(step => !/^[a-z][a-z0-9_]*$/.test(step))) {
       ElMessage.warning(t("system.ai.shortcut.validation.step"));
@@ -470,12 +463,6 @@ async function nextStep() {
       return;
     }
   }
-  activeStep.value++;
-}
-
-/** 保存当前入口及已编辑的流程图。 */
-async function save() {
-  if (saving.value) return;
   const shortcut = {
     ...form.value,
     sort: form.value.sort ?? 0,
@@ -573,28 +560,31 @@ defineExpose({ open });
 </script>
 
 <style scoped lang="scss">
+:global(.ai-shortcut-dialog.el-dialog) {
+  display: flex;
+  flex-direction: column;
+  height: min(640px, calc(100dvh - 32px));
+}
+:global(.ai-shortcut-dialog__body) {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
 .shortcut-steps {
-  margin: 0 8px 18px;
+  flex: none;
+  margin-bottom: 16px;
 }
 .shortcut-step-content {
-  height: min(640px, calc(100dvh - 220px));
-  overflow: hidden;
+  flex: 1;
+  min-height: 0;
+  margin-inline: -10px;
 }
 .shortcut-step-panel {
-  height: 100%;
-  overflow: auto;
-}
-.shortcut-basic {
   box-sizing: border-box;
-  max-width: 760px;
-  padding: 20px 24px;
-  margin: 0 auto;
-}
-.shortcut-basic :is(.el-select, .el-input-number) {
-  width: 100%;
-}
-.shortcut-display-settings {
-  margin-top: 20px;
+  height: 100%;
+  padding-inline: 10px;
+  overflow: auto;
 }
 .shortcut-graph-design {
   display: flex;
@@ -602,26 +592,29 @@ defineExpose({ open });
   gap: 12px;
   height: 100%;
 }
-.shortcut-graph-toolbar,
-.shortcut-footer {
+.shortcut-graph-design > :not(.shortcut-graph-workspace) {
+  flex: none;
+}
+.shortcut-tool-dependencies {
+  align-self: flex-start;
+  overflow-wrap: anywhere;
+}
+.shortcut-graph-toolbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
 }
-.shortcut-footer {
-  justify-content: flex-end;
-  gap: 12px;
-}
-:is(.shortcut-graph-toolbar, .shortcut-footer) .el-button + .el-button {
+.shortcut-graph-toolbar .el-button + .el-button {
   margin-left: 0;
 }
 .shortcut-graph-workspace {
   display: grid;
   flex: 1;
   grid-template-columns: minmax(0, 1fr) 320px;
+  grid-template-rows: minmax(0, 1fr);
   gap: 16px;
-  min-height: 360px;
+  min-height: 300px;
 }
 .shortcut-graph-workspace > .workflow-graph {
   height: 100%;
@@ -630,6 +623,7 @@ defineExpose({ open });
 .shortcut-graph-properties {
   padding: 16px;
   overflow: auto;
+  background: var(--el-fill-color-light);
   border: 1px solid var(--el-border-color-lighter);
   border-radius: var(--admin-page-radius, 6px);
   h3 {
@@ -638,9 +632,12 @@ defineExpose({ open });
     font-weight: 500;
   }
 }
-@media (max-width: 900px) {
+@media (width <= 900px) {
+  .shortcut-graph-design {
+    height: auto;
+  }
   .shortcut-graph-workspace {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     grid-template-rows: 360px auto;
   }
 }

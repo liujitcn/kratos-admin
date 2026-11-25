@@ -98,7 +98,7 @@
               <el-text tag="strong">{{ t('bi.source.model.field.relation') }}</el-text>
               <el-button text type="danger" :icon="Delete" @click="removeRelation" />
             </div>
-            <el-form label-position="top">
+            <el-form>
               <el-form-item :label="schemaLabel(tableFor(selectedRelation.left_table), selectedRelation.left_table)">
                 <el-select v-model="selectedRelation.left_column" :placeholder="t('bi.source.model.field.left_column')">
                   <el-option v-for="column in tableFor(selectedRelation.left_table)?.columns" :key="column.name" :label="schemaLabel(column)" :value="column.name" />
@@ -185,7 +185,7 @@
                   </div>
                   <el-button text type="danger" size="small" :icon="Delete" :aria-label="t('bi.source.model.action.remove_field')" @click="model.dimensions.splice(index, 1)" />
                 </div>
-                  <el-form v-if="row.hierarchy || hierarchyParentFields(row).length" inline label-position="top" size="small" class="source-model__hierarchy">
+                  <el-form v-if="row.hierarchy || hierarchyParentFields(row).length" inline size="small" class="source-model__hierarchy">
                     <el-form-item :label="t('bi.refine.parent_column')">
                       <el-select :model-value="row.hierarchy?.parent_column" clearable :placeholder="t('bi.refine.no_hierarchy')" :aria-label="t('bi.refine.parent_column')" @change="setHierarchyParent(row, String($event ?? ''))">
                         <el-option v-for="column in hierarchyParentFields(row)" :key="column.name" :label="schemaLabel(column)" :value="column.name" />

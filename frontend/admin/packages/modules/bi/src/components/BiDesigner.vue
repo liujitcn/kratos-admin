@@ -69,7 +69,7 @@
                       <el-button text circle :icon="layoutIcon" @click.stop="selected = item.id" />
                     </el-tooltip>
                   </template>
-                  <el-form label-position="top" size="small">
+                  <el-form size="small">
                     <el-form-item :label="t('bi.dashboard.card_width')">
                       <el-select :model-value="item.w" @change="resize(item.id, { w: $event })">
                         <el-option :value="3" :label="t('bi.dashboard.width_quarter')" />

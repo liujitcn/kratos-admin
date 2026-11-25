@@ -15,7 +15,7 @@
     <div class="definition-step-content">
       <section v-show="activeStep === 0" class="definition-step-panel">
         <div class="definition-basic">
-          <el-form ref="formRef" :model="formData" :rules="formRules" label-position="top">
+          <el-form ref="formRef" :model="formData" :rules="formRules">
             <el-form-item :label="t('system.workflow.definition.field.name')" prop="name">
               <el-input
                 v-model="formData.name"
@@ -127,7 +127,7 @@
                     </el-tooltip>
                   </div>
                 </el-header>
-                <el-form label-position="top" class="form-field-editor-form">
+                <el-form class="form-field-editor-form">
                   <el-row :gutter="12">
                     <el-col :xs="24" :sm="12">
                       <el-form-item :label="t('system.workflow.definition.form_builder.key')">
@@ -180,7 +180,7 @@
               <el-text tag="h3">{{ t("system.workflow.definition.form_builder.preview") }}</el-text>
             </div>
             <el-text tag="p" class="definition-hint">{{ t("system.workflow.definition.form_builder.preview_hint") }}</el-text>
-            <el-form label-position="top" class="form-preview" disabled>
+            <el-form class="form-preview" disabled>
               <template v-if="formFields.length">
                 <el-form-item
                   v-for="field in formFields"
@@ -258,7 +258,7 @@
                 :image-size="64"
               />
               <template v-if="selectedNode">
-                <el-form label-position="top">
+                <el-form>
                   <el-form-item :label="t('system.workflow.definition.field.node_type')">
                     <el-tag effect="plain">{{ t(nodeTypeI18nKey(selectedNode.type)) }}</el-tag>
                   </el-form-item>
@@ -350,7 +350,7 @@
                 }}</el-button>
               </template>
               <template v-if="selectedEdge">
-                <el-form label-position="top">
+                <el-form>
                   <el-form-item :label="t('system.workflow.definition.field.edge_from')"
                     ><el-input :model-value="selectedEdge.from" readonly
                   /></el-form-item>

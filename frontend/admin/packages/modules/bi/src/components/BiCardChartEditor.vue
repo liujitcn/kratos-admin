@@ -1,5 +1,5 @@
 <template>
-  <el-form class="bi-card-chart-editor" label-position="top">
+  <el-form class="bi-card-chart-editor">
     <el-form-item class="bi-card-chart-editor__wide" :label="t('bi.card.chart_type')">
       <div class="bi-card-chart-editor__types">
         <el-button

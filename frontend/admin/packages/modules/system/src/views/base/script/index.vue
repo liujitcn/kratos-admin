@@ -30,7 +30,7 @@
           <DictLabel code="base_script_language" :model-value="testScript?.language" />
         </el-descriptions-item>
       </el-descriptions>
-      <el-form class="test-form" label-position="top">
+      <el-form class="test-form">
         <el-form-item :label="t('system.base.script.test.context')">
           <el-input v-model="testContext" type="textarea" :rows="8" spellcheck="false" />
         </el-form-item>

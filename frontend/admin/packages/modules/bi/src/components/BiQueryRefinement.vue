@@ -2,19 +2,19 @@
   <details class="bi-query-refinement">
     <summary>{{ t('bi.refine.title') }}</summary>
     <div class="bi-query-refinement__fields">
-      <el-form-item label-position="top" :label="t('bi.card.dimensions')">
+      <el-form-item :label="t('bi.card.dimensions')">
         <el-select size="small" :disabled="busy || disabled" v-model="dimensions" multiple :multiple-limit="2" clearable :aria-label="t('bi.card.dimensions')">
           <el-option v-for="field in source.dimensions" :key="field.code" :label="field.name" :value="field.code" />
         </el-select>
       </el-form-item>
-      <el-form-item label-position="top" v-for="field in configurableDimensions" :key="field.code" :label="field.name">
+      <el-form-item v-for="field in configurableDimensions" :key="field.code" :label="field.name">
         <el-select size="small" :disabled="busy || disabled" v-model="grouping[field.code]" :aria-label="field.name">
           <el-option :label="t('bi.refine.original')" value="" />
           <el-option v-for="grain in field.time_grains ?? []" :key="grain" :label="t(`bi.refine.grain.${grain}`)" :value="grain" />
           <el-option v-for="level in field.hierarchy_levels ?? []" :key="level" :label="t(`bi.refine.level.${level}`)" :value="level" />
         </el-select>
       </el-form-item>
-      <el-form-item label-position="top" v-if="dateFields.length || query.time_range" :label="t('bi.refine.period')">
+      <el-form-item v-if="dateFields.length || query.time_range" :label="t('bi.refine.period')">
         <el-select size="small" :disabled="busy || disabled" v-model="period" :aria-label="t('bi.refine.period')">
           <el-option v-if="query.time_range" :label="describeBiTimeRange(query.time_range, t)" value="current" />
           <el-option :label="t('bi.refine.all_dates')" value="all" />
@@ -26,12 +26,12 @@
           </template>
         </el-select>
       </el-form-item>
-      <el-form-item label-position="top" v-if="period !== 'all' && period !== 'current'" :label="t('bi.refine.date_field')">
+      <el-form-item v-if="period !== 'all' && period !== 'current'" :label="t('bi.refine.date_field')">
         <el-select size="small" :disabled="busy || disabled" v-model="dateField" :aria-label="t('bi.refine.date_field')">
           <el-option v-for="field in dateFields" :key="field.code" :label="field.name" :value="field.code" />
         </el-select>
       </el-form-item>
-      <el-form-item label-position="top" v-if="period === 'custom'" :label="t('bi.refine.custom_dates')">
+      <el-form-item v-if="period === 'custom'" :label="t('bi.refine.custom_dates')">
         <el-date-picker size="small" :disabled="busy || disabled" v-model="dates" type="daterange" value-format="YYYY-MM-DD" :start-placeholder="t('bi.refine.start')" :end-placeholder="t('bi.refine.end')" />
       </el-form-item>
       <el-button native-type="button" type="primary" :loading="busy" :disabled="invalid" @click="apply">{{ t('bi.refine.apply') }}</el-button>

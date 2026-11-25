@@ -14,7 +14,7 @@
   >
     <div class="bi-card-editor" :class="{ 'is-narrow': narrow }">
       <div class="bi-card-editor__settings">
-        <ProForm ref="nameFormRef" :model="form" :fields="nameFields" :rules="rules" label-position="top" :disabled="editingLocked" />
+        <ProForm ref="nameFormRef" :model="form" :fields="nameFields" :rules="rules" :disabled="editingLocked" />
         <el-tabs v-model="activeTab" class="bi-card-editor__tabs">
           <el-tab-pane name="query" :label="t('bi.card.query_tab')">
             <ProForm
@@ -24,7 +24,6 @@
               :fields="queryFields"
               :rules="rules"
               :gutter="12"
-              label-position="top"
               :disabled="editingLocked"
             >
               <template #measures>

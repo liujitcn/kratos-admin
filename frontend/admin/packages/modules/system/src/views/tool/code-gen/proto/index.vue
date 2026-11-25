@@ -115,7 +115,6 @@
       <ProForm
         :model="protoConfigFormModel"
         :fields="protoConfigFields"
-        label-position="top"
         class="code-gen-proto-config-form"
       />
     </ProDialog>
