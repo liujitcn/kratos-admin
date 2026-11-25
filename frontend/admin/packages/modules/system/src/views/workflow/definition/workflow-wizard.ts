@@ -1,5 +1,5 @@
 /** 流程定义向导步骤键。 */
-export const WORKFLOW_WIZARD_STEP_KEYS = ["basic", "form", "graph", "review"] as const;
+export const WORKFLOW_WIZARD_STEP_KEYS = ["basic", "form", "graph"] as const;
 
 /** 流程定义向导步骤键类型。 */
 export type WorkflowWizardStepKey = (typeof WORKFLOW_WIZARD_STEP_KEYS)[number];

@@ -36,20 +36,21 @@
       </template>
     </FormDialog>
 
-    <el-drawer
-      v-model="docsDrawer.visible"
+    <ProDialog
+      v-model="docsDialog.visible"
       :title="t('rag.knowledge.doc.title')"
-      size="min(860px, calc(100vw - 32px))"
+      width="920px"
       destroy-on-close
+      :show-footer="false"
     >
-      <div v-if="docsDrawer.knowledge" class="rag-knowledge-docs">
+      <div v-if="docsDialog.knowledge" class="rag-knowledge-docs">
         <div class="rag-knowledge-docs__head">
-          <span class="rag-knowledge-docs__title">{{ docsDrawer.knowledge.name }}</span>
-          <span v-if="docsDrawer.knowledge.model_name" class="rag-knowledge-docs__meta">{{
-            docsDrawer.knowledge.model_name
+          <span class="rag-knowledge-docs__title">{{ docsDialog.knowledge.name }}</span>
+          <span v-if="docsDialog.knowledge.model_name" class="rag-knowledge-docs__meta">{{
+            docsDialog.knowledge.model_name
           }}</span>
-          <span v-if="docsDrawer.knowledge.embedding_dimensions" class="rag-knowledge-docs__meta">{{
-            t("rag.knowledge.field.embedding_dimensions_value", { dimensions: docsDrawer.knowledge.embedding_dimensions })
+          <span v-if="docsDialog.knowledge.embedding_dimensions" class="rag-knowledge-docs__meta">{{
+            t("rag.knowledge.field.embedding_dimensions_value", { dimensions: docsDialog.knowledge.embedding_dimensions })
           }}</span>
         </div>
 
@@ -160,7 +161,7 @@
           </div>
         </div>
       </div>
-    </el-drawer>
+    </ProDialog>
 
     <el-upload
       ref="docFileInputRef"
@@ -181,6 +182,7 @@ import type { FormRules, UploadFile, UploadFiles, UploadInstance } from "element
 import { CirclePlus, Delete, DocumentAdd, EditPen, Refresh, Search, Upload } from "@element-plus/icons-vue";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
+import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import MarkdownEditor from "@liujitcn/kratos-admin-core/components/MarkdownEditor/index.vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
@@ -242,7 +244,7 @@ const dimensionOptions = computed<ProFormOption[]>(() => {
   const selected = knowledgeModels.value.find((item: AiKnowledgeModel) => item.id === form.model_id);
   return (selected?.dimension_options ?? []).map(value => ({ label: `${value}`, value }));
 });
-const docsDrawer = reactive<{ visible: boolean; knowledge: AiKnowledge | null }>({ visible: false, knowledge: null });
+const docsDialog = reactive<{ visible: boolean; knowledge: AiKnowledge | null }>({ visible: false, knowledge: null });
 const docList = ref<AiKnowledgeDoc[]>([]);
 const loadingDocs = ref(false);
 const uploading = ref(false);
@@ -402,8 +404,8 @@ async function handleDelete(target: AiKnowledge | number | Array<number>) {
 
 /** 打开文档管理抽屉。 */
 async function openDocsDrawer(row: AiKnowledge) {
-  docsDrawer.knowledge = row;
-  docsDrawer.visible = true;
+  docsDialog.knowledge = row;
+  docsDialog.visible = true;
   searchQuery.value = "";
   searchHits.value = [];
   searched.value = false;
@@ -436,7 +438,7 @@ async function loadXbergConnections() {
 
 /** 加载当前知识库的文档列表。 */
 async function loadDocs() {
-  const knowledge = docsDrawer.knowledge;
+  const knowledge = docsDialog.knowledge;
   if (!knowledge) return;
   loadingDocs.value = true;
   try {
@@ -460,7 +462,7 @@ async function handleDocFileChange(file: UploadFile, uploadFiles: UploadFiles) {
   if (file.uid !== uploadFiles.at(-1)?.uid) return;
   const files = uploadFiles.flatMap(item => (item.raw ? [item.raw] : []));
   docFileInputRef.value?.clearFiles();
-  if (!files.length || !docsDrawer.knowledge) return;
+  if (!files.length || !docsDialog.knowledge) return;
   const accepted: File[] = [];
   const rejected: string[] = [];
   for (const file of files) {
@@ -474,7 +476,7 @@ async function handleDocFileChange(file: UploadFile, uploadFiles: UploadFiles) {
     ElMessage.warning(t("rag.knowledge.doc.upload.batch_invalid", { names: rejected.join("、") }));
   }
   if (!accepted.length) return;
-  const knowledgeId = docsDrawer.knowledge.id;
+  const knowledgeId = docsDialog.knowledge.id;
   const extractorConnectionId = selectedExtractorConnectionId.value;
   if (!extractorConnectionId) {
     ElMessage.warning(t("rag.knowledge.doc.extractor.required"));
@@ -534,13 +536,13 @@ function openTextDialog() {
 async function submitTextDoc() {
   const valid = await textDialogRef.value?.validate();
   const extractorConnectionId = selectedExtractorConnectionId.value;
-  if (!valid || !docsDrawer.knowledge) return;
+  if (!valid || !docsDialog.knowledge) return;
   if (!extractorConnectionId) {
     ElMessage.warning(t("rag.knowledge.doc.extractor.required"));
     return;
   }
   await defAiKnowledgeDocService.UploadAiKnowledgeDocText({
-    id: docsDrawer.knowledge.id,
+    id: docsDialog.knowledge.id,
     name: textForm.name,
     content: textForm.content,
     extractor_connection_id: extractorConnectionId
@@ -589,7 +591,7 @@ async function handleReprocessDoc(row: AiKnowledgeDoc) {
 
 /** 执行知识库检索测试。 */
 async function runSearch() {
-  const knowledge = docsDrawer.knowledge;
+  const knowledge = docsDialog.knowledge;
   const query = searchQuery.value.trim();
   if (!knowledge || !query) return;
   searching.value = true;

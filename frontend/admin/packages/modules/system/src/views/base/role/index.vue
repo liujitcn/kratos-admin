@@ -21,10 +21,15 @@
       @close="handleCloseDialog"
     />
 
-    <el-drawer
+    <ProDialog
+      ref="permDialogRef"
       v-model="assignPermDialogVisible"
       :title="t('system.base.role.title.assign_permission', { name: checkedBaseRole.name || '' })"
-      size="500"
+      width="600px"
+      :confirm-loading="assigningPerms"
+      destroy-on-close
+      :close-on-click-modal="false"
+      @confirm="handleAssignPermSubmit"
     >
       <div class="perm-toolbar">
         <el-input v-model="permKeywords" clearable class="perm-search" :placeholder="t('system.base.role.placeholder.menu_permission')">
@@ -58,28 +63,22 @@
         </div>
       </div>
 
-      <el-tree
-        ref="permTreeRef"
-        node-key="value"
-        show-checkbox
-        :data="menuPermOptions"
-        :filter-node-method="handlePermFilter"
-        :default-expand-all="true"
-        :check-strictly="!parentChildLinked"
-        class="mt-5"
-      >
-        <template #default="{ data }">
-          {{ data.label }}
-        </template>
-      </el-tree>
-
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button type="primary" @click="handleAssignPermSubmit">{{ t("common.action.confirm") }}</el-button>
-          <el-button @click="assignPermDialogVisible = false">{{ t("common.action.cancel") }}</el-button>
-        </div>
-      </template>
-    </el-drawer>
+      <el-scrollbar max-height="55dvh" class="mt-5">
+        <el-tree
+          ref="permTreeRef"
+          node-key="value"
+          show-checkbox
+          :data="menuPermOptions"
+          :filter-node-method="handlePermFilter"
+          :default-expand-all="true"
+          :check-strictly="!parentChildLinked"
+        >
+          <template #default="{ data }">
+            {{ data.label }}
+          </template>
+        </el-tree>
+      </el-scrollbar>
+    </ProDialog>
   </div>
 </template>
 
@@ -91,6 +90,7 @@ import { CirclePlus, Delete, EditPen, Position, QuestionFilled, Search, Switch }
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
+import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { defBaseRoleService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_role";
@@ -122,6 +122,7 @@ type BaseRoleFormState = Omit<BaseRoleForm, "tenant_id"> & {
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
+const permDialogRef = ref<InstanceType<typeof ProDialog>>();
 const permTreeRef = ref<InstanceType<typeof ElTree>>();
 
 const dialog = reactive({
@@ -231,6 +232,7 @@ const rules = computed(() => ({
 
 const checkedBaseRole = ref<CheckedBaseRole>({});
 const assignPermDialogVisible = ref(false);
+const assigningPerms = ref(false);
 const permKeywords = ref("");
 const isExpanded = ref(true);
 const parentChildLinked = ref(false);
@@ -581,28 +583,34 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
 }
 
 /**
- * 打开分配菜单权限抽屉，并回显当前角色已拥有的菜单。
+ * 打开菜单权限弹窗，并回显当前角色已拥有的菜单。
  */
 async function handleOpenAssignPermDialog(row: BaseRole) {
-  if (!row.id) return;
+  if (!row.id || assigningPerms.value) return;
   if (!canManageRole(row)) {
     ElMessage.warning(t("system.base.role.message.protected_permission"));
     return;
   }
-  checkedBaseRole.value = { id: row.id, name: row.name };
-  await loadMenuPermOptions(row.id);
-  assignPermDialogVisible.value = true;
-  nextTick(() => {
-    permTreeRef.value?.setCheckedKeys(row.menus, false);
+  const opened = await permDialogRef.value?.open({
+    load: () => requestMenuPermOptions(row.id),
+    commit: options => {
+      checkedBaseRole.value = { id: row.id, name: row.name };
+      menuPermOptions.value = options;
+      permKeywords.value = "";
+      isExpanded.value = true;
+    }
   });
+  if (!opened) return;
+  await nextTick();
+  permTreeRef.value?.setCheckedKeys(row.menus, false);
 }
 
 /**
  * 提交角色菜单权限分配。
  */
-function handleAssignPermSubmit() {
+async function handleAssignPermSubmit() {
   const roleId = checkedBaseRole.value.id;
-  if (!roleId) return;
+  if (!roleId || assigningPerms.value) return;
 
   const checkedNodes = (permTreeRef.value?.getCheckedNodes(false, true) as Array<{ value: number }> | undefined) ?? [];
   const checkedMenuIds = checkedNodes.map(node => Number(node.value));
@@ -614,11 +622,15 @@ function handleAssignPermSubmit() {
     ElMessage.warning(t("system.base.role.validation.menu_duplicate"));
     return;
   }
-  defBaseRoleService.SetBaseRoleMenu({ id: roleId, menus: checkedMenuIds }).then(() => {
+  assigningPerms.value = true;
+  try {
+    await defBaseRoleService.SetBaseRoleMenu({ id: roleId, menus: checkedMenuIds });
     ElMessage.success(t("system.base.role.message.assign_success"));
     assignPermDialogVisible.value = false;
     refreshTable();
-  });
+  } finally {
+    assigningPerms.value = false;
+  }
 }
 
 /**
@@ -659,8 +671,8 @@ function handelParentChildLinkedChange(val: CheckboxValueType) {
   flex-direction: column;
   gap: 10px;
   padding: 14px;
-  background: linear-gradient(180deg, #f8fafc 0%, #f3f6fb 100%);
-  border: 1px solid #e4eaf3;
+  background: var(--el-fill-color-light);
+  border: 1px solid var(--el-border-color-lighter);
   border-radius: var(--admin-page-radius);
 }
 .perm-search {

@@ -8,7 +8,7 @@
     class="bi-source-model-dialog"
   >
     <div v-loading="loading || saving" class="source-model">
-      <el-steps :active="step" finish-status="success" align-center>
+      <el-steps :active="step" finish-status="success" simple>
         <el-step :title="t('bi.source.model.step.tables')" />
         <el-step :title="t('bi.source.model.step.relations')" />
         <el-step :title="t('bi.source.model.step.fields')" />

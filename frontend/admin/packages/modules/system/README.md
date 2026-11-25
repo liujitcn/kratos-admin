@@ -136,7 +136,7 @@ packages/modules/system
 | `src/views/base/menu/index.vue`                                | 菜单管理页。                       |
 | `src/views/base/migration/index.vue`                           | 数据迁移管理页。                   |
 | `src/views/base/post/index.vue`                                | 岗位管理页。                       |
-| `src/views/base/role/index.vue`                                | 角色管理页。                       |
+| `src/views/base/role/index.vue`                                | 角色管理页，菜单权限通过标准弹窗分配。 |
 | `src/views/base/tenant/index.vue`                              | 租户管理页。                       |
 | `src/views/base/tenant-project-grant/index.vue`                  | 项目授权管理页。                   |
 | `src/views/base/user/index.vue`                                | 用户管理页。                       |
@@ -159,8 +159,8 @@ packages/modules/system
 | `src/views/base/oauth-client/index.vue` | 开放授权客户端管理页。 |
 | `src/views/tool/runtime-log/index.vue` | 运行日志控制台、历史文件和下载页。 |
 | `src/views/tool/cache/index.vue` | 运行时缓存查询页，展示键、值、TTL 和时间元数据。 |
-| `src/views/workflow/approval/index.vue`                       | 工作流审批中心页，使用标准搜索表单按审批类型与流程名称/编码查询，支持搜索、重置。 |
-| `src/views/workflow/approval/submit-drawer.vue`               | 发起申请抽屉（按表单定义动态渲染）。 |
+| `src/views/workflow/approval/index.vue`                       | 工作流审批中心页，支持按审批类型与流程名称或编码查询，使用标准弹窗办理审批、转办和加签。 |
+| `src/views/workflow/approval/submit-dialog.vue`               | 发起申请弹窗，按流程定义动态渲染 ProForm 字段。 |
 | `src/views/workflow/definition/index.vue`                     | 工作流流程定义列表页。             |
 | `src/views/workflow/definition/definition-dialog.vue`         | 流程定义新增/编辑弹窗，按基本信息、申请表单、流程设计分为三个页签，画布右侧配置节点和连线属性，校验错误自动切换页签。 |
 | `src/views/workflow/definition/definition-view.vue`            | 流程定义只读查看弹窗，展示基本信息、申请表单、流程图和节点/连线属性，不提供保存或编辑操作。 |

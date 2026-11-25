@@ -8,7 +8,13 @@
       :request-api="requestTaskTable"
     />
 
-    <el-drawer v-model="detailVisible" :title="t('system.workflow.approval.title.detail')" size="52%" destroy-on-close>
+    <ProDialog
+      v-model="detailVisible"
+      :title="t('system.workflow.approval.title.detail')"
+      width="960px"
+      destroy-on-close
+      :show-footer="false"
+    >
       <el-descriptions v-if="detail" :column="2" size="small" border>
         <el-descriptions-item :label="t('system.workflow.definition.field.code')">{{
           detail.instance?.definition_code || "-"
@@ -97,12 +103,7 @@
       </el-table>
       <template v-if="isPendingDetail">
         <el-divider content-position="left">{{ t("system.workflow.approval.section.audit") }}</el-divider>
-        <el-input
-          v-model="auditComment"
-          type="textarea"
-          :rows="2"
-          :placeholder="t('system.workflow.approval.placeholder.comment')"
-        />
+        <ProForm :model="auditForm" :fields="auditFields" :disabled="auditing" />
         <div class="audit-actions">
           <el-button type="success" :loading="auditing" @click="handleAudit(WorkflowAuditAction.WORKFLOW_AUDIT_ACTION_APPROVE)">
             {{ t("system.workflow.approval.action.approve") }}
@@ -116,39 +117,38 @@
           }}</el-button>
         </div>
       </template>
-    </el-drawer>
+    </ProDialog>
 
-    <el-dialog v-model="forwardVisible" :title="forwardTitle" width="420px" destroy-on-close>
-      <el-select
-        v-model="forwardTarget"
-        filterable
-        style="width: 100%"
-        :placeholder="t('system.workflow.approval.placeholder.select_user')"
-      >
-        <el-option v-for="item in userOptions" :key="Number(item.value)" :label="item.label" :value="item.value" />
-      </el-select>
-      <template #footer>
-        <el-button @click="forwardVisible = false">{{ t("common.action.cancel") }}</el-button>
-        <el-button type="primary" @click="handleForwardSubmit">{{ t("common.action.confirm") }}</el-button>
-      </template>
-    </el-dialog>
+    <FormDialog
+      v-model="forwardVisible"
+      :title="forwardTitle"
+      width="480px"
+      :model="forwardForm"
+      :fields="forwardFields"
+      :confirm-loading="auditing"
+      destroy-on-close
+      @confirm="handleForwardSubmit"
+    />
 
-    <WorkflowSubmitDrawer ref="submitDrawerRef" @submitted="refreshTable" />
+    <WorkflowSubmitDialog ref="submitDialogRef" @submitted="refreshTable" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, h, onMounted, ref, watch } from "vue";
+import { computed, h, onMounted, reactive, ref, watch } from "vue";
 import { ElMessage, ElMessageBox, ElTag } from "element-plus";
 import { useRoute } from "vue-router";
 import { CirclePlus } from "@element-plus/icons-vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
+import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
+import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
+import ProForm from "@liujitcn/kratos-admin-core/components/ProForm/index.vue";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
-import type { ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
+import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import { defWorkflowDefinitionService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/workflow_definition";
 import { defWorkflowTaskService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/workflow_task";
 import { defWorkflowInstanceService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/workflow_instance";
@@ -172,7 +172,7 @@ import {
   WorkflowLogAction,
   WorkflowTaskStatus
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/workflow_common";
-import WorkflowSubmitDrawer from "./submit-drawer.vue";
+import WorkflowSubmitDialog from "./submit-dialog.vue";
 import WorkflowGraph from "../definition/workflow-graph.vue";
 
 defineOptions({
@@ -184,23 +184,41 @@ const { BUTTONS } = useAuthButtons();
 const { currentTenantId } = useTenantScope();
 const route = useRoute();
 const proTable = ref<ProTableInstance>();
-const submitDrawerRef = ref<InstanceType<typeof WorkflowSubmitDrawer>>();
+const submitDialogRef = ref<InstanceType<typeof WorkflowSubmitDialog>>();
 
 const detailVisible = ref(false);
 const detail = ref<GetWorkflowTaskResponse | GetWorkflowInstanceResponse>();
 const detailTaskId = ref(0);
-const auditComment = ref("");
+const auditForm = reactive({ comment: "" });
 const auditing = ref(false);
 const retrying = ref(0);
 const forwardVisible = ref(false);
 const forwardMode = ref<"forward" | "add_approver">("forward");
-const forwardTarget = ref<number>();
+const forwardForm = reactive({ target: undefined as number | undefined });
 const userOptions = ref<ProFormOption[]>([]);
 const formFields = ref<FormSchemaField[]>([]);
 
 const forwardTitle = computed(() =>
   t(forwardMode.value === "forward" ? "system.workflow.approval.action.forward" : "system.workflow.approval.action.add_approver")
 );
+const auditFields = computed<ProFormField[]>(() => [
+  {
+    prop: "comment",
+    label: t("system.workflow.approval.field.comment"),
+    component: "textarea",
+    props: { rows: 2, modelModifiers: { trim: false }, placeholder: t("system.workflow.approval.placeholder.comment") }
+  }
+]);
+const forwardFields = computed<ProFormField[]>(() => [
+  {
+    prop: "target",
+    label: t("system.workflow.approval.field.assignee"),
+    component: "select",
+    options: userOptions.value,
+    props: { filterable: true, placeholder: t("system.workflow.approval.placeholder.select_user") },
+    rules: [{ required: true, message: t("system.workflow.approval.placeholder.select_user"), trigger: "change" }]
+  }
+]);
 
 /** 实例详情返回的审批任务列表，并补入当前待办详情中的任务。 */
 const detailTasks = computed(() => {
@@ -369,7 +387,7 @@ const headerActions = computed<HeaderActionProps[]>(() => [
     type: "success",
     icon: CirclePlus,
     hidden: () => !BUTTONS.value["workflow:instance:submit"],
-    onClick: () => submitDrawerRef.value?.open()
+    onClick: () => submitDialogRef.value?.open()
   }
 ]);
 
@@ -532,7 +550,7 @@ async function handleOpenDetail(row: { task_id: number; instance_id: number; lis
   }
   formFields.value = [];
   await loadFormSchema();
-  auditComment.value = "";
+  auditForm.comment = "";
   detailVisible.value = true;
   loadProgressGraph();
 }
@@ -630,7 +648,7 @@ async function handleAudit(action: WorkflowAuditAction) {
     await defWorkflowTaskService.AuditWorkflowTask({
       task_id: detailTaskId.value,
       action,
-      comment: auditComment.value,
+      comment: auditForm.comment,
       forward_to: 0,
       additional_approver: 0
     });
@@ -651,38 +669,38 @@ async function handleAudit(action: WorkflowAuditAction) {
 /** 打开转办对话框。 */
 function openForwardDialog() {
   forwardMode.value = "forward";
-  forwardTarget.value = undefined;
+  forwardForm.target = undefined;
   forwardVisible.value = true;
 }
 
 /** 打开加签对话框。 */
 function openAddApproverDialog() {
   forwardMode.value = "add_approver";
-  forwardTarget.value = undefined;
+  forwardForm.target = undefined;
   forwardVisible.value = true;
 }
 
 /** 提交转办或加签。 */
 async function handleForwardSubmit() {
-  if (!forwardTarget.value) {
-    ElMessage.warning(t("system.workflow.approval.placeholder.select_user"));
-    return;
+  const target = forwardForm.target;
+  if (auditing.value || !target) return;
+  const forwarding = forwardMode.value === "forward";
+  auditing.value = true;
+  try {
+    await defWorkflowTaskService.AuditWorkflowTask({
+      task_id: detailTaskId.value,
+      action: forwarding ? WorkflowAuditAction.WORKFLOW_AUDIT_ACTION_FORWARD : WorkflowAuditAction.WORKFLOW_AUDIT_ACTION_ADD_APPROVER,
+      comment: "",
+      forward_to: forwarding ? target : 0,
+      additional_approver: forwarding ? 0 : target
+    });
+    ElMessage.success(t("common.message.update_success", { resource: t("system.workflow.approval.resource") }));
+    forwardVisible.value = false;
+    detailVisible.value = false;
+    refreshTable();
+  } finally {
+    auditing.value = false;
   }
-  const action =
-    forwardMode.value === "forward"
-      ? WorkflowAuditAction.WORKFLOW_AUDIT_ACTION_FORWARD
-      : WorkflowAuditAction.WORKFLOW_AUDIT_ACTION_ADD_APPROVER;
-  await defWorkflowTaskService.AuditWorkflowTask({
-    task_id: detailTaskId.value,
-    action,
-    comment: "",
-    forward_to: forwardMode.value === "forward" ? (forwardTarget.value ?? 0) : 0,
-    additional_approver: forwardMode.value === "add_approver" ? (forwardTarget.value ?? 0) : 0
-  });
-  ElMessage.success(t("common.message.update_success", { resource: t("system.workflow.approval.resource") }));
-  forwardVisible.value = false;
-  detailVisible.value = false;
-  refreshTable();
 }
 
 /** 撤回申请。 */
@@ -708,6 +726,7 @@ async function handleWithdraw(row: { instance_id: number; definition_name?: stri
 <style scoped lang="scss">
 .audit-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin-top: 8px;
 }

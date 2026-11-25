@@ -44,28 +44,32 @@ for (const locale of ["zh-CN", "zh-TW", "en-US", "ja-JP"]) {
   });
 }
 
-test("完整向导只有当前步骤通过后才能前进，最后一步不能继续", () => {
-  assert.deepEqual(WORKFLOW_WIZARD_STEP_KEYS, ["basic", "form", "graph", "review"]);
+test("流程定义向导校验后才能前进，流程设计是最后一步", () => {
+  assert.deepEqual(WORKFLOW_WIZARD_STEP_KEYS, ["basic", "form", "graph"]);
   assert.equal(canAdvanceWorkflowWizard(0, "pending"), false);
   assert.equal(canAdvanceWorkflowWizard(0, "error"), false);
   assert.equal(canAdvanceWorkflowWizard(0, "success"), true);
-  assert.equal(canAdvanceWorkflowWizard(3, "success"), false);
+  assert.equal(canAdvanceWorkflowWizard(1, "success"), true);
+  assert.equal(canAdvanceWorkflowWizard(2, "success"), false);
 });
 
 test("完整向导步骤映射为 Element Plus 状态", () => {
   assert.equal(getWorkflowWizardStepStatus(0, 1, "success"), "finish");
   assert.equal(getWorkflowWizardStepStatus(1, 1, "pending"), "process");
   assert.equal(getWorkflowWizardStepStatus(2, 1, "error"), "error");
-  assert.equal(getWorkflowWizardStepStatus(3, 1, "pending"), "wait");
+  assert.equal(getWorkflowWizardStepStatus(2, 1, "pending"), "wait");
 });
 
-test("流程定义弹窗使用完整向导导航并移除独立校验按钮", async () => {
+test("流程定义弹窗使用标准表单并在流程设计中保存", async () => {
   const source = await readFile(join(process.cwd(), "src/views/workflow/definition/definition-dialog.vue"), "utf8");
   assert.match(source, /<el-steps/);
+  assert.match(source, /<ProForm/);
   assert.match(source, /WORKFLOW_WIZARD_STEP_KEYS/);
   assert.match(source, /handleNext/);
   assert.match(source, /handlePrevious/);
   assert.doesNotMatch(source, /@click="handleValidate"/);
+  assert.doesNotMatch(source, /wizard\.review/);
+  assert.match(source, /v-else type="primary" :loading="saving" @click="handleSave"/);
   assert.match(source, /class="form-builder"/);
   assert.match(source, /serializeFormSchema/);
   assert.doesNotMatch(source, /v-model="formSchemaText"/);
@@ -133,15 +137,9 @@ test("流程定义向导文案在四种语言中均已注册", async () => {
     "system.workflow.definition.wizard.basic",
     "system.workflow.definition.wizard.form",
     "system.workflow.definition.wizard.graph",
-    "system.workflow.definition.wizard.review",
     "system.workflow.definition.wizard.previous",
     "system.workflow.definition.wizard.next",
     "system.workflow.definition.wizard.finish",
-    "system.workflow.definition.wizard.review_hint",
-    "system.workflow.definition.wizard.review_passed",
-    "system.workflow.definition.wizard.status.pending",
-    "system.workflow.definition.wizard.status.success",
-    "system.workflow.definition.wizard.status.error",
     "system.workflow.definition.form_builder.palette",
     "system.workflow.definition.form_builder.fields",
     "system.workflow.definition.form_builder.preview",

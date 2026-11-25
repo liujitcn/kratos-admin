@@ -32,8 +32,8 @@
 
       <!-- 页签二：流程进度，el-steps 展示节点流转 -->
       <el-tab-pane :label="t('core.demo.detail.tab.progress')">
-        <el-steps :active="detail.steps.length - 1" align-center finish-status="success">
-          <el-step v-for="(step, index) in detail.steps" :key="step.title" :title="step.title" :description="`T+${index}`" />
+        <el-steps :active="detail.steps.length - 1" finish-status="success" simple>
+          <el-step v-for="step in detail.steps" :key="step.title" :title="step.title" />
         </el-steps>
       </el-tab-pane>
 

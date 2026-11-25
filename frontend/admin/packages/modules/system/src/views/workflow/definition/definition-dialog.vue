@@ -2,51 +2,29 @@
   <ProDialog
     v-model="visible"
     :title="dialogTitle"
-    width="min(1400px, calc(100vw - 48px))"
-    top="4vh"
+    class="workflow-definition-dialog"
+    body-class="workflow-definition-dialog__body"
+    width="1280px"
+    align-center
     destroy-on-close
     :close-on-click-modal="false"
+    :close-on-press-escape="!saving"
+    :show-close="!saving"
     @opened="handleOpened"
     @closed="handleClosed"
   >
-    <el-steps :active="activeStep" finish-status="success" process-status="process" class="definition-steps">
-      <el-step v-for="(step, index) in wizardSteps" :key="step.key" :title="t(step.titleKey)" :status="getStepStatus(index)" />
+    <el-steps :active="activeStep" finish-status="success" simple class="definition-steps">
+      <el-step
+        v-for="(step, index) in wizardSteps"
+        :key="step.key"
+        :title="t(step.titleKey)"
+        :status="getWorkflowWizardStepStatus(index, activeStep, stepStates[step.key])"
+        :aria-current="activeStep === index ? 'step' : undefined"
+      />
     </el-steps>
     <div class="definition-step-content">
       <section v-show="activeStep === 0" class="definition-step-panel">
-        <div class="definition-basic">
-          <el-form ref="formRef" :model="formData" :rules="formRules">
-            <el-form-item :label="t('system.workflow.definition.field.name')" prop="name">
-              <el-input
-                v-model="formData.name"
-                :placeholder="t('common.validation.required_input', { field: t('system.workflow.definition.field.name') })"
-              />
-            </el-form-item>
-            <el-row :gutter="24">
-              <el-col :xs="24" :sm="16">
-                <el-form-item :label="t('system.workflow.definition.field.code')" prop="code">
-                  <el-input v-model="formData.code" :disabled="isEdit" />
-                </el-form-item>
-              </el-col>
-              <el-col :xs="24" :sm="8">
-                <el-form-item :label="t('system.workflow.definition.field.version')" prop="version">
-                  <el-input-number
-                    v-model="formData.version"
-                    :min="1"
-                    :precision="0"
-                    :step="1"
-                    controls-position="right"
-                    :disabled="isEdit"
-                    class="full-width"
-                  />
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-form-item :label="t('common.field.remark')" prop="remark">
-              <el-input v-model="formData.remark" type="textarea" :rows="4" :placeholder="t('common.placeholder.remark')" />
-            </el-form-item>
-          </el-form>
-        </div>
+        <ProForm ref="formRef" :model="formData" :fields="basicFields" :rules="formRules" label-width="8em" />
       </section>
       <section v-show="activeStep === 1" class="definition-step-panel">
         <div class="form-builder">
@@ -87,7 +65,7 @@
               :image-size="72"
             />
             <div v-else class="form-field-list">
-              <article v-for="(field, index) in formFields" :key="`${field.key}-${index}`" class="form-field-editor">
+              <article v-for="(field, index) in formFields" :key="index" class="form-field-editor">
                 <el-header class="form-field-editor-header" style="--el-header-height: auto; --el-header-padding: 0">
                   <div class="form-field-editor-title">
                     <span class="form-field-index">{{ index + 1 }}</span>
@@ -127,51 +105,7 @@
                     </el-tooltip>
                   </div>
                 </el-header>
-                <el-form class="form-field-editor-form">
-                  <el-row :gutter="12">
-                    <el-col :xs="24" :sm="12">
-                      <el-form-item :label="t('system.workflow.definition.form_builder.key')">
-                        <el-input
-                          v-model="field.key"
-                          :placeholder="t('system.workflow.definition.form_builder.key_placeholder')"
-                        />
-                      </el-form-item>
-                    </el-col>
-                    <el-col :xs="24" :sm="12">
-                      <el-form-item :label="t('system.workflow.definition.form_builder.label')">
-                        <el-input
-                          v-model="field.label"
-                          :placeholder="t('system.workflow.definition.form_builder.label_placeholder')"
-                        />
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-                  <el-row :gutter="12">
-                    <el-col :xs="24" :sm="12">
-                      <el-form-item :label="t('system.workflow.definition.form_builder.type')">
-                        <el-select v-model="field.type" class="full-width">
-                          <el-option
-                            v-for="item in formFieldTypes"
-                            :key="item.type"
-                            :label="t(item.labelKey)"
-                            :value="item.type"
-                          />
-                        </el-select>
-                      </el-form-item>
-                    </el-col>
-                    <el-col :xs="24" :sm="12">
-                      <el-form-item :label="t('system.workflow.definition.form_builder.required')">
-                        <el-switch v-model="field.required" />
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-                  <el-form-item v-if="field.type === 'select'" :label="t('system.workflow.definition.form_builder.options')">
-                    <el-input
-                      v-model="field.options"
-                      :placeholder="t('system.workflow.definition.form_builder.options_placeholder')"
-                    />
-                  </el-form-item>
-                </el-form>
+                <ProForm :model="field" :fields="fieldEditorFields" label-width="auto" class="form-field-editor-form" />
               </article>
             </div>
           </section>
@@ -258,86 +192,74 @@
                 :image-size="64"
               />
               <template v-if="selectedNode">
-                <el-form>
-                  <el-form-item :label="t('system.workflow.definition.field.node_type')">
-                    <el-tag effect="plain">{{ t(nodeTypeI18nKey(selectedNode.type)) }}</el-tag>
-                  </el-form-item>
-                  <el-form-item v-if="selectedNode.type === 'START'" :label="t('system.workflow.script.before_submit')">
-                    <ScriptSelect v-model="draft.hooks!.before_submit" />
-                  </el-form-item>
-                  <template v-if="selectedNode.type === 'END'">
-                    <el-form-item v-for="hook in terminalHooks" :key="hook" :label="t(`system.workflow.script.${hook}`)">
-                      <ScriptSelect v-model="draft.hooks![hook]" />
-                    </el-form-item>
+                <ProForm :model="selectedNode" :fields="nodeFields" label-width="auto">
+                  <template #type="{ model }">
+                    <el-tag effect="plain">{{ t(nodeTypeI18nKey(model.type)) }}</el-tag>
                   </template>
-                  <el-form-item v-if="selectedNode.type === 'SCRIPT'" :label="t('system.workflow.script.script')">
-                    <ScriptSelect v-model="selectedNode.script_id" />
-                  </el-form-item>
-                  <template v-if="selectedNode.type === 'TASK'">
-                    <el-form-item :label="t('system.workflow.script.approver_mode')">
-                      <el-radio-group
-                        :model-value="selectedNode.approver_script_id !== undefined ? 'dynamic' : 'static'"
-                        @update:model-value="setApproverMode"
-                      >
-                        <el-radio value="static">{{ t("system.workflow.script.static") }}</el-radio>
-                        <el-radio value="dynamic">{{ t("system.workflow.script.dynamic") }}</el-radio>
-                      </el-radio-group>
-                    </el-form-item>
-                    <el-form-item
-                      v-if="selectedNode.approver_script_id !== undefined"
-                      :label="t('system.workflow.script.approver')"
+                  <template #hook="{ field }">
+                    <ScriptSelect v-model="draft.hooks![field.prop as keyof GraphHooks]" />
+                  </template>
+                  <template #script_id="{ model }">
+                    <ScriptSelect v-model="model.script_id" />
+                  </template>
+                  <template #approver_mode="{ model }">
+                    <el-radio-group
+                      :model-value="model.approver_script_id !== undefined ? 'dynamic' : 'static'"
+                      @update:model-value="setApproverMode"
                     >
-                      <ScriptSelect
-                        :model-value="selectedNode.approver_script_id"
-                        @update:model-value="selectedNode.approver_script_id = $event ?? 0"
-                      />
-                    </el-form-item>
-                    <el-form-item :label="t('system.workflow.definition.field.strategy')">
-                      <el-radio-group v-model="selectedNode.strategy" class="strategy-options">
-                        <el-radio value="ALL">{{ t("system.workflow.definition.strategy.all") }}</el-radio>
-                        <el-radio value="ANY">{{ t("system.workflow.definition.strategy.any") }}</el-radio>
-                      </el-radio-group>
-                    </el-form-item>
-                    <div v-if="selectedNode.approver_script_id === undefined" class="approver-toolbar">
-                      <el-select v-model="approverType" :aria-label="t('system.workflow.definition.field.approver_type')">
-                        <el-option :label="t('system.workflow.definition.approver_type.USER')" value="USER" />
-                        <el-option :label="t('system.workflow.definition.approver_type.ROLE')" value="ROLE" />
-                        <el-option :label="t('system.workflow.definition.approver_type.POST')" value="POST" />
-                      </el-select>
-                      <el-select
-                        v-model="approverTarget"
-                        filterable
-                        :placeholder="t('system.workflow.definition.placeholder.approver_target')"
-                        :aria-label="t('system.workflow.definition.field.approver_target')"
-                      >
-                        <el-option
-                          v-for="item in approverTargetOptions"
-                          :key="Number(item.value)"
-                          :label="item.label"
-                          :value="Number(item.value)"
-                        />
-                      </el-select>
-                      <el-button type="primary" plain @click="addApprover">{{
-                        t("system.workflow.definition.action.add_approver")
-                      }}</el-button>
-                    </div>
-                    <el-table v-if="selectedNode.approver_script_id === undefined" :data="selectedNode.approvers" size="small">
-                      <el-table-column :label="t('system.workflow.definition.field.approver_target')" min-width="130">
-                        <template #default="{ row }">
-                          <div>{{ approverLabel(row) }}</div>
-                          <el-text tag="small" class="definition-hint">{{ t(`system.workflow.definition.approver_type.${row.type}`) }}</el-text>
-                        </template>
-                      </el-table-column>
-                      <el-table-column :label="t('common.field.operation')" width="64" align="center">
-                        <template #default="{ $index }">
-                          <el-button type="danger" link size="small" @click="selectedNode?.approvers?.splice($index, 1)">{{
-                            t("common.action.delete")
-                          }}</el-button>
-                        </template>
-                      </el-table-column>
-                    </el-table>
+                      <el-radio value="static">{{ t("system.workflow.script.static") }}</el-radio>
+                      <el-radio value="dynamic">{{ t("system.workflow.script.dynamic") }}</el-radio>
+                    </el-radio-group>
                   </template>
-                </el-form>
+                  <template #approver_script_id="{ model }">
+                    <ScriptSelect
+                      :model-value="model.approver_script_id"
+                      @update:model-value="model.approver_script_id = $event ?? 0"
+                    />
+                  </template>
+                </ProForm>
+                <template v-if="selectedNode.type === 'TASK' && selectedNode.approver_script_id === undefined">
+                  <div class="approver-toolbar">
+                    <el-select v-model="approverType" :aria-label="t('system.workflow.definition.field.approver_type')">
+                      <el-option :label="t('system.workflow.definition.approver_type.USER')" value="USER" />
+                      <el-option :label="t('system.workflow.definition.approver_type.ROLE')" value="ROLE" />
+                      <el-option :label="t('system.workflow.definition.approver_type.POST')" value="POST" />
+                    </el-select>
+                    <el-select
+                      v-model="approverTarget"
+                      filterable
+                      :placeholder="t('system.workflow.definition.placeholder.approver_target')"
+                      :aria-label="t('system.workflow.definition.field.approver_target')"
+                    >
+                      <el-option
+                        v-for="item in approverTargetOptions"
+                        :key="Number(item.value)"
+                        :label="item.label"
+                        :value="Number(item.value)"
+                      />
+                    </el-select>
+                    <el-button type="primary" plain @click="addApprover">{{
+                      t("system.workflow.definition.action.add_approver")
+                    }}</el-button>
+                  </div>
+                  <el-table :data="selectedNode.approvers" size="small">
+                    <el-table-column :label="t('system.workflow.definition.field.approver_target')" min-width="130">
+                      <template #default="{ row }">
+                        <div>{{ approverLabel(row) }}</div>
+                        <el-text tag="small" class="definition-hint">{{
+                          t(`system.workflow.definition.approver_type.${row.type}`)
+                        }}</el-text>
+                      </template>
+                    </el-table-column>
+                    <el-table-column :label="t('common.field.operation')" width="64" align="center">
+                      <template #default="{ $index }">
+                        <el-button type="danger" link size="small" @click="selectedNode?.approvers?.splice($index, 1)">{{
+                          t("common.action.delete")
+                        }}</el-button>
+                      </template>
+                    </el-table-column>
+                  </el-table>
+                </template>
                 <el-collapse class="node-details">
                   <el-collapse-item :title="t('system.workflow.definition.section.advanced')" name="id">
                     <span class="definition-hint"
@@ -350,22 +272,7 @@
                 }}</el-button>
               </template>
               <template v-if="selectedEdge">
-                <el-form>
-                  <el-form-item :label="t('system.workflow.definition.field.edge_from')"
-                    ><el-input :model-value="selectedEdge.from" readonly
-                  /></el-form-item>
-                  <el-form-item :label="t('system.workflow.definition.field.edge_to')"
-                    ><el-input :model-value="selectedEdge.to" readonly
-                  /></el-form-item>
-                  <el-form-item :label="t('system.workflow.definition.field.edge_condition')">
-                    <el-input
-                      v-model="selectedEdge.condition"
-                      type="textarea"
-                      :rows="4"
-                      :placeholder="t('system.workflow.definition.placeholder.condition')"
-                    />
-                  </el-form-item>
-                </el-form>
+                <ProForm :model="selectedEdge" :fields="edgeFields" label-width="auto" />
                 <el-button type="danger" plain class="full-width" @click="removeSelectedEdge">{{
                   t("system.workflow.definition.action.remove_edge")
                 }}</el-button>
@@ -374,34 +281,10 @@
           </div>
         </div>
       </section>
-      <section v-show="activeStep === 3" class="definition-step-panel">
-        <div class="workflow-review">
-          <div class="workflow-review-header">
-            <div>
-              <el-text tag="h3">{{ t("system.workflow.definition.wizard.review") }}</el-text>
-              <el-text tag="p" class="definition-hint">{{ t("system.workflow.definition.wizard.review_hint") }}</el-text>
-            </div>
-            <el-tag v-if="stepStates.review === 'success'" type="success" effect="plain">
-              {{ t("system.workflow.definition.wizard.review_passed") }}
-            </el-tag>
-          </div>
-          <div class="workflow-review-list">
-            <div v-for="step in wizardSteps" :key="step.key" class="workflow-review-item">
-              <div>
-                <el-text tag="strong">{{ t(step.titleKey) }}</el-text>
-                <el-text tag="p" v-if="stepErrors[step.key]" class="workflow-review-error">{{ t(stepErrors[step.key]) }}</el-text>
-              </div>
-              <el-tag :type="stepTagType(stepStates[step.key])" effect="plain">
-                {{ t(`system.workflow.definition.wizard.status.${stepStates[step.key]}`) }}
-              </el-tag>
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
     <template #footer>
-      <div class="definition-footer-actions">
-        <el-button @click="visible = false">{{ t("common.action.cancel") }}</el-button>
+      <div class="dialog-footer">
+        <el-button :disabled="saving" @click="visible = false">{{ t("common.action.cancel") }}</el-button>
         <el-button v-if="activeStep > 0" :disabled="saving" @click="handlePrevious">
           {{ t("system.workflow.definition.wizard.previous") }}
         </el-button>
@@ -418,7 +301,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, reactive, ref, watch } from "vue";
-import type { FormInstance, FormRules } from "element-plus";
+import type { FormRules } from "element-plus";
 import { ArrowDown, ArrowUp, Delete } from "@element-plus/icons-vue";
 import { t } from "@liujitcn/kratos-admin-core";
 import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
@@ -426,12 +309,13 @@ import { defWorkflowDefinitionService } from "@liujitcn/kratos-admin-system/api/
 import { defBaseUserService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_user";
 import { defBaseRoleService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_role";
 import { defBasePostService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_post";
-import type { ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
+import type { ProFormField, ProFormInstance, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import {
   addGraphEdge,
   type ApproverDraft,
   formatGraphLayout,
   type GraphDraft,
+  type GraphHooks,
   type GraphNodeDraft,
   makeGraphNode,
   nodeTypeI18nKey,
@@ -457,6 +341,7 @@ import {
   type FormSchemaFieldType
 } from "./form-schema";
 import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
+import ProForm from "@liujitcn/kratos-admin-core/components/ProForm/index.vue";
 import WorkflowGraph from "./workflow-graph.vue";
 import ScriptSelect from "./script-select.vue";
 
@@ -468,10 +353,12 @@ const { currentTenantId } = useTenantScope();
 const visible = ref(false);
 const saving = ref(false);
 const isEdit = ref(false);
-const formRef = ref<FormInstance>();
+const formRef = ref<ProFormInstance>();
 const graphRef = ref<InstanceType<typeof WorkflowGraph>>();
 const activeStep = ref(0);
 const terminalHooks = ["approved", "rejected", "withdrawn"] as const;
+// 流程编码、表单标识和表达式沿用原始输入交给现有校验。
+const untrimmedInput = { modelModifiers: { trim: false } };
 
 const wizardSteps = WORKFLOW_WIZARD_STEP_KEYS.map(key => ({
   key,
@@ -485,10 +372,8 @@ const lastStepIndex = wizardSteps.length - 1;
 const stepStates = reactive<Record<WorkflowWizardStepKey, WorkflowWizardStepStatus>>({
   basic: "pending",
   form: "pending",
-  graph: "pending",
-  review: "pending"
+  graph: "pending"
 });
-const stepErrors = reactive<Record<WorkflowWizardStepKey, string>>({ basic: "", form: "", graph: "", review: "" });
 
 const formData = reactive({
   /** 流程定义ID。 */
@@ -504,8 +389,8 @@ const formData = reactive({
 });
 
 const draft = reactive<GraphDraft>({ version: 2, nodes: [], edges: [] });
-const formSchemaText = ref("");
 const formFields = ref<FormSchemaField[]>([]);
+const formSchemaText = computed(() => serializeFormSchema(formFields.value));
 const formSchemaLoadError = ref(false);
 const selectedNodeId = ref("");
 const selectedEdgeIndex = ref(-1);
@@ -552,6 +437,114 @@ const formRules = computed<FormRules>(() => ({
     { max: 500, message: t("common.validation.max_length", { field: t("common.field.remark"), max: 500 }), trigger: "blur" }
   ]
 }));
+const basicFields = computed<ProFormField[]>(() => [
+  {
+    prop: "name",
+    label: t("system.workflow.definition.field.name"),
+    component: "input",
+    props: {
+      ...untrimmedInput,
+      placeholder: t("common.validation.required_input", { field: t("system.workflow.definition.field.name") })
+    }
+  },
+  {
+    prop: "code",
+    label: t("system.workflow.definition.field.code"),
+    component: "input",
+    colSpan: 16,
+    props: { ...untrimmedInput, disabled: isEdit.value }
+  },
+  {
+    prop: "version",
+    label: t("system.workflow.definition.field.version"),
+    component: "input-number",
+    colSpan: 8,
+    props: { min: 1, precision: 0, step: 1, controlsPosition: "right", disabled: isEdit.value, style: { width: "100%" } }
+  },
+  {
+    prop: "remark",
+    label: t("common.field.remark"),
+    component: "textarea",
+    props: { ...untrimmedInput, rows: 4, placeholder: t("common.placeholder.remark") }
+  }
+]);
+const fieldEditorFields = computed<ProFormField[]>(() => [
+  {
+    prop: "key",
+    label: t("system.workflow.definition.form_builder.key"),
+    component: "input",
+    props: { ...untrimmedInput, placeholder: t("system.workflow.definition.form_builder.key_placeholder") }
+  },
+  {
+    prop: "label",
+    label: t("system.workflow.definition.form_builder.label"),
+    component: "input",
+    props: { ...untrimmedInput, placeholder: t("system.workflow.definition.form_builder.label_placeholder") }
+  },
+  {
+    prop: "type",
+    label: t("system.workflow.definition.form_builder.type"),
+    component: "select",
+    options: formFieldTypes.map(item => ({ value: item.type, label: t(item.labelKey) }))
+  },
+  { prop: "required", label: t("system.workflow.definition.form_builder.required"), component: "switch" },
+  {
+    prop: "options",
+    label: t("system.workflow.definition.form_builder.options"),
+    component: "input",
+    visible: field => field.type === "select",
+    props: { ...untrimmedInput, placeholder: t("system.workflow.definition.form_builder.options_placeholder") }
+  }
+]);
+const nodeFields = computed<ProFormField[]>(() => [
+  { prop: "type", label: t("system.workflow.definition.field.node_type"), component: "slot" },
+  ...["before_submit", ...terminalHooks].map<ProFormField>(hook => ({
+    prop: hook,
+    label: t("system.workflow.script." + hook),
+    component: "slot",
+    slotName: "hook",
+    visible: node => node.type === (hook === "before_submit" ? "START" : "END")
+  })),
+  {
+    prop: "script_id",
+    label: t("system.workflow.script.script"),
+    component: "slot",
+    visible: node => node.type === "SCRIPT"
+  },
+  {
+    prop: "approver_mode",
+    label: t("system.workflow.script.approver_mode"),
+    component: "slot",
+    visible: node => node.type === "TASK"
+  },
+  {
+    prop: "approver_script_id",
+    label: t("system.workflow.script.approver"),
+    component: "slot",
+    visible: node => node.type === "TASK" && node.approver_script_id !== undefined
+  },
+  {
+    prop: "strategy",
+    label: t("system.workflow.definition.field.strategy"),
+    component: "radio-group",
+    options: [
+      { value: "ALL", label: t("system.workflow.definition.strategy.all") },
+      { value: "ANY", label: t("system.workflow.definition.strategy.any") }
+    ],
+    props: { class: "strategy-options" },
+    visible: node => node.type === "TASK"
+  }
+]);
+const edgeFields = computed<ProFormField[]>(() => [
+  { prop: "from", label: t("system.workflow.definition.field.edge_from"), component: "input", props: { readonly: true } },
+  { prop: "to", label: t("system.workflow.definition.field.edge_to"), component: "input", props: { readonly: true } },
+  {
+    prop: "condition",
+    label: t("system.workflow.definition.field.edge_condition"),
+    component: "textarea",
+    props: { ...untrimmedInput, rows: 4, placeholder: t("system.workflow.definition.placeholder.condition") }
+  }
+]);
 
 const selectedNode = computed<GraphNodeDraft | undefined>(() => draft.nodes.find(node => node.id === selectedNodeId.value));
 const selectedEdge = computed(() => draft.edges[selectedEdgeIndex.value]);
@@ -562,43 +555,32 @@ watch(activeStep, async step => {
   graphRef.value?.fitGraph();
 });
 
-watch(formData, () => invalidateStep("basic"), { deep: true });
 watch(
-  formFields,
-  fields => {
-    formSchemaText.value = serializeFormSchema(fields);
-    invalidateStep("form");
+  formData,
+  () => {
+    stepStates.basic = "pending";
   },
   { deep: true }
 );
-watch(formSchemaText, () => invalidateStep("form"));
-watch(draft, () => invalidateStep("graph"), { deep: true });
+watch(
+  formFields,
+  () => {
+    stepStates.form = "pending";
+  },
+  { deep: true }
+);
+watch(
+  draft,
+  () => {
+    stepStates.graph = "pending";
+  },
+  { deep: true }
+);
 
 /** 弹窗打开后在流程图步骤重新计算画布尺寸。 */
 async function handleOpened() {
   await nextTick();
   if (activeStep.value === 2) graphRef.value?.fitGraph();
-}
-
-/** 获取步骤头的 Element Plus 展示状态。 */
-function getStepStatus(index: number) {
-  const key = wizardSteps[index]?.key ?? "review";
-  return getWorkflowWizardStepStatus(index, activeStep.value, stepStates[key]);
-}
-
-/** 获取发布检查摘要中的标签类型。 */
-function stepTagType(status: WorkflowWizardStepStatus): "success" | "danger" | "info" {
-  if (status === "success") return "success";
-  if (status === "error") return "danger";
-  return "info";
-}
-
-/** 修改前置配置后使当前步骤和最终检查回到待检查状态。 */
-function invalidateStep(step: Exclude<WorkflowWizardStepKey, "review">) {
-  stepStates[step] = "pending";
-  stepErrors[step] = "";
-  stepStates.review = "pending";
-  stepErrors.review = "";
 }
 
 /** 起止节点不可删除。 */
@@ -633,7 +615,6 @@ async function open(id?: number) {
     formData.code = form.code;
     formData.version = form.version;
     formData.remark = form.remark;
-    formSchemaText.value = form.form_schema;
     try {
       formFields.value = parseFormSchema(form.form_schema);
       formSchemaLoadError.value = false;
@@ -675,12 +656,10 @@ function resetState() {
   formData.version = 1;
   formData.remark = "";
   formFields.value = [];
-  formSchemaText.value = serializeFormSchema(formFields.value);
   formSchemaLoadError.value = false;
   activeStep.value = 0;
   for (const key of WORKFLOW_WIZARD_STEP_KEYS) {
     stepStates[key] = "pending";
-    stepErrors[key] = "";
   }
   selectedNodeId.value = "";
   selectedEdgeIndex.value = -1;
@@ -800,50 +779,45 @@ function moveFormField(index: number, offset: -1 | 1) {
 }
 
 /** 校验单个向导步骤并记录状态。 */
-async function validateStep(step: Exclude<WorkflowWizardStepKey, "review">): Promise<boolean> {
+async function validateStep(step: WorkflowWizardStepKey): Promise<boolean> {
   let valid = true;
   let errorKey = "";
   if (step === "basic") {
-    valid = formRef.value ? await formRef.value.validate().catch(() => false) : false;
+    valid = Boolean(await formRef.value?.validate());
   } else if (step === "form") {
     errorKey = formSchemaLoadError.value
       ? "system.workflow.definition.error.form_schema_json"
       : validateFormSchema(formFields.value);
     valid = !errorKey;
-    formSchemaText.value = serializeFormSchema(formFields.value);
   } else {
     errorKey = validateGraphDraft(draft);
     valid = !errorKey;
   }
   stepStates[step] = valid ? "success" : "error";
-  stepErrors[step] = errorKey;
-  stepStates.review = "pending";
-  stepErrors.review = "";
   if (!valid && errorKey) ElMessage.error(t(errorKey));
   return valid;
 }
 
-/** 重新校验前三个步骤，失败时回到首个错误步骤。 */
+/** 保存前重新校验各步骤，失败时回到首个错误步骤。 */
 async function validateAllSteps(): Promise<boolean> {
-  for (const step of ["basic", "form", "graph"] as const) {
+  for (const step of WORKFLOW_WIZARD_STEP_KEYS) {
     if (!(await validateStep(step))) {
-      activeStep.value = wizardSteps.findIndex(item => item.key === step);
+      activeStep.value = WORKFLOW_WIZARD_STEP_KEYS.indexOf(step);
       return false;
     }
   }
-  stepStates.review = "success";
-  stepErrors.review = "";
   return true;
 }
 
-/** 向导前进，编辑态必须先通过当前步骤校验。 */
+/** 当前步骤校验通过后进入下一步。 */
 async function handleNext() {
-  if (activeStep.value >= lastStepIndex) return;
-  const step = wizardSteps[activeStep.value]?.key;
-  if (!step || step === "review") return;
-  if (!(await validateStep(step)) || !canAdvanceWorkflowWizard(activeStep.value, stepStates[step])) return;
-  activeStep.value += 1;
-  if (activeStep.value === lastStepIndex) await validateAllSteps();
+  const currentStep = activeStep.value;
+  if (currentStep >= lastStepIndex) return;
+  const step = WORKFLOW_WIZARD_STEP_KEYS[currentStep];
+  await validateStep(step);
+  if (activeStep.value === currentStep && canAdvanceWorkflowWizard(currentStep, stepStates[step])) {
+    activeStep.value = currentStep + 1;
+  }
 }
 
 /** 向导返回上一步，不清除已填写草稿。 */
@@ -853,21 +827,18 @@ function handlePrevious() {
 
 /** 校验并保存所有步骤共用的流程草稿。 */
 async function handleSave() {
-  if (!(await validateAllSteps())) return;
+  if (saving.value) return;
   saving.value = true;
-  formatGraphLayout(draft);
-  const request = {
-    definition: {
-      id: formData.id,
-      name: formData.name,
-      code: formData.code,
-      version: formData.version,
-      remark: formData.remark,
-      node_config: serializeGraph(draft),
-      form_schema: serializeFormSchema(formFields.value)
-    }
-  };
   try {
+    if (!(await validateAllSteps())) return;
+    formatGraphLayout(draft);
+    const request = {
+      definition: {
+        ...formData,
+        node_config: serializeGraph(draft),
+        form_schema: formSchemaText.value
+      }
+    };
     if (formData.id) await defWorkflowDefinitionService.UpdateWorkflowDefinition(request);
     else await defWorkflowDefinitionService.CreateWorkflowDefinition(request);
     ElMessage.success(
@@ -890,68 +861,35 @@ function handleClosed() {
 </script>
 
 <style scoped lang="scss">
+:global(.workflow-definition-dialog.el-dialog) {
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - 32px);
+}
+
+:global(.workflow-definition-dialog__body) {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
 .definition-steps {
-  flex-shrink: 0;
-  margin: 0 8px 18px;
+  flex: none;
+  margin-bottom: 16px;
 }
 
 .definition-step-content {
-  height: min(640px, calc(100dvh - 220px));
+  flex: 1;
   min-height: 0;
-  overflow: hidden;
+  margin-inline: -10px;
 }
 
 .definition-step-panel {
+  box-sizing: border-box;
   height: 100%;
+  padding-inline: 10px;
   overflow: auto;
-}
-
-.workflow-review {
-  max-width: 820px;
-  padding: 24px;
-  margin: 0 auto;
-}
-
-.workflow-review-header,
-.workflow-review-item {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.workflow-review-header {
-  margin-bottom: 20px;
-
-  h3 {
-    margin: 0 0 8px;
-    color: var(--el-text-color-primary);
-    font-size: 16px;
-    font-weight: 600;
-  }
-}
-
-.workflow-review-list {
-  display: grid;
-  gap: 10px;
-}
-
-.workflow-review-item {
-  padding: 14px 16px;
-  border: 1px solid var(--el-border-color-lighter);
-  border-radius: var(--admin-page-radius, 6px);
-}
-
-.workflow-review-error {
-  margin: 6px 0 0;
-  color: var(--el-color-danger);
-  font-size: 12px;
-}
-
-.definition-basic {
-  max-width: 760px;
-  padding: 20px 24px;
-  margin: 0 auto;
 }
 
 .definition-schema {
@@ -1132,8 +1070,9 @@ function handleClosed() {
   display: grid;
   flex: 1;
   grid-template-columns: minmax(0, 1fr) 320px;
+  grid-template-rows: minmax(0, 1fr);
   gap: 16px;
-  min-height: 0;
+  min-height: 300px;
 
   > .workflow-graph {
     height: 100%;
@@ -1154,7 +1093,7 @@ function handleClosed() {
     font-weight: 500;
   }
 }
-.strategy-options {
+.graph-properties :deep(.strategy-options) {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -1175,29 +1114,7 @@ function handleClosed() {
 .full-width {
   width: 100%;
 }
-.definition-footer-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
-}
-.definition-footer-actions .el-button + .el-button {
-  margin-left: 0;
-}
-
-@media (max-width: 900px) {
-  .definition-step-content {
-    height: auto;
-    min-height: 480px;
-    overflow: visible;
-  }
-  .definition-step-panel {
-    height: auto;
-    overflow: visible;
-  }
-  .definition-basic {
-    padding: 12px 4px;
-  }
+@media (width <= 900px) {
   .form-builder {
     display: flex;
     flex-direction: column;

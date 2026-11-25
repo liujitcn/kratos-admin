@@ -27,7 +27,7 @@ describe("rag module smoke", () => {
     const uploads: unknown[] = [];
     const handleDocFileChange = new Function(
       "MAX_FILE_SIZE",
-      "docsDrawer",
+      "docsDialog",
       "docFileInputRef",
       "ElMessage",
       "t",

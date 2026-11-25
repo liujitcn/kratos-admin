@@ -13,14 +13,14 @@
     "
     class="ai-shortcut-dialog"
     body-class="ai-shortcut-dialog__body"
-    width="960px"
+    width="1280px"
     align-center
     destroy-on-close
     :close-on-click-modal="false"
     :close-on-press-escape="!saving"
     @closed="reset"
   >
-    <el-steps :active="activeStep" finish-status="success" align-center class="shortcut-steps">
+    <el-steps :active="activeStep" finish-status="success" simple class="shortcut-steps">
       <el-step
         v-for="(key, index) in stepKeys"
         :key="key"
@@ -563,7 +563,7 @@ defineExpose({ open });
 :global(.ai-shortcut-dialog.el-dialog) {
   display: flex;
   flex-direction: column;
-  height: min(640px, calc(100dvh - 32px));
+  height: calc(100dvh - 32px);
 }
 :global(.ai-shortcut-dialog__body) {
   display: flex;
