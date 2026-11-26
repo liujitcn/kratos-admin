@@ -14,7 +14,6 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/automation"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	"github.com/liujitcn/kratos-admin/backend/pkg/agent"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -600,11 +599,10 @@ func (c *AiAutomationCase) claimAutomationApproval(ctx context.Context, session 
 	return run, nil
 }
 
-// bindAutomationApproval 为已领取的确认续租，并在真实工具边界重新核实取消标记。
+// bindAutomationApproval 为已领取的确认续租并绑定执行标识。
 func (c *AiAutomationCase) bindAutomationApproval(ctx context.Context, run *models.AiAutomationRun) (context.Context, context.CancelFunc) {
 	ctx, cancel := context.WithTimeout(ctx, 8*time.Minute)
 	ctx = automation.ContextWithExecution(ctx, automation.Execution{RunID: run.ID, LeaseVersion: run.LeaseVersion})
-	ctx = agent.ContextWithToolExecutionObserver(ctx, c.automationToolObserver(run))
 	go c.heartbeatAutomation(ctx, run, cancel, ctx.Done())
 	return ctx, cancel
 }

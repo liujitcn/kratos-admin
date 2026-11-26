@@ -155,8 +155,12 @@ func TestBiCardMetricGridValidation(t *testing.T) {
 }
 
 // newBiWorkflowTestCases 使用真实仓储验证卡片、仪表盘和工作台闭环。
-func newBiWorkflowTestCases(t *testing.T) (*BiCardCase, *BiDashboardCase) {
+func newBiWorkflowTestCases(t *testing.T, modelReplies ...string) (*BiCardCase, *BiDashboardCase) {
 	t.Helper()
+	modelReply := `{"query":{"source_code":"test","measures":[{"code":"count"}],"limit":100},"chart_type":"metric","title":"用户数"}`
+	if len(modelReplies) > 0 {
+		modelReply = modelReplies[0]
+	}
 	driver.Opens["bi-workflow-sqlite"] = sqlite.Open
 	modelList := []any{&models.BiCard{}, &models.BiWorkbench{}, &models.BiQuery{}, &models.BiDashboard{}, &models.BiDashboardVersion{}, &models.BiSource{}, &models.BaseUser{}}
 	client, cleanup, err := databaseGorm.NewGormClient(&configv1.Data_Database{Driver: "bi-workflow-sqlite", Source: filepath.Join(t.TempDir(), "workflow.db")}, databaseGorm.WithMigrateModels(modelList...))
@@ -191,7 +195,7 @@ func newBiWorkflowTestCases(t *testing.T) (*BiCardCase, *BiDashboardCase) {
 	t.Cleanup(func() { securityconfig.Set(securityconfig.Default()) })
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, request *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		encodeErr := json.NewEncoder(w).Encode(map[string]any{"choices": []any{map[string]any{"message": map[string]any{"role": "assistant", "content": `{"query":{"source_code":"test","measures":[{"code":"count"}],"limit":100},"chart_type":"metric","title":"用户数"}`}, "finish_reason": "stop"}}})
+		encodeErr := json.NewEncoder(w).Encode(map[string]any{"choices": []any{map[string]any{"message": map[string]any{"role": "assistant", "content": modelReply}, "finish_reason": "stop"}}})
 		if encodeErr != nil {
 			t.Error(encodeErr)
 		}

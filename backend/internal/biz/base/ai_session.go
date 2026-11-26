@@ -10,6 +10,7 @@ import (
 	"github.com/go-kratos/kratos/v3/log"
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
@@ -165,6 +166,7 @@ func (c *AiSessionCase) CreateAiSessionBranch(ctx context.Context, req *basev1.C
 	opts = append(opts, repository.Where(query.TenantID.Eq(sourceSession.TenantID)))
 	opts = append(opts, repository.Where(query.SessionID.Eq(sourceSession.ID)))
 	opts = append(opts, repository.Where(query.UserID.Eq(sourceSession.UserID)))
+	opts = append(opts, repository.Where(query.Status.Eq(int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_SUCCESS))))
 	var anchorMessage *models.AiMessage
 	anchorMessage, err = c.aiMessageRepo.Find(ctx, opts...)
 	if err != nil {
@@ -214,11 +216,24 @@ func (c *AiSessionCase) CreateAiSessionBranch(ctx context.Context, req *basev1.C
 			return err
 		}
 		for _, item := range sourceMessages {
+			if item.CreatedAt.Equal(anchorMessage.CreatedAt) && item.ID > anchorMessage.ID {
+				break
+			}
+			input := ai.ParseInputContent(item.InputContent)
+			input.BranchOrigin = nil
+			if item.ID == anchorMessage.ID {
+				excerpt := []rune(ai.ParseOutputContent(item.OutputContent).Content)
+				input.BranchOrigin = &dto.AiBranchOriginBlock{
+					Type:    "branch_origin",
+					Title:   sourceSession.Title,
+					Excerpt: string(excerpt[:min(160, len(excerpt))]),
+				}
+			}
 			branchMessage := &models.AiMessage{
 				TenantID:      branchSession.TenantID,
 				SessionID:     branchSession.ID,
 				UserID:        branchSession.UserID,
-				InputContent:  item.InputContent,
+				InputContent:  ai.MarshalInputContentPayload(input),
 				OutputContent: item.OutputContent,
 				Attachments:   item.Attachments,
 				Tools:         item.Tools,

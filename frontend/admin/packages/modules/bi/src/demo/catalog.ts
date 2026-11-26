@@ -5,6 +5,38 @@ const chartExample = () => import("./ChartExample.vue");
 const dashboardExample = () => import("./DashboardExample.vue");
 const docs: Omit<AdminComponentDoc, "owner" | "group" | "api">[] = [
   {
+    id: "BiCardTitleTooltip",
+    label: "BI 卡片标题提示",
+    file: "BiCardTitleTooltip.vue",
+    description: "为截断的 BI 卡片标题显示完整名称。",
+    usage: "title 提供完整名称，默认插槽放置触发元素。",
+    code: `<script setup lang="ts">
+import BiCardTitleTooltip from "../components/BiCardTitleTooltip.vue";
+</script>
+
+<template>
+  <BiCardTitleTooltip title="本月销售趋势"><span>本月销售趋势</span></BiCardTitleTooltip>
+</template>`,
+    related: ["BiDataCard"]
+  },
+  {
+    id: "BiChatBlocks",
+    label: "BI 聊天结果",
+    file: "BiChatBlocks.vue",
+    description: "展示按指标澄清、无数据、权限限制和问数结果，支持导出与建卡。",
+    usage: "BI 模块将组件注册为聊天流程块渲染器。message 包含业务块，activeFlowMessageId 确定可以继续问数的消息。导出读取该记录的结果快照。",
+    code: `<script setup lang="ts">
+import BiChatBlocks from "../components/BiChatBlocks.vue";
+
+const props = defineProps<InstanceType<typeof BiChatBlocks>["$props"]>();
+</script>
+
+<template>
+  <BiChatBlocks v-bind="props" />
+</template>`,
+    related: ["ChatPanel", "BiAssistantWorkbench"]
+  },
+  {
     id: "BiAssistantCardZone",
     label: "BI 助手卡片分区",
     file: "BiAssistantCardZone.vue",

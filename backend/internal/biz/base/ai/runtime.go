@@ -3,7 +3,10 @@ package ai
 import (
 	"context"
 	"errors"
+	"fmt"
+	"sync/atomic"
 
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/callback"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
 	"github.com/liujitcn/kratos-admin/backend/internal/data"
 	"github.com/liujitcn/kratos-admin/backend/pkg/agent"
@@ -78,6 +81,60 @@ func (r *Runtime) SelectModel(providerID int64, modelName string) (model.ModelOp
 		}
 	}
 	return model.ModelOption{}, errors.New("AI供应商或模型未启用")
+}
+
+// RunChat 在管理端普通对话首次输出正文或执行工具前，允许对暂时不可用的模型切换一次。
+func (r *Runtime) RunChat(ctx context.Context, input RuntimeInput, onDelta func(string)) (*Response, error) {
+	options := r.ModelOptions()
+	if input.ProviderID == 0 && input.ModelName == "" && len(options) > 0 {
+		input.ProviderID, input.ModelName = options[0].ProviderID, options[0].ModelName
+	}
+	var started atomic.Bool
+	ctx = agent.ContextWithToolExecutionObserver(ctx, agent.ToolExecutionObserver{
+		Before: func(context.Context, string) error {
+			started.Store(true)
+			return nil
+		},
+	})
+	run := r.Run
+	if onDelta != nil {
+		run = func(ctx context.Context, input RuntimeInput) (*Response, error) {
+			return r.RunStream(ctx, input, func(delta string) {
+				started.Store(true)
+				onDelta(delta)
+			})
+		}
+	}
+	primary, err := run(ctx, input)
+	if err == nil || started.Load() || ctx.Err() != nil || primary != nil && (primary.Pending != nil || len(primary.Tools) > 0) {
+		return primary, err
+	}
+	status := model.UnavailableProviderStatus(err)
+	if status == 0 {
+		return primary, err
+	}
+	for _, option := range options {
+		if option.ProviderID == input.ProviderID && option.ModelName == input.ModelName {
+			continue
+		}
+		primaryErr := err
+		input.ProviderID, input.ModelName = option.ProviderID, option.ModelName
+		var reply *Response
+		reply, err = run(ctx, input)
+		if reply == nil {
+			return primary, errors.Join(primaryErr, err)
+		}
+		if primary != nil {
+			reply.Token = TokenUsage(callback.MergeToken(callback.TokenUsage(reply.Token), callback.TokenUsage(primary.Token)))
+		}
+		if err != nil {
+			return reply, errors.Join(primaryErr, err)
+		}
+		reply.Fallback = true
+		reply.FallbackReason = fmt.Sprintf("HTTP %d", status)
+		return reply, nil
+	}
+	return primary, err
 }
 
 // SelectedModelName 返回供应商和模型对应的展示名称。

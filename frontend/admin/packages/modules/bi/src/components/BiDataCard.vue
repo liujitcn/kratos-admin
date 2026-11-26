@@ -83,6 +83,7 @@ import { Download, ZoomIn } from "@element-plus/icons-vue";
 import { t } from "@liujitcn/kratos-admin-core";
 import BiCardTitleTooltip from "./BiCardTitleTooltip.vue";
 import BiCardVisualization from "./BiCardVisualization.vue";
+import { downloadBiCsv } from "../bi-csv";
 import { cardRefreshDelay } from "../card-schema";
 import { describeBiTimeRange } from "../query-summary";
 import { defBiCardService } from "../api/bi/admin/v1/bi_card";
@@ -182,18 +183,7 @@ function stop() {
 function exportResult() {
   const current = data.value;
   if (!current) return;
-  const csv = [
-    (current.columns || []).map(item => '"' + String(item.name || item.code || "").replaceAll('"', '""') + '"'),
-    ...(current.rows || []).map(row => (row.values || []).map(value => '"' + String(value ?? "").replaceAll('"', '""') + '"'))
-  ]
-    .map(row => row.join(","))
-    .join("\n");
-  const url = URL.createObjectURL(new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" }));
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = props.card.name + ".csv";
-  link.click();
-  URL.revokeObjectURL(url);
+  downloadBiCsv(current, props.card.name);
   ElMessage.success(t("bi.card.export_success", { name: props.card.name }));
 }
 watch(

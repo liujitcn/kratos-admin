@@ -20,12 +20,12 @@ function normalizeRoutePath(path?: string, parentPath = "") {
   return `/${pathSegments.join("/")}`;
 }
 
-/** 递归规范化菜单树，并根据 AI 模型可用状态控制会话菜单显隐。 */
+/** 递归规范化菜单树，并根据 AI 模型可用状态控制 BI 问数菜单显隐。 */
 function normalizeRouteTree(menuList: RouteItem[], parentPath = "", aiEnabled = false): RouteItem[] {
   return menuList.map(item => {
     const currentPath = normalizeRoutePath(item.path, parentPath);
     const meta =
-      item.name === "AiChat" || item.name === "BiAssistant"
+      item.name === "BiAssistant"
         ? {
             ...item.meta,
             params: item.meta?.params ?? [],

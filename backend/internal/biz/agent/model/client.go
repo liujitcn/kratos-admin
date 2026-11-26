@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"mime"
+	"net/http"
 	"path"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/securityconfig"
 	"github.com/liujitcn/kratos-kit/ai/eino"
 	modelconfig "github.com/liujitcn/kratos-kit/ai/model"
+	chatopenai "github.com/meguminnnnnnnnn/go-openai"
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/option"
 )
@@ -152,6 +154,22 @@ func (c *AssistantClient) APIType() modelconfig.APIType {
 // SupportsResponsesServerTools 判断当前协议是否支持 Responses 服务端工具。
 func (c *AssistantClient) SupportsResponsesServerTools() bool {
 	return c != nil && c.apiType == modelconfig.APITypeResponses
+}
+
+// UnavailableProviderStatus 返回模型供应商可切换的 HTTP 错误码，业务校验和工具错误由调用侧处理。
+func UnavailableProviderStatus(cause error) int {
+	var status int
+	if apiError, ok := errors.AsType[*openai.Error](cause); ok {
+		status = apiError.StatusCode
+	} else if apiError, ok := errors.AsType[*chatopenai.APIError](cause); ok {
+		status = apiError.HTTPStatusCode
+	} else if requestError, ok := errors.AsType[*chatopenai.RequestError](cause); ok {
+		status = requestError.HTTPStatusCode
+	}
+	if status == http.StatusRequestTimeout || status == http.StatusTooManyRequests || status >= 500 && status < 600 {
+		return status
+	}
+	return 0
 }
 
 // SupportsFileUpload 判断当前客户端是否支持临时上传供应商文件。

@@ -23,7 +23,7 @@ pnpm add @liujitcn/kratos-admin-core @liujitcn/kratos-admin-system @liujitcn/kra
 
 模块依赖 `@liujitcn/kratos-admin-core` 和 `@liujitcn/kratos-admin-system`。宿主需使用 core 的 Vite 配置扫描模块页面，并连接提供 BI API、菜单和权限的 kratos-admin 后端。
 
-通过 System 的 `AdminAiExtension.biCardDialog` 提供助手问数建卡弹窗，按需加载现有卡片表单。数据源与来源记录由 BI 请求封装读取，卡片表单统一补齐 HTTP 省略的查询集合；普通预览与仪表盘执行记录不作为智能问数的复用来源。
+BI 通过 System 的 `AdminAiExtension.flowBlockRenderers` 展示问数预览、指标澄清、空结果和权限提示。选定指标后可编辑草稿再发送，生成数据卡片时加载现有表单。CSV 导出读取当前用户有权查看的查询记录快照，遇到临时失败时可单独重试导出。卡片表单统一补齐 HTTP 省略的查询集合，问数复用仅接受成功的智能问数记录。
 
 数据源模型可设置报表时区和部门的父子关系。智能问数结果和 AI 助手建卡弹窗共用分组调整组件。切换日期粒度、部门层级或时间范围后，使用服务端返回的新记录保存卡片。详见 [BI 与智能问数设计](../../../../../docs/BI与智能问数设计.md)。
 

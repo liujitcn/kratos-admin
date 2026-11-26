@@ -25,30 +25,35 @@
           <div v-if="!detail.list.length" class="ai-session-detail__empty">
             {{ t("system.ai.session.message.empty") }}
           </div>
-          <BubbleList v-else class="ai-session-detail__bubbles" :list="detailBubbles" max-height="52vh" :auto-scroll="false">
-            <template #content="{ item }">
-              <div class="ai-session-detail__bubble" :class="{ 'is-user': item.role === 'user' }">
-                <div
-                  v-if="item.role !== 'user'"
-                  class="ai-session-detail__message-meta"
-                >
+          <ol v-else class="ai-session-detail__messages">
+            <li v-for="item in detailTurns" :key="item.id" class="ai-session-detail__turn">
+              <div class="ai-session-detail__question">
+                <div class="ai-session-detail__content is-user">
+                  {{ item.input_content || t("system.ai.session.detail.no_content") }}
+                </div>
+                <AiAttachments v-if="item.uploadedAttachments.length" class="ai-session-detail__attachments" :files="item.uploadedAttachments" />
+              </div>
+              <div class="ai-session-detail__answer">
+                <div class="ai-session-detail__message-meta">
                   <el-tag :type="statusTagType(item.status)" size="small" effect="plain">{{ statusLabel(item.status) }}</el-tag>
                   <span v-if="item.model">{{ t("system.ai.session.field.model") }}：{{ item.model }}</span>
-                  <span>{{ t("system.ai.session.field.input_tokens") }}：{{ item.inputTokens }}</span>
-                  <span>{{ t("system.ai.session.field.output_tokens") }}：{{ item.outputTokens }}</span>
-                  <span>{{ t("system.ai.session.field.total_tokens") }}：{{ item.totalTokens }}</span>
-                  <span>{{ t("common.field.created_at") }}：{{ item.createdAtText }}</span>
+                  <span>{{ t("system.ai.session.field.input_tokens") }}：{{ item.input_tokens }}</span>
+                  <span>{{ t("system.ai.session.field.output_tokens") }}：{{ item.output_tokens }}</span>
+                  <span>{{ t("system.ai.session.field.total_tokens") }}：{{ item.total_tokens }}</span>
+                  <span>{{ t("common.field.created_at") }}：{{ item.created_at }}</span>
                 </div>
-                <div class="ai-session-detail__content" :class="{ 'is-user': item.role === 'user' }">
-                  <AiMarkdown v-if="item.role !== 'user'" :content="item.content" />
-                  <span v-else>{{ item.content || t("system.ai.session.detail.no_content") }}</span>
+                <div class="ai-session-detail__content">
+                  <AiMarkdown :content="item.output_content || ''" />
                 </div>
-                <div v-if="item.attachments?.length" class="ai-session-detail__attachments">
-                  <Attachments :items="buildMessageAttachmentItems(item.attachments)" overflow="wrap" :hide-upload="true" />
-                </div>
+                <AiAttachments
+                  v-if="item.generatedAttachments.length"
+                  class="ai-session-detail__attachments"
+                  :files="item.generatedAttachments"
+                  generated
+                />
               </div>
-            </template>
-          </BubbleList>
+            </li>
+          </ol>
         </div>
 
         <el-pagination
@@ -93,8 +98,6 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from "vue";
 import { DataAnalysis, View } from "@element-plus/icons-vue";
-import { Attachments, BubbleList } from "vue-element-plus-x";
-import type { FilesCardProps } from "vue-element-plus-x/types/FilesCard";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import type { ColumnProps, EnumProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
@@ -106,27 +109,15 @@ import type { AiSessionMessageRecord, AiSessionRecord, PageAiSessionRequest } fr
 import type { AiAttachment } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import { AiMessageStatus } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import { Terminal } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
+import AiAttachments from "../chat/components/AiAttachments.vue";
 import AiMarkdown from "../chat/components/AiMarkdown.vue";
-import { buildAIAttachmentFileCard } from "../chat/attachment";
-import type { ChatMessageItem } from "../chat/types";
+import { isAIGeneratedAttachment } from "../chat/attachment";
 
 defineOptions({ name: "AiSession", inheritAttrs: false });
 
 const PAGE_SIZE = 20;
 const MAX_USAGE_MESSAGES = 2000;
 const USAGE_PAGE_SIZE = 100;
-
-/** 会话详情气泡展示项，在聊天气泡基础上补充管理端展示信息。 */
-interface DetailBubbleItem extends ChatMessageItem {
-  /** 创建时间文本。 */
-  createdAtText?: string;
-  /** 输入 Token 数。 */
-  inputTokens?: number;
-  /** 输出 Token 数。 */
-  outputTokens?: number;
-  /** 总 Token 数。 */
-  totalTokens?: number;
-}
 
 const { BUTTONS } = useAuthButtons();
 const table = ref<ProTableInstance>();
@@ -190,38 +181,15 @@ const columns = computed<ColumnProps[]>(() => [
   }
 ]);
 
-/** 详情抽屉内按聊天窗口结构拆分的提问与回复气泡。 */
-const detailBubbles = computed<DetailBubbleItem[]>(() =>
-  detail.list.flatMap(message => {
-    const attachments = (message.attachments ?? []).map(item => ({
-      id: "",
-      name: item.name,
-      size: item.size,
-      url: item.url,
-      mime_type: item.mime_type
-    })) as AiAttachment[];
-    const question: DetailBubbleItem = {
-      key: `question-${message.id}`,
-      role: "user",
-      kind: "text",
-      content: String(message.input_content ?? ""),
-      placement: "end",
-      attachments: attachments
-    } as DetailBubbleItem;
-    const answer: DetailBubbleItem = {
-      key: `answer-${message.id}`,
-      role: "ai",
-      kind: "text",
-      content: String(message.output_content ?? ""),
-      placement: "start",
-      model: message.model,
-      status: message.status,
-      createdAtText: message.created_at,
-      inputTokens: message.input_tokens,
-      outputTokens: message.output_tokens,
-      totalTokens: message.total_tokens
-    } as DetailBubbleItem;
-    return [question, answer];
+/** 用消息记录展示一轮问答，分别呈现输入附件与回复生成的文件。 */
+const detailTurns = computed(() =>
+  detail.list.map(message => {
+    const attachments: AiAttachment[] = (message.attachments ?? []).map(item => ({ ...item, id: item.url }));
+    return {
+      ...message,
+      uploadedAttachments: attachments.filter(file => !isAIGeneratedAttachment(file)),
+      generatedAttachments: attachments.filter(isAIGeneratedAttachment)
+    };
   })
 );
 
@@ -269,11 +237,6 @@ function statusTagType(status?: AiMessageStatus): "success" | "danger" | "warnin
     default:
       return "info";
   }
-}
-
-/** 构建消息附件卡片，与聊天窗口一致。 */
-function buildMessageAttachmentItems(attachments: AiAttachment[]): FilesCardProps[] {
-  return attachments.map(attachment => buildAIAttachmentFileCard(attachment, { maxWidth: "240px" }));
 }
 
 /** 打开会话详情抽屉。 */
@@ -372,11 +335,34 @@ async function loadUsageMessages() {
   text-align: center;
 }
 
-.ai-session-detail__bubbles {
-  width: 100%;
+.ai-session-detail__messages {
+  display: grid;
+  gap: 20px;
+  max-height: 52vh;
+  padding: 0 4px 0 0;
+  margin: 0;
+  overflow: auto;
+  list-style: none;
+  scrollbar-width: thin;
 }
 
-.ai-session-detail__bubble {
+.ai-session-detail__turn {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.ai-session-detail__question {
+  justify-self: end;
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 90%;
+  padding: 8px 12px;
+  background: var(--el-fill-color-light);
+  border-radius: var(--admin-page-radius);
+}
+
+.ai-session-detail__answer {
   min-width: 0;
 }
 

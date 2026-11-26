@@ -3,16 +3,17 @@ package ai
 import (
 	"sync"
 
-	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/kratos-admin/backend/pkg/agent"
 )
 
-// ResponseBlockRule 描述一条“工具执行成功后注入结构化引导块”的规则。
+// ResponseBlockRule 描述一条按工具结果注入结构化引导块的规则。
 // 业务模块在初始化阶段注册自己的规则，避免在通用链路里硬编码业务工具名。
 type ResponseBlockRule struct {
 	// ToolName 是触发引导块的工具名，与 base_api 注册的工具名一致。
 	ToolName string
-	// Build 在工具执行成功时构建引导块；返回空切片表示本次不注入。
+	// IncludeErrors 允许按稳定失败原因构建展示块。
+	IncludeErrors bool
+	// Build 根据工具结果构建引导块；返回空切片表示本次不注入。
 	Build func(tool agent.ToolUsage) []map[string]any
 }
 
@@ -36,26 +37,14 @@ func buildResponseBlocks(tools []agent.ToolUsage) []map[string]any {
 	responseBlockRulesMu.RLock()
 	rules := append([]ResponseBlockRule(nil), responseBlockRules...)
 	responseBlockRulesMu.RUnlock()
-	log.Info("BI 引导块诊断", "rules", len(rules), "tools", len(tools))
-	blocks := make([]map[string]any, 0)
+	var blocks []map[string]any
 	for _, tool := range tools {
-		log.Info("BI 引导块诊断: tool", "name", tool.Name, "status", tool.Status, "output_len", len(tool.Output))
-		if tool.Status != "success" {
-			continue
-		}
 		for _, rule := range rules {
-			if rule.ToolName != tool.Name {
+			if rule.ToolName != tool.Name || (tool.Status != "success" && !(tool.Status == "error" && rule.IncludeErrors)) {
 				continue
 			}
-			if values := rule.Build(tool); len(values) > 0 {
-				log.Info("BI 引导块诊断: 注入成功")
-				blocks = append(blocks, values...)
-			}
+			blocks = append(blocks, rule.Build(tool)...)
 		}
-	}
-	if len(blocks) == 0 {
-		log.Info("BI 引导块诊断: 未注入")
-		return nil
 	}
 	return blocks
 }

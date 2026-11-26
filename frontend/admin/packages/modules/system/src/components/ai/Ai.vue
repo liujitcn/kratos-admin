@@ -25,8 +25,7 @@ const router = useRouter();
 const authStore = useAuthStore();
 const configStore = useConfigStore();
 const aiRoute = computed(() => {
-  if (!configStore.aiEnabled) return undefined;
-  const targetName = configStore.aiWorkbenchMode ? "BiAssistant" : "AiChat";
+  const targetName = configStore.aiEnabled && configStore.aiWorkbenchMode ? "BiAssistant" : "AiChat";
   return (
     authStore.flatMenuListGet.find(item => item.name === targetName && item.path) ??
     authStore.flatMenuListGet.find(item => item.name === "AiChat" && item.path)

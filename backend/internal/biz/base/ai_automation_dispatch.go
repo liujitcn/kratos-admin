@@ -263,34 +263,39 @@ func (c *AiAutomationCase) cancelIdleAutomationRun(ctx context.Context, row *mod
 	if result.RowsAffected != 1 {
 		return errorsx.Conflict("执行状态已变化，请刷新后重试")
 	}
-	if run.SessionID > 0 {
-		approvals := c.aiMessageCase.aiApprovalRepo.Query(ctx).AiToolApproval
-		_, err = approvals.WithContext(ctx).Where(approvals.SessionID.Eq(run.SessionID), approvals.Status.In(aiRunRunning, aiRunPending)).UpdateSimple(approvals.Status.Value(aiRunRejected), approvals.CheckpointData.Value([]byte{}))
-		if err != nil {
-			return err
-		}
-		messages := c.aiMessageCase.aiMessageRepo.Query(ctx).AiMessage
-		_, err = messages.WithContext(ctx).Where(messages.SessionID.Eq(run.SessionID), messages.Status.In(1, 4)).UpdateSimple(messages.Status.Value(3))
-		if err != nil {
-			return err
-		}
+	if err = c.closeAutomationMessages(ctx, run, "本次执行已停止"); err != nil {
+		return err
 	}
 	plan := c.Query(ctx).AiAutomation
 	_, err = plan.WithContext(ctx).Where(plan.ID.Eq(row.ID), plan.ActiveRunID.Eq(run.ID)).UpdateSimple(plan.ActiveRunID.Value(0))
 	return err
 }
 
-// closeAutomationMessages 在终态事务中作废残余许可，保留已提交的成功结果及工具审计。
+// closeAutomationMessages 在终态事务中作废残余许可，保留已提交的结果和进行中的审批记录。
 func (c *AiAutomationCase) closeAutomationMessages(ctx context.Context, run *models.AiAutomationRun, summary string) error {
 	if run.SessionID <= 0 {
 		return nil
 	}
 	approvals := c.aiMessageCase.aiApprovalRepo.Query(ctx).AiToolApproval
-	_, err := approvals.WithContext(ctx).Where(approvals.SessionID.Eq(run.SessionID), approvals.Status.In(aiRunRunning, aiRunPending)).UpdateSimple(approvals.Status.Value(aiRunExpired), approvals.CheckpointData.Value([]byte{}))
+	_, err := approvals.WithContext(ctx).Where(approvals.TenantID.Eq(run.TenantID), approvals.UserID.Eq(run.OwnerUserID), approvals.SessionID.Eq(run.SessionID), approvals.Status.In(aiRunRunning, aiRunPending)).UpdateSimple(approvals.Status.Value(aiRunExpired), approvals.CheckpointData.Value([]byte{}))
 	if err != nil {
 		return err
 	}
-	messages := c.aiMessageCase.aiMessageRepo.Query(ctx).AiMessage
-	_, err = messages.WithContext(ctx).Where(messages.SessionID.Eq(run.SessionID), messages.Status.In(1, 4)).UpdateSimple(messages.Status.Value(3), messages.OutputContent.Value(ai.MarshalReplyContent(&ai.Response{Content: summary})))
-	return err
+	query := c.aiMessageCase.aiMessageRepo.Query(ctx).AiMessage
+	active := []gen.Condition{query.TenantID.Eq(run.TenantID), query.UserID.Eq(run.OwnerUserID), query.SessionID.Eq(run.SessionID), query.Status.In(int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_GENERATING), int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_WAITING_APPROVAL))}
+	var messages []*models.AiMessage
+	messages, err = query.WithContext(ctx).Where(active...).Find()
+	if err != nil {
+		return err
+	}
+	for _, message := range messages {
+		output := ai.ParseOutputContent(message.OutputContent)
+		output.Content = summary
+		output.Approval = nil
+		_, err = query.WithContext(ctx).Where(active...).Where(query.ID.Eq(message.ID)).UpdateSimple(query.Status.Value(int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_FAILED)), query.OutputContent.Value(ai.MarshalOutputContentPayload(output)))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

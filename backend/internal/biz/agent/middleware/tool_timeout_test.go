@@ -2,7 +2,9 @@ package middleware
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"strings"
 	"testing"
 
@@ -11,20 +13,53 @@ import (
 	"github.com/cloudwego/eino/schema"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/callback"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/message"
+	"github.com/liujitcn/kratos-core/errorsx"
 )
 
-// TestToolTimeoutStopsExecution 验证外部结果未知的超时不会伪装为成功再交给模型重试。
-func TestToolTimeoutStopsExecution(t *testing.T) {
-	recorder := &callback.Recorder{}
-	ctx := callback.WithRecorder(t.Context(), recorder)
+// TestToolPermissionFailurePreservesReason 验证工具只返回权限原因和通用说明。
+func TestToolPermissionFailurePreservesReason(t *testing.T) {
 	handler := NewToolMetricsHandler(nil, nil)
-	wrapped, err := handler.WrapInvokableToolCall(ctx, func(context.Context, string, ...tool.Option) (string, error) { return "", context.DeadlineExceeded }, nil)
+	wrapped, err := handler.WrapInvokableToolCall(t.Context(), func(context.Context, string, ...tool.Option) (string, error) {
+		return "", fmt.Errorf("工具包装: %w", errorsx.PermissionDenied("内部授权详情"))
+	}, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = wrapped(ctx, "{}")
-	if !errors.Is(err, context.DeadlineExceeded) {
-		t.Fatal("工具超时被吞掉，模型仍会继续推断和重试")
+	var output string
+	output, err = wrapped(t.Context(), "{}")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var failure map[string]any
+	if err = json.Unmarshal([]byte(output), &failure); err != nil {
+		t.Fatal(err)
+	}
+	if failure["reason"] != errorsx.ReasonPermissionDenied || len(failure) != 2 || strings.Contains(output, "内部授权详情") {
+		t.Fatalf("权限错误输出未保留结构化原因或泄漏内部详情: %s", output)
+	}
+}
+
+// TestToolTimeoutStopsExecution 验证外部结果未知的超时不会伪装为成功再交给模型重试。
+func TestToolTimeoutStopsExecution(t *testing.T) {
+	for _, scenario := range []struct {
+		name  string
+		cause error
+	}{
+		{name: "timeout", cause: context.DeadlineExceeded},
+		{name: "remote transport failure", cause: errorsx.Internal("远端调用失败").WithCause(ErrToolOutcomeUnknown)},
+	} {
+		t.Run(scenario.name, func(t *testing.T) {
+			ctx := callback.WithRecorder(t.Context(), &callback.Recorder{})
+			handler := NewToolMetricsHandler(nil, nil)
+			wrapped, err := handler.WrapInvokableToolCall(ctx, func(context.Context, string, ...tool.Option) (string, error) { return "", scenario.cause }, nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+			_, err = wrapped(ctx, "{}")
+			if !errors.Is(err, ErrToolOutcomeUnknown) || !errors.Is(err, scenario.cause) {
+				t.Fatalf("工具调用结果未知时仍允许模型继续推断和重试: %v", err)
+			}
+		})
 	}
 }
 

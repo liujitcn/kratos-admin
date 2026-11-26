@@ -16,11 +16,17 @@
     />
     <ChatPanel
       v-show="assistantView === 'chat'"
+      ref="chatPanel"
       :draft="drafts[activeSessionID]"
       @draft-change="handleDraftChange"
       @continue-result="continueResult"
+      @retry-history="retryHistory"
+      @recover-reply="recoverReply"
       :active-session="activeSession"
       :messages="currentMessages"
+      :history-loading="currentHistoryLoading"
+      :history-error="historyErrors[activeSessionID]"
+      :continuing-result="continuingResult"
       :sending="currentSessionSending"
       :shortcuts="starterShortcuts"
       :loading-shortcuts="loadingShortcuts"
@@ -43,6 +49,7 @@
           :active-flow-message-id="activeFlowMessageId"
           :renderers="aiFlowBlockRenderers"
           @flow-action="handleFlowAction"
+          @fill-draft="text => chatPanel?.fillDraft(text)"
         />
       </template>
     </ChatPanel>
@@ -82,11 +89,10 @@
 </template>
 
 <script setup lang="ts">
-import "vue-element-plus-x/styles/index.css";
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { getCurrentLocale, t } from "@liujitcn/kratos-admin-core";
+import { getCurrentLocale, resolveRequestErrorMessage, t } from "@liujitcn/kratos-admin-core";
 import { useUserStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import { getAdminAiFlowBlockRenderers } from "@liujitcn/kratos-admin-system";
 import { defAiMessageService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_message";
@@ -146,6 +152,8 @@ const assistantView = ref<AssistantView>(resolveAssistantView(restoredWorkspace?
 const filePanelRef = ref<InstanceType<typeof FilePanel>>();
 const pendingAutomationCount = ref(0);
 const automationPanel = ref<InstanceType<typeof AutomationPanel>>();
+const chatPanel = ref<InstanceType<typeof ChatPanel>>();
+const continuingResult = ref(false);
 const plugins = ref<AiPlugin[]>([]),
   connections = ref<AiPluginConnection[]>([]);
 const pluginCapabilities = ref({ can_manage_tools: false, can_manage_catalog: false, can_create_private: false });
@@ -158,7 +166,6 @@ const {
   drafts,
   activeSessionID,
   loadingSessions,
-  loadingSessionID,
   loadingShortcuts,
   sessions,
   starterShortcuts,
@@ -187,6 +194,9 @@ const sessionKeyword = ref("");
 const sessionPanelCollapsed = ref(false);
 /** 每个会话最近一次消息列表请求的序号，用于丢弃晚到的旧列表响应。 */
 const loadMessagesSeq = new Map<string, number>();
+const historyLoading = ref<Record<string, boolean>>({});
+const historyErrors = ref<Record<string, string>>({});
+const currentHistoryLoading = computed(() => loadingSessions.value || Boolean(historyLoading.value[activeSessionID.value]));
 let speakingMessageID = "";
 let createSessionPromise: Promise<string | undefined> | undefined;
 let loadSessionsPromise: Promise<void> | undefined;
@@ -257,7 +267,15 @@ async function handleCreateSession() {
 
 /** 提交用户输入并同步消息流。 */
 async function handleSubmit(payload: SubmitPayload) {
-  void sendAiPayload(payload);
+  const sourceSessionID = activeSessionID.value;
+  const draft = drafts.value[sourceSessionID];
+  try {
+    const acceptedSessionID = await sendAiPayload(payload);
+    if (!acceptedSessionID || payload.action || !draft) return;
+    if (drafts.value[acceptedSessionID] === draft) delete drafts.value[acceptedSessionID];
+  } catch (error) {
+    ElMessage.error(resolveRequestErrorMessage(error, t("system.ai.chat.message.request_failed")));
+  }
 }
 
 /** 处理业务模块提供的结构化流程动作。 */
@@ -273,15 +291,15 @@ async function handleFlowAction(action: AiAction, label?: string) {
 
 /** 执行真实发送流程，复用于输入框提交和本地失败重发。 */
 async function sendAiPayload(payload: SubmitPayload) {
-  const sessionID = await ensureActiveSession();
-  if (!sessionID) {
-    return false;
-  }
+  const sessionID = activeSessionID.value || await ensureActiveSession();
+  if (!sessionID || historyLoading.value[sessionID] || historyErrors.value[sessionID] ||
+      !selectedProviderId.value || !selectedModelName.value) return "";
   // 同一个会话内仍然串行发送，避免历史上下文和消息顺序被并发请求打乱。
-  if (isSessionSending(sessionID) || sessions.value.find(item => item.id === sessionID)?.read_only) return false;
+  if (isSessionSending(sessionID) || sessions.value.find(item => item.id === sessionID)?.read_only) return "";
+  if ((messages.value[sessionID] ?? []).some(item => item.recovery === "disconnected")) return "";
   if ((messages.value[sessionID] ?? []).some(item => item.status === AiMessageStatus.AI_MESSAGE_STATUS_WAITING_APPROVAL)) {
     ElMessage.warning(t("system.ai.chat.approval.pending"));
-    return false;
+    return "";
   }
 
   // 使该会话仍在途的消息列表请求失效，避免其晚到后整体覆盖刚发送的本地气泡。
@@ -295,7 +313,7 @@ async function sendAiPayload(payload: SubmitPayload) {
     modelName: selectedModelName.value,
     knowledgeBaseIDs: selectedKnowledgeIds.value
   });
-  return true;
+  return sessionID;
 }
 
 /** 处理聊天气泡上的重试、分支、朗读、复制和删除操作。 */
@@ -327,9 +345,10 @@ async function handleEditMessage(payload: ChatMessageEditPayload) {
 
   setSessionSending(sessionID, true);
   stopSpeaking();
+  const previous = messages.value[sessionID] ?? [];
   try {
-    const current = messages.value[sessionID] ?? [];
-    const updatedUserMessages = current.map<ChatMessageItem>(message => {
+    invalidateLoadMessages(sessionID);
+    const updatedUserMessages = previous.map<ChatMessageItem>(message => {
       if (String(message.id) !== messageID || message.role !== "user") return message;
       return {
         ...message,
@@ -352,6 +371,7 @@ async function handleEditMessage(payload: ChatMessageEditPayload) {
     if (response.session) upsertSession(normalizeSession(response.session));
     ElMessage.success(t("system.ai.chat.message.updated_and_regenerated"));
   } catch (error) {
+    messages.value[sessionID] = previous;
     await loadMessages(sessionID, { force: true });
     const message = error instanceof Error ? error.message : t("system.ai.chat.message.update_failed");
     ElMessage.error(message);
@@ -432,9 +452,8 @@ async function handleRetryMessage(item: ChatMessageItem) {
         ElMessage.warning(t("system.ai.chat.message.local_retry_missing"));
         return;
       }
-      messages.value[sessionID] = (messages.value[sessionID] ?? []).filter(message => !message.localOnly);
       if (await sendAiPayload(payload)) {
-        ElMessage.success(t("system.ai.chat.message.resent"));
+        messages.value[sessionID] = (messages.value[sessionID] ?? []).filter(message => message.key !== item.key);
       }
       return;
     }
@@ -511,7 +530,7 @@ async function handleBranchMessage(item: ChatMessageItem) {
   const branchSession = normalizeSession(response.session);
   upsertSession(branchSession);
   messages.value[branchSession.id] = normalizeMessageList(response.messages);
-  activeSessionID.value = branchSession.id;
+  if (activeSessionID.value === sourceSessionID) activeSessionID.value = branchSession.id;
   ElMessage.success(t("system.ai.chat.message.branch_created"));
 }
 
@@ -642,6 +661,7 @@ function handleKnowledgeChange(knowledgeIds: number[]) {
 /** 使指定会话仍在途的消息列表请求失效。 */
 function invalidateLoadMessages(sessionID: string) {
   loadMessagesSeq.set(sessionID, (loadMessagesSeq.get(sessionID) ?? 0) + 1);
+  delete historyLoading.value[sessionID];
 }
 
 /** 加载指定会话的消息记录。 */
@@ -651,22 +671,31 @@ async function loadMessages(sessionID: string, options?: { force?: boolean }) {
 
   const requestId = (loadMessagesSeq.get(sessionID) ?? 0) + 1;
   loadMessagesSeq.set(sessionID, requestId);
-  loadingSessionID.value = sessionID;
+  historyLoading.value[sessionID] = true;
+  delete historyErrors.value[sessionID];
   try {
     const response = await defAiMessageService.ListAiMessage({ session_id: sessionID });
     if (loadMessagesSeq.get(sessionID) !== requestId) return;
     messages.value[sessionID] = normalizeMessageList(response?.messages);
     const active = response?.messages?.find(message => message.status === AiMessageStatus.AI_MESSAGE_STATUS_GENERATING);
     if (active) void aiStream.recover(sessionID, active.id);
-  } catch {
+  } catch (error) {
     if (loadMessagesSeq.get(sessionID) === requestId) {
-      messages.value[sessionID] = [];
+      historyErrors.value[sessionID] = resolveRequestErrorMessage(error, t("system.ai.chat.history.description"));
     }
   } finally {
-    if (loadMessagesSeq.get(sessionID) === requestId && loadingSessionID.value === sessionID) {
-      loadingSessionID.value = "";
-    }
+    if (loadMessagesSeq.get(sessionID) === requestId) delete historyLoading.value[sessionID];
   }
+}
+
+/** 从当前历史失败或过期提示重新读取服务端快照。 */
+function retryHistory() {
+  void loadMessages(activeSessionID.value);
+}
+
+/** 按消息编号恢复本轮状态。 */
+function recoverReply(item: ChatMessageItem) {
+  if (activeSessionID.value && item.recovery === "disconnected") void aiStream.recover(activeSessionID.value, item.id);
 }
 
 /** 重命名当前会话。 */
@@ -705,6 +734,8 @@ async function handleDeleteSession(item: AiSession) {
   sessions.value = sessions.value.filter(session => session.id !== item.id);
   delete messages.value[item.id];
   delete drafts.value[item.id];
+  invalidateLoadMessages(item.id);
+  delete historyErrors.value[item.id];
 
   if (activeSessionID.value === item.id) {
     activeSessionID.value = sessions.value.find(session => session.terminal === Terminal.TERMINAL_ADMIN)?.id ?? "";
@@ -854,9 +885,17 @@ function openDiscussion(session: AiSession) {
 
 /** 冻结结果只能通过服务端复制为普通讨论会话。 */
 async function continueResult() {
-  if (!activeSession.value?.automation_run_id) return;
-  const response = await defAiAutomationService.ContinueAiAutomationRun({ id: activeSession.value.automation_run_id });
-  if (response.session) openDiscussion(response.session);
+  const session = activeSession.value;
+  if (!session?.automation_run_id || continuingResult.value) return;
+  continuingResult.value = true;
+  try {
+    const response = await defAiAutomationService.ContinueAiAutomationRun({ id: session.automation_run_id });
+    if (response.session && activeSessionID.value === session.id) openDiscussion(response.session);
+  } catch (error) {
+    ElMessage.error(resolveRequestErrorMessage(error, t("system.ai.workspace.failed")));
+  } finally {
+    continuingResult.value = false;
+  }
 }
 
 /** 通知只提供执行编号，结果会话与归属以服务端查询为准。 */

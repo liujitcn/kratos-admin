@@ -73,6 +73,7 @@ require (
 	github.com/liujitcn/kratos-kit/transport/sse v0.0.19
 	github.com/liujitcn/kratos-kit/utils v0.0.29
 	github.com/mark3labs/mcp-go v1.5.0
+	github.com/meguminnnnnnnnn/go-openai v0.1.6
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/modelcontextprotocol/go-sdk v1.7.0
 	github.com/openai/openai-go/v3 v3.44.0
@@ -293,7 +294,6 @@ require (
 	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/mattn/go-runewidth v0.0.31 // indirect
 	github.com/mattn/go-sqlite3 v1.14.52 // indirect
-	github.com/meguminnnnnnnnn/go-openai v0.1.6 // indirect
 	github.com/minio/crc64nvme v1.1.1 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/minio/minio-go/v7 v7.3.0 // indirect

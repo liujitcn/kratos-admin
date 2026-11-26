@@ -18,6 +18,7 @@ import (
 
 	"github.com/liujitcn/gorm-kit/repository"
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/middleware"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/plugin"
 	admindata "github.com/liujitcn/kratos-admin/backend/internal/data"
@@ -522,7 +523,7 @@ func (c *AiPluginCase) invokeRemoteTool(ctx context.Context, terminal string, re
 			}
 			return nil, errorsx.PermissionDenied("连接授权已失效，请重新授权")
 		}
-		return nil, errorsx.Internal("远端操作结果未知，请核对外部系统；本系统不会自动重试")
+		return nil, errorsx.Internal("远端操作结果未知，请核对外部系统；本系统不会自动重试").WithCause(middleware.ErrToolOutcomeUnknown)
 	}
 	return result, nil
 }

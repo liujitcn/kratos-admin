@@ -1265,6 +1265,9 @@
   "legacy.error.19e303eaf75621aa": {
     "other": "BI 時間範圍不可用"
   },
+  "legacy.error.19e3bfd1d3c2d6c5": {
+    "other": "請選擇要查詢的指標口徑"
+  },
   "legacy.error.19e59ded36bccdee": {
     "other": "自動化仍在執行或等待確認，不能刪除結果對話"
   },
@@ -1603,6 +1606,9 @@
   },
   "legacy.error.29fe5b349e7c8101": {
     "other": "崗位已被停用，不能選擇"
+  },
+  "legacy.error.2a02cef7ec9afb8a": {
+    "other": "原請求已確認過操作，請核對結果後傳送新的請求"
   },
   "legacy.error.2a1913450ed9f8d0": {
     "other": "字典編碼重複"
@@ -3977,6 +3983,9 @@
   "legacy.error.a14efca145af09f5": {
     "other": "按鈕或外鏈不能作為上級選單"
   },
+  "legacy.error.a16f0922dd140e67": {
+    "other": "BI 問數的候選資料來源無法使用"
+  },
   "legacy.error.a172626b5bd5ea56": {
     "other": "資料來源仍被卡片引用，請先解除引用"
   },
@@ -4183,6 +4192,9 @@
   },
   "legacy.error.ac6310ee83bcf7f9": {
     "other": "只有流程參與者或管理員可以重試腳本"
+  },
+  "legacy.error.aca8d444545b6368": {
+    "other": "BI 問數的候選指標重複"
   },
   "legacy.error.ad3e7934969052c3": {
     "other": "刪除訊息範本失敗"
@@ -4528,6 +4540,9 @@
   },
   "legacy.error.bcaa9e13cd412734": {
     "other": "行動端根目錄下只能建立標籤頁選單"
+  },
+  "legacy.error.bcb0b5cc32774b96": {
+    "other": "BI 問數的候選指標數量無效"
   },
   "legacy.error.bcda2ee361a79c60": {
     "other": "手機號授權憑據無效"
@@ -5692,6 +5707,9 @@
   },
   "legacy.error.f729b50ce3ce3983": {
     "other": "只能編輯最後一條訊息"
+  },
+  "legacy.error.f731ed0c4a6a24c1": {
+    "other": "BI 問數的候選指標無法使用"
   },
   "legacy.error.f73c86935008d65a": {
     "other": "規則參數無效"

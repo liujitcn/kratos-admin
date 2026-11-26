@@ -214,9 +214,12 @@ func TestAiApprovalDecisionIsSingleUse(t *testing.T) {
 		t.Fatal(err)
 	}
 	req := &basev1.DecideAiToolApprovalRequest{SessionId: "101", MessageId: "201", ApprovalId: "single-use", Approved: false}
-	if _, err = c.DecideAiToolApproval(ctx, req); err != nil {
+	var response *basev1.SendAiMessageResponse
+	response, err = c.DecideAiToolApproval(ctx, req)
+	if err != nil {
 		t.Fatal(err)
 	}
+	assertAiApprovalOutcome(t, response.GetMessages()[0], "single-use", "rejected", "not_run", false)
 	if _, err = c.DecideAiToolApproval(ctx, req); err == nil {
 		t.Fatal("同一审批被重复领取")
 	}

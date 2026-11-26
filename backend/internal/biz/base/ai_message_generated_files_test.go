@@ -2,6 +2,8 @@ package biz
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"flag"
 	"net/http"
 	"net/http/httptest"
@@ -11,6 +13,7 @@ import (
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/securityconfig"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -56,7 +59,7 @@ func TestGeneratedFilesRespectOutboundPolicy(t *testing.T) {
 				t.Fatalf("出站边界或附件转存结果错误: requested=%v attachments=%d", requested.Load(), len(reply.Attachments))
 			}
 			if !allowed {
-				if !strings.Contains(reply.Content, "未保存到文件工作区") {
+				if !strings.Contains(reply.BlocksJSON, "generated_file_issue") {
 					t.Fatal("文件转存失败仍静默显示生成成功")
 				}
 				return
@@ -87,6 +90,16 @@ func TestCollectGeneratedProducts(t *testing.T) {
 	}
 	if products[0].filename != "html.pdf" {
 		t.Fatalf("解析文件名 = %s, 期望 html.pdf", products[0].filename)
+	}
+	if products[0].expiresAt != "2026-11-13T08:02:34+00:00" {
+		t.Fatalf("未保留工具返回的有效期: %s", products[0].expiresAt)
+	}
+	reply := &ai.Response{Content: "汇总已完成"}
+	reportGeneratedFileFailure(reply, products[0], "拉取", errors.New("链接到期"))
+	var blocks []dto.AiGeneratedFileIssueBlock
+	err := json.Unmarshal([]byte(reply.BlocksJSON), &blocks)
+	if err != nil || len(blocks) != 1 || blocks[0].Type != "generated_file_issue" || blocks[0].Name != "html.pdf" || blocks[0].ExpiresAt != products[0].expiresAt || reply.Content != "汇总已完成" {
+		t.Fatalf("产物失败应保留汇总并附带有效期: %+v, %v, %s", blocks, err, reply.Content)
 	}
 
 	// 裸链接兜底：带文档后缀的普通链接。

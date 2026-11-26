@@ -171,6 +171,9 @@
           :active-session="activeSession"
           :messages="currentMessages"
           :sending="currentSessionSending"
+          :history-loading="loadingSessions || historyRequests.has(activeSessionID)"
+          :history-error="historyErrors[activeSessionID]"
+          :continuing-result="continuingResult"
           :loading-shortcuts="loadingShortcuts"
           :shortcuts="starterShortcuts"
           :model-providers="modelProviders"
@@ -181,12 +184,14 @@
           :draft="drafts[activeSessionID]"
           @submit="submitMessage"
           @draft-change="updateDraft"
+          @retry-history="retryHistory"
+          @continue-result="continueResult"
+          @recover-reply="recoverReply"
           @model-change="changeModel"
           @knowledge-change="changeKnowledge"
           @message-action="handleMessageAction"
           @message-edit="editMessage"
           @approval-decision="decideApproval"
-          @bi-card-saved="handleBiCardSaved"
         >
           <template #flow-blocks="{ message, activeFlowMessageId }">
             <AiFlowBlocks
@@ -195,6 +200,8 @@
               :active-flow-message-id="activeFlowMessageId"
               :renderers="flowBlockRenderers"
               @flow-action="handleFlowAction"
+              @block-saved="handleBiCardSaved"
+              @fill-draft="fillDraft"
             />
           </template>
         </ChatPanel>
@@ -361,7 +368,7 @@ import {
   Star,
   Timer
 } from "@element-plus/icons-vue";
-import { t } from "@liujitcn/kratos-admin-core";
+import { resolveRequestErrorMessage, t } from "@liujitcn/kratos-admin-core";
 import { useMediaQuery } from "@vueuse/core";
 import { defAiFileService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_file";
 import { AiFileView } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_file";
@@ -375,7 +382,7 @@ import { defAiToolService } from "@liujitcn/kratos-admin-system/api/base/v1/ai_t
 import { AiMessageStatus } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import type { AiSession } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import { Terminal } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
-import type { AiAction } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_message";
+import type { AiAction, SendAiMessageResponse } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_message";
 import type { AiPlugin, AiPluginConnection, AiPluginSelection } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_plugin";
 import { pluginSelectionKey } from "@liujitcn/kratos-admin-system/components/ai/workspace/state";
 import { getAdminAiFlowBlockRenderers } from "@liujitcn/kratos-admin-system";
@@ -442,6 +449,9 @@ const aiStream = useAiChatStream({
   onSession: session => upsertSession(normalizeSession(session)),
   onError: error => ElMessage.error(error.message)
 });
+const historyRequests = reactive(new Map<string, symbol>());
+const historyErrors = ref<Record<string, string>>({});
+const continuingResult = ref(false);
 const mobile = useMediaQuery("(max-width: 768px)");
 /** 紧凑布局：小屏下卡片区默认收起、展开时以浮层覆盖聊天区 */
 const compact = useMediaQuery("(max-width: 1280px)");
@@ -693,6 +703,21 @@ function openDiscussion(session: AiSession) {
   void openResultSession(normalized.id);
 }
 
+/** 通过服务端把冻结的自动化结果复制为可继续讨论的会话。 */
+async function continueResult() {
+  const session = activeSession.value;
+  if (!session?.automation_run_id || continuingResult.value) return;
+  continuingResult.value = true;
+  try {
+    const result = await defAiAutomationService.ContinueAiAutomationRun({ id: session.automation_run_id });
+    if (result.session && activeSessionID.value === session.id) openDiscussion(result.session);
+  } catch (cause) {
+    ElMessage.error(resolveRequestErrorMessage(cause, t("system.ai.workspace.failed")));
+  } finally {
+    continuingResult.value = false;
+  }
+}
+
 /** 从顶部菜单切换会话并加载消息。 */
 async function selectSessionFromMenu(session: AiSession) {
   closeSessionMenu();
@@ -735,7 +760,12 @@ async function handleSessionMenuCommand(command: string | number | object, sessi
       }
     );
     await defAiSessionService.DeleteAiSession({ id: session.id });
+    aiStream.cancelSession(session.id);
     sessions.value = sessions.value.filter(item => item.id !== session.id);
+    historyRequests.delete(session.id);
+    delete historyErrors.value[session.id];
+    delete messages.value[session.id];
+    delete drafts.value[session.id];
     if (activeSessionID.value === session.id) {
       activeSessionID.value = sessions.value[0]?.id || "";
       if (activeSessionID.value) await selectSession(activeSessionID.value);
@@ -878,11 +908,7 @@ function previewCard(card: BiCard) {
 }
 
 function quoteCard(card: BiCard) {
-  if (!activeSessionID.value) return;
-  drafts.value[activeSessionID.value] = {
-    ...(drafts.value[activeSessionID.value] || { text: "", attachments: [] }),
-    text: t("bi.workbench.card.quote_prefix", { name: card.name }) + " "
-  };
+  if (!fillDraft(t("bi.workbench.card.quote_prefix", { name: card.name }) + " ")) return;
   ElMessage.success(t("bi.workbench.card.quote_success"));
 }
 
@@ -946,12 +972,40 @@ async function createSession() {
   upsertSession(session);
   activeSessionID.value = session.id;
   messages.value[session.id] = [];
+  delete historyErrors.value[""];
 }
 
+/** 从服务端读取指定会话，并恢复仍在执行的助手回复。 */
 async function selectSession(id: string) {
-  if (!id) return;
-  const result = await defAiSessionService.ListAiMessage({ session_id: id });
-  messages.value[id] = normalizeMessageList(result.messages);
+  if (!id || historyRequests.has(id) || isSessionSending(id)) return;
+  const request = Symbol();
+  historyRequests.set(id, request);
+  delete historyErrors.value[id];
+  try {
+    const result = await defAiSessionService.ListAiMessage({ session_id: id });
+    if (historyRequests.get(id) !== request) return;
+    messages.value[id] = normalizeMessageList(result.messages);
+    const generating = result.messages?.find(item => item.status === AiMessageStatus.AI_MESSAGE_STATUS_GENERATING);
+    if (generating) void aiStream.recover(id, generating.id);
+  } catch (cause) {
+    if (historyRequests.get(id) === request) {
+      historyErrors.value[id] = resolveRequestErrorMessage(cause, t("system.ai.chat.history.description"));
+    }
+  } finally {
+    if (historyRequests.get(id) === request) historyRequests.delete(id);
+  }
+}
+
+/** 历史读取失败时重新加载当前会话或初始会话列表。 */
+function retryHistory() {
+  if (activeSessionID.value) void selectSession(activeSessionID.value);
+  else void loadInitialHistory();
+}
+
+/** 对断开的回复只补读该消息的事件。 */
+function recoverReply(item: ChatMessageItem) {
+  const id = activeSessionID.value;
+  if (id && item.id && item.recovery === "disconnected") void aiStream.recover(id, item.id);
 }
 
 async function ensureSession() {
@@ -964,33 +1018,64 @@ async function ensureSession() {
   return activeSessionID.value;
 }
 
-async function loadChat() {
-  const [sessionResult, shortcutResult, modelResult, knowledgeResult] = await Promise.all([
-    defAiSessionService.ListAiSession({}),
+/** 加载可选聊天配置，各请求独立回填。 */
+async function loadComposerOptions() {
+  loadingShortcuts.value = true;
+  const [shortcutResult, modelResult, knowledgeResult] = await Promise.allSettled([
     defAiToolService.ListAiShortcut({ terminal: Terminal.TERMINAL_ADMIN }),
     defAiModelService.ListAiProviderModelOptions({}),
     defAiKnowledgeService.ListAiKnowledgeOptions({})
   ]);
-  sessions.value = normalizeSessionList(sessionResult.sessions);
-  starterShortcuts.value = shortcutResult.shortcuts || [];
-  modelProviders.value = modelResult.providers || [];
-  knowledgeOptions.value = knowledgeResult.options || [];
+  if (shortcutResult.status === "fulfilled") starterShortcuts.value = shortcutResult.value.shortcuts || [];
+  if (modelResult.status === "fulfilled") modelProviders.value = modelResult.value.providers || [];
+  if (knowledgeResult.status === "fulfilled") knowledgeOptions.value = knowledgeResult.value.options || [];
   const selection = resolveModelSelection(modelProviders.value);
   selectedProviderId.value = selection.provider_id;
   selectedModelName.value = selection.model_name;
-  const id = await ensureSession();
-  if (id && !messages.value[id]?.length) await selectSession(id);
+  loadingShortcuts.value = false;
 }
 
+/** 初次加载会话列表并恢复默认会话。 */
+async function loadInitialHistory() {
+  if (loadingSessions.value) return;
+  loadingSessions.value = true;
+  delete historyErrors.value[""];
+  try {
+    const result = await defAiSessionService.ListAiSession({});
+    sessions.value = normalizeSessionList(result.sessions);
+    const id = await ensureSession();
+    if (id && !messages.value[id]) await selectSession(id);
+  } catch (cause) {
+    historyErrors.value[""] = resolveRequestErrorMessage(cause, t("system.ai.chat.history.description"));
+  } finally {
+    loadingSessions.value = false;
+  }
+}
+
+/** 聊天接受发送后只清理本次提交的草稿。 */
 async function submitMessage(payload: SubmitPayload) {
-  const sessionID = await ensureSession();
-  if (!sessionID || isSessionSending(sessionID) || activeSession.value?.read_only) return;
-  if ((messages.value[sessionID] || []).some(item => item.status === AiMessageStatus.AI_MESSAGE_STATUS_WAITING_APPROVAL)) {
+  const draftKey = activeSessionID.value;
+  const draft = drafts.value[draftKey];
+  try {
+    if ((await sendMessage(payload)) && !payload.action && drafts.value[draftKey] === draft) delete drafts.value[draftKey];
+  } catch (cause) {
+    ElMessage.error(resolveRequestErrorMessage(cause, t("system.ai.chat.message.request_failed")));
+  }
+}
+
+/** 仅允许可继续的会话发起流式回复。 */
+async function sendMessage(payload: SubmitPayload) {
+  if (loadingSessions.value || historyErrors.value[activeSessionID.value] || !selectedProviderId.value || !selectedModelName.value) return false;
+  const sessionID = activeSessionID.value || await ensureSession();
+  if (!sessionID || historyRequests.has(sessionID) || isSessionSending(sessionID) || activeSession.value?.read_only) return false;
+  const sessionMessages = messages.value[sessionID] ?? [];
+  if (sessionMessages.some(item => item.recovery === "disconnected")) return false;
+  if (sessionMessages.some(item => item.status === AiMessageStatus.AI_MESSAGE_STATUS_WAITING_APPROVAL)) {
     ElMessage.warning(t("system.ai.chat.approval.pending"));
-    return;
+    return false;
   }
   messages.value[sessionID] = sortMessages([
-    ...(messages.value[sessionID] || []),
+    ...sessionMessages,
     createLocalUserMessage(payload),
     createThinkingMessage({ sessionID })
   ]);
@@ -1000,6 +1085,7 @@ async function submitMessage(payload: SubmitPayload) {
     modelName: selectedModelName.value,
     knowledgeBaseIDs: selectedKnowledgeIds.value
   });
+  return true;
 }
 
 function handleFlowAction(action: AiAction, label?: string) {
@@ -1007,7 +1093,15 @@ function handleFlowAction(action: AiAction, label?: string) {
 }
 
 function updateDraft(value: SubmitPayload) {
-  if (activeSessionID.value) drafts.value[activeSessionID.value] = value;
+  drafts.value[activeSessionID.value] = value;
+}
+
+/** 写入 BI 后续问题并保留同一草稿的附件。 */
+function fillDraft(text: string) {
+  const id = activeSessionID.value;
+  if (!id || activeSession.value?.read_only) return false;
+  drafts.value[id] = { text, attachments: drafts.value[id]?.attachments ?? [] };
+  return true;
 }
 
 function changeModel(providerID: number, modelName: string) {
@@ -1022,75 +1116,104 @@ function changeKnowledge(ids: number[]) {
 
 async function handleMessageAction(payload: { action: ChatMessageAction; item: ChatMessageItem }) {
   const id = activeSessionID.value;
+  const { action, item } = payload;
   if (!id) return;
-  if (payload.action === "copy") {
-    await navigator.clipboard?.writeText(payload.item.content);
-    return;
-  }
-  if (payload.action === "speak") {
-    if (!window.speechSynthesis) return ElMessage.warning(t("system.ai.chat.message.speech_unsupported"));
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(new SpeechSynthesisUtterance(payload.item.content));
-    return;
-  }
-  if (payload.action === "delete") {
-    await defAiMessageService.DeleteAiMessage({ session_id: id, message_id: String(payload.item.id) });
-    messages.value[id] = messages.value[id].filter(item => item.id !== payload.item.id);
-    return;
-  }
-  if (payload.action === "branch") {
-    const result = await defAiSessionService.CreateAiSessionBranch({
-      source_session_id: id,
-      anchor_message_id: String(payload.item.id),
-      title: t("system.ai.chat.value.branch_title", { title: payload.item.content.slice(0, 18) }),
-      terminal: Terminal.TERMINAL_ADMIN
-    });
-    const session = normalizeSession(result.session);
-    upsertSession(session);
-    activeSessionID.value = session.id;
-    messages.value[session.id] = normalizeMessageList(result.messages);
-    return;
-  }
-  if (payload.action === "retry") {
-    const result =
-      payload.item.role === "user"
-        ? await defAiMessageService.RetryAiUserMessage({ session_id: id, message_id: String(payload.item.id) })
-        : await defAiMessageService.RegenerateAiMessage({ session_id: id, message_id: String(payload.item.id) });
-    messages.value[id] = replacePendingMessages(messages.value[id] || [], normalizeMessageList(result.messages));
-    if (result.session) upsertSession(normalizeSession(result.session));
+  try {
+    if (action === "copy") {
+      await navigator.clipboard.writeText(item.content);
+      ElMessage.success(t("system.ai.chat.message.message_copied"));
+      return;
+    }
+    if (action === "speak") {
+      if (!window.speechSynthesis) return ElMessage.warning(t("system.ai.chat.message.speech_unsupported"));
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(new SpeechSynthesisUtterance(item.content));
+      return;
+    }
+    if (isSessionSending(id) || historyRequests.has(id) || activeSession.value?.read_only) return;
+    if (action === "delete") {
+      if (!item.localOnly) await defAiMessageService.DeleteAiMessage({ session_id: id, message_id: String(item.id) });
+      const current = messages.value[id] ?? [];
+      messages.value[id] = current.filter(message => item.localOnly ? message.key !== item.key : message.id !== item.id);
+      return;
+    }
+    if (action === "branch") {
+      const result = await defAiSessionService.CreateAiSessionBranch({
+        source_session_id: id,
+        anchor_message_id: String(item.id),
+        title: t("system.ai.chat.value.branch_title", { title: item.content.slice(0, 18) }),
+        terminal: activeSession.value?.terminal ?? Terminal.TERMINAL_ADMIN
+      });
+      const session = normalizeSession(result.session);
+      upsertSession(session);
+      messages.value[session.id] = normalizeMessageList(result.messages);
+      if (activeSessionID.value === id) activeSessionID.value = session.id;
+      return;
+    }
+    if (action !== "retry") return;
+    if (item.localOnly) {
+      if (item.role !== "user") return;
+      const accepted = await sendMessage({ text: item.content, attachments: item.attachments ?? [], action: item.localAction });
+      if (accepted) messages.value[id] = (messages.value[id] ?? []).filter(message => message.key !== item.key);
+      return;
+    }
+    if (item.role === "user" && item.status !== AiMessageStatus.AI_MESSAGE_STATUS_FAILED) return;
+    const request = { session_id: id, message_id: String(item.id) };
+    await runMessageCommand(id, () => item.role === "user"
+      ? defAiMessageService.RetryAiUserMessage(request)
+      : defAiMessageService.RegenerateAiMessage(request), t("system.ai.chat.message.regenerate_failed"));
+  } catch (cause) {
+    ElMessage.error(resolveRequestErrorMessage(cause instanceof Error ? cause.message : cause, t(
+      action === "copy" ? "system.ai.chat.message.copy_unsupported" : "system.ai.chat.message.operation_failed"
+    )));
   }
 }
 
+/** 更新持久化问题，并以服务端返回的消息替换当前轮。 */
 async function editMessage(payload: ChatMessageEditPayload) {
   const id = activeSessionID.value;
-  if (!id) return;
-  const result = await defAiMessageService.UpdateAiMessage({
+  if (!id || activeSession.value?.read_only || payload.item.role !== "user" || payload.item.localOnly) return;
+  await runMessageCommand(id, () => defAiMessageService.UpdateAiMessage({
     session_id: id,
     message_id: String(payload.item.id),
     content: payload.content
-  });
-  messages.value[id] = replacePendingMessages(messages.value[id] || [], normalizeMessageList(result.messages));
-  if (result.session) upsertSession(normalizeSession(result.session));
+  }), t("system.ai.chat.message.update_failed"));
 }
 
+/** 提交当前助手消息的审批决定。 */
 async function decideApproval(item: ChatMessageItem, approved: boolean) {
   const id = activeSessionID.value;
   const approvalID = item.output_content?.approval?.id;
   if (!id || !approvalID) return;
-  const result = await defAiMessageService.DecideAiToolApproval({
+  await runMessageCommand(id, () => defAiMessageService.DecideAiToolApproval({
     session_id: id,
     message_id: String(item.id),
     approval_id: approvalID,
     approved
-  });
-  messages.value[id] = replacePendingMessages(messages.value[id] || [], normalizeMessageList(result.messages));
-  if (result.session) upsertSession(normalizeSession(result.session));
+  }), t("system.ai.chat.approval.failed"));
+}
+
+/** 同一会话串行执行回复操作，服务端结果未知时先恢复该会话的历史。 */
+async function runMessageCommand(id: string, execute: () => Promise<SendAiMessageResponse>, failureMessage: string) {
+  if (isSessionSending(id) || historyRequests.has(id)) return;
+  setSessionSending(id, true);
+  try {
+    const result = await execute();
+    messages.value[id] = replacePendingMessages(messages.value[id] ?? [], normalizeMessageList(result.messages));
+    if (result.session) upsertSession(normalizeSession(result.session));
+    return;
+  } catch (cause) {
+    ElMessage.error(resolveRequestErrorMessage(cause instanceof Error ? cause.message : cause, failureMessage));
+  } finally {
+    setSessionSending(id, false);
+  }
+  await selectSession(id);
 }
 
 onMounted(async () => {
   document.addEventListener("click", closeTopbarPopovers);
   try {
-    await Promise.all([loadCards(), loadChat(), loadPlugins(), loadFileCount(), loadToolCounts()]);
+    await Promise.all([loadCards(), loadInitialHistory(), loadComposerOptions(), loadPlugins(), loadFileCount(), loadToolCounts()]);
   } catch (cause) {
     ElMessage.error(cause instanceof Error ? cause.message : t("bi.query.error"));
   }

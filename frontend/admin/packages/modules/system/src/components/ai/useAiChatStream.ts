@@ -80,23 +80,13 @@ export function useAiChatStream(options: AiChatStreamOptions) {
       if (!task.finished && !controller.signal.aborted) throw new Error(t("system.ai.chat.message.incomplete_stream"));
     } catch (cause) {
       if (controller.signal.aborted) return;
-      let failure = cause;
       if (task.messageID) {
-        try {
-          await readAiMessageEvents(
-            cursor =>
-              defAiMessageService.ListAiMessageEvent({ session_id: sessionID, message_id: task.messageID!, after_id: cursor }),
-            event => handleAiStreamEvent(event, task),
-            () => controller.signal.aborted || runningStreamTaskMap.get(sessionID) !== task
-          );
-          return;
-        } catch (recoveryError) {
-          if (controller.signal.aborted) return;
-          failure = recoveryError;
-        }
+        flushAiDelta();
+        await resume(sessionID, task.messageID, task);
+        return;
       }
-      options.messages.value[sessionID] = markThinkingMessageFailed(options.messages.value[sessionID] ?? [], { sessionID });
-      const error = failure instanceof Error ? failure : new Error(t("system.ai.chat.message.request_failed"));
+      const error = cause instanceof Error ? cause : new Error(t("system.ai.chat.message.request_failed"));
+      options.messages.value[sessionID] = markThinkingMessageFailed(options.messages.value[sessionID] ?? [], sessionID, error.message);
       options.onError?.(error);
     } finally {
       if (runningStreamTaskMap.get(sessionID) === task) {
@@ -106,24 +96,42 @@ export function useAiChatStream(options: AiChatStreamOptions) {
     }
   }
 
-  /** 刷新页面后只读恢复正在执行的消息；不重发原始请求。 */
+  /** 刷新或断流后只读恢复原消息。 */
   async function recover(sessionID: string, messageID: string) {
     if (runningStreamTaskMap.has(sessionID)) return;
     const task: AiStreamTask = { controller: new AbortController(), finished: false, messageID };
     runningStreamTaskMap.set(sessionID, task);
     options.setSessionSending(sessionID, true);
     try {
-      await readAiMessageEvents(
-        cursor => defAiMessageService.ListAiMessageEvent({ session_id: sessionID, message_id: messageID, after_id: cursor }),
-        event => handleAiStreamEvent(event, task),
-        () => task.controller.signal.aborted || runningStreamTaskMap.get(sessionID) !== task
-      );
-    } catch (cause) {
-      if (!task.controller.signal.aborted) options.onError?.(cause instanceof Error ? cause : new Error(String(cause)));
+      await resume(sessionID, messageID, task);
     } finally {
       if (runningStreamTaskMap.get(sessionID) === task) {
         runningStreamTaskMap.delete(sessionID);
         options.setSessionSending(sessionID, false);
+      }
+    }
+  }
+
+  /** 展示恢复进度，失败时保留已收到的正文并允许再次补读。 */
+  async function resume(sessionID: string, messageID: string, task: AiStreamTask) {
+    const isCancelled = () => task.controller.signal.aborted || runningStreamTaskMap.get(sessionID) !== task;
+    const payload = { session_id: sessionID, message_id: messageID };
+    const current = ensureStreamingMessage(options.messages.value[sessionID] ?? [], payload);
+    options.messages.value[sessionID] = current.map(item =>
+      item.role === "ai" && item.id === messageID ? { ...item, recovery: "reconnecting" } : item
+    );
+    try {
+      await readAiMessageEvents(
+        cursor => defAiMessageService.ListAiMessageEvent({ session_id: sessionID, message_id: messageID, after_id: cursor }),
+        event => handleAiStreamEvent(event, task),
+        isCancelled
+      );
+    } catch (cause) {
+      if (!isCancelled()) {
+        options.messages.value[sessionID] = (options.messages.value[sessionID] ?? []).map(item =>
+          item.role === "ai" && item.id === messageID ? { ...item, recovery: "disconnected" } : item
+        );
+        options.onError?.(cause instanceof Error ? cause : new Error(String(cause)));
       }
     }
   }

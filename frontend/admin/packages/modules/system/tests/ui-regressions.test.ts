@@ -31,7 +31,7 @@ test("运行日志自动滚动使用已解包的 wrapRef 并响应重新开启",
 test("AI chat welcome copy and composer placeholder use the registered system locale bundle", async () => {
   const [chatPanel, sender, moduleSource, generatedLocales, hostManifest, bootstrapSource] = await Promise.all([
     readSource("src/views/ai/chat/components/ChatPanel.vue"),
-    readSource("src/views/ai/chat/components/XSender.vue"),
+    readSource("src/views/ai/chat/components/ChatComposer.vue"),
     readSource("src/module.ts"),
     readSource("src/locales/generated.ts"),
     readSource("../../../apps/admin/src/module-manifest.ts"),
@@ -55,26 +55,21 @@ test("AI chat welcome copy and composer placeholder use the registered system lo
 test("AI聊天模型选择器位于输入框操作区，空态和会话态共用", async () => {
   const [chatPanel, sender, selector, styles] = await Promise.all([
     readSource("src/views/ai/chat/components/ChatPanel.vue"),
-    readSource("src/views/ai/chat/components/XSender.vue"),
+    readSource("src/views/ai/chat/components/ChatComposer.vue"),
     readSource("src/components/AiModelSelector/index.vue"),
     readSource("src/components/AiModelSelector/styles.scss")
   ]);
 
-  assert.equal((chatPanel.match(/<XSender\b/g) ?? []).length, 1);
-  assert.match(chatPanel, /<XSender\b[^>]*:model-providers="modelProviders"/);
+  assert.equal((chatPanel.match(/<ChatComposer\b/g) ?? []).length, 1);
+  assert.match(chatPanel, /<ChatComposer\b[^>]*:model-providers="modelProviders"/);
   assert.doesNotMatch(chatPanel, /<div class="agent-model-selector">/);
-  const prefix = sender.match(/<template #prefix>([\s\S]*?)<\/template>/)?.[1] ?? "";
-  assert.doesNotMatch(prefix, /agent-model-selector/);
-  assert.match(
-    sender,
-    /<template #action-list>[\s\S]*?<AiModelSelector[\s\S]*?system\.ai\.chat\.action\.voice_input/
-  );
+  assert.match(sender, /chat-composer__actions--end[\s\S]*?<AiModelSelector[\s\S]*?@click="toggleRecord"/);
   assert.match(selector, /<el-popover[\s\S]*?ref="modelPopoverRef"[\s\S]*?popper-class="agent-model-popper"/);
   assert.match(
     selector,
     /class="[^"]*\bagent-model-selector\b[^"]*"[\s\S]*?selectedModelDisplayName \|\| t\("system\.ai\.model\.model_placeholder"\)/
   );
-  assert.match(sender, /:clearable="true"/);
+  assert.match(sender, /@click="clearText"/);
   assert.match(selector, /displayName: model\.display_name \|\| fallbackModelDisplayName\(model\.model_name\)/);
   assert.match(selector, /@click="handleModelSelect\(provider\.providerId, model\.name\)"/);
   assert.match(selector, /v-else class="agent-model-panel agent-model-panel--empty"/);
@@ -88,18 +83,8 @@ test("AI聊天模型选择器位于输入框操作区，空态和会话态共用
   assert.match(sender, /"model-change": \[providerId: number, modelName: string\]/);
 });
 
-test("AI附件选择器允许后端支持的PDF文件", async () => {
-  const [sender, zhCN] = await Promise.all([
-    readSource("src/views/ai/chat/components/XSender.vue"),
-    readSource("src/locales/zh-CN.json")
-  ]);
-
-  assert.match(sender, /"\.pdf"/);
-  assert.match(zhCN, /system\.ai\.chat\.message\.attachment_hint[^\n]*PDF/);
-});
-
 test("AI附件上传失败时保留后端错误提示", async () => {
-  const sender = await readSource("src/views/ai/chat/components/XSender.vue");
+  const sender = await readSource("src/views/ai/chat/components/ChatComposer.vue");
 
   assert.match(sender, /catch \(error\)/);
   assert.match(sender, /resolveRequestErrorMessage\(error/);

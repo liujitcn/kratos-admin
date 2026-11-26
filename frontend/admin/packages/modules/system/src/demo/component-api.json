@@ -178,6 +178,16 @@
         "name": "flow-action",
         "description": "将业务组件触发的流程动作交回聊天页面。",
         "type": "(action: AiAction, label?: string | undefined) => void"
+      },
+      {
+        "name": "fill-draft",
+        "description": "将业务组件提供的问题写入当前聊天草稿。",
+        "type": "(text: string) => void"
+      },
+      {
+        "name": "block-saved",
+        "description": "将业务组件创建的资源交给聊天入口。",
+        "type": "(value: unknown) => void"
       }
     ],
     "slots": [],
@@ -187,31 +197,49 @@
     "props": [
       {
         "name": "activeSession",
-        "description": "当前活动会话，用于输入框按会话重建。",
+        "description": "当前活动会话。",
         "type": "AiSession",
         "required": false
       },
       {
         "name": "messages",
-        "description": "当前会话消息列表。",
+        "description": "当前会话的消息列表。",
         "type": "ChatMessageItem[]",
         "required": true
       },
       {
         "name": "sending",
-        "description": "消息发送加载状态。",
+        "description": "当前会话是否正在提交或生成消息。",
         "type": "boolean",
         "required": true
       },
       {
+        "name": "historyLoading",
+        "description": "当前会话历史记录是否正在加载。",
+        "type": "boolean",
+        "required": false
+      },
+      {
+        "name": "historyError",
+        "description": "最近一次历史读取错误。",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "continuingResult",
+        "description": "是否正在将只读结果复制成讨论。",
+        "type": "boolean",
+        "required": false
+      },
+      {
         "name": "loadingShortcuts",
-        "description": "空态快捷入口加载状态。",
+        "description": "快捷指令与模型配置是否正在读取。",
         "type": "boolean",
         "required": false
       },
       {
         "name": "shortcuts",
-        "description": "当前终端可用快捷入口。",
+        "description": "当前终端可用快捷指令。",
         "type": "AiShortcut[]",
         "required": false
       },
@@ -235,7 +263,7 @@
       },
       {
         "name": "knowledgeOptions",
-        "description": "当前可供选择的知识库。",
+        "description": "当前可选的知识库。",
         "type": "AiKnowledgeOption[]",
         "required": true
       },
@@ -247,7 +275,7 @@
       },
       {
         "name": "draft",
-        "description": "草稿由页面按会话保存。",
+        "description": "按会话保存的输入与附件。",
         "type": "SubmitPayload",
         "required": false
       }
@@ -255,7 +283,7 @@
     "events": [
       {
         "name": "submit",
-        "description": "提交输入框内容。",
+        "description": "提交聊天消息。",
         "type": "(payload: SubmitPayload) => void"
       },
       {
@@ -269,39 +297,70 @@
         "type": "() => void"
       },
       {
+        "name": "retryHistory",
+        "description": "",
+        "type": "() => void"
+      },
+      {
+        "name": "recoverReply",
+        "description": "",
+        "type": "(item: ChatMessageItem) => void"
+      },
+      {
         "name": "modelChange",
-        "description": "更新当前选择的供应商和模型。",
+        "description": "",
         "type": "(providerId: number, modelName: string) => void"
       },
       {
         "name": "knowledgeChange",
-        "description": "更新当前选择的知识库编号列表。",
+        "description": "",
         "type": "(knowledgeIds: number[]) => void"
       },
       {
         "name": "messageAction",
-        "description": "触发消息级操作。",
+        "description": "",
         "type": "(payload: { action: ChatMessageAction; item: ChatMessageItem; }) => void"
       },
       {
         "name": "messageEdit",
-        "description": "提交当前用户消息的文本编辑。",
+        "description": "",
         "type": "(payload: ChatMessageEditPayload) => void"
       },
       {
         "name": "approvalDecision",
-        "description": "确认或拒绝冻结的工具调用。",
+        "description": "",
         "type": "(item: ChatMessageItem, approved: boolean) => void"
       }
     ],
     "slots": [
+      {
+        "name": "tool-view",
+        "description": "",
+        "type": "(scope: { message: unknown; tool: unknown }) => unknown"
+      },
+      {
+        "name": "reply",
+        "description": "",
+        "type": "(scope: { message: unknown }) => unknown"
+      },
+      {
+        "name": "tool-retry",
+        "description": "",
+        "type": "(scope: { message: unknown; tools: unknown }) => unknown"
+      },
       {
         "name": "flow-blocks",
         "description": "",
         "type": "(scope: { message: unknown; \"active-flow-message-id\": unknown }) => unknown"
       }
     ],
-    "methods": []
+    "methods": [
+      {
+        "name": "fillDraft",
+        "description": "在当前草稿里预填问题，保留已上传附件。",
+        "type": "(text: string) => void"
+      }
+    ]
   },
   "ai/workspace/AutomationPanel.vue": {
     "props": [

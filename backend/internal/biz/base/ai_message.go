@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"mime"
+	"net"
 	"net/http"
 	"net/url"
 	"path"
@@ -21,6 +22,7 @@ import (
 	"github.com/liujitcn/go-utils/id"
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/callback"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/middleware"
 	agentmodel "github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/automation"
@@ -33,6 +35,7 @@ import (
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
 
+	kratoserrors "github.com/go-kratos/kratos/v3/errors"
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/gorm-kit/repository"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -93,13 +96,13 @@ func NewAiMessageCase(
 	return c
 }
 
-// ListAiMessage 终止过期生成后查询指定会话的消息列表。
+// ListAiMessage 清理过期生成和审批后查询指定会话的消息列表。
 func (c *AiMessageCase) ListAiMessage(ctx context.Context, req *basev1.ListAiMessageRequest) (*basev1.ListAiMessageResponse, error) {
 	session, err := c.aiSessionCase.FindCurrentUserSessionByRawID(ctx, req.GetSessionId())
 	if err != nil {
 		return nil, err
 	}
-	if err = c.expireAiGeneratingMessages(ctx, session); err != nil {
+	if err = c.expireAiMessageRuns(ctx, session); err != nil {
 		return nil, err
 	}
 
@@ -334,7 +337,7 @@ func (c *AiMessageCase) ToDTO(model *models.AiMessage) *basev1.AiMessage {
 	return toAiMessageDTO(model)
 }
 
-// prepareNewAiMessage 清理过期生成，校验请求并创建新一轮消息记录。
+// prepareNewAiMessage 清理过期生成和审批，校验请求并创建新一轮消息记录。
 func (c *AiMessageCase) prepareNewAiMessage(ctx context.Context, req *basev1.SendAiMessageRequest) (*models.AiSession, *models.AiMessage, string, []*basev1.AiAttachment, []ai.Attachment, []ai.Message, string, error) {
 	session, err := c.aiSessionCase.FindCurrentUserSessionByRawID(ctx, req.GetSessionId())
 	if err != nil {
@@ -343,7 +346,7 @@ func (c *AiMessageCase) prepareNewAiMessage(ctx context.Context, req *basev1.Sen
 	if session.AutomationRunID > 0 && automation.ExecutionFromContext(ctx).RunID != session.AutomationRunID {
 		return nil, nil, "", nil, nil, nil, "", errorsx.PermissionDenied("自动化结果只读，请使用继续讨论")
 	}
-	if err = c.expireAiGeneratingMessages(ctx, session); err != nil {
+	if err = c.expireAiMessageRuns(ctx, session); err != nil {
 		return nil, nil, "", nil, nil, nil, "", err
 	}
 
@@ -480,10 +483,14 @@ func (c *AiMessageCase) regenerateAiMessageWithContent(ctx context.Context, sess
 	if session.AutomationRunID > 0 {
 		return nil, errorsx.PermissionDenied("自动化结果只读，请使用运行一次")
 	}
+	output := ai.ParseOutputContent(message.OutputContent)
+	if !canRegenerateAiApproval(output.BlocksJSON) {
+		return nil, errorsx.Conflict("原请求已确认过操作，请核对结果后发送新的请求")
+	}
 	attachments := ai.ParseAttachments(message.Attachments)
 	input := ai.ParseInputContent(message.InputContent)
 	if input.ShortcutAction == nil {
-		legacyShortcut := strings.HasPrefix(ai.ParseOutputContent(message.OutputContent).Flow, ai.ManagedShortcutFlowPrefix)
+		legacyShortcut := strings.HasPrefix(output.Flow, ai.ManagedShortcutFlowPrefix)
 		if !legacyShortcut && message.Status == int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_FAILED) {
 			legacyShortcut = slices.ContainsFunc(ai.ParseTools(message.Tools), func(tool ai.ToolUsage) bool {
 				return strings.HasPrefix(tool.CallID, ai.ShortcutToolCallPrefix)
@@ -636,7 +643,7 @@ func (c *AiMessageCase) generateAiReply(
 		var reply *ai.Response
 		reply, err = c.runManagedShortcut(ctx, session, input, storedInput.ShortcutAction, storedInput.ShortcutResult)
 		if err != nil {
-			return c.buildAiFailedReply(ctx, reply, err, providerName, modelName), err
+			return reply, err
 		}
 		if onDelta != nil && reply.Content != "" {
 			onDelta(reply.Content)
@@ -679,32 +686,21 @@ func (c *AiMessageCase) generateAiReply(
 				return c.recordAiMessageEvent(summaryCtx, execution, "context_summary", summary)
 			}
 		}
-		if len(knowledgeBaseIDs) > 0 && c.aiKnowledgeEngine != nil {
+		var knowledgeSources []dto.AiKnowledgeSource
+		if len(knowledgeBaseIDs) > 0 {
 			retrieveCtx, cancel := context.WithTimeout(ctx, 20*time.Second)
-			if session.AutomationRunID > 0 {
-				input.KnowledgeContext, err = c.aiKnowledgeEngine.RetrieveStrict(retrieveCtx, knowledgeBaseIDs, content)
-			} else {
-				input.KnowledgeContext = c.aiKnowledgeEngine.Retrieve(retrieveCtx, knowledgeBaseIDs, content, 0)
-			}
+			input.KnowledgeContext, knowledgeSources, err = c.aiKnowledgeEngine.Retrieve(retrieveCtx, knowledgeBaseIDs, content, session.AutomationRunID > 0)
 			cancel()
 			if err != nil {
 				return nil, err
 			}
 		}
 		var response *ai.Response
-		if onDelta != nil {
-			response, err = c.runAiRuntime(ctx, session, messageID, input, onDelta)
-			if err == nil {
-				return response, nil
-			}
-			return c.buildAiFailedReply(ctx, response, err, providerName, modelName), err
+		response, err = c.runAiRuntime(ctx, session, messageID, input, onDelta)
+		if err == nil && len(knowledgeSources) > 0 {
+			response.BlocksJSON = ai.AppendReplyBlocks(response.BlocksJSON, dto.AiKnowledgeSourcesBlock{Type: "knowledge_sources", Sources: knowledgeSources})
 		}
-		response, err = c.runAiRuntime(ctx, session, messageID, input, nil)
-		if err == nil {
-			return response, nil
-		}
-		log.Error(fmt.Sprintf("AI reply generation failed: %v", err))
-		return c.buildAiFailedReply(ctx, response, err, providerName, modelName), err
+		return response, err
 	}
 	err = errorsx.Internal("AI助手运行时未初始化")
 	return c.buildAiFallbackResponse(ctx, content, attachments, err, providerName, modelName), err
@@ -731,6 +727,10 @@ func (c *AiMessageCase) buildAiFailedReply(ctx context.Context, reply *ai.Respon
 	if reason == "" {
 		reason = i18n.EncodeMessage("system.ai.chat.error.details_unavailable", nil)
 	}
+	blocks := failedReply.BlocksJSON
+	if code := aiReplyErrorCode(cause); code != "" {
+		blocks = ai.AppendReplyBlocks(blocks, dto.AiReplyErrorBlock{Type: "reply_error", Code: code})
+	}
 	return &ai.Response{
 		Content:        failedReply.Content,
 		Token:          failedReply.Token,
@@ -739,6 +739,7 @@ func (c *AiMessageCase) buildAiFailedReply(ctx context.Context, reply *ai.Respon
 		Model:          failedReply.Model,
 		Fallback:       true,
 		FallbackReason: reason,
+		BlocksJSON:     blocks,
 	}
 }
 
@@ -885,7 +886,7 @@ func (c *AiMessageCase) persistGeneratedToolFiles(ctx context.Context, tenantID 
 		rawURL := product.downloadURL
 		content, err := fetchGeneratedFile(ctx, rawURL)
 		if err != nil {
-			reportGeneratedFileFailure(reply, product.filename, "拉取", err)
+			reportGeneratedFileFailure(reply, product, "拉取", err)
 			continue
 		}
 		fileName := product.filename
@@ -898,7 +899,7 @@ func (c *AiMessageCase) persistGeneratedToolFiles(ctx context.Context, tenantID 
 		directory := path.Join(aiGeneratedFileDirectory, time.Now().Format("2006/01/02"))
 		storedName := fmt.Sprintf("%d%s", id.GenSnowflakeID(), extension)
 		if _, err = c.OSS.UploadByByte(storedName, directory, content); err != nil {
-			reportGeneratedFileFailure(reply, product.filename, "转存", err)
+			reportGeneratedFileFailure(reply, product, "转存", err)
 			continue
 		}
 		objectPath := path.Join(directory, storedName)
@@ -912,7 +913,7 @@ func (c *AiMessageCase) persistGeneratedToolFiles(ctx context.Context, tenantID 
 			LinkURL:     objectPath,
 			ContentHash: hex.EncodeToString(hash[:]),
 		}); err != nil {
-			reportGeneratedFileFailure(reply, product.filename, "登记", err)
+			reportGeneratedFileFailure(reply, product, "登记", err)
 			continue
 		}
 		persistentURL := publicFileURL(objectPath)
@@ -932,6 +933,7 @@ func (c *AiMessageCase) persistGeneratedToolFiles(ctx context.Context, tenantID 
 type generatedProduct struct {
 	downloadURL string
 	filename    string
+	expiresAt   string
 }
 
 // collectGeneratedProducts 汇总工具输出里的文件产物并去重。
@@ -940,7 +942,7 @@ type generatedProduct struct {
 func collectGeneratedProducts(tools []agent.ToolUsage) []generatedProduct {
 	seen := make(map[string]bool)
 	products := make([]generatedProduct, 0, len(tools))
-	add := func(rawURL, filename string) {
+	add := func(rawURL, filename, expiresAt string) {
 		cleanURL := trimGeneratedFileURL(rawURL)
 		if cleanURL == "" || seen[cleanURL] {
 			return
@@ -954,7 +956,10 @@ func collectGeneratedProducts(tools []agent.ToolUsage) []generatedProduct {
 			return
 		}
 		seen[cleanURL] = true
-		products = append(products, generatedProduct{downloadURL: cleanURL, filename: filename})
+		if _, err := time.Parse(time.RFC3339, expiresAt); err != nil {
+			expiresAt = ""
+		}
+		products = append(products, generatedProduct{downloadURL: cleanURL, filename: filename, expiresAt: expiresAt})
 	}
 	for _, item := range tools {
 		var parts []struct {
@@ -972,9 +977,10 @@ func collectGeneratedProducts(tools []agent.ToolUsage) []generatedProduct {
 			var produced struct {
 				DownloadURL string `json:"download_url"`
 				Filename    string `json:"filename"`
+				ExpiresAt   string `json:"expires_at"`
 			}
 			if err := json.Unmarshal([]byte(text), &produced); err == nil && produced.DownloadURL != "" {
-				add(produced.DownloadURL, produced.Filename)
+				add(produced.DownloadURL, produced.Filename, produced.ExpiresAt)
 				continue
 			}
 			for _, rawURL := range generatedFileURLPattern.FindAllString(text, -1) {
@@ -982,7 +988,7 @@ func collectGeneratedProducts(tools []agent.ToolUsage) []generatedProduct {
 				if query := strings.IndexByte(base, '?'); query >= 0 {
 					base = base[:query]
 				}
-				add(rawURL, path.Base(base))
+				add(rawURL, path.Base(base), "")
 			}
 		}
 	}
@@ -1115,7 +1121,7 @@ func (c *AiMessageCase) markAiMessageGenerating(ctx context.Context, session *mo
 		query := c.aiMessageRepo.Query(txCtx).AiMessage
 		var result gen.ResultInfo
 		result, txErr = query.WithContext(txCtx).
-			Where(query.TenantID.Eq(message.TenantID), query.ID.Eq(message.ID), query.Status.Eq(message.Status)).
+			Where(query.TenantID.Eq(message.TenantID), query.ID.Eq(message.ID), query.Status.Eq(message.Status), query.UpdatedAt.Eq(message.UpdatedAt)).
 			UpdateSimple(
 				query.InputContent.Value(inputContent),
 				query.OutputContent.Value(ai.MarshalEmptyOutputContent()),
@@ -1146,13 +1152,13 @@ func (c *AiMessageCase) localizedAttachmentPrompt(ctx context.Context) string {
 	return c.aiRuntime.LocalizeMessage(ctx, "base.ai.message.attachment_prompt", nil, "Please analyze the attached content.")
 }
 
-// findCurrentUserMessage 终止过期生成后查询当前用户当前会话下的消息。
+// findCurrentUserMessage 清理过期生成和审批后查询当前用户当前会话下的消息。
 func (c *AiMessageCase) findCurrentUserMessage(ctx context.Context, rawSessionID string, rawMessageID string) (*models.AiMessage, *models.AiSession, error) {
 	session, err := c.aiSessionCase.FindCurrentUserSessionByRawID(ctx, rawSessionID)
 	if err != nil {
 		return nil, nil, err
 	}
-	if err = c.expireAiGeneratingMessages(ctx, session); err != nil {
+	if err = c.expireAiMessageRuns(ctx, session); err != nil {
 		return nil, nil, err
 	}
 	var messageID int64
@@ -1206,6 +1212,9 @@ func toAiMessageDTO(model *models.AiMessage) *basev1.AiMessage {
 	}
 	inputContent := ai.ParseInputContent(model.InputContent)
 	outputContent := ai.ParseOutputContent(model.OutputContent)
+	if inputContent.BranchOrigin != nil {
+		outputContent.BlocksJSON = ai.AppendReplyBlocks(outputContent.BlocksJSON, inputContent.BranchOrigin)
+	}
 	token := ai.ParseTokenUsage(model.Token)
 	return &basev1.AiMessage{
 		Id:            strconv.FormatInt(model.ID, 10),
@@ -1501,8 +1510,8 @@ func truncateAiErrorDetail(detail string) string {
 	return string(runes[:maxRunes]) + "…"
 }
 
-// expireAiGeneratingMessages 在属主会话锁内终止过期生成，释放会话但不重放业务操作。
-func (c *AiMessageCase) expireAiGeneratingMessages(ctx context.Context, session *models.AiSession) error {
+// expireAiMessageRuns 在属主会话锁内终止过期生成及普通会话的过期审批。
+func (c *AiMessageCase) expireAiMessageRuns(ctx context.Context, session *models.AiSession) error {
 	return c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		var err error
 		if err = c.aiSessionCase.lockAiSession(txCtx, session); err != nil {
@@ -1530,11 +1539,15 @@ func (c *AiMessageCase) expireAiGeneratingMessages(ctx context.Context, session 
 			if err != nil {
 				return err
 			}
-			output := ai.MarshalReplyContent(&ai.Response{Content: c.aiRuntime.LocalizeMessage(ctx, "system.ai.chat.error.run_expired", nil, "Generation expired. This request will not resume automatically. Check the business result before retrying."), Fallback: true})
+			previous := ai.ParseOutputContent(item.OutputContent)
+			output := ai.MarshalReplyContent(&ai.Response{Content: c.aiRuntime.LocalizeMessage(ctx, "system.ai.chat.error.run_expired", nil, "Generation expired. This request will not resume automatically. Check the business result before retrying."), Fallback: true, BlocksJSON: previous.BlocksJSON})
 			_, err = query.WithContext(txCtx).Where(query.ID.Eq(item.ID), query.Status.Eq(int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_GENERATING))).UpdateSimple(query.Status.Value(int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_FAILED)), query.OutputContent.Value(output))
 			if err != nil {
 				return err
 			}
+		}
+		if session.AutomationRunID == 0 {
+			return c.expireAiPendingApprovals(txCtx, session, now)
 		}
 		return nil
 	})
@@ -1545,61 +1558,55 @@ func (c *AiMessageCase) bindAiSessionTools(ctx context.Context, session *models.
 	if c.aiPluginCase == nil {
 		return ctx, nil
 	}
-	selections, err := parseAiSessionPlugins(session.Plugins)
-	if err != nil {
-		return ctx, err
-	}
 	terminal := ai.NormalizeTerminalString(session.Terminal)
 	ctx = agent.ContextWithTerminal(ctx, terminal)
-	var pool agent.ToolPool
-	if terminal == "app" && session.AutomationRunID == 0 && len(selections) == 0 {
-		pool, err = c.aiPluginCase.ResolveAutomaticAppToolPool(ctx)
-	} else if len(selections) == 0 && session.AutomationRunID == 0 {
-		// 旧数据把管理端"留空默认系统工具"存成了空数组，这里归一到内置插件让存量会话自愈；
-		// 自动化结果会话保持冻结语义，不注入默认工具。
-		pool, err = c.aiPluginCase.ResolveToolPool(ctx, terminal, nil)
-	} else {
-		pool, err = c.aiPluginCase.ResolveToolPool(ctx, terminal, selections)
-	}
+	pool, err := c.resolveAiSessionToolPool(ctx, session, terminal)
 	if err != nil {
 		return ctx, err
 	}
 	return agent.ContextWithToolPool(ctx, pool), nil
 }
 
-// validatePendingAiTools 在消费审批前重新验证当前用户权限和冻结配置，拒绝不消耗原许可。
-func (c *AiMessageCase) validatePendingAiTools(ctx context.Context, session *models.AiSession, message *models.AiMessage) error {
-	if c.aiPluginCase == nil {
-		return nil
-	}
-	output := ai.ParseOutputContent(message.OutputContent)
-	if output.Approval == nil {
-		return errorsx.Conflict("审批已失效或已处理")
-	}
-	query := c.aiApprovalRepo.Query(ctx).AiToolApproval
-	run, err := query.WithContext(ctx).Where(query.ApprovalID.Eq(output.Approval.ID), query.TenantID.Eq(session.TenantID), query.SessionID.Eq(session.ID), query.UserID.Eq(session.UserID), query.Status.Eq(aiRunPending)).First()
+// resolveAiSessionToolPool 按当前会话、终端和身份重建工具池。
+func (c *AiMessageCase) resolveAiSessionToolPool(ctx context.Context, session *models.AiSession, terminal string) (agent.ToolPool, error) {
+	selections, err := parseAiSessionPlugins(session.Plugins)
 	if err != nil {
-		return errorsx.Conflict("审批已失效或已处理").WithCause(err)
+		return agent.ToolPool{}, err
 	}
-	var state ai.RunState
-	var calls []ai.ApprovalCall
-	if err = json.Unmarshal([]byte(run.RuntimeState), &state); err != nil {
-		return errorsx.Internal("审批配置损坏").WithCause(err)
+	if terminal == "app" && session.AutomationRunID == 0 && len(selections) == 0 {
+		return c.aiPluginCase.ResolveAutomaticAppToolPool(ctx)
 	}
-	if err = json.Unmarshal([]byte(run.PendingCalls), &calls); err != nil {
-		return errorsx.Internal("审批参数损坏").WithCause(err)
+	if len(selections) == 0 && session.AutomationRunID == 0 {
+		// 旧数据把管理端"留空默认系统工具"存成了空数组，这里归一到内置插件让存量会话自愈；
+		// 自动化结果会话保持冻结语义，不注入默认工具。
+		return c.aiPluginCase.ResolveToolPool(ctx, terminal, nil)
 	}
-	if err = c.aiRuntime.ValidateApproval(ctx, state, calls); err != nil {
-		return errorsx.PermissionDenied("工具配置或当前用户权限已变化，请重新发起").WithCause(err)
+	return c.aiPluginCase.ResolveToolPool(ctx, terminal, selections)
+}
+
+// aiReplyErrorCode 用明确的错误类型区分权限、回复超时和已发出工具的未知结果。
+func aiReplyErrorCode(cause error) string {
+	if errors.Is(cause, middleware.ErrToolOutcomeUnknown) {
+		return "TOOL_OUTCOME_UNKNOWN"
 	}
-	return nil
+	network, isNetworkError := errors.AsType[net.Error](cause)
+	timedOut := errors.Is(cause, context.DeadlineExceeded) || isNetworkError && network.Timeout()
+	if typed, ok := errors.AsType[*kratoserrors.Error](cause); ok && typed.Reason == errorsx.ReasonPermissionDenied {
+		return errorsx.ReasonPermissionDenied
+	}
+	if timedOut {
+		return "REPLY_TIMEOUT"
+	}
+	return ""
 }
 
 // reportGeneratedFileFailure 显示产物登记失败，并避免将临时签名链接写入错误日志。
-func reportGeneratedFileFailure(reply *ai.Response, filename, stage string, err error) {
+func reportGeneratedFileFailure(reply *ai.Response, product generatedProduct, stage string, err error) {
 	if requestError, ok := errors.AsType[*url.Error](err); ok {
 		err = requestError.Err
 	}
-	log.Warn("AI生成文件未保存到文件工作区", "filename", filename, "stage", stage, "error", err)
-	reply.Content += fmt.Sprintf("\n\n> 文件“%s”未保存到文件工作区（%s失败），当前仅保留原始临时下载链接。请管理员检查 AI 出站白名单、文件服务和存储配置后重新生成。", filename, stage)
+	log.Warn("AI生成文件未保存到文件工作区", "filename", product.filename, "stage", stage, "error", err)
+	reply.BlocksJSON = ai.AppendReplyBlocks(reply.BlocksJSON, dto.AiGeneratedFileIssueBlock{
+		Type: "generated_file_issue", Name: product.filename, ExpiresAt: product.expiresAt,
+	})
 }

@@ -41,7 +41,7 @@ packages/modules/system
 | `src/components/api/ApiTransfer.vue` | 菜单与限流策略共用的 API 穿梭选择器。 |
 | `src/components/api/apiTransfer.ts` | 加载 API 目录并生成统一的穿梭框选项。 |
 | `src/components/ai/Ai.vue` | System 提供的 AI 顶部工具入口。 |
-| `src/components/ai/ChatPanel.vue` | 可嵌入其他管理端布局的 AI 聊天展示组件公开入口。 |
+| `src/components/ai/ChatPanel.vue` | 管理端 AI 聊天展示入口，支持正文、工具和结构化结果插槽。 |
 | `src/components/ai/AiFlowBlocks.vue` | 按模块注册顺序筛选并组合 AI 结构化流程块渲染器。 |
 | `src/components/ai/chat.ts` | AI 聊天消息类型、归一化辅助函数和 direct stream 解析器公开入口。 |
 | `src/components/ai/useAiChatState.ts` | 不依赖页面布局的会话、消息、模型、知识库和草稿状态容器。 |
@@ -286,6 +286,8 @@ AI 对话在写操作前显示确认卡片，列出全部待执行工具、冻�
 `AiChat` 内统一提供对话、自动化和插件三个纵向功能入口，不增加后台菜单。展开侧栏使用 320px（窄桌面 264px），收起栏使用 44px 纯图标；历史弹层复用会话列表。切换功能与会话保留输入草稿、附件、运行中的消息流及待确认操作。
 
 插件目录、账号连接和工具策略分别调用 `base/v1/ai_plugin`，会话插件选择通过 `SetAiSessionPlugins` 持久化；明确清空表示禁用本会话全部插件。配置能力采用服务端返回值，令牌只在提交时加密，不回填已保存明文。自动化通过 `base/v1/ai_automation` 查询本人计划、服务端预览未来三次、运行、停止和查看结果。结果会话保持冻结，继续讨论由服务端创建普通会话。
+
+聊天正文和输入框沿用同一阅读列。业务结果通过 `flow-blocks` 插槽注册，工具过程按回复折叠。断流时使用 `ListAiMessageEvent` 恢复原回复。没有可用模型时，仍可从顶部入口打开聊天、查看历史和编辑草稿，发送按钮会禁用。选中的模型在输出正文和执行工具前返回 HTTP 408、429 或 5xx 时，普通对话可按模型顺序改用一个已启用的备用模型，回复中会记录实际使用的模型。生成文件经鉴权接口预览和下载，失效文件可在原会话中准备针对该文件的重新导出草稿。
 
 桌面端的租户安装和工具审查按 `can_manage_tools` 判断，定义编辑和删除按插件的 `can_manage` 判断；租户管理员可维护系统插件及本租户他人私有插件的安装。
 

@@ -3,12 +3,65 @@ package adk
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/cloudwego/eino/components/model"
 	"github.com/cloudwego/eino/schema"
 
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/message"
 )
+
+type gatedStreamModel struct {
+	streamModeProbeModel
+	release <-chan struct{}
+}
+
+// Stream 发出首段后等待接收方确认，再继续发送余下正文。
+func (m *gatedStreamModel) Stream(ctx context.Context, _ []*schema.AgenticMessage, _ ...model.Option) (*schema.StreamReader[*schema.AgenticMessage], error) {
+	reader, writer := schema.Pipe[*schema.AgenticMessage](1)
+	go func() {
+		defer writer.Close()
+		writer.Send(message.AIText("首段"), nil)
+		select {
+		case <-m.release:
+			tail := message.AIText("尾段")
+			tail.ResponseMeta = &schema.AgenticResponseMeta{TokenUsage: &schema.TokenUsage{PromptTokens: 11, CompletionTokens: 6, TotalTokens: 17}}
+			writer.Send(tail, nil)
+		case <-ctx.Done():
+			writer.Send(nil, ctx.Err())
+		}
+	}()
+	return reader, nil
+}
+
+// TestRunnerEmitsDeltaBeforeModelCompletes 验证首段无需等待模型流结束即可送达。
+func TestRunnerEmitsDeltaBeforeModelCompletes(t *testing.T) {
+	ctx, cancel := context.WithTimeout(t.Context(), time.Second)
+	defer cancel()
+	release := make(chan struct{})
+	runner := NewRunner(Config{Model: &gatedStreamModel{release: release}, Name: "test", Description: "test"})
+	var deltas []string
+	result, err := runner.Run(ctx, Request{
+		Messages:       []*message.AgenticMessage{message.UserText("测试")},
+		Stream:         true,
+		ModelStreaming: true,
+		OnDelta: func(delta string) {
+			deltas = append(deltas, delta)
+			if len(deltas) == 1 {
+				close(release)
+			}
+		},
+	})
+	if err != nil {
+		t.Fatalf("首段应在模型继续输出前送达: %v", err)
+	}
+	if len(deltas) != 2 || deltas[0] != "首段" || deltas[1] != "尾段" || message.AITextOnly(result.Message) != "首段尾段" {
+		t.Fatalf("增量 = %q，最终正文 = %q", deltas, message.AITextOnly(result.Message))
+	}
+	if result.Token.Total != 17 {
+		t.Fatalf("流式 token 总数 = %d，预期 17", result.Token.Total)
+	}
+}
 
 type streamModeProbeModel struct {
 	generateCalls int

@@ -1,341 +1,328 @@
 <template>
-  <el-main class="agent-chat-panel" :class="{ 'is-empty': isEmptyState }" style="--el-main-padding: 0; flex: 0 1 auto">
-    <div v-if="activeSession?.read_only" class="agent-result-banner">
-      <span>{{ t("system.ai.workspace.frozen_result") }}</span
-      ><el-button text type="primary" @click="emit('continueResult')">{{
-        t("system.ai.workspace.continue_discussion")
-      }}</el-button>
-    </div>
-    <div v-if="isEmptyState" class="agent-chat-empty">
-      <div class="agent-chat-empty__title">{{ welcomeTitle }}</div>
-      <div class="agent-chat-empty__desc">{{ t("system.ai.chat.welcome_description") }}</div>
-    </div>
-    <template v-else>
-      <div ref="chatContentRef" class="agent-chat-content">
-        <BubbleList ref="bubbleRef" class="agent-message-list" :list="bubbleList" max-height="100%" :auto-scroll="true">
-          <template #content="{ item }">
-            <div class="agent-message-body" :class="{ 'is-user': item.role === 'user' }">
-              <div
-                v-if="
-                  item.role !== 'user' && (item.replySourceTag || item.model || item.fallback || resolveMessageReplyTime(item))
-                "
-                class="agent-message-meta"
-              >
-                <span
-                  v-if="item.replySourceTag"
-                  class="agent-message-meta__tag"
-                  :class="resolveTagClass(item.replySourceTag.tone)"
-                >
-                  {{ item.replySourceTag.text }}
-                </span>
-                <span v-if="item.model" class="agent-message-meta__model">{{
-                  resolveModelDisplayName(modelProviders, item.model)
-                }}</span>
-                <span v-if="resolveMessageReplyTime(item)" class="agent-message-meta__time">{{
-                  resolveMessageReplyTime(item)
-                }}</span>
-              </div>
-              <section
-                v-if="item.role !== 'user' && item.activities?.length"
-                class="agent-message-activity"
-                :aria-label="t('system.ai.chat.title.activity')"
-              >
-                <el-button
-                  class="admin-custom-button agent-message-activity__summary"
-                  native-type="button"
-                  :aria-expanded="isActivityExpanded(item)"
-                  @click="toggleActivity(item)"
-                >
-                  <span class="agent-message-activity__summary-icon">
-                    <el-icon :class="{ 'is-loading': hasRunningActivity(item) }"><Loading v-if="hasRunningActivity(item)" /><Check v-else /></el-icon>
-                  </span>
-                  <span class="agent-message-activity__summary-text">{{ resolveActivitySummary(item) }}</span>
-                  <el-icon class="agent-message-activity__summary-arrow" :class="{ 'is-expanded': isActivityExpanded(item) }">
-                    <ArrowDown />
-                  </el-icon>
-                </el-button>
-                <!-- 只有一个活动时标题行已完整表达，不再渲染展开列表避免同文案两行。 -->
-                <div v-if="isActivityExpanded(item) && (item.activities?.length ?? 0) > 1" class="agent-message-activity__list">
-                  <div v-for="activity in item.activities" :key="activity.id" class="agent-message-activity__item">
-                    <span class="agent-message-activity__item-icon" :class="resolveActivityStatusClass(activity.status)">
-                      <el-icon :class="{ 'is-loading': activity.status === 'running' }"><Loading v-if="activity.status === 'running'" /><Check v-else /></el-icon>
-                    </span>
-                    <span class="agent-message-activity__item-content">
-                      <span class="agent-message-activity__item-title">{{ resolveActivityTitle(activity) }}</span>
-                      <span v-if="activity.summary" class="agent-message-activity__item-summary">{{ activity.summary }}</span>
-                    </span>
-                  </div>
-                </div>
-              </section>
-              <el-collapse
-                v-if="item.role !== 'user' && resolveVisibleTools(item).length"
-                class="agent-message-tools"
-                :model-value="resolveActiveToolKeys(item)"
-                @update:model-value="value => handleToolCollapseUpdate(item, value)"
-              >
-                <el-collapse-item
-                  v-for="(tool, toolIndex) in resolveVisibleTools(item)"
-                  :key="resolveToolKey(tool, toolIndex)"
-                  :name="resolveToolKey(tool, toolIndex)"
-                >
-                  <template #title>
-                    <span class="agent-message-tool-title">
-                      <span class="agent-message-tool-title__main">
-                        <span class="agent-message-tool-title__icon">
-                          <el-icon><Link /></el-icon>
-                        </span>
-                        <span class="agent-message-tool-title__text">
-                          <span class="agent-message-tool-title__label">{{ resolveToolTitle(tool) }}</span>
-                          <span v-if="resolveToolName(tool)" class="agent-message-tool-title__name">{{
-                            resolveToolName(tool)
-                          }}</span>
-                        </span>
-                      </span>
-                      <span class="agent-message-tool-title__status" :class="resolveToolStatusClass(tool.status)">
-                        {{ resolveToolStatusText(tool.status) }}
-                        <el-icon v-if="!isToolFailed(tool.status)"><Check /></el-icon>
-                      </span>
-                      <el-button
-                        class="admin-custom-button agent-message-tool-copy"
-                        native-type="button"
-                        :aria-label="t('system.ai.chat.action.copy_request')"
-                        @click.stop="handleCopyToolRequest(tool)"
-                      >
-                        <el-icon><CopyDocument /></el-icon>
-                      </el-button>
-                    </span>
-                  </template>
-                  <div class="agent-message-tool-payload">
-                    <section class="agent-message-tool-payload__section">
-                      <div class="agent-message-tool-payload__label">{{ t("system.ai.chat.field.request_payload") }}</div>
-                      <pre>{{ formatToolRequest(tool) }}</pre>
-                    </section>
-                    <section class="agent-message-tool-payload__section">
-                      <div class="agent-message-tool-payload__label">{{ t("system.ai.chat.field.response_payload") }}</div>
-                      <pre>{{ formatToolResponse(tool) }}</pre>
-                    </section>
-                  </div>
-                </el-collapse-item>
-              </el-collapse>
-              <section
-                v-if="
-                  item.role !== 'user' &&
-                  item.status === AiMessageStatus.AI_MESSAGE_STATUS_WAITING_APPROVAL &&
-                  item.output_content?.approval
-                "
-                class="agent-approval"
-                role="region"
-                :aria-label="t('system.ai.chat.approval.title')"
-              >
-                <el-text tag="strong">{{ t("system.ai.chat.approval.title") }}</el-text>
-                <el-text tag="p">{{ t("system.ai.chat.approval.description") }}</el-text>
-                <div v-for="(call, index) in item.output_content.approval.calls" :key="index" class="agent-approval__call">
-                  <el-text tag="strong">{{ call.title || call.name }}</el-text>
-                  <div>{{ call.name }}</div>
-                  <pre>{{ formatToolPayload(call.arguments) }}</pre>
-                </div>
-                <el-text tag="p">
-                  {{
-                    t("system.ai.chat.approval.expires_at", {
-                      time: formatDateTime(resolveTimestamp(item.output_content.approval.expires_at))
-                    })
-                  }}
-                </el-text>
-                <div class="agent-approval__actions">
-                  <el-button type="danger" :loading="sending" @click="emit('approvalDecision', item, true)">
-                    {{ t("system.ai.chat.approval.confirm") }}
-                  </el-button>
-                  <el-button :disabled="sending" @click="emit('approvalDecision', item, false)">
-                    {{ t("system.ai.chat.approval.reject") }}
-                  </el-button>
-                </div>
-              </section>
-              <div
-                class="agent-message-content"
-                :class="{
-                  'is-thinking': item.progressState === 'streaming',
-                  'is-failed-ai': isAIFailedMessage(item),
-                  'is-user': item.role === 'user'
-                }"
-              >
-                <div v-if="isAIFailedMessage(item)" class="agent-message-error">
-                  <div class="agent-message-error__title">{{ t("system.ai.chat.message.server_error") }}</div>
-                  <div class="agent-message-error__content">{{ resolveAIErrorMessage(item) }}</div>
-                  <el-collapse v-if="item.fallback_reason" class="agent-message-error__detail" accordion>
-                    <el-collapse-item :title="t('system.ai.chat.title.error_detail')" :name="String(item.id)">
-                      <pre>{{ resolvePersistedMessage(item.fallback_reason) }}</pre>
-                    </el-collapse-item>
-                  </el-collapse>
-                </div>
-                <template v-else-if="item.role !== 'user'">
-                  <AiMarkdown v-if="!isThinkingPlaceholder(item)" :content="item.content" :streaming="item.progressState === 'streaming'" />
-                  <slot name="flow-blocks" :message="item" :active-flow-message-id="activeFlowMessageID" />
-                  <!-- 问数成功后引导一键生成数据卡片，避免用户手动拼接查询定义。 -->
-                  <div v-if="canCreateBiCard(item)" class="agent-message-bi-card">
-                    <span class="agent-message-bi-card__hint">{{ t("system.ai.chat.bi_card_hint") }}</span>
-                    <el-button size="small" type="primary" @click="openBiCardDialog(item)">
-                      {{ t("system.ai.chat.bi_card_action") }}
-                    </el-button>
-                  </div>
-                  <el-collapse v-if="item.fallback_reason" class="agent-message-error__detail" accordion>
-                    <el-collapse-item :title="t('system.ai.chat.title.error_detail')" :name="String(item.id)">
-                      <pre>{{ resolvePersistedMessage(item.fallback_reason) }}</pre>
-                    </el-collapse-item>
-                  </el-collapse>
-                </template>
-                <span v-else>{{ item.content }}</span>
-              </div>
-              <div v-if="item.attachments?.length && item.role === 'user'" class="agent-message-attachments">
-                <Attachments :items="buildMessageAttachmentItems(item.attachments)" overflow="wrap" :hide-upload="true" />
-              </div>
-              <div v-else-if="item.attachments?.length" class="agent-generated-files">
-                <div
-                  v-for="file in resolveGeneratedAttachments(item.attachments)"
-                  :key="file.id || file.url"
-                  class="agent-generated-file"
-                  @click="openGeneratedFile(file)"
-                >
-                  <el-link underline="never"
-                    class="agent-generated-file__name"
-                    :href="resolveAIAttachmentUrl(file.url)"
-                    target="_blank"
-                    rel="noopener"
-                    @click.prevent="openGeneratedFile(file)"
-                  >{{ file.name }}</el-link>
-                  <span class="agent-generated-file__size">{{ formatAttachmentSize(file.size) }}</span>
-                  <span class="agent-generated-file__actions">
-                    <el-button link type="primary" @click.stop="openGeneratedFile(file)">
-                      {{ t("system.ai.chat.file.open") }}
-                    </el-button>
-                    <el-button link type="primary" @click.stop="downloadGeneratedFile(file)">
-                      {{ t("system.ai.chat.file.download") }}
-                    </el-button>
-                  </span>
-                </div>
-              </div>
-            </div>
-          </template>
-          <template #footer="{ item }">
-            <div
-              v-message-footer-width
-              class="agent-message-footer"
-              :class="{ 'is-user': item.role === 'user', 'is-editing': isEditingMessage(item) }"
+  <el-main class="agent-chat-panel" :class="{ 'is-empty': isEmptyState }">
+    <header v-if="activeSession?.title && !isEmptyState" class="agent-chat-heading">
+      <div class="agent-reading-column">
+        <h2>{{ activeSession.title }}</h2>
+        <p v-if="activeSession.summary && activeSession.summary !== activeSession.title">{{ activeSession.summary }}</p>
+      </div>
+    </header>
+
+    <div ref="scrollRef" class="agent-chat-content" :aria-busy="historyLoading || undefined" @scroll.passive="onScroll">
+      <div ref="readingRef" class="agent-reading-column agent-transcript">
+        <section v-if="activeSession?.read_only" class="agent-result-banner">
+          <span><el-icon><Lock /></el-icon>{{ t("system.ai.workspace.frozen_result") }}</span>
+          <el-button :loading="continuingResult" size="small" @click="emit('continueResult')">
+            {{ t("system.ai.workspace.continue_discussion") }}
+          </el-button>
+        </section>
+
+        <section v-if="branchOrigin" class="agent-branch-note">
+          <GitBranch :size="17" aria-hidden="true" />
+          <div>
+            <strong>{{ t("system.ai.chat.branch.origin", { title: branchOrigin.title || t("system.ai.chat.value.default_conversation_title") }) }}</strong>
+            <p v-if="branchOrigin.excerpt">{{ branchOrigin.excerpt }}</p>
+          </div>
+        </section>
+
+        <section v-if="historyLoading && !messages.length" class="agent-history-loading" role="status">
+          <p class="agent-status-line"><el-icon class="is-loading"><Loading /></el-icon>{{ t("system.ai.chat.history.loading") }}</p>
+          <el-skeleton animated :rows="3" />
+        </section>
+        <section v-if="historyError" class="agent-callout is-danger" role="alert">
+          <el-icon><Warning /></el-icon>
+          <div>
+            <strong>{{ t("system.ai.chat.history.failed") }}</strong>
+            <p>{{ historyError }}</p>
+            <el-button size="small" @click="emit('retryHistory')">{{ t("system.ai.chat.history.retry") }}</el-button>
+          </div>
+        </section>
+
+        <section v-if="isEmptyState" class="agent-chat-empty">
+          <el-icon class="agent-chat-empty__icon"><ChatDotRound /></el-icon>
+          <h2>{{ branchOrigin ? t("system.ai.chat.branch.continue") : welcomeTitle }}</h2>
+          <p>{{ t("system.ai.chat.welcome_description") }}</p>
+          <div v-if="shortcutVisibleList.length" class="agent-empty-shortcuts">
+            <el-button
+              v-for="shortcut in shortcutVisibleList"
+              :key="shortcut.key"
+              size="small"
+              :disabled="sending || (!!shortcut.action?.type && Boolean(blockedReason))"
+              @click="shortcut.action?.type ? handleShortcutClick(shortcut) : fillDraft(shortcut.prompt || shortcut.title)"
             >
-              <div class="agent-message-actions" :class="{ 'is-user': item.role === 'user' }">
-                <template v-for="action in resolveMessageActions(item)" :key="action.key">
-                  <el-popconfirm
-                    v-if="shouldConfirmMessageAction(action.key)"
-                    :title="resolveActionConfirmTitle(action.key, item)"
-                    :confirm-button-text="t('common.action.confirm')"
-                    :cancel-button-text="t('common.action.cancel')"
-                    width="220"
-                    @confirm="handleMessageAction(action.key, item)"
-                  >
-                    <template #reference>
-                      <el-button
-                        class="admin-custom-button agent-message-action"
-                        native-type="button"
-                        :disabled="sending || item.progressState === 'streaming'"
-                        :aria-label="action.label"
-                      >
-                        <el-icon><component :is="action.icon" /></el-icon>
-                      </el-button>
-                    </template>
-                  </el-popconfirm>
-                  <el-tooltip v-else :content="action.label" placement="top">
-                    <el-button
-                      class="admin-custom-button agent-message-action"
-                      native-type="button"
-                      :disabled="sending || item.progressState === 'streaming'"
-                      :aria-label="action.label"
-                      @click="handleMessageAction(action.key, item)"
-                    >
-                      <el-icon><component :is="action.icon" /></el-icon>
-                    </el-button>
-                  </el-tooltip>
-                </template>
-                <el-popover
-                  v-if="item.role !== 'user' && hasAIUsage(item)"
-                  popper-class="agent-message-runtime-popover"
-                  placement="top"
-                  trigger="hover"
-                  width="260"
-                >
-                  <template #reference>
-                    <el-button
-                      class="admin-custom-button agent-message-action agent-message-runtime-trigger"
-                      native-type="button"
-                      :aria-label="t('system.ai.chat.action.view_runtime')"
-                      :disabled="item.progressState === 'streaming'"
-                    >
-                      <el-icon><DataAnalysis /></el-icon>
-                      <span v-if="resolveTokenTotal(item) > 0">{{ formatCompactNumber(resolveTokenTotal(item)) }}</span>
-                      <span v-if="item.duration_ms > 0">{{ formatDurationMs(item.duration_ms) }}</span>
-                    </el-button>
-                  </template>
-                  <div class="agent-runtime-detail">
-                    <div class="agent-runtime-detail__title">{{ t("system.ai.chat.title.runtime") }}</div>
-                    <div v-if="resolveTokenTotal(item) > 0" class="agent-runtime-detail__section">
-                      <div class="agent-runtime-detail__section-title">Token</div>
-                      <div class="agent-runtime-detail__row">
-                        <span>{{ t("system.ai.chat.field.input_tokens") }}</span>
-                        <el-text tag="strong">{{ formatNumber(item.token?.input) }}</el-text>
-                      </div>
-                      <div class="agent-runtime-detail__row">
-                        <span>{{ t("system.ai.chat.field.output_tokens") }}</span>
-                        <el-text tag="strong">{{ formatNumber(item.token?.output) }}</el-text>
-                      </div>
-                      <div v-if="(item.token?.cache ?? 0) > 0" class="agent-runtime-detail__row">
-                        <span>{{ t("system.ai.chat.field.cache_tokens") }}</span>
-                        <el-text tag="strong">{{ formatNumber(item.token?.cache) }}</el-text>
-                      </div>
-                      <div class="agent-runtime-detail__row is-total">
-                        <span>{{ t("system.ai.chat.field.total_tokens") }}</span>
-                        <el-text tag="strong">{{ formatNumber(item.token?.total) }}</el-text>
-                      </div>
-                    </div>
-                    <div v-if="item.first_token_ms > 0 || item.duration_ms > 0" class="agent-runtime-detail__section">
-                      <div class="agent-runtime-detail__section-title">{{ t("system.ai.chat.field.duration") }}</div>
-                      <div v-if="item.first_token_ms > 0" class="agent-runtime-detail__row">
-                        <span>{{ t("system.ai.chat.field.first_token") }}</span>
-                        <el-text tag="strong">{{ formatDurationMs(item.first_token_ms) }}</el-text>
-                      </div>
-                      <div v-if="item.duration_ms > 0" class="agent-runtime-detail__row is-total">
-                        <span>{{ t("system.ai.chat.field.total_duration") }}</span>
-                        <el-text tag="strong">{{ formatDurationMs(item.duration_ms) }}</el-text>
-                      </div>
-                    </div>
-                  </div>
-                </el-popover>
+              {{ shortcut.title || shortcut.prompt }}
+            </el-button>
+          </div>
+        </section>
+
+        <ol v-else-if="messages.length" class="agent-message-list" :aria-label="t('system.ai.chat.title.assistant')">
+          <li
+            v-for="item in visibleMessages"
+            :key="item.key"
+            class="agent-message"
+            :class="{ 'is-user': item.role === 'user' }"
+            :data-message-id="item.id"
+          >
+            <template v-if="item.role === 'user'">
+              <div v-if="!isEditingMessage(item)" class="agent-user-message">
+                <div v-if="item.content" class="agent-user-message__text">{{ item.content }}</div>
+                <AiAttachments v-if="item.attachments?.length" :files="resolveUserAttachments(item)" />
+              </div>
+              <div v-if="item.sendError" class="agent-send-error" role="alert">
+                <el-icon><Warning /></el-icon>
+                <span :title="item.sendError">{{ t("system.ai.chat.status.send_failed") }}</span>
+                <el-button type="danger" link :disabled="sending || Boolean(blockedReason)" @click="handleMessageAction('retry', item)">
+                  {{ t("system.ai.chat.action.resend") }}
+                </el-button>
               </div>
               <div v-if="isEditingMessage(item)" class="agent-message-edit">
-                <el-input
+                <textarea
                   v-model="editingContent"
                   class="agent-message-edit__input"
-                  type="textarea"
-                  resize="none"
-                  :autosize="{ minRows: 3, maxRows: 8 }"
+                  rows="2"
+                  :aria-label="t('common.action.edit')"
                   :disabled="sending"
-                  @keydown.ctrl.enter.prevent="submitMessageEdit(item)"
-                  @keydown.meta.enter.prevent="submitMessageEdit(item)"
-                />
-                <div class="agent-message-edit__footer">
-                  <el-button size="small" :disabled="sending" @click="cancelMessageEdit">
-                    {{ t("common.action.cancel") }}
-                  </el-button>
-                  <el-button size="small" type="primary" :loading="sending" @click="submitMessageEdit(item)">
-                    {{ t("system.ai.chat.action.send") }}
+                  @keydown.ctrl.enter="handleEditKey($event, item)"
+                  @keydown.meta.enter="handleEditKey($event, item)"
+                ></textarea>
+                <div class="agent-inline-actions">
+                  <el-button size="small" :disabled="sending" @click="cancelMessageEdit">{{ t("common.action.cancel") }}</el-button>
+                  <el-button size="small" type="primary" :disabled="sending || Boolean(blockedReason)" @click="submitMessageEdit(item)">
+                    {{ t("system.ai.chat.action.save_and_regenerate") }}
                   </el-button>
                 </div>
               </div>
-            </div>
-          </template>
-        </BubbleList>
-      </div>
-    </template>
+            </template>
 
-    <div v-if="!activeSession?.read_only" ref="composerDockRef" class="agent-composer-dock">
-      <XSender
+            <template v-else>
+              <details v-if="hasProcess(item)" class="agent-message-activity">
+                <summary>
+                  <el-icon :class="{ 'is-loading': hasRunningActivity(item) }">
+                    <Loading v-if="hasRunningActivity(item)" />
+                    <Warning v-else-if="hasFailedTool(item)" class="is-warning" />
+                    <Check v-else />
+                  </el-icon>
+                  {{ resolveActivitySummary(item) }}
+                </summary>
+                <div class="agent-process-list">
+                  <div v-for="activity in resolveVisibleActivities(item)" :key="activity.id" class="agent-step">
+                    <span>{{ resolveActivityTitle(activity) }}</span>
+                    <span :class="{ 'is-warning': activity.status === 'failed' }">{{ activityStatus(activity.status) }}</span>
+                  </div>
+                  <details v-for="(tool, index) in resolveVisibleTools(item)" :key="tool.call_id || index" class="agent-tool">
+                    <summary>
+                      <span>{{ resolveToolTitle(tool) }}</span>
+                      <span class="agent-tool__status" :class="{ 'is-warning': isToolFailed(tool.status) }">{{ resolveToolStatusText(tool.status) }}</span>
+                    </summary>
+                    <slot name="tool-view" :message="item" :tool="tool">
+                      <div class="agent-tool-payload">
+                        <section>
+                          <div class="agent-tool-payload__head">
+                            <strong>{{ t("system.ai.chat.field.request_payload") }}</strong>
+                            <el-button link :aria-label="t('system.ai.chat.action.copy_request')" @click="handleCopyToolRequest(tool)">
+                              <el-icon><CopyDocument /></el-icon>
+                            </el-button>
+                          </div>
+                          <pre>{{ formatToolPayload(tool.input) }}</pre>
+                        </section>
+                        <section>
+                          <strong>{{ t("system.ai.chat.field.response_payload") }}</strong>
+                          <pre>{{ formatToolPayload(tool.output) }}</pre>
+                        </section>
+                      </div>
+                    </slot>
+                  </details>
+                </div>
+              </details>
+
+              <div
+                v-if="item.progressState === 'streaming' && !hasReply(item) && !item.recovery && !hasRunningActivity(item)"
+                class="agent-status-line"
+                role="status"
+              >
+                <el-icon class="is-loading"><Loading /></el-icon>{{ t("system.ai.chat.message.thinking") }}
+              </div>
+
+              <slot v-if="hasReply(item)" name="reply" :message="item">
+                <AiMarkdown :content="item.content" :streaming="item.progressState === 'streaming'" @click.capture="openCitation($event, item)" />
+              </slot>
+
+              <template v-if="knowledgeSources(item).length">
+                <details class="agent-sources">
+                  <summary><el-icon><Collection /></el-icon>{{ t("system.ai.chat.sources.title", { count: knowledgeSources(item).length }) }}</summary>
+                  <ol>
+                    <li v-for="(source, index) in knowledgeSources(item)" :key="index" :data-source-index="index + 1" tabindex="-1">
+                      <strong>{{ source.title }}</strong>
+                      <span v-if="source.collection">{{ source.collection }}</span>
+                      <blockquote v-if="source.excerpt">{{ source.excerpt }}</blockquote>
+                    </li>
+                  </ol>
+                </details>
+              </template>
+
+              <section v-if="item.recovery" class="agent-callout is-warning" role="status">
+                <el-icon :class="{ 'is-loading': item.recovery === 'reconnecting' }">
+                  <Loading v-if="item.recovery === 'reconnecting'" /><Warning v-else />
+                </el-icon>
+                <div>
+                  <strong>{{ t(item.recovery === "reconnecting" ? "system.ai.chat.recovery.reconnecting" : "system.ai.chat.recovery.disconnected") }}</strong>
+                  <p>{{ t("system.ai.chat.recovery.description") }}</p>
+                  <el-button v-if="item.recovery === 'disconnected'" size="small" @click="emit('recoverReply', item)">
+                    {{ t("system.ai.chat.recovery.retry") }}
+                  </el-button>
+                </div>
+              </section>
+
+              <section v-if="isAIFailedMessage(item)" class="agent-callout" :class="isPermissionFailure(item) ? 'is-warning' : 'is-danger'" role="alert">
+                <el-icon><Lock v-if="isPermissionFailure(item)" /><Warning v-else /></el-icon>
+                <div>
+                  <strong>{{ resolveFailureTitle(item) }}</strong>
+                  <p>{{ resolveAIErrorMessage(item) }}</p>
+                  <details v-if="item.fallback_reason" class="agent-diagnostics">
+                    <summary>{{ t("system.ai.chat.title.error_detail") }}</summary>
+                    <pre>{{ resolvePersistedMessage(item.fallback_reason) }}</pre>
+                  </details>
+                  <el-button
+                    v-if="canRegenerate(item) && !isPermissionFailure(item) && replyErrorCode(item) !== 'TOOL_OUTCOME_UNKNOWN'"
+                    type="primary"
+                    size="small"
+                    :disabled="sending || Boolean(blockedReason)"
+                    @click="handleMessageAction('retry', item)"
+                  >
+                    {{ t("system.ai.chat.action.regenerate") }}
+                  </el-button>
+                </div>
+              </section>
+
+              <section
+                v-if="item.status === AiMessageStatus.AI_MESSAGE_STATUS_WAITING_APPROVAL && item.output_content?.approval"
+                class="agent-callout is-warning"
+                :aria-label="t('system.ai.chat.approval.title')"
+              >
+                <ShieldCheck :size="18" aria-hidden="true" />
+                <div>
+                  <strong>{{ t(approvalExpired ? "system.ai.chat.approval.expired_title" : "system.ai.chat.approval.title") }}</strong>
+                  <p>{{ t(approvalExpired ? "system.ai.chat.approval.expired_pending" : "system.ai.chat.approval.description") }}</p>
+                  <template v-if="!approvalExpired">
+                    <details v-for="(call, index) in item.output_content.approval.calls" :key="index" class="agent-diagnostics">
+                      <summary>{{ call.title || call.name }}</summary>
+                      <pre>{{ formatToolPayload(call.arguments) }}</pre>
+                    </details>
+                    <p class="agent-muted">
+                      {{ t("system.ai.chat.approval.expires_at", { time: formatDateTime(approvalDeadline) }) }}
+                    </p>
+                    <div class="agent-inline-actions">
+                      <el-button size="small" :disabled="sending" @click="emit('approvalDecision', item, false)">
+                        {{ t("system.ai.chat.approval.reject") }}
+                      </el-button>
+                      <el-button size="small" type="danger" :loading="sending" @click="emit('approvalDecision', item, true)">
+                        {{ t("system.ai.chat.approval.confirm") }}
+                      </el-button>
+                    </div>
+                  </template>
+                  <el-button v-else size="small" :loading="historyLoading" @click="emit('retryHistory')">
+                    {{ t("system.ai.chat.history.retry") }}
+                  </el-button>
+                </div>
+              </section>
+              <section v-else-if="item.progressState !== 'streaming' && approvalOutcome(item)" class="agent-callout" :class="approvalOutcomeClass(item)" role="status">
+                <el-icon><Check v-if="approvalOutcomeClass(item) === 'is-success'" /><Warning v-else /></el-icon>
+                <div>
+                  <strong>{{ resolveApprovalTitle(item) }}</strong>
+                  <p v-if="approvalOutcome(item)?.state === 'expired'">{{ t("system.ai.chat.approval.expired") }}</p>
+                  <p v-else-if="approvalOutcome(item)?.state === 'rejected'">{{ t("system.ai.chat.approval.rejected") }}</p>
+                  <el-button
+                    v-if="approvalOutcome(item)?.state === 'expired' && approvalOutcome(item)?.retryable === true && canRegenerate(item)"
+                    size="small"
+                    :disabled="sending || Boolean(blockedReason)"
+                    @click="handleMessageAction('retry', item)"
+                  >
+                    {{ t("system.ai.chat.approval.restart") }}
+                  </el-button>
+                </div>
+              </section>
+
+              <div v-if="hasFailedTool(item) && !isAIFailedMessage(item) && item.progressState !== 'streaming'" class="agent-callout is-warning" role="status">
+                <el-icon><Warning /></el-icon>
+                <div>
+                  <strong>{{ t("system.ai.chat.status.tool_failed") }}</strong>
+                  <p>{{ resolveVisibleTools(item).filter(tool => isToolFailed(tool.status)).map(resolveToolTitle).join(" · ") }}</p>
+                  <slot name="tool-retry" :message="item" :tools="resolveVisibleTools(item).filter(tool => isToolFailed(tool.status))" />
+                </div>
+              </div>
+
+              <details v-if="item.fallback && !isAIFailedMessage(item)" class="agent-diagnostics">
+                <summary>{{ t("system.ai.chat.source.fallback") }}</summary>
+                <p v-if="item.model">{{ resolveModelDisplayName(modelProviders, item.model) }}</p>
+                <pre v-if="item.fallback_reason">{{ resolvePersistedMessage(item.fallback_reason) }}</pre>
+              </details>
+
+              <slot name="flow-blocks" :message="item" :active-flow-message-id="activeFlowMessageID" />
+              <AiAttachments
+                :files="resolveGeneratedAttachments(item)"
+                :issues="item.blocks?.filter(block => block.type === 'generated_file_issue')"
+                :can-reexport="!activeSession?.read_only && !sending && !blockedReason"
+                generated
+                @reexport="requestFileExport"
+              />
+            </template>
+
+            <div v-if="!isEditingMessage(item) && (resolveMessageActions(item).length || hasAIUsage(item))" class="agent-message-actions">
+              <template v-for="action in resolveMessageActions(item)" :key="action.key">
+                <el-popconfirm
+                  v-if="shouldConfirmMessageAction(action.key)"
+                  :title="resolveActionConfirmTitle(action.key, item)"
+                  :confirm-button-text="t('common.action.confirm')"
+                  :cancel-button-text="t('common.action.cancel')"
+                  width="220"
+                  @confirm="handleMessageAction(action.key, item)"
+                >
+                  <template #reference>
+                    <el-button class="agent-message-action" text :disabled="sending" :aria-label="action.label">
+                      <el-icon><component :is="action.icon" /></el-icon>
+                    </el-button>
+                  </template>
+                </el-popconfirm>
+                <el-tooltip v-else :content="action.label" placement="top">
+                  <el-button class="agent-message-action" text :disabled="sending && action.key !== 'copy'" :aria-label="action.label" @click="handleMessageAction(action.key, item)">
+                    <el-icon><component :is="action.icon" /></el-icon>
+                  </el-button>
+                </el-tooltip>
+              </template>
+              <details v-if="hasAIUsage(item)" class="agent-runtime">
+                <summary><el-icon><InfoFilled /></el-icon>{{ t("system.ai.chat.action.view_runtime") }}</summary>
+                <dl>
+                  <div v-if="item.model">
+                    <dt>{{ t("system.ai.session.field.model") }}</dt>
+                    <dd>{{ resolveModelDisplayName(modelProviders, item.model) }}</dd>
+                  </div>
+                  <div v-if="resolveMessageReplyTime(item)">
+                    <dt>{{ t("common.field.created_at") }}</dt><dd>{{ resolveMessageReplyTime(item) }}</dd>
+                  </div>
+                  <template v-if="item.token?.total">
+                    <div><dt>{{ t("system.ai.chat.field.input_tokens") }}</dt><dd>{{ formatNumber(item.token.input) }}</dd></div>
+                    <div><dt>{{ t("system.ai.chat.field.output_tokens") }}</dt><dd>{{ formatNumber(item.token.output) }}</dd></div>
+                    <div v-if="item.token.cache"><dt>{{ t("system.ai.chat.field.cache_tokens") }}</dt><dd>{{ formatNumber(item.token.cache) }}</dd></div>
+                    <div><dt>{{ t("system.ai.chat.field.total_tokens") }}</dt><dd>{{ formatNumber(item.token.total) }}</dd></div>
+                  </template>
+                  <div v-if="item.first_token_ms"><dt>{{ t("system.ai.chat.field.first_token") }}</dt><dd>{{ formatDurationMs(item.first_token_ms) }}</dd></div>
+                  <div v-if="item.duration_ms"><dt>{{ t("system.ai.chat.field.total_duration") }}</dt><dd>{{ formatDurationMs(item.duration_ms) }}</dd></div>
+                </dl>
+              </details>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <div v-if="messages.length && !followLatest" class="agent-jump">
+      <el-button round size="small" @click="scrollToLatest()">
+        <el-icon><ArrowDown /></el-icon>{{ t("system.ai.chat.action.latest") }}
+      </el-button>
+    </div>
+    <div v-if="!activeSession?.read_only" ref="composerDockRef" class="agent-reading-column agent-composer-dock">
+      <ChatComposer
+        ref="composerRef"
+        :blocked-reason="blockedReason"
         :key="senderKey"
         :draft="draft"
         @draft-change="emit('draftChange', $event)"
@@ -357,7 +344,7 @@
             :offset="8"
             :show-arrow="false"
             :persistent="false"
-            :disabled="sending"
+            :disabled="sending || Boolean(blockedReason)"
             :aria-label="t('system.ai.chat.shortcut.label')"
             placement="top-start"
             trigger="click"
@@ -373,7 +360,7 @@
                 native-type="button"
                 aria-haspopup="dialog"
                 :aria-expanded="shortcutPopoverOpen"
-                :disabled="sending"
+                :disabled="sending || Boolean(blockedReason)"
               >
                 <Zap :size="14" aria-hidden="true" />
                 {{ t("system.ai.chat.shortcut.label") }}
@@ -394,7 +381,7 @@
                   v-if="canRefreshShortcutBatch"
                   class="admin-custom-button agent-shortcuts__refresh"
                   native-type="button"
-                  :disabled="sending"
+                  :disabled="sending || Boolean(blockedReason)"
                   @click="refreshShortcutBatch"
                 >
                   <el-icon><Refresh /></el-icon>
@@ -410,7 +397,7 @@
                   :key="shortcut.key"
                   class="admin-custom-button agent-shortcut"
                   native-type="button"
-                  :disabled="sending"
+                  :disabled="sending || Boolean(blockedReason)"
                   @click="handleShortcutClick(shortcut)"
                 >
                   <span class="agent-shortcut__title">{{ shortcut.title || shortcut.prompt }}</span>
@@ -420,177 +407,71 @@
             </div>
           </el-popover>
         </template>
-      </XSender>
+      </ChatComposer>
     </div>
-    <!-- 问数结果快速建卡：复用 BI 模块的完整创建卡片表单，与卡片库保持一致。 -->
-    <component
-      v-if="biCardDialog.component"
-      :is="biCardDialog.component"
-      v-model="biCardDialog.visible"
-      :guide="biCardDialog.guide"
-      @saved="handleBiCardSaved"
-    />
   </el-main>
 </template>
 
-<script setup lang="ts" name="ChatPanel">
-import { computed, defineAsyncComponent, h, nextTick, reactive, ref, watch } from "vue";
-import type { Component, ObjectDirective } from "vue";
-import { useElementBounding } from "@vueuse/core";
-import { Attachments, BubbleList } from "vue-element-plus-x";
-import type { FilesCardProps } from "vue-element-plus-x/types/FilesCard";
-import { ArrowDown, Check, CopyDocument, DataAnalysis, Delete, EditPen, Link, Loading, Refresh } from "@element-plus/icons-vue";
+<script setup lang="ts">
+import { computed, defineAsyncComponent, nextTick, ref, watch } from "vue";
+import type { Component } from "vue";
+import { useElementBounding, useResizeObserver } from "@vueuse/core";
+import {
+  ArrowDown,
+  ChatDotRound,
+  Check,
+  Collection,
+  CopyDocument,
+  Delete,
+  EditPen,
+  InfoFilled,
+  Loading,
+  Lock,
+  Refresh,
+  Warning
+} from "@element-plus/icons-vue";
+import { ChevronUp, GitBranch, ShieldCheck, Volume2, Zap } from "@lucide/vue";
 import { ElMessage } from "element-plus";
 import type { ButtonInstance } from "element-plus";
-import { ChevronUp, Zap } from "@lucide/vue";
 import { getCurrentLocale, t } from "@liujitcn/kratos-admin-core";
-import { getAdminAiExtension } from "@liujitcn/kratos-admin-system";
 import { formatDateTime } from "@liujitcn/kratos-admin-core/format";
 import type { AiAction } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_message";
-import { type AiAttachment, type AiSession } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
+import { AiMessageStatus, type AiSession } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import type { AiProviderModelOption } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_provider";
 import type { AiKnowledgeOption } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_knowledge";
 import type { AiShortcut, AiToolCall } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
-import { AiMessageStatus } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
-import { resolvePersistedMessage } from "../../../../utils/persisted-message";
 import { resolveModelDisplayName } from "@liujitcn/kratos-admin-system/components/AiModelSelector/modelDisplay";
-import XSender from "./XSender.vue";
+import { resolvePersistedMessage } from "../../../../utils/persisted-message";
+import { isAIGeneratedAttachment } from "../attachment";
 import { resolveTimestamp } from "../message";
+import type { AiActivityItem, ChatMessageAction, ChatMessageEditPayload, ChatMessageItem, SubmitPayload } from "../types";
+import ChatComposer from "./ChatComposer.vue";
+import AiAttachments from "./AiAttachments.vue";
 
-// AI Markdown 渲染器依赖较重，仅在真正出现助手消息时再加载。
 const AiMarkdown = defineAsyncComponent(() => import("./AiMarkdown.vue"));
-import { buildAIAttachmentFileCard, resolveAIAttachmentUrl } from "../attachment";
-import { defFileService } from "@liujitcn/kratos-admin-core/api/base/v1/file";
-import type { AIFlowBlock, AiActivityItem, ChatMessageAction, ChatMessageEditPayload, ChatMessageItem, ReplySourceTag, SubmitPayload } from "../types";
 
 /** 消息操作按钮配置。 */
-type MessageActionOption = {
-  /** 操作类型。 */
-  key: ChatMessageAction;
-  /** 悬浮提示和无障碍文案。 */
-  label: string;
-  /** 操作图标组件。 */
-  icon: Component;
-};
+type MessageActionOption = { key: ChatMessageAction; label: string; icon: Component };
 
-/** 消息底部操作栏宽度同步状态。 */
-type MessageFooterWidthState = {
-  /** 监听上方内容卡片宽度变化。 */
-  observer: ResizeObserver;
-  /** 当前 footer 对应的内容卡片元素。 */
-  contentEl: HTMLElement;
-};
-
-/** 工具折叠面板的 Element Plus 受控值类型。 */
-type ToolCollapseValue = string | number | Array<string | number>;
-
-const messageFooterWidthStateMap = new WeakMap<HTMLElement, MessageFooterWidthState>();
-const activeToolKeyMap = ref<Record<string, string[]>>({});
-const activeActivityKeyMap = ref<Record<string, boolean>>({});
-const editingMessageKey = ref("");
-const editingContent = ref("");
-/** 助手消息最小阅读宽度，保证底部操作和运行信息不互相遮挡。 */
-const AI_MESSAGE_MIN_WIDTH = 360;
-/** 快捷入口每批展示数量，和移动端保持一致，避免大量入口挤压输入区。 */
-const SHORTCUT_BATCH_SIZE = 4;
-const shortcutBatchIndex = ref(0);
-
-/** 朗读图标，按产品示意图绘制为喇叭声波。 */
-const SpeakActionIcon = defineAsyncComponent(() =>
-  Promise.resolve({
-    name: "SpeakActionIcon",
-    render() {
-      return h(
-        "svg",
-        {
-          class: "agent-message-action__custom-icon",
-          xmlns: "http://www.w3.org/2000/svg",
-          viewBox: "80 160 864 704",
-          fill: "none",
-          "aria-hidden": "true"
-        },
-        [
-          h("path", {
-            d: "M128 400h144L512 224v576L272 624H128z",
-            stroke: "currentColor",
-            "stroke-width": "64",
-            "stroke-linejoin": "round"
-          }),
-          h("path", {
-            d: "M640 352a224 224 0 0 1 0 320",
-            stroke: "currentColor",
-            "stroke-width": "64",
-            "stroke-linecap": "round"
-          }),
-          h("path", {
-            d: "M768 224a384 384 0 0 1 0 576",
-            stroke: "currentColor",
-            "stroke-width": "64",
-            "stroke-linecap": "round"
-          })
-        ]
-      );
-    }
-  })
-);
-
-/** 分支图标，按产品示意图绘制为向上分叉箭头。 */
-const BranchActionIcon = defineAsyncComponent(() =>
-  Promise.resolve({
-    name: "BranchActionIcon",
-    render() {
-      return h(
-        "svg",
-        {
-          class: "agent-message-action__custom-icon",
-          xmlns: "http://www.w3.org/2000/svg",
-          viewBox: "96 160 832 704",
-          fill: "none",
-          "aria-hidden": "true"
-        },
-        [
-          h("path", {
-            d: "M256 832V192",
-            stroke: "currentColor",
-            "stroke-width": "64",
-            "stroke-linecap": "round"
-          }),
-          h("path", {
-            d: "M256 192 128 320M256 192l128 128",
-            stroke: "currentColor",
-            "stroke-width": "64",
-            "stroke-linecap": "round",
-            "stroke-linejoin": "round"
-          }),
-          h("path", {
-            d: "M384 640c256 0 384-176 384-448",
-            stroke: "currentColor",
-            "stroke-width": "64",
-            "stroke-linecap": "round"
-          }),
-          h("path", {
-            d: "M768 192 640 320M768 192l128 128",
-            stroke: "currentColor",
-            "stroke-width": "64",
-            "stroke-linecap": "round",
-            "stroke-linejoin": "round"
-          })
-        ]
-      );
-    }
-  })
-);
+/** 来自当前回复的知识库来源。 */
+type KnowledgeSource = { title: string; collection?: string; excerpt?: string };
 
 const props = defineProps<{
-  /** 当前活动会话，用于输入框按会话重建。 */
+  /** 当前活动会话。 */
   activeSession?: AiSession;
-  /** 当前会话消息列表。 */
+  /** 当前会话的消息列表。 */
   messages: ChatMessageItem[];
-  /** 消息发送加载状态。 */
+  /** 当前会话是否正在提交或生成消息。 */
   sending: boolean;
-  /** 空态快捷入口加载状态。 */
+  /** 当前会话历史记录是否正在加载。 */
+  historyLoading?: boolean;
+  /** 最近一次历史读取错误。 */
+  historyError?: string;
+  /** 是否正在将只读结果复制成讨论。 */
+  continuingResult?: boolean;
+  /** 快捷指令与模型配置是否正在读取。 */
   loadingShortcuts?: boolean;
-  /** 当前终端可用快捷入口。 */
+  /** 当前终端可用快捷指令。 */
   shortcuts?: AiShortcut[];
   /** 当前启用的供应商和模型。 */
   modelProviders: AiProviderModelOption[];
@@ -598,90 +479,112 @@ const props = defineProps<{
   providerId: number;
   /** 当前选择的模型名称。 */
   modelName: string;
-  /** 当前可供选择的知识库。 */
+  /** 当前可选的知识库。 */
   knowledgeOptions: AiKnowledgeOption[];
   /** 当前选择的知识库编号列表。 */
   knowledgeIds: number[];
-  /** 草稿由页面按会话保存。 */
+  /** 按会话保存的输入与附件。 */
   draft?: SubmitPayload;
 }>();
 
 const emit = defineEmits<{
-  /** 提交输入框内容。 */
+  /** 提交聊天消息。 */
   submit: [payload: SubmitPayload];
   draftChange: [value: SubmitPayload];
   continueResult: [];
-  /** 更新当前选择的供应商和模型。 */
+  retryHistory: [];
+  recoverReply: [item: ChatMessageItem];
   modelChange: [providerId: number, modelName: string];
-  /** 更新当前选择的知识库编号列表。 */
   knowledgeChange: [knowledgeIds: number[]];
-  /** 触发消息级操作。 */
   messageAction: [payload: { action: ChatMessageAction; item: ChatMessageItem }];
-  /** 提交当前用户消息的文本编辑。 */
   messageEdit: [payload: ChatMessageEditPayload];
-  /** 确认或拒绝冻结的工具调用。 */
   approvalDecision: [item: ChatMessageItem, approved: boolean];
 }>();
 
-const isEmptyState = computed(() => props.messages.length === 0);
+defineExpose({ fillDraft });
 
-const bubbleRef = ref<{ scrollToBottom: (smooth?: boolean) => void } | null>(null);
-const chatContentRef = ref<HTMLElement | null>(null);
-
+const isEmptyState = computed(() => !props.messages.length && !props.historyLoading && !props.historyError && !props.activeSession?.read_only);
+const composerRef = ref<InstanceType<typeof ChatComposer>>();
 const senderKey = computed(() => props.activeSession?.id || "empty-session");
+const scrollRef = ref<HTMLElement>();
+const readingRef = ref<HTMLElement>();
+const followLatest = ref(true);
 const composerDockRef = ref<HTMLElement>();
 const { top: composerDockTop, width: composerDockWidth, update: updateComposerDockBounds } = useElementBounding(composerDockRef);
 const shortcutTriggerRef = ref<ButtonInstance>();
 const shortcutPopoverRef = ref<HTMLElement>();
 const shortcutPopoverOpen = ref(false);
+const editingMessageKey = ref("");
+const editingContent = ref("");
 
-watch([senderKey, isEmptyState, () => props.sending, () => props.activeSession?.read_only], () => {
-  shortcutPopoverOpen.value = false;
-});
+const visibleMessages = computed(() => props.messages.filter(item => item.role !== "user" || item.content || resolveUserAttachments(item).length));
+const branchOrigin = computed(() => props.messages.find(item => item.blocks?.some(block => block.type === "branch_origin"))
+  ?.blocks?.find(block => block.type === "branch_origin"));
+const pendingApproval = computed(() => props.messages.findLast(item => item.role === "ai" && item.status === AiMessageStatus.AI_MESSAGE_STATUS_WAITING_APPROVAL));
+const approvalDeadline = computed(() => resolveTimestamp(pendingApproval.value?.output_content?.approval?.expires_at));
+const approvalExpired = ref(false);
 
-const bubbleList = computed<ChatMessageItem[]>(() =>
-  (props.messages ?? []).map(item => ({
-    ...item,
-    key: String(item.key ?? item.id ?? `${item.role}-${item.created_at?.seconds ?? 0}`),
-    content: String(item.content ?? ""),
-    placement: item.placement ?? "start"
-  }))
-);
-
-// 流式跟随：高频分片输出会让组件内自动跟随状态失效，内容更新时若用户处于底部附近则主动滚动到最新内容。
-watch(
-  () => {
-    const last = bubbleList.value[bubbleList.value.length - 1];
-    if (!last || last.role === "user") return "";
-    const activities = last.activities ?? [];
-    return `${last.key}:${last.content?.length ?? 0}:${activities.length}:${activities[activities.length - 1]?.status ?? ""}`;
-  },
-  async () => {
-    await nextTick();
-    const container = chatContentRef.value?.querySelector<HTMLElement>(".agent-message-list .el-bubble-list__list");
-    if (!container) return;
-    const distanceToBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
-    // 用户上翻阅读历史时不强行拉回，交还给组件自身的回到底部交互。
-    if (distanceToBottom > 240) return;
-    bubbleRef.value?.scrollToBottom(false);
+watch(approvalDeadline, (deadline, _, onCleanup) => {
+  approvalExpired.value = deadline > 0 && deadline <= Date.now();
+  if (deadline > Date.now()) {
+    const timeout = window.setTimeout(() => { approvalExpired.value = true; }, deadline - Date.now());
+    onCleanup(() => window.clearTimeout(timeout));
   }
-);
+}, { immediate: true });
 
-const lastEditableUserMessageKey = computed(() => {
-  for (let index = props.messages.length - 1; index >= 0; index--) {
-    const item = props.messages[index];
-    if (item.role === "user" && !item.localOnly) {
-      return resolveMessageEditKey(item);
-    }
-  }
+const blockedReason = computed(() => {
+  if (pendingApproval.value) return t(approvalExpired.value ? "system.ai.chat.approval.expired_pending" : "system.ai.chat.approval.pending");
+  if (props.messages.some(item => item.recovery === "disconnected")) return t("system.ai.chat.recovery.description");
+  if (props.historyError || props.historyLoading) return t("system.ai.chat.history.composer_hold");
+  if (props.loadingShortcuts && !props.modelName) return t("system.ai.chat.status.loading");
+  if (!props.modelName || !props.providerId) return t("system.ai.chat.model_unavailable");
   return "";
 });
 
+const lastEditableUserMessage = computed(() => props.messages.findLast(item => item.role === "user" && !item.localOnly));
 const activeFlowMessageID = computed(() => {
   const latest = props.messages.at(-1);
-  if (props.sending || latest?.role !== "ai" || latest.status !== AiMessageStatus.AI_MESSAGE_STATUS_SUCCESS) return "";
-  return String(latest.id ?? "");
+  if (props.activeSession?.read_only || props.sending || props.historyLoading || props.historyError ||
+      latest?.role !== "ai" || latest.status !== AiMessageStatus.AI_MESSAGE_STATUS_SUCCESS) return "";
+  return latest.id;
 });
+
+watch(senderKey, async () => {
+  cancelMessageEdit();
+  followLatest.value = true;
+  await nextTick();
+  scrollToLatest();
+});
+watch([senderKey, isEmptyState, () => props.sending, () => props.activeSession?.read_only], () => {
+  shortcutPopoverOpen.value = false;
+});
+useResizeObserver([readingRef, scrollRef], () => {
+  if (followLatest.value) scrollToLatest();
+});
+
+/** 选择用户上传的附件。 */
+function resolveUserAttachments(item: ChatMessageItem) {
+  return item.attachments?.filter(file => !isAIGeneratedAttachment(file)) ?? [];
+}
+
+/** 选择助手生成的附件。 */
+function resolveGeneratedAttachments(item: ChatMessageItem) {
+  return item.attachments?.filter(isAIGeneratedAttachment) ?? [];
+}
+
+/** 通过滚动位置区分跟随最新回复和查看历史。 */
+function onScroll() {
+  const container = scrollRef.value;
+  if (!container?.clientHeight) return;
+  followLatest.value = container.scrollHeight - container.scrollTop - container.clientHeight < 80;
+}
+
+/** 恢复跟随并滚动到最新消息。 */
+function scrollToLatest() {
+  followLatest.value = true;
+  const container = scrollRef.value;
+  if (container) container.scrollTop = container.scrollHeight;
+}
 
 const welcomeTitle = computed(() => {
   const hour = new Date().getHours();
@@ -690,695 +593,920 @@ const welcomeTitle = computed(() => {
   return t("system.ai.chat.welcome.evening");
 });
 
+const SHORTCUT_BATCH_SIZE = 4;
+const shortcutBatchIndex = ref(0);
 const shortcutAllList = computed(() =>
   [...(props.shortcuts ?? [])]
     .filter(item => Boolean(item?.key && (item.title || item.prompt)))
     .sort((left, right) => Number(left.sort ?? 0) - Number(right.sort ?? 0))
 );
-
 const shortcutBatchCount = computed(() => Math.max(1, Math.ceil(shortcutAllList.value.length / SHORTCUT_BATCH_SIZE)));
-
 const shortcutVisibleList = computed(() => {
-  const pageIndex = shortcutBatchIndex.value % shortcutBatchCount.value;
-  const start = pageIndex * SHORTCUT_BATCH_SIZE;
+  const start = (shortcutBatchIndex.value % shortcutBatchCount.value) * SHORTCUT_BATCH_SIZE;
   return shortcutAllList.value.slice(start, start + SHORTCUT_BATCH_SIZE);
 });
-
-const hasShortcutPanel = computed(
-  () => !props.activeSession?.read_only && (props.loadingShortcuts || shortcutVisibleList.value.length > 0)
-);
-
+const hasShortcutPanel = computed(() => !props.activeSession?.read_only && (props.loadingShortcuts || shortcutVisibleList.value.length > 0));
 const canRefreshShortcutBatch = computed(() => shortcutAllList.value.length > SHORTCUT_BATCH_SIZE);
-
 const shortcutBatchLabel = computed(() => {
   const total = shortcutAllList.value.length;
   if (props.loadingShortcuts && total === 0) return t("system.ai.chat.status.loading");
   if (total <= SHORTCUT_BATCH_SIZE) return t("system.ai.chat.value.item_count", { count: total });
-  const pageIndex = shortcutBatchIndex.value % shortcutBatchCount.value;
-  const start = pageIndex * SHORTCUT_BATCH_SIZE + 1;
-  const end = Math.min(start + SHORTCUT_BATCH_SIZE - 1, total);
-  return `${start}-${end} / ${total}`;
+  const start = (shortcutBatchIndex.value % shortcutBatchCount.value) * SHORTCUT_BATCH_SIZE + 1;
+  return [start + "-" + Math.min(start + SHORTCUT_BATCH_SIZE - 1, total), total].join(" / ");
 });
 
-/** 查找 footer 所属气泡里的消息内容元素。 */
-function findMessageContentElement(el: HTMLElement) {
-  const wrapper = el.closest(".elx-bubble__content-wrapper");
-  return (
-    wrapper?.querySelector<HTMLElement>(".agent-message-body") ??
-    wrapper?.querySelector<HTMLElement>(".elx-bubble__content") ??
-    null
-  );
-}
-
-/** 把消息 footer 宽度同步为上方内容宽度，避免底部按钮越出正文边界。 */
-function syncMessageFooterWidth(el: HTMLElement) {
-  const contentEl = findMessageContentElement(el);
-  if (!contentEl) return;
-
-  const isAIMessage = !el.classList.contains("is-user");
-  const width = Math.max(contentEl.getBoundingClientRect().width, isAIMessage ? AI_MESSAGE_MIN_WIDTH : 0);
-  if (width <= 0) return;
-
-  el.style.setProperty("--agent-message-footer-width", `${Math.ceil(width)}px`);
-}
-
-/** 绑定内容尺寸监听，覆盖流式内容、Markdown 渲染和窗口变化后的重新对齐。 */
-function bindMessageFooterWidth(el: HTMLElement) {
-  const contentEl = findMessageContentElement(el);
-  const existingState = messageFooterWidthStateMap.get(el);
-  if (!contentEl) {
-    existingState?.observer.disconnect();
-    messageFooterWidthStateMap.delete(el);
-    el.style.removeProperty("--agent-message-footer-width");
-    return;
-  }
-
-  if (existingState?.contentEl === contentEl) {
-    syncMessageFooterWidth(el);
-    return;
-  }
-
-  existingState?.observer.disconnect();
-  const observer = new ResizeObserver(() => syncMessageFooterWidth(el));
-  observer.observe(contentEl);
-  messageFooterWidthStateMap.set(el, { observer, contentEl });
-  syncMessageFooterWidth(el);
-}
-
-const vMessageFooterWidth: ObjectDirective<HTMLElement> = {
-  mounted(el) {
-    void nextTick(() => bindMessageFooterWidth(el));
-  },
-  updated(el) {
-    void nextTick(() => bindMessageFooterWidth(el));
-  },
-  beforeUnmount(el) {
-    messageFooterWidthStateMap.get(el)?.observer.disconnect();
-    messageFooterWidthStateMap.delete(el);
-  }
-};
-
-/** 读取输入框内容并提交给父组件。 */
+/** 在可发送状态下交由页面提交，保持视口跟随新一轮。 */
 function handleSubmit(payload: SubmitPayload) {
-  if (props.activeSession?.read_only) return;
+  if (props.activeSession?.read_only || props.sending || blockedReason.value) return;
+  scrollToLatest();
   emit("submit", payload);
 }
 
-/** 转发输入器发出的供应商和模型变更。 */
+/** 在当前草稿里预填问题，保留已上传附件。 */
+function fillDraft(text: string) {
+  if (props.activeSession?.read_only) return;
+  emit("draftChange", { text, attachments: props.draft?.attachments ?? [] });
+  composerRef.value?.focus();
+}
+
+/** 在现有草稿中追加重导出请求，交给用户确认后发送。 */
+function requestFileExport(name: string) {
+  const request = t("system.ai.chat.file.reexport_draft", { name });
+  const existing = props.draft?.text.trimEnd();
+  if (existing?.endsWith(request)) return;
+  fillDraft(existing ? `${existing}\n\n${request}` : request);
+}
+
+/** 转发供应商和模型选择。 */
 function handleModelChange(providerId: number, modelName: string) {
   emit("modelChange", providerId, modelName);
 }
 
-/** 更新当前选择的知识库编号列表。 */
+/** 转发知识库选择。 */
 function handleKnowledgeChange(knowledgeIds: number[]) {
   emit("knowledgeChange", knowledgeIds);
 }
 
-/** 展开时聚焦列表首项，加载中则聚焦弹层。 */
+/** 展开快捷指令时聚焦首个选项。 */
 function focusShortcutPopover() {
   const firstShortcut = shortcutPopoverRef.value?.querySelector<HTMLButtonElement>(".agent-shortcut:not(:disabled)");
   (firstShortcut ?? shortcutPopoverRef.value)?.focus({ preventScroll: true });
 }
 
-/** 按 Escape 收起快捷提问并回到入口。 */
+/** 关闭快捷指令并将焦点还给入口。 */
 async function dismissShortcutPopover() {
   shortcutPopoverOpen.value = false;
   await nextTick();
   shortcutTriggerRef.value?.ref?.focus({ preventScroll: true });
 }
 
-/** 点击快捷入口时提交对应入口动作。 */
+/** 触发已配置的快捷动作，普通提示只预填输入。 */
 function handleShortcutClick(shortcut: AiShortcut) {
-  if (props.activeSession?.read_only) return;
   shortcutPopoverOpen.value = false;
-  emit("submit", {
-    text: shortcut.prompt || shortcut.title,
-    attachments: [],
-    action: buildShortcutAction(shortcut)
-  });
+  const text = shortcut.prompt || shortcut.title;
+  if (!shortcut.action?.type) {
+    fillDraft(text);
+    return;
+  }
+  const action: AiAction = {
+    flow: shortcut.action.flow || "",
+    step: shortcut.action.step || "",
+    type: shortcut.action.type,
+    payload_json: shortcut.action.payload_json || "{}",
+    source_message_id: "",
+    action_id: "",
+    flow_version: 0
+  };
+  handleSubmit({ text, attachments: [], action });
 }
 
-/** 轮换下一批快捷入口，保持大量入口也能被逐批访问。 */
+/** 切换下一组快捷指令。 */
 function refreshShortcutBatch() {
-  if (!canRefreshShortcutBatch.value) return;
   shortcutBatchIndex.value = (shortcutBatchIndex.value + 1) % shortcutBatchCount.value;
 }
 
-/** 展示快捷入口的分组和工具依赖摘要，帮助运营判断动作上下文。 */
+/** 展示快捷入口的分组和工具依赖数量。 */
 function resolveShortcutMeta(shortcut: AiShortcut) {
   const group = shortcut.group || t("system.ai.chat.value.general_assistant");
-  const toolCount = shortcut.required_tools?.length ?? 0;
-  return toolCount > 0 ? t("system.ai.chat.value.shortcut_tools", { group, count: toolCount }) : group;
+  const count = shortcut.required_tools?.length ?? 0;
+  return count ? t("system.ai.chat.value.shortcut_tools", { group, count }) : group;
 }
 
-/** 生成快捷入口对应的流程动作。 */
-function buildShortcutAction(shortcut: AiShortcut) {
-  if (!shortcut.action?.type) return undefined;
-  return buildFlowAction(shortcut.action, parseActionPayload(shortcut.action.payload_json));
+/** 在最新的持久化轮次上提供重新生成。 */
+function canRegenerate(item: ChatMessageItem) {
+  return !props.activeSession?.read_only && !item.localOnly && props.messages.at(-1)?.key === item.key;
 }
 
-/** 构造发送给后端的流程动作，统一补齐 payload JSON 默认值。 */
-function buildFlowAction(action?: Partial<AiAction>, payload?: Record<string, unknown>): AiAction | undefined {
-  if (!action?.type) return undefined;
-  return {
-    flow: action.flow || "",
-    step: action.step || "",
-    type: action.type,
-    payload_json: JSON.stringify(payload || {}),
-    source_message_id: action.source_message_id || "",
-    action_id: action.action_id || "",
-    flow_version: Number(action.flow_version || 0)
-  };
-}
-
-/** 解析流程动作负载，兼容空字符串和异常 JSON。 */
-function parseActionPayload(payload?: string) {
-  try {
-    return JSON.parse(payload || "{}") as Record<string, unknown>;
-  } catch {
-    return {};
-  }
-}
-
-/** 根据消息角色返回可用操作。 */
-function resolveMessageActions(item: ChatMessageItem) {
+/** 根据角色与消息状态提供允许的操作。 */
+function resolveMessageActions(item: ChatMessageItem): MessageActionOption[] {
   if (item.progressState === "streaming" || item.status === AiMessageStatus.AI_MESSAGE_STATUS_GENERATING) return [];
-
-  const copyAction: MessageActionOption = {
-    key: "copy" as const,
-    label: t("system.ai.chat.action.copy"),
-    icon: CopyDocument
-  };
-  if (props.activeSession?.read_only) return [copyAction];
-  const deleteAction: MessageActionOption = { key: "delete" as const, label: t("common.action.delete"), icon: Delete };
-  if (item.status === AiMessageStatus.AI_MESSAGE_STATUS_WAITING_APPROVAL) return [deleteAction];
-  const isLatest = String(item.id) === String(props.messages.at(-1)?.id);
-  const editAction: MessageActionOption = { key: "edit" as const, label: t("common.action.edit"), icon: EditPen };
-  if (item.role === "user") {
-    const actions = isLastEditableUserMessage(item) ? [editAction, copyAction, deleteAction] : [copyAction, deleteAction];
-    if (isLatest && item.status === AiMessageStatus.AI_MESSAGE_STATUS_FAILED) {
-      return item.localOnly
-        ? [{ key: "retry" as const, label: t("system.ai.chat.action.resend"), icon: Refresh }, copyAction, deleteAction]
-        : [{ key: "retry" as const, label: t("system.ai.chat.action.resend"), icon: Refresh }, ...actions];
+  const copy: MessageActionOption = { key: "copy", label: t("system.ai.chat.action.copy"), icon: CopyDocument };
+  if (props.activeSession?.read_only) return item.content ? [copy] : [];
+  const remove: MessageActionOption = { key: "delete", label: t("common.action.delete"), icon: Delete };
+  if (item.status === AiMessageStatus.AI_MESSAGE_STATUS_WAITING_APPROVAL) return [remove];
+  const actions: MessageActionOption[] = [];
+  if (item.role === "user" && item.key === lastEditableUserMessage.value?.key) {
+    actions.push({ key: "edit", label: t("common.action.edit"), icon: EditPen });
+  }
+  if (item.role === "ai" && item.status === AiMessageStatus.AI_MESSAGE_STATUS_SUCCESS) {
+    if (canRegenerate(item) && !blockedReason.value && !approvalOutcome(item) && !hasFailedTool(item)) {
+      actions.push({ key: "retry", label: t("system.ai.chat.action.regenerate"), icon: Refresh });
     }
-    return item.localOnly ? [copyAction, deleteAction] : actions;
+    if (!approvalOutcome(item)) actions.push({ key: "branch", label: t("system.ai.chat.action.create_branch"), icon: GitBranch });
+    if (item.content) {
+      actions.push({ key: "speak", label: t(item.speaking ? "system.ai.chat.action.stop_speaking" : "system.ai.chat.action.speak"), icon: Volume2 });
+    }
   }
-
-  const actions: MessageActionOption[] = isLatest
-    ? [{ key: "retry" as const, label: t("system.ai.chat.action.regenerate"), icon: Refresh }]
-    : [];
-  if (item.status === AiMessageStatus.AI_MESSAGE_STATUS_SUCCESS) {
-    actions.push({ key: "branch" as const, label: t("system.ai.chat.action.create_branch"), icon: BranchActionIcon });
-    actions.push({
-      key: "speak" as const,
-      label: item.speaking ? t("system.ai.chat.action.stop_speaking") : t("system.ai.chat.action.speak"),
-      icon: SpeakActionIcon
-    });
-  }
-  return [...actions, copyAction, deleteAction];
+  if (item.content) actions.unshift(copy);
+  return [...actions, remove];
 }
 
-/** 判断是否为需要渲染错误卡片的助手失败消息。 */
-function isAIFailedMessage(item: ChatMessageItem) {
-  return item.role !== "user" && item.status === AiMessageStatus.AI_MESSAGE_STATUS_FAILED;
-}
-
-/** 返回助手错误摘要，优先展示服务端可读错误。 */
-function resolveAIErrorMessage(item: ChatMessageItem) {
-  const content = String(item.content ?? "").trim();
-  return content || t("system.ai.chat.message.reply_failed");
-}
-
-/** 判断助手消息是否存在最终用量信息。 */
-function hasAIUsage(item: ChatMessageItem) {
-  return resolveTokenTotal(item) > 0 || item.first_token_ms > 0 || item.duration_ms > 0;
-}
-
-/** 返回当前气泡总 token 数。 */
-function resolveTokenTotal(item: ChatMessageItem) {
-  return Number(item.token?.total ?? 0);
-}
-
-/** 将毫秒耗时格式化为秒。 */
-function formatDurationMs(value?: number) {
-  const ms = Number(value ?? 0);
-  if (ms <= 0) return "0s";
-  return `${(ms / 1000).toFixed(2)}s`;
-}
-
-/** 返回助手消息回复时间，优先展示后端消息创建时间。 */
-function resolveMessageReplyTime(item: ChatMessageItem) {
-  const timestamp = resolveMessageCreatedAt(item);
-  if (!timestamp) return "";
-  return formatDateTime(timestamp);
-}
-
-/** 解析消息创建时间戳，兼容 protobuf Timestamp 结构。 */
-function resolveMessageCreatedAt(item: ChatMessageItem) {
-  const seconds = Number(item.created_at?.seconds ?? 0);
-  const nanos = Number(item.created_at?.nanos ?? 0);
-  if (seconds <= 0 && nanos <= 0) return 0;
-  return seconds * 1000 + Math.floor(nanos / 1_000_000);
-}
-
-/** 将较大的数字压缩成适合 footer 展示的短格式。 */
-function formatCompactNumber(value?: number) {
-  const number = Number(value ?? 0);
-  if (number >= 1_000_000) return `${(number / 1_000_000).toFixed(number >= 10_000_000 ? 0 : 1)}M`;
-  if (number >= 1_000) return `${(number / 1_000).toFixed(number >= 100_000 ? 0 : 1)}K`;
-  return formatNumber(number);
-}
-
-/** 格式化明细数字，保持 Token 明细易读。 */
-function formatNumber(value?: number) {
-  return new Intl.NumberFormat(getCurrentLocale()).format(Number(value ?? 0));
-}
-
-/** 返回活动时间线是否展开，流式消息默认展开、完成消息默认收起。 */
-function isActivityExpanded(item: ChatMessageItem) {
-  const key = resolveToolCollapseMessageKey(item);
-  return activeActivityKeyMap.value[key] ?? item.progressState === "streaming";
-}
-
-/** 切换消息活动时间线展开状态。 */
-function toggleActivity(item: ChatMessageItem) {
-  const key = resolveToolCollapseMessageKey(item);
-  activeActivityKeyMap.value = { ...activeActivityKeyMap.value, [key]: !isActivityExpanded(item) };
-}
-
-/** 判断消息是否仍有进行中的活动。 */
-function hasRunningActivity(item: ChatMessageItem) {
-  return (item.activities ?? []).some(activity => activity.status === "running");
-}
-
-/** 判断流式消息是否仍停留在“正在整理回复”占位文案：此时处理过程行与首条增量会接管展示，正文占位与三点动画一并隐藏。 */
-function isThinkingPlaceholder(item: ChatMessageItem) {
-  return item.progressState === "streaming" && item.content === t("system.ai.chat.message.thinking");
-}
-
-/** 返回活动时间线顶部摘要。 */
-function resolveActivitySummary(item: ChatMessageItem) {
-  const activities = item.activities ?? [];
-  const current = [...activities].reverse().find(activity => activity.status === "running") ?? activities[activities.length - 1];
-  if (!current) return t("system.ai.chat.status.completed");
-  if (!hasRunningActivity(item)) {
-    if (current.status === "failed") return t("system.ai.chat.status.failed");
-    if (current.status === "waiting_approval") return t("system.ai.chat.approval.title");
-    return t("system.ai.chat.status.completed");
-  }
-  if (current.phase === "reasoning") return current.summary || t("system.ai.chat.status.thinking");
-  if (current.phase === "tool") {
-    return t("system.ai.chat.status.running_tool", { tool: resolveActivityToolTitle(current) });
-  }
-  if (current.phase === "answering") return t("system.ai.chat.status.answering");
-  return t("system.ai.chat.status.completed");
-}
-
-/** 返回活动条目的标题。 */
-function resolveActivityTitle(activity: AiActivityItem) {
-  if (activity.phase === "reasoning") return activity.summary || t("system.ai.chat.status.thinking");
-  if (activity.phase === "tool") return resolveActivityToolTitle(activity);
-  return t("system.ai.chat.status.answering");
-}
-
-/** 已成功创建卡片的消息不再展示引导入口。 */
-const biCardDoneKeys = reactive(new Set<string>());
-const aiExtension = getAdminAiExtension();
-const aiDialogs = aiExtension.dialogs ?? {};
-const legacyBiCardDialogComponent = aiExtension.biCardDialog;
-/** 快速建卡弹窗状态：引导块来自后端注入，完整表单复用 BI 模块组件。 */
-const biCardDialog = reactive({
-  visible: false,
-  sourceKey: "",
-  guide: undefined as AIFlowBlock | undefined,
-  component: undefined as Component | undefined
-});
-
-/** 读取消息中后端注入的问数引导块。 */
-function resolveBiCardGuide(item: ChatMessageItem) {
-  return (item.blocks ?? []).find(block => block.type === "bi_card_guide");
-}
-
-/** 按流程块声明的业务键解析弹窗，旧 BI 字段只作为兼容回退。 */
-function resolveAiDialog(block: AIFlowBlock) {
-  const key = String(block.dialog || block.type || "");
-  return aiDialogs[key] ?? (key === "bi_card_guide" ? legacyBiCardDialogComponent : undefined);
-}
-
-/** 消息携带问数引导块且尚未建卡时展示生成入口。 */
-function canCreateBiCard(item: ChatMessageItem): boolean {
-  const guide = resolveBiCardGuide(item);
-  return Boolean(guide && resolveAiDialog(guide)) && item.role !== "user" && !biCardDoneKeys.has(item.key);
-}
-
-/** 打开已启用 BI 模块贡献的建卡弹窗。 */
-function openBiCardDialog(item: ChatMessageItem) {
-  const guide = resolveBiCardGuide(item);
-  if (!guide) return;
-  biCardDialog.sourceKey = item.key;
-  biCardDialog.guide = guide;
-  biCardDialog.component = resolveAiDialog(guide);
-  biCardDialog.visible = true;
-}
-
-/** 建卡成功后隐藏引导入口并提示查看位置。 */
-function handleBiCardSaved() {
-  if (biCardDialog.sourceKey) biCardDoneKeys.add(biCardDialog.sourceKey);
-  biCardDialog.visible = false;
-  ElMessage.success(t("system.ai.chat.bi_card_created"));
-}
-
-/** 返回活动中的本地化工具展示名称。 */
-function resolveActivityToolTitle(activity: AiActivityItem) {
-  if (activity.tool_name === "web_search") return t("system.ai.chat.value.web_search");
-  return activity.tool_title || activity.tool_name || t("system.ai.chat.value.tool");
-}
-
-/** 返回活动状态的视觉样式。 */
-function resolveActivityStatusClass(status: AiActivityItem["status"]) {
-  if (status === "failed") return "is-error";
-  if (status === "waiting_approval") return "is-warning";
-  if (status === "completed") return "is-success";
-  return "is-running";
-}
-
-/** 生成工具标签稳定键。 */
-function resolveToolKey(tool: AiToolCall, index?: number) {
-  return `${tool.type || "tool"}:${tool.name || tool.title}:${index ?? 0}`;
-}
-
-/** 生成消息维度的工具展开状态键，避免不同气泡之间互相影响。 */
-function resolveToolCollapseMessageKey(item: ChatMessageItem) {
-  return String(item.key ?? item.id ?? "");
-}
-
-/** 返回当前消息已展开的工具面板，默认保持全部收起。 */
-function resolveActiveToolKeys(item: ChatMessageItem) {
-  return activeToolKeyMap.value[resolveToolCollapseMessageKey(item)] ?? [];
-}
-
-/** 更新工具面板展开状态，兼容 Element Plus 单值和数组两类返回值。 */
-function handleToolCollapseUpdate(item: ChatMessageItem, value: ToolCollapseValue) {
-  activeToolKeyMap.value = {
-    ...activeToolKeyMap.value,
-    [resolveToolCollapseMessageKey(item)]: Array.isArray(value) ? value.map(String) : [String(value)].filter(Boolean)
-  };
-}
-
-/** 返回需要展示在消息内容区的 function 工具记录，过滤联网搜索等 server 工具。 */
-function resolveVisibleTools(item: ChatMessageItem) {
-  return (item.tools ?? []).filter(tool => tool.type === "function" && String(tool.name || tool.title).trim());
-}
-
-/** 生成工具展示名称。 */
-function resolveToolTitle(tool: AiToolCall) {
-  if (tool.name === "web_search") return t("system.ai.chat.value.web_search");
-  return tool.title || tool.name || t("system.ai.chat.value.tool");
-}
-
-/** 返回工具真实名称，用于排障时识别具体 Agent Tool。 */
-function resolveToolName(tool: AiToolCall) {
-  return String(tool.name ?? "").trim();
-}
-
-/** 生成工具状态样式名。 */
-function resolveToolStatusClass(status?: string) {
-  return isToolFailed(status) ? "is-error" : "is-success";
-}
-
-/** 生成工具状态展示文案。 */
-function resolveToolStatusText(status?: string) {
-  return isToolFailed(status) ? t("system.ai.chat.status.failed") : t("system.ai.chat.status.completed");
-}
-
-/** 判断工具调用是否失败，兼容后端历史状态值。 */
-function isToolFailed(status?: string) {
-  return ["error", "failed", "fail"].includes(String(status ?? "").toLowerCase());
-}
-
-/** 判断原始报文是否有实际内容，避免空对象撑出无意义区块。 */
-function hasToolPayloadValue(payload?: string) {
-  const value = String(payload ?? "").trim();
-  if (!value || value === "{}") return false;
-  return true;
-}
-
-/** 格式化工具原始报文，JSON 内容优先缩进展示。 */
-function formatToolPayload(payload?: string) {
-  const value = String(payload ?? "");
-  if (!value) return "{}";
-  try {
-    return JSON.stringify(JSON.parse(value), null, 2);
-  } catch {
-    return value;
-  }
-}
-
-/** 格式化工具请求报文，展开态始终保留稳定内容区。 */
-function formatToolRequest(tool: AiToolCall) {
-  const input = String(tool.input ?? "");
-  if (!hasToolPayloadValue(input)) return "{}";
-  if (!isJSONLikeText(input) && !hasToolPayloadValue(tool.output)) return "{}";
-  return formatToolArguments(input);
-}
-
-/** 格式化工具出参。 */
-function formatToolResponse(tool: AiToolCall) {
-  return hasToolPayloadValue(tool.output) ? formatToolPayload(tool.output) : "{}";
-}
-
-/** 判断文本是否像 JSON，工具请求报文正常应由模型参数 JSON 构成。 */
-function isJSONLikeText(payload?: string) {
-  const value = String(payload ?? "");
-  if (!value) return false;
-  const first = value[0];
-  return first === "{" || first === "[";
-}
-
-/** 格式化工具入参，简单对象按字段行展示，贴近工具调用详情的阅读习惯。 */
-function formatToolArguments(payload?: string) {
-  const value = String(payload ?? "");
-  if (!value) return "";
-  try {
-    const parsed = JSON.parse(value) as unknown;
-    if (!isPlainRecord(parsed)) return JSON.stringify(parsed, null, 2);
-    return Object.entries(parsed)
-      .map(([key, item]) => `${key} ${formatToolArgumentValue(item)}`)
-      .join("\n");
-  } catch {
-    return value;
-  }
-}
-
-/** 判断值是否为普通对象，避免把数组按入参表展示。 */
-function isPlainRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-}
-
-/** 格式化单个工具入参值，复杂值保留 JSON 结构。 */
-function formatToolArgumentValue(value: unknown) {
-  if (isPlainRecord(value) || Array.isArray(value)) return JSON.stringify(value);
-  return String(value ?? "");
-}
-
-/** 复制工具请求报文，点击时不触发展开收起。 */
-async function handleCopyToolRequest(tool: AiToolCall) {
-  try {
-    await navigator.clipboard.writeText(formatToolRequest(tool));
-    ElMessage.success(t("system.ai.chat.message.request_copied"));
-  } catch {
-    ElMessage.error(t("system.ai.chat.message.copy_unsupported"));
-  }
-}
-
-/** 向父组件透传消息操作，由页面层决定是否重发、复制或移除。 */
+/** 编辑在面板内进行，其他操作由所属页面处理。 */
 function handleMessageAction(action: ChatMessageAction, item: ChatMessageItem) {
   if (action === "edit") {
-    startMessageEdit(item);
+    editingMessageKey.value = item.key;
+    editingContent.value = item.content;
     return;
   }
   emit("messageAction", { action, item });
 }
 
-/** 生成编辑态稳定键，用于只展开当前用户消息下方的编辑框。 */
-function resolveMessageEditKey(item: ChatMessageItem) {
-  return String(item.key ?? `${item.id}:${item.role}`);
-}
-
-/** 判断当前消息是否正在编辑。 */
+/** 判断这条消息是否正在编辑。 */
 function isEditingMessage(item: ChatMessageItem) {
-  return editingMessageKey.value === resolveMessageEditKey(item);
+  return editingMessageKey.value === item.key;
 }
 
-/** 判断用户消息是否为当前会话最后一轮可编辑消息。 */
-function isLastEditableUserMessage(item: ChatMessageItem) {
-  return item.role === "user" && !item.localOnly && lastEditableUserMessageKey.value === resolveMessageEditKey(item);
-}
-
-/** 开始编辑用户消息正文，附件保持原样不进入编辑区。 */
-function startMessageEdit(item: ChatMessageItem) {
-  if (!isLastEditableUserMessage(item)) return;
-  editingMessageKey.value = resolveMessageEditKey(item);
-  editingContent.value = String(item.content ?? "");
-}
-
-/** 取消当前消息文本编辑。 */
+/** 收起编辑框并清理编辑状态。 */
 function cancelMessageEdit() {
   editingMessageKey.value = "";
   editingContent.value = "";
 }
 
-/** 提交当前消息文本编辑，并交给页面层重新生成同一轮输出。 */
+/** 输入法确认时保留 Enter 的选字行为。 */
+function handleEditKey(event: Event, item: ChatMessageItem) {
+  if (!(event instanceof KeyboardEvent) || event.isComposing || event.keyCode === 229) return;
+  event.preventDefault();
+  submitMessageEdit(item);
+}
+
+/** 将更新后的问题交给页面重新生成。 */
 function submitMessageEdit(item: ChatMessageItem) {
-  if (props.sending) return;
-  const content = editingContent.value;
-  if (content === "") {
+  if (props.sending || blockedReason.value) return;
+  if (!editingContent.value.trim()) {
     ElMessage.warning(t("system.ai.chat.message.content_required"));
     return;
   }
-  if (content === String(item.content ?? "")) {
+  if (editingContent.value === item.content) {
     ElMessage.info(t("system.ai.chat.message.content_unchanged"));
     return;
   }
-  emit("messageEdit", { item, content });
+  emit("messageEdit", { item, content: editingContent.value });
   cancelMessageEdit();
 }
 
-/** 判断消息操作是否需要二次确认。 */
+/** 对会覆盖历史或删除消息的操作二次确认。 */
 function shouldConfirmMessageAction(action: ChatMessageAction) {
   return action === "retry" || action === "delete";
 }
 
-/** 返回消息操作确认文案，避免误删或误覆盖当前气泡。 */
+/** 返回与消息操作一致的确认提示。 */
 function resolveActionConfirmTitle(action: ChatMessageAction, item: ChatMessageItem) {
   if (action === "delete") return t("system.ai.chat.dialog.confirm_delete_message");
-  if (item.role === "user") return t("system.ai.chat.dialog.confirm_resend_message");
-  return t("system.ai.chat.dialog.confirm_regenerate_message");
+  return t(item.role === "user" ? "system.ai.chat.dialog.confirm_resend_message" : "system.ai.chat.dialog.confirm_regenerate_message");
 }
 
-/** 统一回复来源标签配色。 */
-function resolveTagClass(tone?: ReplySourceTag["tone"]) {
-  return tone ? `is-${tone}` : "";
+/** 错误内容单独展示，断线前收到的局部正文仍作为 Markdown。 */
+function hasReply(item: ChatMessageItem) {
+  if (approvalOutcome(item)?.state === "expired" || approvalOutcome(item)?.state === "rejected") return false;
+  return Boolean(item.content && item.content !== t("system.ai.chat.message.thinking") && (!isAIFailedMessage(item) || item.localOnly));
 }
 
-/** 构建消息附件卡片，统一交给 Attachments / FilesCard 处理图片预览。 */
-function buildMessageAttachmentItems(attachments: AiAttachment[]): FilesCardProps[] {
-  return attachments.map(attachment =>
-    buildAIAttachmentFileCard(attachment, {
-      maxWidth: "240px"
-    })
+/** 判断该回复是否失败。 */
+function isAIFailedMessage(item: ChatMessageItem) {
+  return item.role === "ai" && item.status === AiMessageStatus.AI_MESSAGE_STATUS_FAILED;
+}
+
+/** 取结构化服务端错误码。 */
+function replyErrorCode(item: ChatMessageItem) {
+  return item.blocks?.find(block => block.type === "reply_error")?.code;
+}
+
+/** 区分权限失败和普通生成错误。 */
+function isPermissionFailure(item: ChatMessageItem) {
+  return replyErrorCode(item) === "PERMISSION_DENIED";
+}
+
+/** 生成与服务端失败类型匹配的标题。 */
+function resolveFailureTitle(item: ChatMessageItem) {
+  const code = replyErrorCode(item);
+  if (code === "PERMISSION_DENIED") return t("system.ai.chat.error.permission");
+  if (code === "REPLY_TIMEOUT") return t("system.ai.chat.error.timeout");
+  if (code === "TOOL_OUTCOME_UNKNOWN") return t("system.ai.chat.error.tool_unknown");
+  return t("system.ai.chat.error.reply");
+}
+
+/** 已持久化错误使用原始可读摘要。 */
+function resolveAIErrorMessage(item: ChatMessageItem) {
+  if (replyErrorCode(item) === "TOOL_OUTCOME_UNKNOWN") return t("system.ai.chat.error.tool_unknown_description");
+  return (!item.localOnly && resolvePersistedMessage(item.content)) || t("system.ai.chat.message.reply_failed");
+}
+
+/** 返回由服务端审计状态生成的审批结果。 */
+function approvalOutcome(item: ChatMessageItem) {
+  return item.blocks?.findLast(block => block.type === "approval_outcome");
+}
+
+/** 只为有确定证据的完成态使用成功颜色。 */
+function approvalOutcomeClass(item: ChatMessageItem) {
+  return approvalOutcome(item)?.execution === "succeeded" ? "is-success" : "is-warning";
+}
+
+/** 表达审批决定和可核实的实际执行状态。 */
+function resolveApprovalTitle(item: ChatMessageItem) {
+  const result = approvalOutcome(item);
+  if (result?.state === "expired") return t("system.ai.chat.approval.expired_title");
+  if (result?.state === "rejected") return t("system.ai.chat.approval.rejected_title");
+  if (result?.execution === "succeeded") return t("system.ai.chat.approval.executed");
+  if (result?.execution === "failed") return t("system.ai.chat.approval.execution_failed");
+  return t("system.ai.chat.approval.execution_unknown");
+}
+
+/** 读取本轮回复持久化的检索来源。 */
+function knowledgeSources(item: ChatMessageItem): KnowledgeSource[] {
+  const sources: unknown = item.blocks?.find(block => block.type === "knowledge_sources")?.sources;
+  if (!Array.isArray(sources)) return [];
+  return sources.filter((source): source is KnowledgeSource => source && typeof source.title === "string");
+}
+
+/** 引用链接只打开同一条回复的已保存来源。 */
+function openCitation(event: MouseEvent, item: ChatMessageItem) {
+  if (!(event.target instanceof Element) || !(event.currentTarget instanceof Element)) return;
+  const href = event.target.closest("a")?.getAttribute("href") ?? "";
+  const index = href.match(/^#ai-source-([1-9]\d*)$/)?.[1];
+  if (!index) return;
+  event.preventDefault();
+  event.stopPropagation();
+  if (Number(index) > knowledgeSources(item).length) return;
+  const source = event.currentTarget.closest(".agent-message")?.querySelector<HTMLElement>('[data-source-index="' + index + '"]');
+  const details = source?.closest("details");
+  if (!details || !source) return;
+  details.open = true;
+  source.focus({ preventScroll: true });
+  source.scrollIntoView({ block: "nearest" });
+}
+
+/** 回复详情同时承载时间、模型和用量。 */
+function hasAIUsage(item: ChatMessageItem) {
+  return item.role === "ai" &&
+    item.progressState !== "streaming" &&
+    Boolean(item.model || item.created_at || item.token?.total || item.first_token_ms || item.duration_ms);
+}
+
+/** 将毫秒耗时格式化为秒。 */
+function formatDurationMs(value: number) {
+  return (value / 1000).toFixed(2) + "s";
+}
+
+/** 格式化消息创建时间。 */
+function resolveMessageReplyTime(item: ChatMessageItem) {
+  const timestamp = resolveTimestamp(item.created_at);
+  return timestamp ? formatDateTime(timestamp) : "";
+}
+
+/** 按当前界面语言渲染数字。 */
+function formatNumber(value: number) {
+  return new Intl.NumberFormat(getCurrentLocale()).format(value);
+}
+
+/** 工具记录与活动归入一个默认折叠的处理过程。 */
+function hasProcess(item: ChatMessageItem) {
+  return (item.activities?.length ?? 0) > 0 || resolveVisibleTools(item).length > 0;
+}
+
+/** 判断执行过程中是否仍有进行中的活动。 */
+function hasRunningActivity(item: ChatMessageItem) {
+  return !item.recovery && (item.activities ?? []).some(activity => activity.status === "running");
+}
+
+/** 保留尚未形成持久记录的工具进度以及其他执行阶段。 */
+function resolveVisibleActivities(item: ChatMessageItem) {
+  const recordedTools = new Set(resolveVisibleTools(item).map(tool => tool.name));
+  return (item.activities ?? []).filter(activity =>
+    activity.phase !== "tool" || activity.status === "running" || !recordedTools.has(activity.tool_name || "")
   );
 }
 
-/** AI 生成附件的持久链接路径标记，用于区分用户上传附件与工具产物。 */
-const GENERATED_ATTACHMENT_PATH = "/data/ai/generated/";
-
-/** 过滤出本轮 AI 回复转存产出的文件附件。 */
-function resolveGeneratedAttachments(attachments: AiAttachment[]): AiAttachment[] {
-  return attachments.filter(file => resolveAIAttachmentUrl(file.url).includes(GENERATED_ATTACHMENT_PATH));
+/** 只读取已持久化且可展示的函数工具记录。 */
+function resolveVisibleTools(item: ChatMessageItem) {
+  return (item.tools ?? []).filter(tool => tool.type === "function" && (tool.name || tool.title));
 }
 
-/** 新标签页在线打开生成文件，交由浏览器原生预览。 */
-function openGeneratedFile(file: AiAttachment) {
-  const url = resolveAIAttachmentUrl(file.url);
-  if (!url) return;
-  window.open(url, "_blank", "noopener");
+/** 判断本轮是否存在工具错误。 */
+function hasFailedTool(item: ChatMessageItem) {
+  return resolveVisibleTools(item).some(tool => isToolFailed(tool.status)) || (item.activities ?? []).some(
+    activity => activity.phase === "tool" && activity.status === "failed"
+  );
 }
 
-/** 通过鉴权下载接口传递原始文件路径，避免预览绝对地址被当作存储键。 */
-async function downloadGeneratedFile(file: AiAttachment) {
-  await defFileService.DownloadFile(file.url, file.name);
+/** 根据运行中的步骤或已完成的工具记录生成摘要。 */
+function resolveActivitySummary(item: ChatMessageItem) {
+  const current = item.activities?.findLast(activity => activity.status === "running");
+  if (current && !item.recovery) return current.phase === "tool"
+    ? t("system.ai.chat.status.running_tool", { tool: resolveActivityTitle(current) })
+    : resolveActivityTitle(current);
+  const tools = resolveVisibleTools(item);
+  const failed = tools.filter(tool => isToolFailed(tool.status)).length;
+  if (failed) return t("system.ai.chat.status.tool_summary_failed", { done: tools.length - failed, failed });
+  if (item.recovery) return t("system.ai.chat.title.activity");
+  if (hasFailedTool(item)) return t("system.ai.chat.status.tool_failed");
+  if (pendingApproval.value?.key === item.key) return t("system.ai.chat.approval.title");
+  if (tools.length) return t("system.ai.chat.status.tool_summary_completed", { count: tools.length });
+  return t("system.ai.chat.title.activity");
 }
 
-/** 格式化附件大小展示文本。 */
-function formatAttachmentSize(size?: number): string {
-  const bytes = Number(size ?? 0);
-  if (!Number.isFinite(bytes) || bytes <= 0) return "";
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+/** 展示本地化步骤名称。 */
+function resolveActivityTitle(activity: AiActivityItem) {
+  if (activity.phase === "reasoning") return activity.summary || t("system.ai.chat.status.thinking");
+  if (activity.phase === "tool") {
+    if (activity.tool_name === "web_search") return t("system.ai.chat.value.web_search");
+    return activity.tool_title || activity.tool_name || t("system.ai.chat.value.tool");
+  }
+  return t("system.ai.chat.status.answering");
+}
+
+/** 展示工具步骤的运行状态。 */
+function activityStatus(status: AiActivityItem["status"]) {
+  if (status === "waiting_approval") return t("system.ai.chat.approval.title");
+  if (status === "running") return t("system.ai.chat.status.running");
+  if (status === "failed") return t("system.ai.chat.status.failed");
+  return t("system.ai.chat.status.completed");
+}
+
+/** 展示本地化工具名称。 */
+function resolveToolTitle(tool: AiToolCall) {
+  if (tool.name === "web_search") return t("system.ai.chat.value.web_search");
+  return tool.title || tool.name || t("system.ai.chat.value.tool");
+}
+
+/** 区分工具失败与已完成。 */
+function resolveToolStatusText(status?: string) {
+  return t(isToolFailed(status) ? "system.ai.chat.status.failed" : "system.ai.chat.status.completed");
+}
+
+/** 判断工具记录是否为失败。 */
+function isToolFailed(status?: string) {
+  return ["error", "failed", "fail", "timeout"].includes(String(status ?? "").toLowerCase());
+}
+
+/** 尽量按 JSON 缩进展示入参和结果。 */
+function formatToolPayload(payload?: string) {
+  if (!payload) return "{}";
+  try {
+    return JSON.stringify(JSON.parse(payload), null, 2);
+  } catch {
+    return payload;
+  }
+}
+
+/** 复制工具的实际请求参数。 */
+async function handleCopyToolRequest(tool: AiToolCall) {
+  try {
+    await navigator.clipboard.writeText(formatToolPayload(tool.input));
+    ElMessage.success(t("system.ai.chat.message.request_copied"));
+  } catch {
+    ElMessage.error(t("system.ai.chat.message.copy_unsupported"));
+  }
 }
 </script>
 
 <style scoped lang="scss">
-.agent-result-banner {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  justify-content: center;
-  color: var(--admin-page-text-secondary);
-  font-size: 12px;
-  padding: 6px;
-}
-.agent-approval {
-  margin: 12px 0;
-  padding: 16px;
-  border: 1px solid var(--el-color-warning);
-  border-radius: 8px;
-  background: var(--el-fill-color-light);
-  color: var(--el-text-color-primary);
-
-  p {
-    margin: 8px 0;
-  }
-  pre {
-    overflow: auto;
-    max-height: 320px;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-  }
-  &__call {
-    margin: 12px 0;
-  }
-  &__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-}
-
 .agent-chat-panel {
+  --agent-reading-width: 760px;
+  --agent-gutter: clamp(14px, 3cqw, 32px);
+  --el-main-padding: 0;
+
   position: relative;
-  box-sizing: border-box;
+  container-type: inline-size;
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
-  min-width: 0;
   height: 100%;
+  min-width: 0;
   min-height: 0;
-  padding: 20px 0 24px;
   overflow: hidden;
+  color: var(--admin-page-text-primary);
   background: var(--admin-page-card-bg);
 }
-.agent-chat-panel.is-empty {
-  justify-content: center;
-  padding: 0;
+
+.agent-reading-column {
+  width: min(var(--agent-reading-width), calc(100% - var(--agent-gutter) * 2));
+  min-width: 0;
+  margin-inline: auto;
 }
+
+.agent-chat-heading {
+  flex: none;
+  padding-block: 12px;
+  border-bottom: 1px solid var(--admin-page-divider);
+
+  h2,
+  p {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  h2 {
+    font-size: 16px;
+    font-weight: 630;
+    line-height: 1.4;
+  }
+
+  p {
+    margin-top: 3px;
+    color: var(--admin-page-text-secondary);
+    font-size: 12px;
+  }
+}
+
 .agent-chat-content {
-  display: flex;
-  flex: 1;
-  width: min(1180px, calc(100% - 72px));
+  flex: 1 1 auto;
   min-height: 0;
-  margin: 0 auto;
-  overflow: hidden;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable both-edges;
 }
+
+.agent-transcript {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+  padding-block: 22px 12px;
+}
+
+.is-empty .agent-chat-content {
+  display: flex;
+  align-items: safe center;
+}
+
 .agent-chat-empty {
-  width: min(1100px, calc(100% - 96px));
-  margin: 0 auto;
+  padding: 24px 0;
+  text-align: center;
+
+  h2 {
+    margin: 12px 0 8px;
+    font-size: clamp(22px, 4cqw, 32px);
+    font-weight: 650;
+    line-height: 1.3;
+  }
+
+  p {
+    margin: 0;
+    color: var(--admin-page-text-secondary);
+    font-size: 14px;
+  }
 }
-.agent-chat-empty__title {
-  font-size: clamp(28px, 4vw, 44px);
-  font-weight: 700;
-  line-height: 1.25;
+
+.agent-chat-empty__icon {
+  width: 42px;
+  height: 42px;
+  color: var(--el-color-primary);
+  background: var(--el-color-primary-light-9);
+  border-radius: var(--admin-page-radius);
+  font-size: 22px;
+}
+
+.agent-empty-shortcuts,
+.agent-inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+
+  :deep(.el-button + .el-button) {
+    margin: 0;
+  }
+}
+
+.agent-empty-shortcuts {
+  justify-content: center;
+  margin-top: 16px;
+
+  :deep(.el-button) {
+    max-width: 100%;
+    height: auto;
+    min-height: 26px;
+    white-space: normal;
+  }
+}
+
+.agent-result-banner,
+.agent-branch-note {
+  display: flex;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--admin-page-divider);
+  border-radius: var(--admin-page-radius);
+  background: var(--admin-page-card-bg-soft);
+  font-size: 13px;
+}
+
+.agent-result-banner {
+  justify-content: space-between;
+  flex-wrap: wrap;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+}
+
+.agent-branch-note {
+  > svg {
+    flex: none;
+    color: var(--el-color-primary);
+  }
+
+  p {
+    display: -webkit-box;
+    margin: 4px 0 0;
+    overflow: hidden;
+    color: var(--admin-page-text-secondary);
+    overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+}
+
+.agent-history-loading {
+  padding-block: 6px 18px;
+}
+
+.agent-message-list {
+  display: grid;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.agent-message {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  padding: 0 0 12px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.agent-message.is-user {
+  justify-items: end;
+  gap: 4px;
+  padding-bottom: 0;
+}
+
+.agent-message:not(.is-user) + .agent-message.is-user {
+  margin-top: 22px;
+}
+
+.agent-message.is-user + .agent-message:not(.is-user) {
+  margin-top: 21px;
+}
+
+.agent-user-message {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  width: fit-content;
+  max-width: min(84%, 640px);
+  padding: 10px 14px;
   color: var(--admin-page-text-primary);
-  text-align: center;
-}
-.agent-chat-empty__desc {
-  margin-top: 14px;
+  background: var(--el-color-primary-light-9);
+  border-radius: 10px 10px 3px 10px;
   font-size: 14px;
-  line-height: 28px;
-  color: var(--admin-page-text-secondary);
-  text-align: center;
+  line-height: 24px;
 }
+
+.agent-user-message__text {
+  white-space: pre-wrap;
+}
+
+.agent-send-error,
+.agent-status-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 13px;
+}
+
+.agent-send-error {
+  color: var(--el-color-danger);
+}
+
+.agent-status-line {
+  margin-bottom: 10px;
+  color: var(--admin-page-text-secondary);
+}
+
+.agent-message > .agent-status-line {
+  margin-bottom: 0;
+}
+
+.agent-message-edit {
+  display: grid;
+  gap: 10px;
+  width: min(100%, 520px);
+}
+
+.agent-message-edit__input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 62px;
+  max-height: 210px;
+  padding: 8px 10px;
+  resize: vertical;
+  field-sizing: content;
+  border: 1px solid var(--admin-page-divider);
+  border-radius: var(--admin-page-radius);
+  background: var(--el-bg-color);
+  color: var(--admin-page-text-primary);
+  font: inherit;
+  line-height: 1.5;
+
+  &:focus {
+    border-color: var(--el-color-primary);
+    outline: 1px solid var(--el-color-primary);
+  }
+}
+
+.agent-message-edit .agent-inline-actions {
+  justify-content: flex-end;
+}
+
+.agent-callout {
+  --agent-callout-accent: var(--el-color-warning);
+  --agent-callout-bg: var(--el-color-warning-light-9);
+
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--agent-callout-accent) 38%, var(--admin-page-divider));
+  border-radius: var(--admin-page-radius);
+  background: var(--agent-callout-bg);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+
+  > :is(svg, .el-icon) {
+    flex: none;
+    margin-top: 2px;
+    color: var(--agent-callout-accent);
+  }
+
+  > div {
+    min-width: 0;
+  }
+
+  p {
+    margin: 4px 0 0;
+  }
+
+  :deep(.el-button) {
+    margin-top: 8px;
+  }
+}
+
+.agent-callout.is-danger {
+  --agent-callout-accent: var(--el-color-danger);
+  --agent-callout-bg: var(--el-color-danger-light-9);
+}
+
+.agent-callout.is-success {
+  --agent-callout-accent: var(--el-color-success);
+  --agent-callout-bg: var(--el-color-success-light-9);
+}
+
+.agent-muted,
+.is-warning {
+  color: var(--admin-page-text-secondary);
+}
+
+.el-icon.is-warning,
+.agent-tool__status.is-warning,
+.agent-step > .is-warning {
+  color: var(--el-color-warning);
+}
+
+.agent-message-activity,
+.agent-diagnostics,
+.agent-sources,
+.agent-runtime {
+  min-width: 0;
+  max-width: 100%;
+  color: var(--admin-page-text-secondary);
+  font-size: 13px;
+
+  > summary {
+    width: fit-content;
+    max-width: 100%;
+    padding: 2px 5px;
+    margin-inline-start: -5px;
+    border-radius: var(--admin-page-radius);
+    cursor: pointer;
+  }
+
+  > summary:hover {
+    color: var(--admin-page-text-primary);
+    background: var(--admin-page-card-bg-soft);
+  }
+
+  > summary > .el-icon {
+    margin-inline: 3px;
+    vertical-align: -2px;
+  }
+
+  p {
+    margin: 5px 0;
+  }
+}
+
+.agent-process-list,
+.agent-sources > ol {
+  padding: 6px 10px;
+  margin: 5px 0 0;
+  border: 1px solid var(--admin-page-divider);
+  border-radius: var(--admin-page-radius);
+}
+
+.agent-sources > ol {
+  padding-inline-start: 26px;
+
+  li + li {
+    margin-top: 9px;
+  }
+
+  strong {
+    color: var(--admin-page-text-primary);
+  }
+
+  span {
+    display: block;
+  }
+
+  blockquote {
+    margin: 4px 0 0;
+    padding-inline-start: 8px;
+    border-inline-start: 2px solid var(--admin-page-divider-strong);
+  }
+}
+
+.agent-step,
+.agent-tool > summary {
+  position: relative;
+  min-width: 0;
+  padding: 6px 76px 6px 4px;
+  border-bottom: 1px solid var(--admin-page-divider);
+}
+
+.agent-step > :last-child,
+.agent-tool__status {
+  position: absolute;
+  inset-inline-end: 4px;
+  inset-block-start: 6px;
+  color: var(--admin-page-text-secondary);
+  font-size: 12px;
+}
+
+.agent-tool > summary {
+  cursor: pointer;
+}
+
+.agent-tool:last-child > summary,
+.agent-step:last-child {
+  border-bottom: 0;
+}
+
+.agent-tool-payload {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+  align-items: start;
+  gap: 8px;
+  padding: 8px 0;
+
+  section {
+    min-width: 0;
+  }
+}
+
+.agent-tool-payload__head {
+  display: flex;
+  min-height: 20px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.agent-message pre {
+  max-height: 320px;
+  padding: 8px;
+  margin: 5px 0;
+  overflow: auto;
+  border: 1px solid var(--admin-page-divider);
+  border-radius: var(--admin-page-radius);
+  color: var(--admin-page-text-primary);
+  background: var(--admin-page-card-bg-muted);
+  font-size: 12px;
+  white-space: pre;
+}
+
+.agent-callout .agent-diagnostics {
+  margin-top: 8px;
+  margin-inline-start: 5px;
+}
+
+.agent-message-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 3px;
+  margin: -5px 0 0 -6px;
+
+  :deep(.el-button + .el-button) {
+    margin: 0;
+  }
+}
+
+.is-user .agent-message-actions {
+  margin-top: 0;
+  margin-inline: 0 -6px;
+}
+
+.agent-message-action.el-button {
+  width: 29px;
+  height: 29px;
+  padding: 0;
+  color: var(--admin-page-text-secondary);
+  font-size: 14px;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--el-color-primary);
+  }
+
+  svg {
+    width: 1em;
+    height: 1em;
+  }
+}
+
+.agent-runtime {
+  max-width: 100%;
+  padding: 3px 4px 0;
+  font-size: 12px;
+
+  dl {
+    display: grid;
+    gap: 4px;
+    padding: 8px;
+    margin: 3px 0 0;
+    border: 1px solid var(--admin-page-divider);
+    border-radius: var(--admin-page-radius);
+  }
+
+  dl > div {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  dd {
+    margin: 0;
+    color: var(--admin-page-text-primary);
+    overflow-wrap: anywhere;
+  }
+}
+
+.agent-composer-dock {
+  flex: none;
+  margin-block: 7px 14px;
+}
+
+.agent-jump {
+  z-index: 1;
+  display: flex;
+  height: 0;
+  align-items: flex-end;
+  justify-content: center;
+
+  .el-button {
+    gap: 5px;
+    margin-bottom: 2px;
+    box-shadow: var(--admin-page-shadow);
+  }
+}
+
 .agent-shortcuts__refresh {
   display: inline-flex;
   gap: 4px;
@@ -1460,693 +1588,6 @@ function formatAttachmentSize(size?: number): string {
   overflow-wrap: anywhere;
   white-space: normal;
 }
-.agent-message-list {
-  flex: 1;
-  min-height: 0;
-  padding: 8px 0 24px;
-  overflow: auto;
-  :deep(.elx-bubble__content-wrapper),
-  :deep(.elx-bubble__content) {
-    min-width: 0;
-  }
-  :deep(.elx-bubble--start .elx-bubble__content-wrapper .elx-bubble__footer) {
-    box-sizing: border-box;
-    width: fit-content;
-    max-width: 100%;
-    margin-top: 2px;
-  }
-  :deep(.elx-bubble__content-wrapper:hover .elx-bubble__footer),
-  :deep(.elx-bubble__content-wrapper:focus-within .elx-bubble__footer) {
-    pointer-events: auto;
-    opacity: 1;
-  }
-  :deep(.elx-bubble__content-wrapper:hover .agent-message-footer),
-  :deep(.elx-bubble__content-wrapper:focus-within .agent-message-footer) {
-    pointer-events: auto;
-    opacity: 1;
-    visibility: visible;
-  }
-  :deep(.elx-bubble--start .elx-bubble__content-wrapper .elx-bubble__content) {
-    box-sizing: border-box;
-    width: min(720px, 100%);
-    max-width: 100%;
-    min-width: min(520px, 100%);
-  }
-  :deep(.elx-bubble--start .elx-bubble__content-wrapper .elx-bubble__content) {
-    padding: 0;
-    background: transparent;
-    border: 0;
-    box-shadow: none;
-  }
-  :deep(.elx-bubble--end .elx-bubble__content-wrapper .elx-bubble__content) {
-    border-radius: var(--admin-page-radius);
-  }
-  :deep(.elx-bubble--end .elx-bubble__content-wrapper .elx-bubble__content--corner) {
-    border-start-start-radius: var(--admin-page-radius);
-    border-start-end-radius: var(--admin-page-radius);
-  }
-  :deep(.elx-bubble-list__boundary-content),
-  :deep(.elx-bubble-list__embedded-item) {
-    border-radius: var(--admin-page-radius);
-  }
-}
-.agent-message-content {
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  line-height: 24px;
-  margin: 6px 0 0;
-  overflow-wrap: anywhere;
-}
-.agent-message-content:first-child {
-  margin-top: 0;
-}
-.agent-message-content.is-user {
-  width: fit-content;
-  min-width: 0;
-  white-space: pre-wrap;
-}
-.agent-message-content.is-thinking {
-  display: inline-flex;
-  gap: 8px;
-  align-items: center;
-  :deep(.agent-markdown) {
-    flex: 0 1 auto;
-    width: auto;
-  }
-  :deep(.agent-markdown .md-editor-preview) {
-    width: auto;
-  }
-  :deep(.agent-markdown p) {
-    display: inline;
-    margin: 0;
-  }
-}
-.agent-message-content.is-failed-ai {
-  width: min(720px, 100%);
-  max-width: 100%;
-}
-.agent-message-body {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0;
-  width: 100%;
-  min-width: min(360px, 100%);
-  max-width: 100%;
-}
-.agent-message-body.is-user {
-  width: fit-content;
-  min-width: 0;
-}
-.agent-message-meta {
-  display: inline-flex;
-  gap: 8px;
-  align-items: center;
-  width: 100%;
-  max-width: 100%;
-  font-size: 12px;
-  color: var(--admin-page-text-secondary);
-}
-.agent-message-meta__tag {
-  padding: 2px 8px;
-  background: var(--el-fill-color-light);
-  border-radius: var(--admin-page-radius);
-}
-.agent-message-meta__tag.is-primary {
-  color: var(--el-color-primary);
-}
-.agent-message-meta__tag.is-success {
-  color: var(--el-color-success);
-}
-.agent-message-meta__tag.is-warning {
-  color: var(--el-color-warning);
-}
-.agent-message-meta__tag.is-info {
-  color: var(--admin-page-text-secondary);
-}
-.agent-message-meta__model {
-  opacity: 0.85;
-}
-.agent-message-meta__time {
-  opacity: 0.85;
-}
-.agent-message-activity {
-  width: 100%;
-  max-width: 720px;
-  margin-top: 8px;
-  color: var(--admin-page-text-secondary);
-  border-top: 1px solid var(--el-border-color-lighter);
-}
-/* 问数成功后的生成卡片引导条：紧贴回复正文，弱化背景突出按钮。 */
-.agent-message-bi-card {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  max-width: 720px;
-  margin-top: 8px;
-  padding: 8px 12px;
-  color: var(--admin-page-text-secondary);
-  background-color: var(--el-fill-color-light);
-  border-radius: 8px;
-}
-.agent-message-bi-card__hint {
-  font-size: 13px;
-}
-.agent-message-bi-card__source {
-  margin: 0;
-  color: var(--admin-page-text-secondary);
-  font-size: 12px;
-  word-break: break-all;
-}
-.agent-message-activity__summary {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  width: 100%;
-  min-height: 32px;
-  padding: 4px 0;
-  color: inherit;
-  text-align: left;
-  cursor: pointer;
-  background: transparent;
-  border: 0;
-}
-.agent-message-activity__summary:hover {
-  color: var(--el-color-primary);
-}
-.agent-message-activity__summary-icon,
-.agent-message-activity__item-icon {
-  display: inline-flex;
-  flex: 0 0 auto;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-}
-.agent-message-activity__summary-icon {
-  color: var(--el-color-primary);
-}
-.agent-message-activity__summary-text {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.agent-message-activity__summary-arrow {
-  flex: 0 0 auto;
-  margin-left: auto;
-  transition: transform 0.2s ease;
-}
-.agent-message-activity__summary-arrow.is-expanded {
-  transform: rotate(180deg);
-}
-.agent-message-activity__list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 4px 0 8px 26px;
-}
-.agent-message-activity__item {
-  display: flex;
-  gap: 8px;
-  align-items: flex-start;
-  min-width: 0;
-  font-size: 12px;
-  line-height: 18px;
-}
-.agent-message-activity__item-icon.is-running {
-  color: var(--el-color-primary);
-}
-.agent-message-activity__item-icon.is-success {
-  color: var(--el-color-success);
-}
-.agent-message-activity__item-icon.is-warning {
-  color: var(--el-color-warning);
-}
-.agent-message-activity__item-icon.is-error {
-  color: var(--el-color-danger);
-}
-.agent-message-activity__item-content {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-.agent-message-activity__item-title {
-  color: var(--admin-page-text-regular);
-  overflow-wrap: anywhere;
-}
-.agent-message-activity__item-summary {
-  color: var(--admin-page-text-secondary);
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-.agent-message-error {
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 100%;
-  padding: 12px 14px;
-  color: var(--admin-page-text-primary);
-  background: var(--el-color-danger-light-9);
-  border: 1px solid var(--el-color-danger-light-7);
-  border-radius: var(--admin-page-radius);
-}
-.agent-message-error__title {
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 22px;
-  color: var(--el-color-danger);
-}
-.agent-message-error__content {
-  margin-top: 6px;
-  font-size: 13px;
-  line-height: 22px;
-  color: var(--admin-page-text-regular);
-  word-break: break-word;
-}
-.agent-message-error__detail {
-  margin-top: 8px;
-  border: 0;
-  :deep(.el-collapse-item__header) {
-    height: 28px;
-    font-size: 12px;
-    color: var(--admin-page-text-secondary);
-    background: transparent;
-    border: 0;
-  }
-  :deep(.el-collapse-item__wrap) {
-    background: transparent;
-    border: 0;
-  }
-  :deep(.el-collapse-item__content) {
-    padding-bottom: 0;
-  }
-  pre {
-    max-height: 180px;
-    padding: 8px;
-    margin: 0;
-    overflow: auto;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-    font-size: 12px;
-    line-height: 18px;
-    color: var(--admin-page-text-secondary);
-    white-space: pre-wrap;
-    word-break: break-word;
-    background: var(--el-fill-color-blank);
-    border: 1px solid var(--el-border-color-light);
-    border-radius: var(--admin-page-radius);
-  }
-}
-.agent-message-attachments {
-  :deep(.elx-files-card) {
-    border-radius: var(--admin-page-radius);
-  }
-  :deep(.elx-files-card-img),
-  :deep(.elx-files-card__image-preview),
-  :deep(.elx-files-card-delete-icon) {
-    border-radius: var(--admin-page-radius);
-  }
-}
-
-.agent-generated-files {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 8px;
-
-  .agent-generated-file {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    border: 1px solid var(--el-border-color-light);
-    border-radius: var(--admin-page-radius);
-    background: var(--el-fill-color-extra-light);
-    cursor: pointer;
-    transition: border-color 0.2s;
-
-    &:hover {
-      border-color: var(--el-color-primary-light-5);
-    }
-
-    .agent-generated-file__name {
-      flex: 1;
-      min-width: 0;
-      overflow: hidden;
-      color: var(--el-color-primary);
-      font-size: 13px;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .agent-generated-file__size {
-      flex-shrink: 0;
-      color: var(--admin-page-text-secondary);
-      font-size: 12px;
-    }
-
-    .agent-generated-file__actions {
-      display: flex;
-      flex-shrink: 0;
-      gap: 4px;
-    }
-  }
-}
-.agent-message-tools {
-  width: 100%;
-  min-width: 0;
-  max-width: 100%;
-  margin-top: 8px;
-  border: 0;
-  :deep(.el-collapse-item + .el-collapse-item) {
-    margin-top: 8px;
-  }
-  :deep(.el-collapse-item) {
-    position: relative;
-    overflow: hidden;
-    border: 1px solid var(--el-border-color-lighter);
-    border-radius: var(--admin-page-radius);
-  }
-  :deep(.el-collapse-item::after) {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 2;
-    height: 1px;
-    pointer-events: none;
-    content: "";
-    background: var(--el-border-color-lighter);
-  }
-  :deep(.el-collapse-item__header) {
-    box-sizing: border-box;
-    display: flex;
-    min-width: 0;
-    min-height: 44px;
-    height: auto;
-    padding: 0 12px;
-    overflow: hidden;
-    font-size: 13px;
-    line-height: normal;
-    color: var(--admin-page-text-regular);
-    background: transparent;
-    border: 0;
-  }
-  :deep(.el-collapse-item__arrow) {
-    flex: 0 0 auto;
-    margin-left: 10px;
-    color: var(--admin-page-text-secondary);
-  }
-  :deep(.el-collapse-item__wrap) {
-    overflow: hidden;
-    background: transparent;
-    border: 0;
-  }
-  :deep(.el-collapse-item__content) {
-    padding: 0;
-  }
-}
-.agent-message-tool-title {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) max-content max-content;
-  gap: 8px;
-  align-items: center;
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-}
-.agent-message-tool-title__main {
-  display: grid;
-  grid-template-columns: max-content minmax(0, 1fr);
-  gap: 8px;
-  align-items: center;
-  min-width: 0;
-}
-.agent-message-tool-title__text {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  min-width: 0;
-}
-.agent-message-tool-title__label {
-  min-width: 0;
-  overflow: hidden;
-  line-height: 18px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.agent-message-tool-title__name {
-  min-width: 0;
-  overflow: hidden;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-  font-size: 11px;
-  line-height: 14px;
-  color: var(--admin-page-text-secondary);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.agent-message-tool-title__icon {
-  display: inline-flex;
-  flex: 0 0 auto;
-  align-items: center;
-  font-size: 14px;
-  color: var(--admin-page-text-secondary);
-}
-.agent-message-tool-title__status {
-  display: inline-flex;
-  flex: 0 0 auto;
-  gap: 4px;
-  align-items: center;
-  font-size: 12px;
-  line-height: 20px;
-  color: var(--el-color-success);
-}
-.agent-message-tool-title__status.is-error {
-  color: var(--el-color-danger);
-}
-.agent-message-tool-copy {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  box-sizing: border-box;
-  margin: 0;
-  font: inherit;
-  line-height: 1;
-  color: var(--admin-page-text-secondary);
-  cursor: pointer;
-  background: transparent;
-  border: 0;
-  border-radius: var(--admin-page-radius);
-  transition:
-    color 0.2s ease,
-    background-color 0.2s ease;
-  &:hover {
-    color: var(--el-color-primary);
-    background: var(--el-fill-color-light);
-  }
-  .el-icon {
-    font-size: 15px;
-  }
-}
-.agent-message-tool-payload {
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  max-height: 220px;
-  padding: 0 0 1px;
-  overflow: auto;
-  border-top: 1px solid var(--el-border-color-lighter);
-}
-.agent-message-tool-payload__section {
-  box-sizing: border-box;
-  min-width: 0;
-  padding: 10px 12px;
-}
-.agent-message-tool-payload__section + .agent-message-tool-payload__section {
-  border-top: 1px solid var(--el-border-color-lighter);
-}
-.agent-message-tool-payload__label {
-  margin-bottom: 2px;
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 16px;
-  letter-spacing: 0.02em;
-  color: var(--admin-page-text-secondary);
-}
-.agent-message-tool-payload pre {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-  font-size: 12px;
-  line-height: 20px;
-  color: var(--admin-page-text-regular);
-  white-space: pre-wrap;
-  word-break: break-word;
-  background: transparent;
-  border: 0;
-}
-.agent-message-footer {
-  box-sizing: border-box;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 8px;
-  align-items: center;
-  width: var(--agent-message-footer-width, fit-content);
-  max-width: 100%;
-  min-width: min(360px, 100%);
-  padding: 0;
-  margin-top: 0;
-  pointer-events: none;
-  opacity: 0;
-  transition:
-    opacity 0.16s ease,
-    visibility 0.16s ease;
-  visibility: hidden;
-}
-.agent-message-footer:hover,
-.agent-message-footer:focus-within,
-.agent-message-footer.is-editing {
-  pointer-events: auto;
-  opacity: 1;
-  visibility: visible;
-}
-.agent-message-footer.is-editing {
-  grid-template-columns: minmax(0, 1fr);
-  row-gap: 6px;
-}
-.agent-message-footer.is-user {
-  grid-template-columns: auto;
-  justify-content: flex-end;
-  min-width: 0;
-  padding: 0;
-}
-.agent-message-footer.is-user.is-editing {
-  grid-template-columns: minmax(0, 1fr);
-  justify-content: stretch;
-  justify-self: end;
-  width: min(380px, 100%);
-  min-width: min(320px, 100%);
-}
-.agent-message-actions {
-  display: inline-flex;
-  gap: 8px;
-  align-items: center;
-  justify-content: flex-start;
-  min-width: 0;
-}
-.agent-message-actions.is-user {
-  justify-content: flex-end;
-}
-.agent-message-edit {
-  box-sizing: border-box;
-  width: 100%;
-  min-width: min(320px, 100%);
-  padding: 10px;
-  background: var(--el-fill-color-light);
-  border: 1px solid var(--el-border-color-light);
-  border-radius: var(--admin-page-radius);
-}
-.agent-message-edit__input {
-  width: 100%;
-  :deep(.el-textarea__inner) {
-    min-height: 82px !important;
-    padding: 8px 10px;
-    font-size: 14px;
-    line-height: 24px;
-    color: var(--admin-page-text-primary);
-    background: var(--admin-page-card-bg);
-    border-radius: var(--admin-page-radius);
-    box-shadow: 0 0 0 1px var(--el-border-color-light) inset;
-  }
-}
-.agent-message-edit__footer {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
-  margin-top: 8px;
-}
-.agent-message-action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  box-sizing: border-box;
-  margin: 0;
-  color: var(--admin-page-text-secondary);
-  padding: 0;
-  font: inherit;
-  line-height: 1;
-  cursor: pointer;
-  background: transparent;
-  border: 0;
-  border-radius: var(--admin-page-radius);
-  transition:
-    color 0.2s ease,
-    background-color 0.2s ease,
-    opacity 0.2s ease;
-  &:hover {
-    color: var(--el-color-primary);
-    background: var(--el-fill-color-light);
-  }
-  &:disabled {
-    cursor: not-allowed;
-    opacity: 0.45;
-  }
-}
-.agent-message-action :deep(.el-icon) {
-  width: 1em;
-  height: 1em;
-  font-size: 16px;
-  line-height: 1;
-}
-.agent-message-action :deep(svg) {
-  display: block;
-  width: 1em;
-  height: 1em;
-}
-.agent-message-action :deep(.agent-message-action__custom-icon) {
-  width: 16px;
-  height: 16px;
-}
-.agent-message-action.agent-message-runtime-trigger {
-  flex: 0 0 auto;
-  gap: 6px;
-  width: fit-content;
-  min-width: 0;
-  max-width: 150px;
-  padding: 0 6px;
-  overflow: hidden;
-  font-size: 12px;
-  :deep(.el-icon) {
-    flex: 0 0 auto;
-    font-size: 15px;
-  }
-  span {
-    max-width: 70px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-}
-.agent-composer-dock {
-  flex: none;
-  width: min(760px, calc(100% - 72px));
-  margin: 0 auto;
-  background: var(--admin-page-card-bg);
-}
-.agent-chat-panel.is-empty .agent-composer-dock {
-  width: min(980px, calc(100% - 96px));
-  margin-top: 28px;
-}
 .agent-shortcut-trigger {
   display: inline-flex;
   gap: 5px;
@@ -2209,79 +1650,15 @@ function formatAttachmentSize(size?: number): string {
   }
 }
 
-@media screen and (width <= 768px) {
-  .agent-chat-panel {
-    padding: 0 0 22px;
-  }
-  .agent-chat-panel.is-empty {
-    justify-content: center;
-    padding: 24px 0;
-  }
-  .agent-chat-content,
-  .agent-composer-dock,
-  .agent-chat-panel.is-empty .agent-composer-dock,
-  .agent-chat-empty {
-    width: calc(100% - 36px);
-  }
-  .agent-chat-empty__title {
-    font-size: 30px;
-  }
+
+@container (width <= 500px) {
+  .agent-chat-heading { padding-block: 9px; }
+  .agent-transcript { padding-top: 15px; }
+  .agent-user-message { max-width: 92%; }
+  .agent-composer-dock { margin-bottom: 8px; }
 }
 
-@keyframes thinking-bounce {
-  0%,
-  80%,
-  100% {
-    opacity: 0.35;
-    transform: translateY(0);
-  }
-  40% {
-    opacity: 1;
-    transform: translateY(-2px);
-  }
-}
-</style>
-
-<style lang="scss">
-.agent-message-runtime-popover {
-  .agent-runtime-detail {
-    min-width: 0;
-    font-size: 12px;
-    color: var(--admin-page-text-secondary);
-  }
-  .agent-runtime-detail__title {
-    margin-bottom: 10px;
-    font-size: 13px;
-    font-weight: 700;
-    line-height: 20px;
-    color: var(--admin-page-text-primary);
-  }
-  .agent-runtime-detail__section + .agent-runtime-detail__section {
-    padding-top: 10px;
-    margin-top: 10px;
-    border-top: 1px solid var(--el-border-color-lighter);
-  }
-  .agent-runtime-detail__section-title {
-    margin-bottom: 6px;
-    font-weight: 600;
-    line-height: 18px;
-    color: var(--admin-page-text-regular);
-  }
-  .agent-runtime-detail__row {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 22px;
-    line-height: 22px;
-  }
-  .agent-runtime-detail__row strong {
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-    color: var(--admin-page-text-primary);
-  }
-  .agent-runtime-detail__row.is-total strong {
-    color: var(--el-color-primary);
-  }
+@media (prefers-reduced-motion: reduce) {
+  .is-loading { animation: none; }
 }
 </style>

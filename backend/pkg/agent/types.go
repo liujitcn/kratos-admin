@@ -118,7 +118,7 @@ type Response struct {
 	Source string `json:"source"`
 	// Model 使用的模型名称，便于前端展示和排障。
 	Model string `json:"model"`
-	// Fallback 标记本次回复是否由本地兜底逻辑生成。
+	// Fallback 标记本次回复是否来自备用模型或本地兜底逻辑。
 	Fallback bool `json:"fallback"`
 	// FallbackReason 记录触发降级的底层错误信息，仅用于排障和后台展示。
 	FallbackReason string `json:"fallbackReason"`

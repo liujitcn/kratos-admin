@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
@@ -19,6 +20,7 @@ import (
 	"github.com/liujitcn/kratos-kit/auth/authn/engine"
 	"github.com/liujitcn/kratos-kit/auth/data"
 	"gorm.io/gen"
+	"gorm.io/gorm"
 )
 
 // Dispatch 扫描持久化计划并并行执行有限批次，任务记录决定跨实例领取权。
@@ -341,7 +343,7 @@ func (c *AiAutomationCase) recoverAutomationRuns(ctx context.Context, now time.T
 		if run.Status == "waiting_approval" {
 			approval := c.aiMessageCase.aiApprovalRepo.Query(ctx).AiToolApproval
 			var pending int64
-			pending, err = c.aiMessageCase.aiApprovalRepo.Count(ctx, repository.Where(approval.SessionID.Eq(run.SessionID)), repository.Where(approval.Status.Eq(aiRunPending)), repository.Where(approval.ExpiresAt.Gt(now)))
+			pending, err = c.aiMessageCase.aiApprovalRepo.Count(ctx, repository.Where(approval.TenantID.Eq(run.TenantID)), repository.Where(approval.UserID.Eq(run.OwnerUserID)), repository.Where(approval.SessionID.Eq(run.SessionID)), repository.Where(approval.Status.Eq(aiRunPending)), repository.Where(approval.ExpiresAt.Gt(now)))
 			if err != nil {
 				return err
 			}
@@ -355,7 +357,8 @@ func (c *AiAutomationCase) recoverAutomationRuns(ctx context.Context, now time.T
 			if err != nil {
 				return err
 			}
-			current, err := c.runRepo.FindByID(txCtx, run.ID)
+			var current *models.AiAutomationRun
+			current, err = c.runRepo.FindByID(txCtx, run.ID)
 			if err != nil {
 				return err
 			}
@@ -366,6 +369,19 @@ func (c *AiAutomationCase) recoverAutomationRuns(ctx context.Context, now time.T
 			unknown := int32(0)
 			code := "EXECUTION_EXPIRED"
 			summary := "执行已过期；未确认结果的外部操作请人工核对"
+			if current.Status == "waiting_approval" && current.SessionID > 0 {
+				code, summary = "APPROVAL_EXPIRED", "本次确认已过期"
+				session := &models.AiSession{ID: current.SessionID, TenantID: current.TenantID, UserID: current.OwnerUserID}
+				err = c.aiSessionCase.lockAiSession(txCtx, session)
+				if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+					return err
+				}
+				if err == nil && session.AutomationID == current.AutomationID && session.AutomationRunID == current.ID {
+					if err = c.aiMessageCase.expireAiPendingApprovals(txCtx, session, now); err != nil {
+						return err
+					}
+				}
+			}
 			if current.CancelRequested != 0 && current.ToolStarted == 0 {
 				status = "canceled"
 				code = ""
@@ -374,20 +390,14 @@ func (c *AiAutomationCase) recoverAutomationRuns(ctx context.Context, now time.T
 				status = "unknown"
 				unknown = 1
 				code = "TOOL_RESULT_UNKNOWN"
+				summary = "工具已发出但结果未确认，请核对业务结果"
 			}
 			runQuery := c.runRepo.Query(txCtx).AiAutomationRun
 			_, err = runQuery.WithContext(txCtx).Where(runQuery.ID.Eq(run.ID)).UpdateSimple(runQuery.Status.Value(status), runQuery.ResultUnknown.Value(unknown), runQuery.ErrorCode.Value(code), runQuery.Summary.Value(summary), runQuery.LeaseVersion.Value(current.LeaseVersion+1), runQuery.LeaseUntil.Value(0), runQuery.FinishedAt.Value(now.UnixMilli()), runQuery.Notified.Value(0))
 			if err != nil {
 				return err
 			}
-			if run.SessionID > 0 {
-				approval := c.aiMessageCase.aiApprovalRepo.Query(txCtx).AiToolApproval
-				_, err = approval.WithContext(txCtx).Where(approval.SessionID.Eq(run.SessionID), approval.Status.In(aiRunPending, aiRunRunning)).UpdateSimple(approval.Status.Value(aiRunExpired), approval.CheckpointData.Value([]byte{}))
-				if err != nil {
-					return err
-				}
-			}
-			if err = c.closeAutomationMessages(txCtx, run, summary); err != nil {
+			if err = c.closeAutomationMessages(txCtx, current, summary); err != nil {
 				return err
 			}
 			planQuery := c.Query(txCtx).AiAutomation

@@ -26,8 +26,7 @@
     "@vue-flow/core": "^1.48.2",
     "@vue-flow/minimap": "^1.5.4",
     "sortablejs": "^1.15.2",
-    "swagger-ui-dist": "^5.32.15",
-    "vue-element-plus-x": "^2.0.3"
+    "swagger-ui-dist": "^5.32.15"
   },
   "peerDependencies": {
     "@element-plus/icons-vue": "^2.3.1",

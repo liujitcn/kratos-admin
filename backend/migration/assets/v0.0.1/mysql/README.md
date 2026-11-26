@@ -20,6 +20,8 @@ BI 查询统一使用 `bi_query`，保存问题、语义查询计划、项目与
 
 AI 工具人工确认表 `ai_tool_approval` 由已注册的 `AiToolApproval` Model 在启用 `enable_migrate` 时自动创建，不重复维护建表 SQL。`default_data.up.sql` 维护消息状态 `4` 和管理端 AI 对话菜单审批权限。表内同时保存 Eino checkpoint 和审批状态；终止运行后清空 checkpoint，待确认有效期为 10 分钟。`base_api` 路径由 Proto 路由在启动时同步，确认路由为 `POST /api/v1/base/ai/session/{session_id}/message/{message_id}/approval`。
 
+AI 对话和 BI 工作台菜单（`90990000`、`90991000`）包含单文件上传和鉴权下载权限。BI 工作台还包含自动化执行记录与继续讨论权限，CSV 导出沿用问数记录详情权限。已初始化的数据库需要通过菜单管理同步这些权限。
+
 `checkpoint_data` 使用 LONGBLOB 保存 zstd 压缩快照；MySQL `max_allowed_packet` 至少为 64 MiB。运行时将编码后的上下文输入限制为 28 MiB，并限制未压缩/压缩快照为 192/48 MiB，保存失败不会生成可执行审批。
 
 存量库启用 `enable_migrate` 后会自动补齐注册模型的表结构，但不会自动重放本版本的初始化数据；菜单权限、字典数据仍需按开发环境流程重建或补齐。脚本和执行型工具由运行时硬性封闭，不受 `agent_status` 开关绕过。

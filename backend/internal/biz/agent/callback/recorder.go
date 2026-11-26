@@ -2,14 +2,11 @@ package callback
 
 import (
 	"context"
-	"errors"
-	"io"
 	"sync"
 	"time"
 
 	"github.com/cloudwego/eino/callbacks"
 	"github.com/cloudwego/eino/components/model"
-	"github.com/cloudwego/eino/schema"
 	callbackTemplate "github.com/cloudwego/eino/utils/callbacks"
 
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/message"
@@ -85,8 +82,7 @@ type Recorder struct {
 // NewHandler 创建 Eino 原生 Callback Handler。
 //
 // Quick Start 的 Callback/Trace 章节要求通过 Eino callback 链路观测组件执行。
-// 这里把 AgenticModel 的开始、结束、流式结束和错误事件统一写入 Recorder，
-// 让业务层继续复用现有 Token/Tools 协议，同时不再依赖手写模型包装器统计模型调用。
+// 非流式调用和模型启动错误由回调记录，流式统计由 ADK 事件的消费方记录。
 func NewHandler() callbacks.Handler {
 	return callbackTemplate.NewHandlerHelper().
 		AgenticModel(&callbackTemplate.AgenticModelCallbackHandler{
@@ -95,10 +91,6 @@ func NewHandler() callbacks.Handler {
 			},
 			OnEnd: func(ctx context.Context, _ *callbacks.RunInfo, output *model.AgenticCallbackOutput) context.Context {
 				recordAgenticModelOutput(ctx, "generate", output, nil)
-				return ctx
-			},
-			OnEndWithStreamOutput: func(ctx context.Context, _ *callbacks.RunInfo, output *schema.StreamReader[*model.AgenticCallbackOutput]) context.Context {
-				recordAgenticModelStream(ctx, output)
 				return ctx
 			},
 			OnError: func(ctx context.Context, _ *callbacks.RunInfo, err error) context.Context {
@@ -281,53 +273,14 @@ func recordAgenticModelOutput(ctx context.Context, mode string, output *model.Ag
 	}
 }
 
-// recordAgenticModelStream 消费 Eino callback 的流式副本并记录最终统计。
-func recordAgenticModelStream(ctx context.Context, output *schema.StreamReader[*model.AgenticCallbackOutput]) {
-	if output == nil {
-		recordAgenticModelOutput(ctx, "stream", nil, nil)
-		return
+// RecordModelStream 记录已消费的模型流，复用事件消费者合并后的消息。
+func (r *Recorder) RecordModelStream(value *message.AgenticMessage, duration time.Duration, cause error) {
+	call := ModelCall{Mode: "stream", Duration: duration, Token: TokenFromMessage(value)}
+	if cause != nil {
+		call.Error = cause.Error()
 	}
-	defer output.Close()
-
-	var finalOutput *model.AgenticCallbackOutput
-	var streamErr error
-	for {
-		chunk, err := output.Recv()
-		// io.EOF 表示 callback 流式副本正常结束。
-		if errors.Is(err, io.EOF) {
-			break
-		}
-		if err != nil {
-			streamErr = err
-			break
-		}
-		if chunk == nil {
-			continue
-		}
-		finalOutput = mergeAgenticCallbackOutput(finalOutput, chunk)
-	}
-	recordAgenticModelOutput(ctx, "stream", finalOutput, streamErr)
-}
-
-// mergeAgenticCallbackOutput 合并流式 callback 片段，供 token 和最终消息统计使用。
-func mergeAgenticCallbackOutput(left *model.AgenticCallbackOutput, right *model.AgenticCallbackOutput) *model.AgenticCallbackOutput {
-	if right == nil {
-		return left
-	}
-	if left == nil {
-		return right
-	}
-	if right.TokenUsage != nil {
-		left.TokenUsage = right.TokenUsage
-	}
-	if right.Message != nil {
-		if left.Message == nil {
-			left.Message = right.Message
-		} else if merged, err := message.Concat([]*message.AgenticMessage{left.Message, right.Message}); err == nil {
-			left.Message = merged
-		}
-	}
-	return left
+	r.RecordModel(call)
+	r.RecordServerTools(serverToolsFromMessage(value))
 }
 
 // durationFromContext 返回当前 callback 从 OnStart 到当前时刻的耗时。

@@ -1265,6 +1265,9 @@
   "legacy.error.19e303eaf75621aa": {
     "other": "BI 时间范围不可用"
   },
+  "legacy.error.19e3bfd1d3c2d6c5": {
+    "other": "请选择要查询的指标口径"
+  },
   "legacy.error.19e59ded36bccdee": {
     "other": "自动化仍在执行或等待确认，不能删除结果会话"
   },
@@ -1603,6 +1606,9 @@
   },
   "legacy.error.29fe5b349e7c8101": {
     "other": "岗位已被禁用，不能选择"
+  },
+  "legacy.error.2a02cef7ec9afb8a": {
+    "other": "原请求已确认过操作，请核对结果后发送新的请求"
   },
   "legacy.error.2a1913450ed9f8d0": {
     "other": "字典编码重复"
@@ -3977,6 +3983,9 @@
   "legacy.error.a14efca145af09f5": {
     "other": "按钮或外链不能作为父级菜单"
   },
+  "legacy.error.a16f0922dd140e67": {
+    "other": "BI 问数的候选数据源不可用"
+  },
   "legacy.error.a172626b5bd5ea56": {
     "other": "数据源仍被卡片引用，请先解除引用"
   },
@@ -4183,6 +4192,9 @@
   },
   "legacy.error.ac6310ee83bcf7f9": {
     "other": "只有流程参与者或管理员可以重试脚本"
+  },
+  "legacy.error.aca8d444545b6368": {
+    "other": "BI 问数的候选指标重复"
   },
   "legacy.error.ad3e7934969052c3": {
     "other": "删除消息模板失败"
@@ -4528,6 +4540,9 @@
   },
   "legacy.error.bcaa9e13cd412734": {
     "other": "移动端根目录下只能创建标签页菜单"
+  },
+  "legacy.error.bcb0b5cc32774b96": {
+    "other": "BI 问数的候选指标数量无效"
   },
   "legacy.error.bcda2ee361a79c60": {
     "other": "手机号授权凭据无效"
@@ -5692,6 +5707,9 @@
   },
   "legacy.error.f729b50ce3ce3983": {
     "other": "只能编辑最后一条消息"
+  },
+  "legacy.error.f731ed0c4a6a24c1": {
+    "other": "BI 问数的候选指标不可用"
   },
   "legacy.error.f73c86935008d65a": {
     "other": "规则参数无效"

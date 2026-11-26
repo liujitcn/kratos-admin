@@ -84,9 +84,30 @@ type AskOutput struct {
 		Orders          []AskOrder          `json:"orders"`
 		Limit           int32               `json:"limit"`
 	} `json:"query"`
-	ChartType string `json:"chart_type"`
-	Title     string `json:"title"`
-	Error     string `json:"error"`
+	ChartType     string                  `json:"chart_type"`
+	Title         string                  `json:"title"`
+	Error         string                  `json:"error"`
+	Clarification *AskMetricClarification `json:"clarification"`
+}
+
+// AskMetricClarification 是问数模型提出的候选数据源与指标编码。
+type AskMetricClarification struct {
+	SourceCode   string   `json:"source_code"`
+	MeasureCodes []string `json:"measure_codes"`
+}
+
+// AiMetricClarification 是按当前访问范围核实后返回给对话的真实指标选项。
+type AiMetricClarification struct {
+	SourceCode string           `json:"source_code"`
+	SourceName string           `json:"source_name"`
+	Options    []AiMetricOption `json:"options"`
+}
+
+// AiMetricOption 暴露语义目录中的稳定编码、展示名称及单位。
+type AiMetricOption struct {
+	Code string `json:"code"`
+	Name string `json:"name"`
+	Unit string `json:"unit,omitempty"`
 }
 
 // AskMeasure 模型选择的固定公共指标。

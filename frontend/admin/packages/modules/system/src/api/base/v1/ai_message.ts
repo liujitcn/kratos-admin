@@ -61,7 +61,7 @@ export async function SendAiMessageStream(request: SendAiMessageRequest, options
   });
 
   // direct stream 不经过 axios 响应拦截器，需要在这里补齐登录失效处理。
-  if (response.status === 401 || response.status === 403) {
+  if (response.status === 401) {
     handleAuthExpired();
     throw new Error(t("core.auth.session_expired"));
   }

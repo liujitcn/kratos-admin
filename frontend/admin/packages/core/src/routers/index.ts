@@ -88,7 +88,7 @@ router.beforeEach(async to => {
     };
   }
 
-  if ((to.name === "AiChat" || to.name === "BiAssistant") && !configStore.aiEnabled) return { path: "/404", replace: true };
+  if (to.name === "BiAssistant" && !configStore.aiEnabled) return { path: "/404", replace: true };
 
   // 5.如果没有菜单列表，就重新请求菜单列表并添加动态路由
   if (!authStore.authMenuListGet.length) {

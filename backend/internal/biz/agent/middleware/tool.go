@@ -262,8 +262,7 @@ func (h *ToolMetricsHandler) WrapInvokableToolCall(
 		if err != nil {
 			call.Status = "error"
 			log.Error(fmt.Sprintf("Agent tool execution failed name=%s err=%v", name, err))
-			call.Error = toolFailureMessage(ctx, name, h.localizeMessage)
-			call.Output = MarshalToolError(call.Error)
+			call.Error, call.Output = describeToolFailure(err, toolFailureMessage(ctx, name, h.localizeMessage))
 			callback.EmitActivity(ctx, callback.Activity{
 				ID:        toolActivityID(tCtx, name),
 				Phase:     "tool",
@@ -273,11 +272,9 @@ func (h *ToolMetricsHandler) WrapInvokableToolCall(
 				ToolTitle: title,
 			})
 			recordToolCall(ctx, call)
-			if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
-				return call.Output, fmt.Errorf("外部操作结果未知，已停止后续调用；请先核实结果，不能自动重试: %w", err)
-			}
-			if _, ok := errors.AsType[net.Error](err); ok {
-				return call.Output, fmt.Errorf("外部网络请求结果未知，不能自动重试: %w", err)
+			_, networkError := errors.AsType[net.Error](err)
+			if errors.Is(err, ErrToolOutcomeUnknown) || errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) || networkError {
+				return call.Output, fmt.Errorf("已停止后续调用，请先核实外部结果: %w: %w", ErrToolOutcomeUnknown, err)
 			}
 			return call.Output, nil
 		}

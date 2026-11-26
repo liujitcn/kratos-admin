@@ -62,7 +62,7 @@ const filtered = computed(() => sessions.value.filter(item => item.title.include
     file: "ai/Ai.vue",
     description: "管理端顶部的 AI 助手入口，按功能开关和当前账号菜单权限显示。",
     usage:
-      "System 模块已经将该组件注册为 headerTools，无需在业务页面重复挂载。组件没有业务 props；依赖 configStore.aiEnabled 与名为 AiChat 的授权菜单，点击后进入真实助手页面，因此这里提供注册说明。",
+      "System 模块已将该组件注册为 headerTools。组件根据授权菜单打开助手页面，无可用模型时仍可进入 AI 对话。",
     code: `import { systemAdminModule } from "@liujitcn/kratos-admin-system";
 
 // 将 System 模块交给应用的模块配置，即可注册 AI 顶部入口。

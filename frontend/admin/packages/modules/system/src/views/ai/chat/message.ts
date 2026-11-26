@@ -297,9 +297,11 @@ export function ensureStreamingMessage(current: ChatMessageItem[], payload: AiSt
   if (current.some(item => item.streamKey === streamKey)) return current;
 
   const pendingStreamKey = buildPendingStreamMessageKey(sessionID);
-  const next = current.map<ChatMessageItem>(item =>
-    item.streamKey === pendingStreamKey ? { ...item, id: messageID, key: `${messageID}:ai`, streamKey } : item
-  );
+  const next = current.map<ChatMessageItem>(item => {
+    // 刷新后加载的正式气泡同样接收活动补读，避免再插入一个助手气泡。
+    if (item.role !== "ai" || (item.id !== messageID && item.streamKey !== pendingStreamKey)) return item;
+    return { ...item, id: messageID, key: `${messageID}:ai`, streamKey };
+  });
   if (next.some(item => item.streamKey === streamKey)) return next;
 
   return sortMessages([...next, createThinkingMessage({ sessionID, messageID })]);
@@ -326,6 +328,9 @@ export function markAIMessageRegenerating(current: ChatMessageItem[], sessionID:
       ],
       fallback: false,
       fallback_reason: "",
+      blocks: item.blocks?.filter(block => block.type === "branch_origin"),
+      attachments: [],
+      recovery: undefined,
       token: normalizeToken(),
       tools: [],
       first_token_ms: 0,
@@ -374,7 +379,10 @@ export function replacePendingMessages(current: ChatMessageItem[], nextMessages:
     messageMap.set(String(item.key ?? `${item.id}:${item.role}`), item);
   }
   for (const item of nextMessages) {
-    const nextItem = item.role === "ai" && activityHistory.length > 0 ? { ...item, activities: activityHistory } : item;
+    const nextItem =
+      item.role === "ai" && activityHistory.length > 0 && String(item.id) === String(payload?.message_id)
+        ? { ...item, activities: activityHistory }
+        : item;
     messageMap.set(String(nextItem.key ?? `${nextItem.id}:${nextItem.role}`), nextItem);
   }
 
@@ -382,30 +390,14 @@ export function replacePendingMessages(current: ChatMessageItem[], nextMessages:
 }
 
 /** 标记思考中消息失败，可按当前轮次限定失败范围。 */
-export function markThinkingMessageFailed(current: ChatMessageItem[], options?: { sessionID?: string; messageID?: string }) {
-  const streamKey = options?.sessionID && options.messageID ? buildStreamMessageKey(options.sessionID, options.messageID) : "";
-  return current.map<ChatMessageItem>(item => {
-    if (!item.localOnly) return item;
-    if (streamKey && item.streamKey !== streamKey) return item;
-    if (item.role === "user" && !streamKey) {
-      return {
-        ...item,
-        progressState: "failed",
-        status: AiMessageStatus.AI_MESSAGE_STATUS_FAILED
-      };
-    }
-    if (item.progressState !== "streaming") return item;
-    return {
-      ...item,
-      progressState: "failed",
-      status: AiMessageStatus.AI_MESSAGE_STATUS_FAILED,
-      content: t("system.ai.chat.message.reply_failed"),
-      replySourceTag: { text: t("system.ai.chat.status.send_failed"), tone: "warning" },
-      activities: item.activities?.map(activity =>
-        activity.status === "running" ? { ...activity, status: "failed" as const } : activity
-      )
-    };
-  });
+export function markThinkingMessageFailed(current: ChatMessageItem[], sessionID: string, error: string): ChatMessageItem[] {
+  const streamKey = buildPendingStreamMessageKey(sessionID);
+  const user = current.findLast(item => item.localOnly && item.role === "user" && item.status === AiMessageStatus.AI_MESSAGE_STATUS_GENERATING);
+  return current.filter(item => item.streamKey !== streamKey).map(item =>
+    item === user
+      ? { ...item, progressState: "failed", status: AiMessageStatus.AI_MESSAGE_STATUS_FAILED, sendError: error }
+      : item
+  );
 }
 
 /** 判断流式增量是否包含可追加内容。 */
@@ -475,13 +467,13 @@ export function markStreamingError(current: ChatMessageItem[], payload: AiStream
   const messageID = String(payload.message_id ?? "");
   const streamKey = messageID ? buildStreamMessageKey(String(payload.session_id ?? ""), messageID) : "";
   return current.map<ChatMessageItem>(item => {
-    if (!item.localOnly) return item;
+    if (item.role !== "ai") return item;
     if (streamKey && item.streamKey !== streamKey) return item;
     return {
       ...item,
       progressState: "failed",
       status: AiMessageStatus.AI_MESSAGE_STATUS_FAILED,
-      content: t("system.ai.chat.message.reply_failed"),
+      content: item.content === thinkingMessageContent() ? "" : item.content,
       replySourceTag: { text: t("system.ai.chat.status.send_failed"), tone: "warning" },
       activities: item.activities?.map(activity =>
         activity.status === "running" ? { ...activity, status: "failed" as const } : activity

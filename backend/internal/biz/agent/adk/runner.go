@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"time"
 
 	"github.com/cloudwego/eino/adk"
 	"github.com/cloudwego/eino/adk/middlewares/dynamictool/toolsearch"
@@ -213,6 +214,11 @@ func (r *Runner) newAgent(ctx context.Context, request Request) (*adk.TypedChatM
 	filter.ResolveToolInfos = request.ResolveToolInfos
 	filter.AllowToolSearch = request.DynamicTools && len(request.Tools) > 0
 	handlers = append(handlers, filter, middleware.NewToolMetricsHandler(toolTitleResolver(infos), request.LocalizeMessage))
+	var retryConfig *adk.TypedModelRetryConfig[*schema.AgenticMessage]
+	// ADK 的流式重试会先读完整条模型流，影响增量时序，也可能重放已送出的片段。
+	if !request.ModelStreaming {
+		retryConfig = middleware.ModelRetryConfig(middleware.ModelRetryOptions{MaxRetries: 1})
+	}
 	return adk.NewTypedChatModelAgent(ctx, &adk.TypedChatModelAgentConfig[*schema.AgenticMessage]{
 		Name:        r.name,
 		Description: r.description,
@@ -224,7 +230,7 @@ func (r *Runner) newAgent(ctx context.Context, request Request) (*adk.TypedChatM
 			},
 		},
 		Handlers:         handlers,
-		ModelRetryConfig: middleware.ModelRetryConfig(middleware.ModelRetryOptions{MaxRetries: 1}),
+		ModelRetryConfig: retryConfig,
 		MaxIterations:    defaultMaxIterations,
 	})
 }
@@ -266,7 +272,11 @@ func consumeEvents(ctx context.Context, iter *adk.AsyncIterator[*adk.TypedAgentE
 		messageOutput := event.Output.MessageOutput
 		// 流式输出需要逐 chunk 消费，并在消费过程中透传文本增量给 SSE。
 		if messageOutput.IsStreaming {
+			startedAt := time.Now()
 			currentMessage, err := consumeMessageStream(ctx, messageOutput.MessageStream, onDelta, stream, &streamText)
+			if messageOutput.AgenticRole == schema.AgenticRoleTypeAssistant {
+				callback.FromContext(ctx).RecordModelStream(currentMessage, time.Since(startedAt), err)
+			}
 			if err != nil {
 				return nil, nil, err
 			}
@@ -321,19 +331,18 @@ func consumeMessageStream(
 	// 透传开关在流开始时确定：部分网关先发完整消息事件（已整段透传），后续流式 chunk 不再重复透传；
 	// 正常流式网关在本流内逐 chunk 透传，不受此开关影响。
 	deltaDisabled := streamText.Len() > 0
+	var readErr error
 	for {
-		chunk, err := reader.Recv()
+		var chunk *schema.AgenticMessage
+		chunk, readErr = reader.Recv()
 		// io.EOF 是正常流结束信号，不应作为模型调用错误返回。
-		if errors.Is(err, io.EOF) {
-			break
-		}
 		// 部分 OpenAI 兼容网关会在 completed 事件后直接断开 SSE，忽略此时的非标准 EOF。
-		if errors.Is(err, io.ErrUnexpectedEOF) && hasCompletedOpenAIResponse(chunks) {
+		if errors.Is(readErr, io.EOF) || errors.Is(readErr, io.ErrUnexpectedEOF) && hasCompletedOpenAIResponse(chunks) {
+			readErr = nil
 			break
 		}
-		// 真实流错误需要向上返回，由调用层决定是否失败或重试。
-		if err != nil {
-			return nil, err
+		if readErr != nil {
+			break
 		}
 		// 空 chunk 不携带文本或工具信息，忽略后继续等待后续片段。
 		if chunk == nil {
@@ -360,9 +369,13 @@ func consumeMessageStream(
 	}
 	// 没有收到任何 chunk 时返回 nil，让上层继续等待其他 ADK 事件。
 	if len(chunks) == 0 {
-		return nil, nil
+		return nil, readErr
 	}
-	return message.Concat(chunks)
+	merged, err := message.Concat(chunks)
+	if readErr != nil {
+		return merged, readErr
+	}
+	return merged, err
 }
 
 // emitReasoningSummary 将 Eino 推理摘要转换为可展示活动，原始推理扩展不会进入摘要字段。

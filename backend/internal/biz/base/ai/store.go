@@ -295,7 +295,7 @@ func (e *KnowledgeEngine) SearchChunks(ctx context.Context, knowledgeBaseID int6
 		return nil, err
 	}
 	docQuery := e.docRepo.Query(ctx).AiKnowledgeDoc
-	docs, err := e.docRepo.List(ctx, repository.Where(docQuery.KnowledgeBaseID.Eq(knowledgeBaseID)))
+	docs, err := e.docRepo.List(ctx, repository.Where(docQuery.KnowledgeBaseID.Eq(knowledgeBaseID), docQuery.Status.Eq(DocStatusReady)))
 	if err != nil {
 		return nil, err
 	}
@@ -309,7 +309,8 @@ func (e *KnowledgeEngine) SearchChunks(ctx context.Context, knowledgeBaseID int6
 		docNames[doc.ID] = doc.Name
 	}
 	chunkQuery := e.chunkRepo.Query(ctx).AiKnowledgeChunk
-	chunks, err := e.chunkRepo.List(ctx,
+	var chunks []*Chunk
+	chunks, err = e.chunkRepo.List(ctx,
 		repository.Where(chunkQuery.DocID.In(docIDs...)),
 		repository.Order(chunkQuery.ID.Asc()),
 	)
@@ -318,9 +319,15 @@ func (e *KnowledgeEngine) SearchChunks(ctx context.Context, knowledgeBaseID int6
 	}
 	hits := make([]*ChunkHit, 0, topK)
 	for _, chunk := range chunks {
-		embedding, parseErr := unmarshalVector(chunk.Embedding)
-		if parseErr != nil {
-			log.Warn("知识库切片向量解析失败，跳过该切片", "chunk_id", chunk.ID, "error", parseErr)
+		var embedding []float32
+		embedding, err = unmarshalVector(chunk.Embedding)
+		if err != nil {
+			log.Warn("知识库切片向量解析失败，跳过该切片", "chunk_id", chunk.ID, "error", err)
+			continue
+		}
+		score := cosineSimilarity(vector, embedding)
+		insertAt := sort.Search(len(hits), func(i int) bool { return hits[i].Score < score })
+		if insertAt == topK {
 			continue
 		}
 		item := &ChunkHit{
@@ -328,21 +335,11 @@ func (e *KnowledgeEngine) SearchChunks(ctx context.Context, knowledgeBaseID int6
 			DocID:   chunk.DocID,
 			DocName: docNames[chunk.DocID],
 			Content: chunk.Content,
-			Score:   cosineSimilarity(vector, embedding),
+			Score:   score,
 		}
 		if len(hits) < topK {
-			hits = append(hits, item)
-			if len(hits) == topK {
-				sort.Slice(hits, func(i, j int) bool { return hits[i].Score > hits[j].Score })
-			}
-			continue
+			hits = append(hits, nil)
 		}
-		// 容量已满时替换最小分项并保持有序。
-		insertAt := sort.Search(len(hits), func(i int) bool { return hits[i].Score < item.Score })
-		if insertAt == 0 {
-			continue
-		}
-		hits = append(hits, nil)
 		copy(hits[insertAt+1:], hits[insertAt:])
 		hits[insertAt] = item
 	}

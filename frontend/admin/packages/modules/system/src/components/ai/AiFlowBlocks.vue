@@ -17,8 +17,24 @@
       :message="renderer.message"
       :active-flow-message-id="activeFlowMessageId"
       @flow-action="forwardFlowAction"
+      @fill-draft="emit('fill-draft', $event)"
+      @block-saved="emit('block-saved', $event)"
     />
   </template>
+  <section v-for="(block, index) in fallbackBlocks" :key="index" class="ai-flow-fallback">
+    <strong v-if="block.title">{{ block.title }}</strong>
+    <p v-if="block.desc">{{ block.desc }}</p>
+    <el-button
+      v-if="block.action?.type && block.label"
+      type="primary"
+      plain
+      size="small"
+      :disabled="block.disabled || !isFlowActionFromMessage(block.action, activeFlowMessageId)"
+      @click="forwardFlowAction(block.action, block.label)"
+    >
+      {{ block.label }}
+    </el-button>
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -41,6 +57,10 @@ const props = defineProps<{
 const emit = defineEmits<{
   /** 将业务组件触发的流程动作交回聊天页面。 */
   "flow-action": [action: AiAction, label?: string];
+  /** 将业务组件提供的问题写入当前聊天草稿。 */
+  "fill-draft": [text: string];
+  /** 将业务组件创建的资源交给聊天入口。 */
+  "block-saved": [value: unknown];
 }>();
 
 const shortcutActions = computed(() =>
@@ -58,6 +78,15 @@ const renderedBlocks = computed(() =>
   })
 );
 
+const hostBlockTypes = new Set(["shortcut_confirm", "knowledge_sources", "approval_outcome", "reply_error", "branch_origin", "generated_file_issue"]);
+const fallbackBlocks = computed(() =>
+  (props.message.blocks ?? []).filter(block =>
+    !hostBlockTypes.has(block.type) &&
+    (typeof block.title === "string" || typeof block.desc === "string") &&
+    !props.renderers.some(renderer => !renderer.types?.length || renderer.types.includes(block.type))
+  )
+);
+
 /** 按渲染器声明筛选流程块，未声明类型的旧组件继续接收全部块。 */
 function selectBlocks(blocks: AIFlowBlock[], renderer: AdminAiFlowBlockRenderer) {
   if (!renderer.types?.length) return blocks;
@@ -73,6 +102,16 @@ function forwardFlowAction(action: AiAction, label?: string) {
 
 <style scoped>
 .shortcut-confirm-action {
-  margin: 8px 0;
+  justify-self: start;
+}
+.ai-flow-fallback {
+  padding: 10px 12px;
+  border: 1px solid var(--admin-page-divider);
+  border-radius: var(--admin-page-radius);
+  font-size: 13px;
+}
+.ai-flow-fallback p {
+  margin: 4px 0 0;
+  color: var(--admin-page-text-secondary);
 }
 </style>

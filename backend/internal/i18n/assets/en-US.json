@@ -1265,6 +1265,9 @@
   "legacy.error.19e303eaf75621aa": {
     "other": "The BI time range is unavailable"
   },
+  "legacy.error.19e3bfd1d3c2d6c5": {
+    "other": "Choose the metric definition for this query."
+  },
   "legacy.error.19e59ded36bccdee": {
     "other": "The automation is running or awaiting approval. Its result conversation cannot be deleted"
   },
@@ -1603,6 +1606,9 @@
   },
   "legacy.error.29fe5b349e7c8101": {
     "other": "Post is disabled and cannot be selected"
+  },
+  "legacy.error.2a02cef7ec9afb8a": {
+    "other": "The original request included an approved operation. Verify its result before sending a new request."
   },
   "legacy.error.2a1913450ed9f8d0": {
     "other": "The dictionary code already exists"
@@ -3977,6 +3983,9 @@
   "legacy.error.a14efca145af09f5": {
     "other": "A button or external link cannot be a parent menu"
   },
+  "legacy.error.a16f0922dd140e67": {
+    "other": "The candidate data source for the BI query is unavailable."
+  },
   "legacy.error.a172626b5bd5ea56": {
     "other": "The source is referenced by cards. Remove the references first."
   },
@@ -4183,6 +4192,9 @@
   },
   "legacy.error.ac6310ee83bcf7f9": {
     "other": "Only workflow participants or administrators can retry scripts"
+  },
+  "legacy.error.aca8d444545b6368": {
+    "other": "The BI query has duplicate candidate metrics."
   },
   "legacy.error.ad3e7934969052c3": {
     "other": "Failed to delete the message template"
@@ -4528,6 +4540,9 @@
   },
   "legacy.error.bcaa9e13cd412734": {
     "other": "Only tab menus can be created under the mobile root directory"
+  },
+  "legacy.error.bcb0b5cc32774b96": {
+    "other": "The BI query has an invalid number of candidate metrics."
   },
   "legacy.error.bcda2ee361a79c60": {
     "other": "Invalid phone authorization credential"
@@ -5692,6 +5707,9 @@
   },
   "legacy.error.f729b50ce3ce3983": {
     "other": "Only the last message can be edited"
+  },
+  "legacy.error.f731ed0c4a6a24c1": {
+    "other": "A candidate metric for the BI query is unavailable."
   },
   "legacy.error.f73c86935008d65a": {
     "other": "Rule parameter is invalid"

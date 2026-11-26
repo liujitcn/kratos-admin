@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/dto"
 )
 
 // InputContentPayload 表示 AI 助手用户输入内容 JSON 结构。
@@ -26,6 +27,8 @@ type InputContentPayload struct {
 	ShortcutAction *basev1.AiAction `json:"shortcut_action,omitempty"`
 	// ShortcutResult 保存继续执行时从来源消息读取的结果。
 	ShortcutResult string `json:"shortcut_result,omitempty"`
+	// BranchOrigin 随复制的锚点保存，独立于可以重新生成的输出。
+	BranchOrigin *dto.AiBranchOriginBlock `json:"branch_origin,omitempty"`
 }
 
 // OutputContentPayload 表示 AI 助手输出内容 JSON 结构。

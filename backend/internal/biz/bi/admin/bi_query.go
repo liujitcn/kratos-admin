@@ -17,6 +17,7 @@ import (
 	"github.com/liujitcn/gorm-kit/repository"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/bi/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/message"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/middleware"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/structured"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/bi/admin/dto"
@@ -123,11 +124,15 @@ func (c *BiQueryCase) AskBiQuery(ctx context.Context, req *adminv1.AskBiQueryReq
 	}
 	// 对话工具沿用运行时已选模型，避免工具参数改写本轮模型选择。
 	client := agent.AssistantClientFromContext(ctx)
+	clarificationPrompt := ""
 	if client == nil {
 		client, err = c.modelStore.ResolveAssistantClient(req.GetProviderId(), req.GetModelName())
 		if err != nil {
 			return nil, errorsx.InvalidArgument("AI供应商或模型选择无效").WithCause(err)
 		}
+	} else {
+		clarificationPrompt = `
+只有问题未指定口径、同一数据源有 2 至 4 个均符合原问题的不同指标时，单独输出 {"clarification":{"source_code":"目录中的数据源编码","measure_codes":["指标编码1","指标编码2"]}}，等待用户选择。有明确指标名称或编码时直接按选定口径生成查询。缺少所需指标或维度时返回 error，不要列出无关指标。`
 	}
 	var dictionary []byte
 	dictionary, err = json.Marshal(descriptors)
@@ -146,7 +151,7 @@ chart_type 只支持 bar、line、area、pie、donut、scatter、radar、gauge�
 按日、周、月、季度、年统计，必须将目录中支持该粒度的日期维度放入 dimensions，并在 grouping_options 中加 {"field":"同一维度编码","time_grain":"month"}（其他粒度选 day、week、quarter、year）。请求按一级或二级部门时选择支持 hierarchyLevels 的部门维度，加 {"field":"同一维度编码","hierarchy_level":2}，按用户所问选择 1 或 2。两类分组可以组合。不得用原始时间或直属部门冒充。时间趋势默认按日期升序；组合统计默认按最大允许结果数请求，避免提前截断。
 有日期粒度的配置数据源按整日或自然周期筛选时，time_range 使用左闭右开区间，明确写 "end_exclusive":true；例如第一季度从 2026-01-01 到 2026-04-01。近30天这类滚动范围可使用 now-30d 至 now。使用当前时间和数据源报表时区解释相对日期。
 要求今年截至当前这样的滚动统计时，使用 "start":"start_of_year","end":"now","end_exclusive":true，卡片刷新时会按报表时区重新计算。用户指定具体年份或固定日期时使用实际日期。
-指标只能选择目录中的固定编码，不得输出 aggregation 或 SQL；统计总数时 dimensions 为空，选择目录中表示数量的固定指标。无过滤或排序需求时使用空数组；无时间范围需求时 time_range 为 null，否则使用 {"field":"时间维度编码","start":"开始时间","end":"结束时间"}。`),
+指标只能选择目录中的固定编码，不得输出 aggregation 或 SQL；统计总数时 dimensions 为空，选择目录中表示数量的固定指标。无过滤或排序需求时使用空数组；无时间范围需求时 time_range 为 null，否则使用 {"field":"时间维度编码","start":"开始时间","end":"结束时间"}。` + clarificationPrompt),
 		message.UserText("可用数据源目录:" + string(dictionary) + "\n当前时间:" + time.Now().Format(time.RFC3339) + "\n用户问题:" + question),
 	})
 	if err != nil {
@@ -159,6 +164,9 @@ chart_type 只支持 bar、line、area、pie、donut、scatter、radar、gauge�
 	// 模型判定问题无法回答时返回 error 字段，应直接透传拒绝原因而不是当作空查询计划校验。
 	if output.Error != "" {
 		return nil, errorsx.InvalidArgument(output.Error)
+	}
+	if output.Clarification != nil && clarificationPrompt != "" {
+		return nil, c.clarifyAskMetric(ctx, scope, descriptors, output.Clarification)
 	}
 	if output.Query.SourceCode == "" || len(output.Query.Measures) == 0 {
 		return nil, errorsx.InvalidArgument("BI 问数未生成完整查询计划，请检查数据源是否配置了所需指标和维度")
@@ -228,6 +236,42 @@ chart_type 只支持 bar、line、area、pie、donut、scatter、radar、gauge�
 		ChartType: output.ChartType,
 		Title:     output.Title,
 	}, nil
+}
+
+// clarifyAskMetric 校验候选指标及数据源访问权，不运行查询并要求用户选择口径。
+func (c *BiQueryCase) clarifyAskMetric(ctx context.Context, scope bi.Scope, descriptors []bi.SourceDescriptor, candidate *dto.AskMetricClarification) error {
+	if len(candidate.MeasureCodes) < 2 || len(candidate.MeasureCodes) > 4 {
+		return errorsx.InvalidArgument("BI 问数的候选指标数量无效")
+	}
+	index := slices.IndexFunc(descriptors, func(source bi.SourceDescriptor) bool { return source.Code == candidate.SourceCode })
+	if index < 0 {
+		return errorsx.InvalidArgument("BI 问数的候选数据源不可用")
+	}
+	source := descriptors[index]
+	clarification := dto.AiMetricClarification{SourceCode: source.Code, SourceName: source.Name}
+	spec := bi.QuerySpec{SourceCode: source.Code, Limit: 1}
+	seen := make(map[string]bool, len(candidate.MeasureCodes))
+	for _, code := range candidate.MeasureCodes {
+		if seen[code] {
+			return errorsx.InvalidArgument("BI 问数的候选指标重复")
+		}
+		seen[code] = true
+		index = slices.IndexFunc(source.Measures, func(metric bi.MeasureDescriptor) bool { return metric.Code == code })
+		if index < 0 {
+			return errorsx.InvalidArgument("BI 问数的候选指标不可用")
+		}
+		metric := source.Measures[index]
+		clarification.Options = append(clarification.Options, dto.AiMetricOption{Code: metric.Code, Name: metric.Name, Unit: metric.Unit})
+		spec.Measures = append(spec.Measures, bi.MeasureSpec{Code: code})
+	}
+	if _, err := c.biSourceCase.compile(ctx, scope, spec); err != nil {
+		return err
+	}
+	return middleware.WithToolErrorDetails(
+		errorsx.InvalidArgument("请选择要查询的指标口径"),
+		"The question needs a metric choice. Ask the user to choose one of the listed options before running the query again.",
+		map[string]any{"bi_metric_clarification": clarification},
+	)
 }
 
 // findReusableQueryRecord 仅复用同一访问范围和查询计划的成功智能问数记录，排除普通预览与仪表盘执行。

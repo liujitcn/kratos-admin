@@ -75,3 +75,39 @@ test("审批要求后同一条流仍可接收最终消息", async () => {
   release[0]();
   await run;
 });
+
+test("断线保留正文并继续补读同一条消息，手动恢复不会重发请求", async () => {
+  const source = await readFile(join(process.cwd(), "src/components/ai/useAiChatStream.ts"), "utf8");
+  const body = stripTypeScriptTypes(source.replace(/^import[\s\S]*?;\n/gm, "").replace("export function", "function"));
+  const message = { id: "2", role: "ai", key: "2:ai", content: "已收到的正文", progressState: "streaming", recovery: "" };
+  const messages = { value: { "1": [message] } };
+  const recoveryStates: string[] = [];
+  let sent = 0;
+  const create = new Function(
+    "onBeforeUnmount", "defAiMessageService", "readAiEventStream", "readAiMessageEvents", "ensureStreamingMessage",
+    "upsertStreamingActivity", "t", `${body}; return useAiChatStream;`
+  )(
+    () => undefined,
+    { StreamAiMessage: async () => { sent++; return { body: {} }; } },
+    async (_body: unknown, handler: (event: AiStreamEvent) => void) => {
+      handler({ event: "activity", payload: { session_id: "1", message_id: "2" } });
+      throw new Error("断流");
+    },
+    async () => {
+      const item = messages.value["1"][0];
+      assert.equal(item.content, "已收到的正文");
+      recoveryStates.push(item.recovery);
+      throw new Error("暂时无法补读");
+    },
+    (current: unknown) => current,
+    (current: unknown) => current,
+    (key: string) => key
+  );
+  const chat = create({ messages, setSessionSending: () => undefined });
+  await chat.run("1", { text: "test", attachments: [] }, { providerID: 1, modelName: "test", knowledgeBaseIDs: [] });
+  assert.equal(messages.value["1"][0].recovery, "disconnected");
+  await chat.recover("1", "2");
+  assert.deepEqual(recoveryStates, ["reconnecting", "reconnecting"]);
+  assert.equal(sent, 1);
+  assert.equal(messages.value["1"][0].recovery, "disconnected");
+});

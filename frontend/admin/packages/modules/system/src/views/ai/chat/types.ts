@@ -102,7 +102,7 @@ export type ChatMessageItem = AiMessage & {
   blocksJson?: string;
   /** 已解析的结构化卡片。 */
   blocks?: AIFlowBlock[];
-  /** BubbleList 稳定渲染键。 */
+  /** 消息列表的稳定渲染键。 */
   key: string;
   /** 气泡左右位置。 */
   placement: "start" | "end";
@@ -126,6 +126,10 @@ export type ChatMessageItem = AiMessage & {
   speaking?: boolean;
   /** 当前轮次的运行活动时间线。 */
   activities?: AiActivityItem[];
+  /** 断流后仅查询该轮执行的恢复状态。 */
+  recovery?: "reconnecting" | "disconnected";
+  /** 消息尚未收到服务端确认时的发送错误。 */
+  sendError?: string;
 };
 
 /** AI 助手 direct stream SSE 事件名称。 */
