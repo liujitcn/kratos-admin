@@ -80,4 +80,17 @@ test("补读在 events 省略时继续轮询，只有权威消息决定终态", 
     () => true
   );
   assert.deepEqual(queries, ["", "8"]);
+
+  const terminal: AiStreamEvent[] = [];
+  let requests = 0;
+  await readAiMessageEvents(
+    async () => {
+      assert.equal(++requests, 1, "已有权威终态，剩余活动不能延迟展示");
+      return { ...page, has_more: true };
+    },
+    event => terminal.push(event),
+    () => false
+  );
+  assert.equal(requests, 1);
+  assert.deepEqual(terminal.map(item => item.event), ["error"]);
 });

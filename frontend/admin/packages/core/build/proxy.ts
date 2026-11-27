@@ -21,6 +21,14 @@ export function createProxy(list: ProxyList = []) {
       target: target,
       changeOrigin: true,
       ws: true,
+      configure(proxy) {
+        proxy.on("proxyRes", (upstream, _, downstream) => {
+          // 上游在响应体发送完毕前断开时，通知浏览器结束等待并进入恢复流程。
+          upstream.once("close", () => {
+            if (!upstream.complete) downstream.destroy();
+          });
+        });
+      },
       // https is require secure=false
       ...(isHttps ? { secure: false } : {})
     };

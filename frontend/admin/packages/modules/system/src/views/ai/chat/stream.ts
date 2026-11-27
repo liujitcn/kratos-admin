@@ -151,14 +151,13 @@ export async function readAiMessageEvents(
     for (const item of page.events ?? []) {
       if (item.run_id !== page.run_id) continue;
       const event = normalizeAiStreamItem({ event: item.event, id: item.id, data: item.payload });
-      if (event) {
+      if (event?.event === "activity") {
         event.payload.run_id = item.run_id;
         event.payload.event_id = item.id;
         consume(event);
       }
     }
     cursor = page.next_cursor || cursor;
-    if (page.has_more) continue;
     const current = page.messages[0];
     if (!current) throw new Error("AI message snapshot is missing");
     if (current.status !== 1) {
@@ -174,6 +173,7 @@ export async function readAiMessageEvents(
       });
       return;
     }
+    if (page.has_more) continue;
     await new Promise<void>(resolve => setTimeout(resolve, 1000));
   }
 }
