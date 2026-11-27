@@ -155,11 +155,16 @@ function toggleWrap() {
   });
 }
 
-/** 复制编辑器全文并短暂反馈复制结果。 */
+/** 复制选中的 YAML，无选区时复制全文，并短暂反馈复制结果。 */
 async function copyCode() {
-  const code = editor?.state.doc.toString() ?? "";
+  if (!editor) return;
+  const { state } = editor;
+  const selectedText = state.selection.ranges
+    .filter(range => !range.empty)
+    .map(({ from, to }) => state.sliceDoc(from, to))
+    .join(state.lineBreak);
   try {
-    await copyText(code);
+    await copyText(selectedText || state.sliceDoc());
   } catch {
     ElMessage.error(t("core.markdown.message.copy_failed"));
     return;
